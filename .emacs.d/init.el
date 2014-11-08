@@ -7,6 +7,7 @@
 (add-to-list 'load-path (expand-file-name "lib" *.emacs.d.lisp.dir*  ))
 (require 'config/constants.el)
 
+
 ;; 2: (re-)define keybindings
 (message (format "[*] set keybindings"))
 (require 'config/keybindings.el)
