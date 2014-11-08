@@ -44,6 +44,13 @@
 
 ;; --------------------------------------------------------
 
+
+(defconst *is-nt*    (string-equal system-type "windows-nt"))
+(defconst *is-mac*   (string-equal system-type "darwin"))
+(defconst *is-linux* (string-equal system-type "gnu/linux"))
+(defconst *is-24.3* (not (version< emacs-version "24.3")))
+(defconst *is-win*  window-system)
+
 (defconst *user-home-directory*
   (getenv-or "HOME" (concat (expand-file-name "~") "/"))
   "Path to user home directory.")
