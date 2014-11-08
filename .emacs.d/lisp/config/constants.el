@@ -42,6 +42,12 @@
   `(eval-after-load ,feature
      '(progn ,@body)))
 
+(defmacro with-executable (executable &rest body)
+  "If EXECUTABLE is available in path, evaluate BODY."
+  (declare (indent defun))
+  `(when (executable-find (symbol-name ,executable))
+     ,@body))
+
 ;; --------------------------------------------------------
 
 

@@ -27,10 +27,12 @@
   )
 
 ;; mavigate windows with arrow
-(windmove-default-keybindings 'meta)
+;;(windmove-default-keybindings 'meta)
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
+;; start magit
+(global-set-key (kbd "M-g")  'magit-status)
 
 ;;(global-set-key [M-up]  'scroll-up)
 ;;(global-set-key [M-down]  'scroll-down)
