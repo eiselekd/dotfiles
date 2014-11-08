@@ -10,6 +10,40 @@
            (expand-file-name (car dirs) root)
            (cdr dirs))))
 
+(defun load-all-files-from-dir (dir)
+  "Load all Emacs Lisp files in DIR."
+  (dolist (f (directory-files dir))
+    (when (and
+           (file-directory-p (path-join dir f))
+           (not (string= "." f))
+           (not (string= ".." f)))
+      (load-all-files-from-dir (path-join dir f)))
+    (when (and
+           (not (file-directory-p (path-join dir f)))
+           (not (string= ".#" (substring f 0 2)))
+           (string= ".el" (substring f (- (length f) 3))))
+      (load-file (path-join dir f)))))
+
+(defmacro try-eval (fn &optional finally)
+  "Safely evaluate expression FN and run FINALLY after."
+  `(unwind-protect
+       (let (retval)
+         (condition-case ex
+             (setq retval (progn ,fn))
+           ('error
+            (message (format "Caught exception: [%s]" ex))
+            (setq retval (cons 'exception (list ex)))))
+         retval)
+     ,@finally))
+
+(defmacro after-load (feature &rest body)
+  "After FEATURE is loaded, evaluate BODY."
+  (declare (indent defun))
+  `(eval-after-load ,feature
+     '(progn ,@body)))
+
+;; --------------------------------------------------------
+
 (defconst *user-home-directory*
   (getenv-or "HOME" (concat (expand-file-name "~") "/"))
   "Path to user home directory.")
