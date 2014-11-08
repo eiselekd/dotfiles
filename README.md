@@ -1,4 +1,5 @@
 dotfiles
 ========
 
-emacs dot files
+Emacs config.
+
