@@ -26,6 +26,10 @@
   (after-load 'popwin
     ;; Use popwin for Flycheck error list.
     (push '(flycheck-error-list-mode :stick t) popwin:special-display-config))
+
+  (after-load 'popwin
+    (push '(flymode-error-list-mode :stick t) popwin:special-display-config))
+
   
   (add-hook 'flycheck-mode-hook 'utils/flycheck-mode-hook)
   (add-hook 'flymake-mode-hook 'utils/flymake-mode-hook)

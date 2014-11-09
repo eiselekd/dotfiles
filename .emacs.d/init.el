@@ -8,8 +8,6 @@
 (if (version< emacs-version "24.3") (setq user-emacs-directory "~/.emacs.d/"))
 
 
-
-
 (defconst *.emacs.d.dir*
   (file-name-directory (or load-file-name buffer-file-name))
   "path to .emacs.d")
@@ -31,6 +29,7 @@
 (require 'ux/popups.el)
 (require 'utils/compile.el)
 (require 'utils/openfile.el)
+(require 'flymake-cursor)
 (require 'utils/flycheck.el)
 
 ;; 3: (re-)define keybindings
@@ -56,5 +55,7 @@
 ;;  (list-packages)
 ;;  (require 'mode-compile)
 ;; (require 'install-elisp)
-;; (install-elisp "https://raw.githubusercontent.com/emacsmirror/mode-compile/master/mode-compile.el" )
+;; (install-elisp "https://raw.githubusercontent.com/emacsmirror/mode-compile/master/mode-compile.el
+;; (install-elisp "http://www.emacswiki.org/emacs/download/flymake-cursor.el")
+;;" )
 ;;  )
