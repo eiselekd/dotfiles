@@ -1,6 +1,6 @@
 (defun apps/eshell-mode-hook ()
   "Mode hook for eshell."
-  (user/shell-mode-common-hook)
+  (apps/shell-mode-common-hook)
 
   (turn-on-eldoc-mode)
 
