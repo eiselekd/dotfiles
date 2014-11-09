@@ -2,7 +2,6 @@
 (defun utils/compilation-mode-hook ()
   "Cofind-gmpilation mode hook.")
 
-
 (defun utils/compilation-filter-hook ()
   "Hook for filtering compilation output."
   ;; Temporarily make buffer writable.
@@ -10,25 +9,12 @@
     ;; Colorize compilation output.
     (ansi-color-apply-on-region (point-min) (point-max))))
 
-(defun utils/ede-project (path)
-  "Get the EDE project for PATH."
-  (with-feature 'ede/cpp-root
-    (let ((project (ede-current-project (expand-file-name path))))
-      (when (and (featurep 'ede/cpp-root)
-                 (ede-cpp-root-project-p project))
-        project))))
-
 (defun utils/compile ()
   "Compile current context."
   (interactive)
-  (let ((ede-proj (utils/ede-project (path-abs-buffer))))
-    (cond
-     (ede-proj (project-compile-project ede-proj
-                                        (read-string "Build command: "
-                                                     (oref ede-proj compile-command))))
-     ((fboundp 'mode-compile) (call-interactively 'mode-compile))
-     (t (call-interactively 'compile)))))
-
+  (cond
+   ((fboundp 'mode-compile) (call-interactively 'mode-compile))
+   (t (call-interactively 'compile))))
 
 (defun utils/mode-compile-init ()
   "Initialize mode-compile."
@@ -64,8 +50,14 @@
   (if (file-exists-p *.cedet-root.el*)
       (progn 
 	(load-file *.cedet-root.el*)
-	(when (require 'ede nil t)
-	  (message "[*] cedet loaded"))
+	(when
+	    (and
+	     (require 'ede nil t)
+	     (require 'eieio nil t))
+	  (progn
+	    (global-ede-mode t)
+	    (message "[*] cedet loaded"))
+	  )
 	)
     )
   (when (require 'mode-compile nil t)
