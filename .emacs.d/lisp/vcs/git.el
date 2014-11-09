@@ -7,8 +7,8 @@
 
 (defun vcs/git-init ()
   "Initialize Git support."
-  ;;; (Packages) ;;;
-  (when (require 'magit nil 'noerror)
+  
+  (when (require 'magit nil t)
     (vcs/magit-init))
   )
 

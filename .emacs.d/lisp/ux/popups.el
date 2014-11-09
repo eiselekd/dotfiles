@@ -16,7 +16,7 @@
 (defun apps/popwin-init ()
   "Initialize popwin."
   (with-feature 'popwin
-
+    
     (message (format "[*] popwin init"))
     
     (popwin-mode t)
