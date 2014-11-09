@@ -15,14 +15,15 @@
 (message (format "[*] set keybindings"))
 (require 'config/keybindings.el)
 
-;; 2: load apps
+(require 'cl)
+;; 3: load apps
 (require 'vcs/git.el)
 (require 'apps/eshell.el)
 (require 'apps/proced.el)
 
 ;;(require 'ux/popups.el.el)
 
-;; 3: configure modes
+;; 4: configure modes
 (message (format "[*] config modes"))
 (require 'modes/c-mode.el)
 
