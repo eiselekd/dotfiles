@@ -13,7 +13,7 @@
   "Compile current context."
   (interactive)
   (cond
-   ((fboundp 'mode-compile) (call-interactively 'mode-compile))
+   ;;((fboundp 'mode-compile) (call-interactively 'mode-compile))
    (t (call-interactively 'compile))))
 
 (defun utils/mode-compile-init ()
@@ -64,9 +64,6 @@
     (utils/mode-compile-init))
   )
 
-(defun utils/compile-keybind ()
-    (global-set-key (kbd "<f10>") 'utils/compile))
-  
 (utils/compile-init)
 
 (provide 'utils/compile.el)

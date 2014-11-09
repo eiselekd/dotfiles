@@ -39,9 +39,19 @@
 (global-set-key (kbd "M-g")  'magit-status)
 ;; open file under cursor
 (global-set-key (kbd "M-1")  'xah-open-file-at-cursor)
+;; flycheck
+(global-set-key (kbd "M-f")  'flycheck-mode)
 
-
+(defun utils/compile-keybind ()
+    (global-set-key (kbd "<f10>") 'utils/compile))
 (utils/compile-keybind)
+
+(defun utils/flycheck-local-keybind ()
+  "Flycheck key bindings."
+  (message "[*] bind f5/f6 for flycheck")
+  (local-set-key (kbd "<f5>") 'flycheck-list-errors)
+  (local-set-key (kbd "<f6>") 'flycheck-next-error))
+
 
 ;;(global-set-key [M-up]  'scroll-up)
 ;;(global-set-key [M-down]  'scroll-down)

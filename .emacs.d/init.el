@@ -30,6 +30,7 @@
 (require 'ux/popups.el)
 (require 'utils/compile.el)
 (require 'utils/openfile.el)
+(require 'utils/flycheck.el)
 
 ;; 3: (re-)define keybindings
 (message (format "[*] set keybindings"))
@@ -46,9 +47,11 @@
 ;;  (require 'package)
 ;;  (package-initialize)
 ;;  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+;;  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 ;;(add-to-list 'package-archives           '("marmalade" . "http://marmalade-repo.org/packages/"))
 ;;(package-initialize)
 ;;(when (not package-archive-contents)  (package-refresh-contents))
+;; (package-install 'flycheck)
 ;;  (list-packages)
 ;;  (require 'mode-compile)
 ;; (require 'install-elisp)
