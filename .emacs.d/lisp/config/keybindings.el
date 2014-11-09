@@ -49,6 +49,9 @@
 
 (defun utils/compile-keybind ()
     (global-set-key (kbd "<f10>") 'utils/compile))
+(defun utils/debug-keybind ()
+    (global-set-key (kbd "<f11>") 'utils/debug))
+
 (utils/compile-keybind)
 
 (defun utils/flycheck-local-keybind ()

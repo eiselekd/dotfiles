@@ -17,7 +17,13 @@
 (message (format "[*] starting emacs config from %s" *.emacs.d.lisp.dir*))
 (add-to-list 'load-path *.emacs.d.lisp.dir*)
 (add-to-list 'load-path (expand-file-name "lib" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "wanderlust/elmo" *.emacs.d.dir* ))
+(add-to-list 'load-path (expand-file-name "wanderlust/wl" *.emacs.d.dir* ))
+(add-to-list 'load-path (expand-file-name "flim" *.emacs.d.dir* ))
+(add-to-list 'load-path (expand-file-name "semi" *.emacs.d.dir* ))
+(add-to-list 'load-path (expand-file-name "apel" *.emacs.d.dir* ))
 (require 'config/constants.el)
+
 
 
 (require 'cl)
@@ -53,6 +59,9 @@
 ;;(package-initialize)
 ;;(when (not package-archive-contents)  (package-refresh-contents))
 ;; (package-install 'flycheck)
+;; (package-install 'wanderlust)
+;; (package-install 'wl)
+
 ;;  (list-packages)
 ;;  (require 'mode-compile)
 ;; (require 'install-elisp)
@@ -60,3 +69,16 @@
 ;; (install-elisp "http://www.emacswiki.org/emacs/download/flymake-cursor.el")
 ;;" )
 ;;  )
+
+;;(require 'package) ;; You might already have this line
+;;(add-to-list 'package-archives '("e6h" . "http://www.e6h.org/packages/") t)
+;; (package-initialize) ;; You might already have this line
+
+(condition-case nil
+    (progn
+      (autoload 'wl "wl" "Wanderlust" t))
+  (error
+   (message "Wanderlust not loaded")))
+
+
+
