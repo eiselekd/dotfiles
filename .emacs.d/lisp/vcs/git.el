@@ -1,7 +1,7 @@
 
-(defun user/magit-init ()
+(defun vcs/magit-init ()
   "Initialize Magit."
-  (message "")
+  (message (format "[*] magit init"))
   )
 
 
@@ -9,7 +9,7 @@
   "Initialize Git support."
   ;;; (Packages) ;;;
   (when (require 'magit nil 'noerror)
-    (user/magit-init))
+    (vcs/magit-init))
   )
 
 (with-executable 'git

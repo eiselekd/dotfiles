@@ -2,6 +2,7 @@
 (defun apps/popup-init ()
   "Initialize popup."
   ;; Install workaround for whitespace-mode bug.
+  (message (format "[*] popup init"))
   (after-load 'modes/whitespace
     (defadvice popup-draw (before apps/turn-off-whitespace activate compile)
       "Turn off whitespace mode before showing popup."
@@ -15,6 +16,9 @@
 (defun apps/popwin-init ()
   "Initialize popwin."
   (with-feature 'popwin
+
+    (message (format "[*] popwin init"))
+    
     (popwin-mode t)
 
     ;; Don't select compilation window when shown

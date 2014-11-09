@@ -363,6 +363,8 @@ Gmail {
 (defun apps/wl-init ()
  "Initialize wanderlust."
  ;; Create data and cache stores.
+ (message (format "[*] wanderlust init"))
+  
  (make-directory *user-wanderlust-data-directory* t)
  (set-file-modes *user-wanderlust-data-directory* #o0700)
  (make-directory *user-wanderlust-cache-directory* t)

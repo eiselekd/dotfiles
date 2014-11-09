@@ -20,6 +20,7 @@
 (require 'vcs/git.el)
 (require 'apps/eshell.el)
 (require 'apps/proced.el)
+(require 'ux/popups.el)
 
 ;;(require 'ux/popups.el.el)
 
