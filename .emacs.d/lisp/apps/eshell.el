@@ -19,7 +19,9 @@
   (turn-on-eldoc-mode)
 
   ;; Use auto-complete for completion.
-  (add-ac-sources 'ac-source-pcomplete))
+  ;;(add-ac-sources 'ac-source-pcomplete)
+
+  )
 
 (defun apps/raise-eshell ()
   "Start, or switch to, `eshell' in the current working directory."
