@@ -27,7 +27,8 @@
 
     ;;; (Bindings) ;;;
     ;;(apps/bind-key-global :util :popwin-close 'popwin:close-popup-window)
-    ;;(apps/bind-key-global :util :popwin-buffer 'popwin:popup-buffer))
+    ;;(apps/bind-key-global :util :popwin-buffer 'popwin:popup-buffer)
+    )
   )
 
 

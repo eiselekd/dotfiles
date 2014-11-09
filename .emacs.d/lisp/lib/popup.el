@@ -33,8 +33,6 @@
 
 (defconst popup-version "0.5.0")
 
-
-
 ;;; Utilities
 
 (defun popup-calculate-max-width (max-width)
