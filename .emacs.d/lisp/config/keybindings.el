@@ -39,6 +39,8 @@
 (global-set-key (kbd "M-g")  'magit-status)
 ;; open file under cursor
 (global-set-key (kbd "M-1")  'xah-open-file-at-cursor)
+;; flymake
+(global-set-key (kbd "M-F")  'flymake-mode)
 ;; flycheck
 (global-set-key (kbd "M-f")  'flycheck-mode)
 
@@ -51,6 +53,12 @@
   (message "[*] bind f5/f6 for flycheck")
   (local-set-key (kbd "<f5>") 'flycheck-list-errors)
   (local-set-key (kbd "<f6>") 'flycheck-next-error))
+
+(defun utils/flymake-local-keybind ()
+  "Flymake key bindings."
+  (message "[*] bind f6 for flymake")
+  (local-set-key (kbd "<f5>") 'flymake-goto-prev-error)
+  (local-set-key (kbd "<f6>") 'flymake-goto-next-error))
 
 
 ;;(global-set-key [M-up]  'scroll-up)

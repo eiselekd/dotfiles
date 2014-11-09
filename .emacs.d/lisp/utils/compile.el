@@ -47,21 +47,21 @@
   ;; Add compilation filter hook.
   (add-hook 'compilation-filter-hook 'utils/compilation-filter-hook)
 
-  (if (file-exists-p *.cedet-root.el*)
-      (progn 
-	(load-file *.cedet-root.el*)
-	(when
-	    (and
-	     (require 'ede nil t)
-	     (require 'eieio nil t))
-	  (progn
-	    (global-ede-mode t)
-	    (message "[*] cedet loaded"))
-	  )
-	)
-    )
-  (when (require 'mode-compile nil t)
-    (utils/mode-compile-init))
+  ;; (if (file-exists-p *.cedet-root.el*)
+  ;;     (progn 
+  ;; 	(load-file *.cedet-root.el*)
+  ;; 	(when
+  ;; 	    (and
+  ;; 	     (require 'ede nil t)
+  ;; 	     (require 'eieio nil t))
+  ;; 	  (progn
+  ;; 	    (global-ede-mode t)
+  ;; 	    (message "[*] cedet loaded"))
+  ;; 	  )
+  ;; 	)
+  ;;   )
+  ;; (when (require 'mode-compile nil t)
+  ;;   (utils/mode-compile-init))
   )
 
 (utils/compile-init)

@@ -23,6 +23,7 @@
 
 
 (require 'cl)
+(require 'flycheck-mode nil t)
 ;; 2: load apps
 (require 'vcs/git.el)
 (require 'apps/eshell.el)

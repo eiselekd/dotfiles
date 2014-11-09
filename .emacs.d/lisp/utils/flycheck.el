@@ -2,28 +2,37 @@
 (defun utils/flycheck-mode-hook ()
   "Flycheck mode hook."
   ;;; (Bindings) ;;;
-  (utils/flycheck-lokal-keybind ))
+  (utils/flycheck-local-keybind ))
+
+(defun utils/flymake-mode-hook ()
+  "Flycheck mode hook."
+  ;;; (Bindings) ;;;
+  (utils/flymake-local-keybind ))
 
 (defun utils/flycheck-color-mode-line-init ()
   "Initialize flycheck color mode."
   (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))
 
+;; "Initialize flycheck."
 (defun utils/flycheck-init ()
-  "Initialize flycheck."
+  "Initialize flymake"
   (setq-default
    ;; Wait five seconds before starting checker
-   flycheck-idle-change-delay 0.2)
-
+   flycheck-idle-change-delay 1)
+  
   ;; Enable flycheck globally.
-  (global-flycheck-mode t)
+  ;;(global-flycheck-mode t)
   
   (after-load 'popwin
     ;; Use popwin for Flycheck error list.
     (push '(flycheck-error-list-mode :stick t) popwin:special-display-config))
+  
+  (add-hook 'flycheck-mode-hook 'utils/flycheck-mode-hook)
+  (add-hook 'flymake-mode-hook 'utils/flymake-mode-hook)
+  (message "[*] Flycheck hook setup")
+  )
 
-  (add-hook 'flycheck-mode-hook 'utils/flycheck-mode-hook))
-
-(when (require 'flycheck nil t)
-  (utils/flycheck-init))
+(add-hook 'after-init-hook 'utils/flycheck-init)
 
 (provide 'utils/flycheck.el)
+
