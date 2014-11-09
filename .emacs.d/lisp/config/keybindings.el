@@ -38,6 +38,8 @@
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)
 
+(utils/compile-keybind)
+
 ;;(global-set-key [M-up]  'scroll-up)
 ;;(global-set-key [M-down]  'scroll-down)
 ;; mark and clipboard:
