@@ -37,6 +37,9 @@
 (global-set-key (kbd "M-p")  'proced)
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)
+;; open file under cursor
+(global-set-key (kbd "M-1")  'xah-open-file-at-cursor)
+
 
 (utils/compile-keybind)
 

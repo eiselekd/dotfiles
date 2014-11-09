@@ -10,6 +10,13 @@
     ;; Colorize compilation output.
     (ansi-color-apply-on-region (point-min) (point-max))))
 
+(defun utils/ede-project (path)
+  "Get the EDE project for PATH."
+  (with-feature 'ede/cpp-root
+    (let ((project (ede-current-project (expand-file-name path))))
+      (when (and (featurep 'ede/cpp-root)
+                 (ede-cpp-root-project-p project))
+        project))))
 
 (defun utils/compile ()
   "Compile current context."
@@ -54,6 +61,13 @@
   ;; Add compilation filter hook.
   (add-hook 'compilation-filter-hook 'utils/compilation-filter-hook)
 
+  (if (file-exists-p *.cedet-root.el*)
+      (progn 
+	(load-file *.cedet-root.el*)
+	(when (require 'ede nil t)
+	  (message "[*] cedet loaded"))
+	)
+    )
   (when (require 'mode-compile nil t)
     (utils/mode-compile-init))
   )

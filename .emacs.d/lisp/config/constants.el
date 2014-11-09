@@ -10,6 +10,10 @@
            (expand-file-name (car dirs) root)
            (cdr dirs))))
 
+(defun path-abs-buffer ()
+  "Get the current buffer absolute path."
+  (file-truename (or (buffer-file-name) default-directory)))
+
 (defun load-all-files-from-dir (dir)
   "Load all Emacs Lisp files in DIR."
   (dolist (f (directory-files dir))
@@ -75,6 +79,12 @@
 (defconst *shell-cache-directory*
   (getenv-or "ESHELL_DATA_HOME"
              (path-join *user-home-directory* ".eshell")))
+(defconst *cedet-root*
+  (getenv-or "CEDET_HOME"
+	     (path-join *.emacs.d.dir* "cedet-1.1" )))
+(defconst *.cedet-root.el*
+  (path-join *cedet-root* "common" "cedet.el")
+  "path to cedet.el")
 (defconst *has-gdb* (executable-find "gdb"))
 (defconst *has-cscope* (executable-find "cscope"))
 (defconst *has-ctags* (executable-find "ctags"))
