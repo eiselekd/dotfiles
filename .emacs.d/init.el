@@ -17,6 +17,10 @@
 
 ;; 2: load apps
 (require 'vcs/git.el)
+(require 'apps/eshell.el)
+(require 'apps/proced.el)
+
+;;(require 'ux/popups.el.el)
 
 ;; 3: configure modes
 (message (format "[*] config modes"))

@@ -63,7 +63,12 @@
 (defconst *user-data-directory*
   (getenv-or "XDG_DATA_HOME"
              (path-join *user-home-directory* ".local" "share" "emacs")))
-
+(defconst *user-cache-directory*
+  (getenv-or "XDG_DATA_HOME"
+             (path-join *user-home-directory* ".cache" "emacs")))
+(defconst *shell-cache-directory*
+  (getenv-or "ESHELL_DATA_HOME"
+             (path-join *user-home-directory* ".eshell")))
 (defconst *has-gdb* (executable-find "gdb"))
 (defconst *has-cscope* (executable-find "cscope"))
 (defconst *has-ctags* (executable-find "ctags"))

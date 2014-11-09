@@ -31,6 +31,10 @@
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
+;; start egit
+(global-set-key (kbd "M-e")  'apps/raise-eshell)
+;; start proced
+(global-set-key (kbd "M-p")  'proced)
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)
 
