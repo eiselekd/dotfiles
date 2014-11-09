@@ -1,3 +1,17 @@
+(defun apps/sh-mode-hook ()
+  "Initialize mode for shell script editing."
+  (setq-default
+   ;; Indent with four spaces.
+   sh-basic-offset 4
+   sh-indentation 4))
+
+
+(defun apps/shell-mode-common-hook ()
+  "Shell mode common hook."
+  (with-feature 'ansi-color
+    ;; Enable ANSI colors for comint.
+    (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)))
+
 (defun apps/eshell-mode-hook ()
   "Mode hook for eshell."
   (user/shell-mode-common-hook)
