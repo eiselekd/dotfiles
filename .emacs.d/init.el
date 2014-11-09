@@ -28,6 +28,7 @@
 (require 'apps/proced.el)
 (require 'ux/popups.el)
 (require 'utils/compile.el)
+(require 'utils/debug.el)
 (require 'utils/openfile.el)
 (require 'flymake-cursor)
 (require 'utils/flycheck.el)

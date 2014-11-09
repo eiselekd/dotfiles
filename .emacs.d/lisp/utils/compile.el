@@ -1,3 +1,4 @@
+;; note: http://www.emacswiki.org/emacs/CompileCommand
 
 (defun utils/compilation-mode-hook ()
   "Cofind-gmpilation mode hook.")
@@ -12,9 +13,16 @@
 (defun utils/compile ()
   "Compile current context."
   (interactive)
-  (cond
-   ;;((fboundp 'mode-compile) (call-interactively 'mode-compile))
-   (t (call-interactively 'compile))))
+  (progn
+    (if (get-buffer "*compilation*") ; If old compile window exists
+	(progn
+	  (delete-windows-on (get-buffer "*compilation*")) ; Delete the compilation windows
+	  (kill-buffer "*compilation*") ; and kill the buffers
+	  )
+      )
+    (cond
+     ;;((fboundp 'mode-compile) (call-interactively 'mode-compile))
+     (t (call-interactively 'compile)))))
 
 (defun utils/mode-compile-init ()
   "Initialize mode-compile."
@@ -54,6 +62,25 @@
   
 ;;(concat "cd " (project-root) " && scons")
 
+(defun utils/next-error ()
+  "Move point to next error and highlight it"
+  (interactive)
+  (progn
+    (next-error)
+    (end-of-line-nomark)
+    (beginning-of-line-mark)
+    )
+  )
+
+(defun utils/previous-error ()
+  "Move point to previous error and highlight it"
+  (interactive)
+  (progn
+    (previous-error)
+    (end-of-line-nomark)
+    (beginning-of-line-mark)
+    )
+    )
 
 (defun utils/compile-init ()
   "Initialize compile module."

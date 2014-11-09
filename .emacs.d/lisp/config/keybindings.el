@@ -43,6 +43,9 @@
 (global-set-key (kbd "M-F")  'flymake-mode)
 ;; flycheck
 (global-set-key (kbd "M-f")  'flycheck-mode)
+;; compile errors
+(global-set-key (kbd "<f5>") 'utils/previous-error)
+(global-set-key (kbd "<f6>") 'utils/next-error)
 
 (defun utils/compile-keybind ()
     (global-set-key (kbd "<f10>") 'utils/compile))
