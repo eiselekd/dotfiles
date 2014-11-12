@@ -70,6 +70,7 @@
   (local-set-key (kbd "<f5>") 'flymake-goto-prev-error)
   (local-set-key (kbd "<f6>") 'flymake-goto-next-error))
 
+;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
 ;;(global-set-key [M-up]  'scroll-up)
 ;;(global-set-key [M-down]  'scroll-down)
