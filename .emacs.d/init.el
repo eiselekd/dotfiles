@@ -1,12 +1,10 @@
 ;; note: terminal.app old emacs: install "brew", then "brew install emacs"
 ;; cedet-1-1: emacs -q --no-site-file -l cedet-build.el -f cedet-build
 ;; note: cedet install: move object-class-fast in eieio.el to top
-
 (setq ns-right-alternate-modifier nil)
 
 ;; 1: hkset load path
 (if (version< emacs-version "24.3") (setq user-emacs-directory "~/.emacs.d/"))
-
 
 (defconst *.emacs.d.dir*
   (file-name-directory (or load-file-name buffer-file-name))
@@ -23,8 +21,6 @@
 (add-to-list 'load-path (expand-file-name "semi" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "apel" *.emacs.d.dir* ))
 (require 'config/constants.el)
-
-
 
 (require 'cl)
 (require 'flycheck-mode nil t)
@@ -44,11 +40,9 @@
 (require 'config/keybindings.el)
 
 ;;(require 'ux/popups.el.el)
-
 ;; 4: configure modes
 (message (format "[*] config modes"))
 (require 'modes/c-mode.el)
-
 
 ;;(when (>= emacs-major-version 24)
 ;;  (require 'package)
@@ -61,14 +55,14 @@
 ;; (package-install 'flycheck)
 ;; (package-install 'wanderlust)
 ;; (package-install 'wl)
-
-;;  (list-packages)
-;;  (require 'mode-compile)
+;; (package-install 'magit)
+;; (list-packages)
+;; (require 'mode-compile)
 ;; (require 'install-elisp)
 ;; (install-elisp "https://raw.githubusercontent.com/emacsmirror/mode-compile/master/mode-compile.el
 ;; (install-elisp "http://www.emacswiki.org/emacs/download/flymake-cursor.el")
-;;" )
-;;  )
+;;")
+;; )
 
 ;;(require 'package) ;; You might already have this line
 ;;(add-to-list 'package-archives '("e6h" . "http://www.e6h.org/packages/") t)
@@ -79,6 +73,3 @@
       (autoload 'wl "wl" "Wanderlust" t))
   (error
    (message "Wanderlust not loaded")))
-
-
-

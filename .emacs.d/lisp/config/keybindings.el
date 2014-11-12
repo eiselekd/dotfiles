@@ -51,6 +51,10 @@
     (global-set-key (kbd "<f10>") 'utils/compile))
 (defun utils/debug-keybind ()
     (global-set-key (kbd "<f11>") 'utils/debug))
+(defun utils/debug-perl-keybind ()
+  (global-set-key (kbd "<f5>") 'gud-step)
+  (global-set-key (kbd "<f6>") 'gud-next)
+  (global-set-key (kbd "<f8>") 'gud-cont))
 
 (utils/compile-keybind)
 
