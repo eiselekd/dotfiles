@@ -17,7 +17,8 @@
     (when (require 'projmake-mode nil t)
       (progn 
 	(projmake-mode)
-	(projmake-search-load-project)
+	(projmake-discover/search-load-project)
+	(projmake-mode/on)
 	(utils/projmake-local-keybind )))))
 
 
