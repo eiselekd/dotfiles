@@ -50,10 +50,15 @@
 ;;  (package-initialize)
 ;;  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 ;;  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+
+
+;;(add-to-list 'package-archives                 '("e6h" . "http://www.e6h.org/packages/") t)
+;;    (package-initialize) ;; You might already have this line
 ;;(add-to-list 'package-archives           '("marmalade" . "http://marmalade-repo.org/packages/"))
 ;;(package-initialize)
 ;;(when (not package-archive-contents)  (package-refresh-contents))
 ;; (package-install 'flycheck)
+;; (package-install 'wanderlust)
 ;;  (list-packages)
 ;;  (require 'mode-compile)
 ;; (require 'install-elisp)

@@ -50,13 +50,13 @@
 
 (defun utils/flycheck-local-keybind ()
   "Flycheck key bindings."
-  (message "[*] bind f5/f6 for flycheck")
+;;  (message "[*] bind f5/f6 for flycheck")
   (local-set-key (kbd "<f5>") 'flycheck-list-errors)
   (local-set-key (kbd "<f6>") 'flycheck-next-error))
 
 (defun utils/flymake-local-keybind ()
   "Flymake key bindings."
-  (message "[*] bind f6 for flymake")
+;;  (message "[*] bind f6 for flymake")
   (local-set-key (kbd "<f5>") 'flymake-goto-prev-error)
   (local-set-key (kbd "<f6>") 'flymake-goto-next-error))
 
