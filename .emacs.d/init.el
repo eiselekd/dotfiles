@@ -62,6 +62,9 @@
 ;; (require 'install-elisp)
 ;; (install-elisp "https://raw.githubusercontent.com/emacsmirror/mode-compile/master/mode-compile.el
 ;; (install-elisp "http://www.emacswiki.org/emacs/download/flymake-cursor.el")
+;; (require 'cl)
+;; (require 'sr-speedbar)
+
 ;;")
 ;; )
 
