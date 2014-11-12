@@ -43,9 +43,19 @@
 (global-set-key (kbd "M-F")  'flymake-mode)
 ;; flycheck
 (global-set-key (kbd "M-f")  'flycheck-mode)
+;; compile errors
+(global-set-key (kbd "<f5>") 'utils/previous-error)
+(global-set-key (kbd "<f6>") 'utils/next-error)
 
 (defun utils/compile-keybind ()
     (global-set-key (kbd "<f10>") 'utils/compile))
+(defun utils/debug-keybind ()
+    (global-set-key (kbd "<f11>") 'utils/debug))
+(defun utils/debug-perl-keybind ()
+  (global-set-key (kbd "<f5>") 'gud-step)
+  (global-set-key (kbd "<f6>") 'gud-next)
+  (global-set-key (kbd "<f8>") 'gud-cont))
+
 (utils/compile-keybind)
 
 (defun utils/flycheck-local-keybind ()
@@ -60,6 +70,7 @@
   (local-set-key (kbd "<f5>") 'flymake-goto-prev-error)
   (local-set-key (kbd "<f6>") 'flymake-goto-next-error))
 
+;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
 ;;(global-set-key [M-up]  'scroll-up)
 ;;(global-set-key [M-down]  'scroll-down)

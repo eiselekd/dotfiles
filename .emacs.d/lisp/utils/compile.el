@@ -1,3 +1,4 @@
+;; note: http://www.emacswiki.org/emacs/CompileCommand
 
 (defun utils/compilation-mode-hook ()
   "Cofind-gmpilation mode hook.")
@@ -12,9 +13,16 @@
 (defun utils/compile ()
   "Compile current context."
   (interactive)
-  (cond
-   ;;((fboundp 'mode-compile) (call-interactively 'mode-compile))
-   (t (call-interactively 'compile))))
+  (progn
+    (if (get-buffer "*compilation*") ; If old compile window exists
+	(progn
+	  (delete-windows-on (get-buffer "*compilation*")) ; Delete the compilation windows
+	  (kill-buffer "*compilation*") ; and kill the buffers
+	  )
+      )
+    (cond
+     ;;((fboundp 'mode-compile) (call-interactively 'mode-compile))
+     (t (call-interactively 'compile)))))
 
 (defun utils/mode-compile-init ()
   "Initialize mode-compile."
@@ -31,6 +39,49 @@
   ;;     (add-to-list 'c++-compilers-list "clang++")))
   )
 
+(defun find-file-upwards (file-to-find)
+  "Recursively searches each parent directory starting from the default-directory. looking for a file with name file-to-find.  Returns the path to it or nil if not found."
+  (labels
+      ((find-file-r
+	(path)
+	(let* ((parent (file-name-directory path))
+	       (possible-file (concat parent file-to-find)))
+	  (cond
+	   ((file-exists-p possible-file) possible-file) ; Found
+	   ;; The parent of ~ is nil and the parent of / is itself.
+	   ;; Thus the terminating condition for not finding the file
+	   ;; accounts for both.
+	   ((or (null parent) (equal parent (directory-file-name parent))) nil) ; Not found
+	   (t (find-file-r (directory-file-name parent))))))) ; Continue
+    (find-file-r default-directory)))
+
+(defun project-root ()
+  (let ((my-tags-file (find-file-upwards "COMPILE_CMD")))
+    (when my-tags-file
+      (message "Loading tags file: %s" my-tags-file)
+      (visit-tags-table my-tags-file))))
+  
+;;(concat "cd " (project-root) " && scons")
+
+(defun utils/next-error ()
+  "Move point to next error and highlight it"
+  (interactive)
+  (progn
+    (next-error)
+    (end-of-line-nomark)
+    (beginning-of-line-mark)
+    )
+  )
+
+(defun utils/previous-error ()
+  "Move point to previous error and highlight it"
+  (interactive)
+  (progn
+    (previous-error)
+    (end-of-line-nomark)
+    (beginning-of-line-mark)
+    )
+    )
 
 (defun utils/compile-init ()
   "Initialize compile module."
