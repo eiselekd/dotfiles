@@ -24,11 +24,12 @@
    ;; Run make with low priority and use multiple processes.
    mode-compile-make-program "nice make"
    mode-compile-default-make-options "-k -j")
-
-  (after-load 'mode-compile
-    (with-executable 'clang
-      (add-to-list 'cc-compilers-list "clang")
-      (add-to-list 'c++-compilers-list "clang++"))))
+  
+  ;; (after-load 'mode-compile
+  ;;   (with-executable 'clang
+  ;;     (add-to-list 'cc-compilers-list "clang")
+  ;;     (add-to-list 'c++-compilers-list "clang++")))
+  )
 
 
 (defun utils/compile-init ()
