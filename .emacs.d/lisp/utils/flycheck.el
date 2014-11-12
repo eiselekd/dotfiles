@@ -9,6 +9,18 @@
   ;;; (Bindings) ;;;
   (utils/flymake-local-keybind ))
 
+(defun utils/projmake-start ()
+  "Projmake start."
+  ;;; (Bindings) ;;;
+  (interactive)
+  (progn
+    (when (require 'projmake-mode nil t)
+      (progn 
+	(projmake-mode)
+	(projmake-search-load-project)
+	(utils/projmake-local-keybind )))))
+
+
 (defun utils/flycheck-color-mode-line-init ()
   "Initialize flycheck color mode."
   (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))

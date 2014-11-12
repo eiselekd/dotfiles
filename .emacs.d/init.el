@@ -20,11 +20,13 @@
 (add-to-list 'load-path (expand-file-name "flim" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "semi" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "apel" *.emacs.d.dir* ))
+
 (require 'config/constants.el)
 
 (require 'cl)
 (require 'flycheck-mode nil t)
 (require 'iswitchb-mode nil t)
+(require 'projmake-mode nil t)
 ;; 2: load apps
 (require 'vcs/git.el)
 (require 'apps/eshell.el)
@@ -59,6 +61,7 @@
 ;;(when (not package-archive-contents)  (package-refresh-contents))
 ;; (package-install 'flycheck)
 ;; (package-install 'wanderlust)
+;; (package-install 'projmake-mode)
 ;;  (list-packages)
 ;;  (require 'mode-compile)
 ;; (package-install 'wanderlust)
@@ -73,7 +76,10 @@
 ;; (install-elisp "http://www.emacswiki.org/emacs/download/flymake-cursor.el")
 ;; (require 'cl)
 ;; (require 'sr-speedbar)
-
+;; (require 'projmake-mode)
+;;(defun my-mode-hook ()
+;; (projmake-mode)
+;;    (projmake-search-load-project))
 ;;")
 ;; )
 

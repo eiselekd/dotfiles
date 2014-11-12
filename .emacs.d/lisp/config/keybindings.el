@@ -40,7 +40,7 @@
 ;; open file under cursor
 (global-set-key (kbd "M-1")  'xah-open-file-at-cursor)
 ;; flymake
-(global-set-key (kbd "M-F")  'flymake-mode)
+(global-set-key (kbd "M-F")  'utils/projmake-start)
 ;; flycheck
 (global-set-key (kbd "M-f")  'flycheck-mode)
 ;; compile errors
@@ -69,6 +69,14 @@
 ;;  (message "[*] bind f6 for flymake")
   (local-set-key (kbd "<f5>") 'flymake-goto-prev-error)
   (local-set-key (kbd "<f6>") 'flymake-goto-next-error))
+
+
+(defun utils/projmake-local-keybind ()
+  "Flymake key bindings."
+;;  (message "[*] bind f6 for flymake")
+  (local-set-key (kbd "<f5>") 'flymake-goto-prev-error)
+  (local-set-key (kbd "<f6>") 'flymake-goto-next-error))
+
 
 ;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
