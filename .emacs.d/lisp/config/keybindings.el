@@ -39,8 +39,11 @@
 (global-set-key (kbd "M-g")  'magit-status)
 ;; open file under cursor
 (global-set-key (kbd "M-1")  'xah-open-file-at-cursor)
+;; goto function under cursor
+(global-set-key (kbd "M-2")  'find-function-at-point)
 ;; flymake
-(global-set-key (kbd "M-F")  'utils/projmake-start)
+;;(global-set-key (kbd "M-F")  'utils/projmake-start)
+(global-set-key (kbd "M-F")  'flymake-mode)
 ;; flycheck
 (global-set-key (kbd "M-c")  'flycheck-mode)
 ;; compile errors

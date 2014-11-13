@@ -21,7 +21,6 @@
 	(projmake-mode/on)
 	(utils/projmake-local-keybind )))))
 
-
 (defun utils/flycheck-color-mode-line-init ()
   "Initialize flycheck color mode."
   (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))
@@ -50,6 +49,39 @@
   )
 
 (add-hook 'after-init-hook 'utils/flycheck-init)
+
+
+(after-load 'flymake
+  (defadvice flymake-simple-make-init
+      (around advice-flymake-simple-make-init)
+    (ad-set-arg 1 nil)
+    (ad-set-arg 2 nil)
+    ad-do-it))
+  
+
+;; (defadvice flymake-find-buildfile
+;;     (around advice-find-makefile-separate-obj-dir
+;; 	    activate compile)
+  ;; "Look for buildfile in a separate build directory"
+  ;; (let* ((source-dir (ad-get-arg 1))
+  ;; 	 (bld-dir (ac-build-dir source-dir)))
+  ;;   (ad-set-arg 1 bld-dir)
+  ;;   ad-do-it))
+
+;; (defun ac-find-configure (source-dir)
+;;   (locate-dominating-file source-dir "configure"))
+
+;; (defvar project-build-root nil
+;;   "top build directory of the project")
+
+;; (defun ac-build-dir (source-dir)
+;;   "find the build directory for the given source directory"
+;;   (condition-case nil
+;;       (let* ((topdir (ac-find-configure source-dir))
+;; 	     (subdir (file-relative-name (file-name-directory source-dir) topdir))
+;; 	     (blddir (concat (file-name-as-directory project-build-root) subdir)))
+;; 	blddir)
+;;         (error source-dir)))
 
 (provide 'utils/flycheck.el)
 

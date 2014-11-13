@@ -77,6 +77,9 @@
 ;; (require 'cl)
 ;; (require 'sr-speedbar)
 ;; (require 'projmake-mode)
+;;
+;; (require 'flymake-chromium)
+;;
 ;;(defun my-mode-hook ()
 ;; (projmake-mode)
 ;;    (projmake-search-load-project))
