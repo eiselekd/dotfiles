@@ -42,7 +42,7 @@
 ;; flymake
 (global-set-key (kbd "M-F")  'utils/projmake-start)
 ;; flycheck
-(global-set-key (kbd "M-f")  'flycheck-mode)
+(global-set-key (kbd "M-c")  'flycheck-mode)
 ;; compile errors
 (global-set-key (kbd "<f5>") 'utils/previous-error)
 (global-set-key (kbd "<f6>") 'utils/next-error)
