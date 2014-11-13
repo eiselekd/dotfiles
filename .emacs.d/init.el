@@ -47,6 +47,14 @@
 (message (format "[*] config modes"))
 (require 'modes/c-mode.el)
 
+
+
+
+
+(require 'flymake)
+(defun flymake-simple-make-init ()
+  (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
+
 ;;(when (>= emacs-major-version 24)
 ;;  (require 'package)
 ;;  (package-initialize)

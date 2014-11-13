@@ -50,13 +50,6 @@
 
 (add-hook 'after-init-hook 'utils/flycheck-init)
 
-
-(after-load 'flymake
-  (defadvice flymake-simple-make-init
-      (around advice-flymake-simple-make-init)
-    (ad-set-arg 1 nil)
-    (ad-set-arg 2 nil)
-    ad-do-it))
   
 
 ;; (defadvice flymake-find-buildfile
