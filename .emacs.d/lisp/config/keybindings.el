@@ -54,7 +54,9 @@
 (defun utils/debug-perl-keybind ()
   (global-set-key (kbd "<f5>") 'gud-step)
   (global-set-key (kbd "<f6>") 'gud-next)
-  (global-set-key (kbd "<f8>") 'gud-cont))
+  (global-set-key (kbd "<f8>") 'gud-cont)
+  (define-key gud-mode-map (kbd "<up>") 'comint-previous-input)
+  (define-key gud-mode-map (kbd "<down>") 'comint-next-input))
 
 (utils/compile-keybind)
 
