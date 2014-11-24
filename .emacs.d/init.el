@@ -1,3 +1,5 @@
+;; note: META-: :  eval
+;;       ctrl-e :  eval under cursor
 ;; note: terminal.app old emacs: install "brew", then "brew install emacs"
 ;; cedet-1-1: emacs -q --no-site-file -l cedet-build.el -f cedet-build
 ;; note: cedet install: move object-class-fast in eieio.el to top
@@ -34,6 +36,7 @@
 (require 'ux/popups.el)
 (require 'utils/compile.el)
 (require 'utils/debug.el)
+(require 'utils/ctags.el)
 (require 'utils/openfile.el)
 (require 'flymake-cursor)
 (require 'utils/flycheck.el)
