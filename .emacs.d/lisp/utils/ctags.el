@@ -15,7 +15,7 @@
 (defun utils/er-refresh-ctags (&optional extension)
   "Run ctags on all peer files in current dir and reload them silently."
   (interactive)
-  (shell-command (format "find . | grep \".*\\.\\(h\\|c\\)\" |  xargs ctags -u -e "))
+  (shell-command (format "find . -type f -iname \"*.[chS]\" xargs ctags -u -e "))
   (shell-command (format "ctags -u -e *.%s" (or extension "c")))
   (let ((tags-revert-without-query t))  ; don't query, revert silently
     (visit-tags-table default-directory nil)))
