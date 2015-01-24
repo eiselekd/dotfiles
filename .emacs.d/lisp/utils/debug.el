@@ -12,7 +12,7 @@
     (let* ((v nil)
 	   (a (split-string (buffer-string) "\n" t)))
       (setq v (nth 0 a))
-      (message "Reading gud-gdb file: [%s]: '%s'" f v)
+      (message "Reading gud-gdb file: [%s]" f )
       v
       )
     ))
