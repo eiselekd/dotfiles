@@ -22,10 +22,7 @@
 	 (gud-config-dir (locate-dominating-file source-dir "gud-gdb.txt")))
     (if gud-config-dir
 	(let* ((f (concat gud-config-dir "gud-gdb.txt")))
-	  (progn
-	    (message (format "Using gud-gdb file: [%s]" f))
-	    (utils/debug-read-config f)
-	    ))
+	  (concat "--init-command=" f))
       (file-name-nondirectory buffer-file-name)
       )))
 
@@ -36,7 +33,9 @@
    (list (gud-query-cmdline
 	  'gud-gdb (utils/debug-find-configure)))))
 
-(add-hook 'after-init-hook 'utils/debug-keybind)
-(add-hook 'perldb-mode-hook 'utils/debug-perl-keybind)
+(add-hook 'after-init-hook  'utils/debug-keybind)
+(add-hook 'gud-mode-hook    'utils/debug-gud-keybind)
+(add-hook 'perldb-mode-hook 'utils/debug-gud-keybind)
+
 
 (provide 'utils/debug.el)
