@@ -37,7 +37,7 @@
       )))
 
 (defun utils/mode-compile-get-command ()
-  (let* ((source-dir (file-name-directory (buffer-file-name)))
+  (let* ((source-dir (eval default-directory)) ;;(file-name-directory (buffer-file-name)))
 	 (gud-config-dir (locate-dominating-file source-dir "compile.txt")))
     (message "c-mode-common-hook, search for compile.txt in %s: %s" source-dir gud-config-dir )
     (if gud-config-dir

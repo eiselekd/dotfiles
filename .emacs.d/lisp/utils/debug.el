@@ -11,18 +11,21 @@
     (insert-file-contents gud-config)
     (let* ((v nil)
 	   (a (split-string (buffer-string) "\n" t)))
-      (setq v (nth 0 a))
-      (message "Reading gdb file: [%s]" f )
+      (setq v (nth 0 a)) (message "Reading gdb file: [%s]" f )
       v
       )
     ))
 
+(defun utils/debug-locate-dominating-file ()
+  (let* ((source-dir (eval default-directory))) ;;(file-name-directory (buffer-file-name)))
+    (locate-dominating-file source-dir "gdb.txt")))
+
 (defun utils/debug-find-configure ()
-  (let* ((source-dir (file-name-directory (buffer-file-name)))
-	 (gud-config-dir (locate-dominating-file source-dir "gdb.txt")))
+  (let* ((gud-config-dir (utils/debug-locate-dominating-file)))
     (if gud-config-dir
-	(let* ((f (concat gud-config-dir "gdb.txt")))
-	  (concat "--init-command=" f))
+	(progn
+	  (let* ((f (concat gud-config-dir "gdb.txt")))
+	    (concat "--init-command=" f)))
       (file-name-nondirectory buffer-file-name)
       )))
 
@@ -31,7 +34,9 @@
   "Provide a better default command line when called interactively."
   (interactive
    (list (gud-query-cmdline
-	  'gud-gdb (utils/debug-find-configure)))))
+	  'gud-gdb (utils/debug-find-configure))))
+  (if (utils/debug-locate-dominating-file)
+      (set 'default-directory (utils/debug-locate-dominating-file))))
 
 (add-hook 'after-init-hook  'utils/debug-keybind)
 (add-hook 'gud-mode-hook    'utils/debug-gud-keybind)
