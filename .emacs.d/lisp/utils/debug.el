@@ -12,16 +12,16 @@
     (let* ((v nil)
 	   (a (split-string (buffer-string) "\n" t)))
       (setq v (nth 0 a))
-      (message "Reading gud-gdb file: [%s]" f )
+      (message "Reading gdb file: [%s]" f )
       v
       )
     ))
 
 (defun utils/debug-find-configure ()
   (let* ((source-dir (file-name-directory (buffer-file-name)))
-	 (gud-config-dir (locate-dominating-file source-dir "gud-gdb.txt")))
+	 (gud-config-dir (locate-dominating-file source-dir "gdb.txt")))
     (if gud-config-dir
-	(let* ((f (concat gud-config-dir "gud-gdb.txt")))
+	(let* ((f (concat gud-config-dir "gdb.txt")))
 	  (concat "--init-command=" f))
       (file-name-nondirectory buffer-file-name)
       )))

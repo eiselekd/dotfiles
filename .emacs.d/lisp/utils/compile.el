@@ -13,25 +13,78 @@
 (defun utils/compile ()
   "Compile current context."
   (interactive)
-  (progn
+  (let* ((c (utils/mode-compile-get-command)))
     (if (get-buffer "*compilation*") ; If old compile window exists
-	(progn
+	(progn 
 	  (delete-windows-on (get-buffer "*compilation*")) ; Delete the compilation windows
 	  (kill-buffer "*compilation*") ; and kill the buffers
 	  )
       )
     (cond
+     (c
+      (progn
+	(set 'compile-command c)
+	(call-interactively 'compile)))
      ;;((fboundp 'mode-compile) (call-interactively 'mode-compile))
      (t (call-interactively 'compile)))))
 
+(defun utils/compile-read-config (config)
+  (with-temp-buffer
+    (insert-file-contents config)
+    (let* ((v nil)
+	   (a (split-string (buffer-string) "\n" t)))
+      (nth 0 a)
+      )))
+
+(defun utils/mode-compile-get-command ()
+  (let* ((source-dir (file-name-directory (buffer-file-name)))
+	 (gud-config-dir (locate-dominating-file source-dir "compile.txt")))
+    (message "c-mode-common-hook, search for compile.txt in %s: %s" source-dir gud-config-dir )
+    (if gud-config-dir
+	(progn 
+	  (message "Reading compile file: [%s]" gud-config-dir )
+	  (let* ((f (concat gud-config-dir "compile.txt")))
+	    (message "Reading compile file: [%s]" (utils/compile-read-config f) )
+	    (utils/compile-read-config f))))))
+
 (defun utils/mode-compile-init ()
   "Initialize mode-compile."
+
+  (message "[*] Initialize mode-compile" )
+  
   (setq-default
    ;; Set a sane compilation frame name.
    mode-compile-other-frame-name "*compilation*"
    ;; Run make with low priority and use multiple processes.
    mode-compile-make-program "nice make"
    mode-compile-default-make-options "-k -j")
+
+  (add-hook
+   'c-mode-common-hook
+   (lambda ()
+     (progn
+       (let* ((c (utils/mode-compile-get-command)))
+	 (if c
+	     (progn
+	       (message "Reading compile file: [%s]" c )
+	       (set (make-local-variable 'compile-command) c)))))))
+  
+  
+	   ;;     if ( )
+	       
+	   
+	   ;; (file-name-nondirectory buffer-file-name)
+	   ;; ))))
+  
+
+	      
+	   ;;    (unless (or (file-exists-p \"makefile\")
+	   ;; 		  (file-exists-p \"Makefile\"))
+	   ;; 	(set (make-local-variable 'compile-command)
+	   ;; 	     (concat \"make -k \"
+	   ;; 		     (if buffer-file-name
+	   ;; 			 (shell-quote-argument
+	   ;; 			  (file-name-sans-extension buffer-file-name))))))))
   
   ;; (after-load 'mode-compile
   ;;   (with-executable 'clang
@@ -41,7 +94,7 @@
 
 (defun find-file-upwards (file-to-find)
   "Recursively searches each parent directory starting from the default-directory. looking for a file with name file-to-find.  Returns the path to it or nil if not found."
-  (labels
+  (cl-labels
       ((find-file-r
 	(path)
 	(let* ((parent (file-name-directory path))
@@ -112,8 +165,8 @@
   ;; 	  )
   ;; 	)
   ;;   )
-  ;; (when (require 'mode-compile nil t)
-  ;;   (utils/mode-compile-init))
+  (when (require 'mode-compile nil t)
+    (utils/mode-compile-init))
   )
 
 (utils/compile-init)
