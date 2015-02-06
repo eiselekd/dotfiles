@@ -4,7 +4,10 @@
   (progn
     (cond
      ((string-match "\.pl$" (buffer-name)) (call-interactively 'perldb))
-     (t (call-interactively 'gud-gdb)))))
+     (t
+      (progn
+	(custom-set-variables '(gud-gdb-command-name "gdb -i=mi"))
+	(call-interactively 'gdb (utils/debug-find-configure)))))))
 
 (defun utils/debug-read-config (gud-config)
   (with-temp-buffer
@@ -25,12 +28,12 @@
     (if gud-config-dir
 	(progn
 	  (let* ((f (concat gud-config-dir "gdb.txt")))
-	    (concat "--init-command=" f)))
+	    (concat " -i=mi --init-command=" f)))
       (file-name-nondirectory buffer-file-name)
       )))
 
 ;; http://lists.gnu.org/archive/html/help-gnu-emacs/2003-10/msg00577.html
-(defadvice gud-gdb (before gud-query-cmdline activate)
+(defadvice gdb (before gud-query-cmdline activate)
   "Provide a better default command line when called interactively."
   (interactive
    (list (gud-query-cmdline
