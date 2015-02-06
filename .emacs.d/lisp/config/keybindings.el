@@ -52,6 +52,8 @@
 (global-set-key (kbd "<f5>") 'utils/previous-error)
 (global-set-key (kbd "<f6>") 'utils/next-error)
 
+(global-set-key (kbd "ESC <f10>") 'menu-bar-open)
+
 (defun utils/compile-keybind ()
     (global-set-key (kbd "<f10>") 'utils/compile))
 (defun utils/debug-keybind ()
