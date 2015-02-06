@@ -50,9 +50,9 @@
 (message (format "[*] config modes"))
 (require 'modes/c-mode.el)
 
-
-
-
+;; (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
+;; (message (format "[*] try load fringe"))
+;; (require 'fringe)
 
 (require 'flymake)
 (defun flymake-simple-make-init ()
