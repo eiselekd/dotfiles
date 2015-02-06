@@ -7,7 +7,8 @@
      (t
       (progn
 	(custom-set-variables '(gud-gdb-command-name "gdb -i=mi"))
-	(call-interactively 'gdb (utils/debug-find-configure)))))))
+	(call-interactively 'gdb (utils/debug-find-configure))
+	)))))
 
 (defun utils/debug-read-config (gud-config)
   (with-temp-buffer
@@ -44,5 +45,16 @@
 (add-hook 'after-init-hook  'utils/debug-keybind)
 (add-hook 'gud-mode-hook    'utils/debug-gud-keybind)
 (add-hook 'perldb-mode-hook 'utils/debug-gud-keybind)
+
+(setq gdb-many-windows t)
+
+(defadvice gud-display-line (after gud-display-line-centered activate)
+  "Center the line in the window"
+  (when (and gud-overlay-arrow-position gdb-source-window)
+    (with-selected-window gdb-source-window
+      ; (marker-buffer gud-overlay-arrow-position)
+      (save-restriction
+        (goto-line (ad-get-arg 1))
+        (recenter)))))
 
 (provide 'utils/debug.el)
