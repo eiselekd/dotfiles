@@ -106,3 +106,5 @@
       (autoload 'wl "wl" "Wanderlust" t))
   (error
    (message "Wanderlust not loaded")))
+
+(require 'windmove)
