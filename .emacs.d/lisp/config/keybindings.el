@@ -66,6 +66,7 @@
   (global-set-key (kbd "<f3>") 'gud-next)
   ;;(global-set-key (kbd "<f3>") 'gud-cont)
   (global-set-key (kbd "<f4>") 'gud-finish)
+  (global-set-key (kbd "<f12>") 'gud-break)
   (define-key gud-mode-map (kbd "<up>") 'comint-previous-input)
   (define-key gud-mode-map (kbd "<down>") 'comint-next-input))
 
