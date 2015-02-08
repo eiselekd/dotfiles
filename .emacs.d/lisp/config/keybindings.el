@@ -8,11 +8,13 @@
 ;; note: scroll on terminal+macbook: fn + up|down
 
 ;; debug: "c-h l" : read key buffer
-;; debug: "c-h k" <ke> : keybind
-
+;; debug: "c-h k" <key> : keybind
+;; debug: "c-h c" <key> : keybind
+;; http://unix.stackexchange.com/questions/79374/are-there-any-linux-terminals-which-can-handle-all-key-combinations/79561#79561
 
 ;; ctrl-c ctrl-v ctrl-y
 (cua-mode t)
+(cua-selection-mode 1)
 (setq cua-auto-tabify-rectangles nil) ;; Don't tabify after rectangle commands
 (transient-mark-mode 1)               ;; No region when it is not highlighted
 (setq cua-keep-region-after-copy nil) ;; Non-standard Windows behaviour
