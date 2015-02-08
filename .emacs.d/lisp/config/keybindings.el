@@ -114,6 +114,12 @@
 (global-set-key (kbd "M-S-<left>") 'shrink-window-horizontally)
 (global-set-key (kbd "M-S-<right>") 'enlarge-window-horizontally)
 
+
+(global-set-key (kbd "ESC <left>") 'wg-switch-left)
+(global-set-key (kbd "ESC <right>") 'wg-switch-right)
+
+
+
 ;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
 ;;(global-set-key [M-up]  'scroll-up)

@@ -73,6 +73,7 @@
 ;; (package-install 'flycheck)
 ;; (package-install 'wanderlust)
 ;; (package-install 'projmake-mode)
+;; (package-install 'perspective)
 ;;  (list-packages)
 ;;  (require 'mode-compile)
 ;; (package-install 'wanderlust)
@@ -108,3 +109,17 @@
    (message "Wanderlust not loaded")))
 
 (require 'windmove)
+
+;;(desktop-save-mode 1)
+;;(when (fboundp 'winner-mode)
+;;      (winner-mode 1))
+
+(setq wg-prefix-key (kbd "C-c w"))
+(setq wg-morph-on nil)
+(setq wg-query-for-save-on-emacs-exit nil)
+(require 'workgroups)
+(workgroups-mode 1)
+
+;;
+;;(require 'perspective)
+;;
