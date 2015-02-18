@@ -119,6 +119,13 @@
 (setq wg-query-for-save-on-emacs-exit nil)
 (require 'workgroups)
 (workgroups-mode 1)
+(setq wg-no-confirm t
+      wg-file "~/.emacs.d/.workgroups"
+      wg-use-faces nil
+      wg-switch-on-load nil)
+(add-hook 'kill-emacs-hook
+	  (lambda () (wg-save wg-file)))
+(wg-load wg-file)
 
 ;;
 ;;(require 'perspective)

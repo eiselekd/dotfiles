@@ -54,9 +54,15 @@
 ;; start find-tag
 (global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))
 ;; open file under cursor
-(global-set-key (kbd "M-1")  'xah-open-file-at-cursor)
+(global-set-key (kbd "M-5")  'xah-open-file-at-cursor)
 ;; goto function under cursor
-(global-set-key (kbd "M-2")  'find-function-at-point)
+(global-set-key (kbd "M-6")  'find-function-at-point)
+;; goto workspace 1
+(global-set-key (kbd "M-1")  (lambda ()(interactive)(wg-switch-to-workgroup (wg-get-workgroup 'name "w1"))))
+;; goto workspace 2
+(global-set-key (kbd "M-2")  (lambda ()(interactive)(wg-switch-to-workgroup (wg-get-workgroup 'name "w2"))))
+
+
 ;; flymake
 ;;(global-set-key (kbd "M-F")  'utils/projmake-start)
 (global-set-key (kbd "M-F")  'flymake-mode)
