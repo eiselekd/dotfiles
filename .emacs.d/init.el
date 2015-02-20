@@ -126,7 +126,10 @@
       wg-use-faces nil
       wg-switch-on-load nil)
 (add-hook 'kill-emacs-hook
-	  (lambda () (wg-save wg-file)))
+	  (lambda ()
+	     (condition-case nil
+		 (wg-save wg-file)
+	       (error nil))))
 (wg-load wg-file)
 
 (require 'back-button nil t)
