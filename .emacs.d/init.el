@@ -26,7 +26,7 @@
 (require 'config/constants.el)
 
 (require 'cl)
-(require 'flycheck-mode nil t)
+(require 'flycheck nil t) ;; -mode
 (require 'iswitchb-mode nil t)
 (require 'projmake-mode nil t)
 ;; 2: load apps
