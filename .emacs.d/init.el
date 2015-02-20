@@ -34,6 +34,7 @@
 (require 'apps/eshell.el)
 (require 'apps/proced.el)
 (require 'ux/popups.el)
+(require 'ux/mark.el)
 (require 'utils/compile.el)
 (require 'utils/debug.el)
 (require 'utils/ctags.el)
@@ -71,6 +72,7 @@
 ;;(package-initialize)
 ;;(when (not package-archive-contents)  (package-refresh-contents))
 ;; (package-install 'flycheck)
+;; (package-install 'back-button)
 ;; (package-install 'wanderlust)
 ;; (package-install 'projmake-mode)
 ;; (package-install 'perspective)
@@ -126,6 +128,8 @@
 (add-hook 'kill-emacs-hook
 	  (lambda () (wg-save wg-file)))
 (wg-load wg-file)
+
+(require 'back-button nil t)
 
 ;;
 ;;(require 'perspective)
