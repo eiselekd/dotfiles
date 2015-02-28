@@ -33,6 +33,7 @@
 (require 'vcs/git.el)
 (require 'apps/eshell.el)
 (require 'apps/proced.el)
+(require 'apps/org.el)
 (require 'ux/popups.el)
 (require 'ux/mark.el)
 (require 'utils/compile.el)
@@ -133,6 +134,14 @@
 (wg-load wg-file)
 
 (require 'back-button nil t)
+
+(require 'remember)
+;;(org-remember-insinuate)
+
+
+
+
+
 
 ;;
 ;;(require 'perspective)

@@ -7,6 +7,7 @@ Emacs config. Install by replacing ~/.emacs.d with
 Keybindings:
 
  * ESC g : magit
+ * ESC a : org-agenda
  * ESC p : proced
  * ESC c : flycheck
    * F5/F6 : next/prev-error

@@ -49,6 +49,8 @@
 (global-set-key (kbd "M-e")  'apps/raise-eshell)
 ;; start proced
 (global-set-key (kbd "M-p")  'proced)
+;; start org-agenda
+(global-set-key (kbd "M-a")  'org-agenda)
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)
 ;; start find-tag
