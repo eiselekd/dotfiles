@@ -51,6 +51,7 @@
 (global-set-key (kbd "M-p")  'proced)
 ;; start org-agenda
 (global-set-key (kbd "M-a")  'org-agenda)
+
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)
 ;; start find-tag
@@ -80,20 +81,74 @@
     (global-set-key (kbd "<f10>") 'utils/compile))
 (defun utils/debug-keybind ()
     (global-set-key (kbd "<f11>") 'utils/debug))
-(defun utils/debug-gud-keybind ()
-  (global-set-key (kbd "<f1>") (lambda ()(interactive)
-				 (progn
-				   (switch-to-buffer "*gud*")
-				   (gdb-restore-windows)
-				   (gud-refresh)
-				   )))
-  (global-set-key (kbd "<f2>") 'gud-step)
-  (global-set-key (kbd "<f3>") 'gud-next)
+(defun utils/debug-gud-keybind () 
+  
+;;  (global-set-key (kbd "<f3>") 'gud-next)
   ;;(global-set-key (kbd "<f3>") 'gud-cont)
-  (global-set-key (kbd "<f4>") 'gud-finish)
-  (global-set-key (kbd "<f12>") 'gud-break)
-  (define-key gud-mode-map (kbd "<up>") 'comint-previous-input)
-  (define-key gud-mode-map (kbd "<down>") 'comint-next-input))
+		(global-set-key (kbd "<f4>") 'gud-finish)
+		(global-set-key (kbd "<f12>") 'gud-break)
+		(define-key gud-mode-map (kbd "<up>") 'comint-previous-input)
+		(define-key gud-mode-map (kbd "<down>") 'comint-next-input))
+
+
+
+(global-set-key (kbd "<f7>") (lambda ()(interactive)(call-interactively 'org-capture)))
+
+(defun utils/isgud ()
+  (let ((mode major-mode))
+    (or (string= mode 'gud-mode)
+	(string= mode 'gdb-locals-mode)
+	(string= mode 'gdb-inferior-io-mode)
+	(string= mode 'gdb-frames-mode)
+	(string= mode 'gdb-breakpoints-mode)
+	(and (or (string= mode 'c-mode)
+		 (string= mode 'c++-mode))
+	     (get-buffer "*gud*")
+	     ))))
+
+(global-set-key (kbd "<f2>") (lambda ()(interactive)
+			       (let ((mode major-mode))
+				 (message "[*] F2 in major mode %s" mode)
+				 (cond ((or (string= mode 'org-mode)
+					    (string= mode 'org-agenda-mode)) (call-interactively 'org-todo))
+				       ((utils/isgud) (gud-step))
+				       (t (progn t))
+				       )
+				 )))
+
+(global-set-key (kbd "<f3>") (lambda ()(interactive)
+			       (let ((mode major-mode))
+				 (message "[*] F3 in major mode %s" mode)
+				 (cond ((or (string= mode 'org-mode)
+					    (string= mode 'org-agenda-mode)) (call-interactively 'bh/punch-in))
+				       ((utils/isgud) (gud-next))
+				       (t (progn t))
+				       )
+				 )))
+
+(global-set-key (kbd "<f4>") (lambda ()(interactive)
+			       (let ((mode major-mode))
+				 (message "[*] F4 in major mode %s" mode)
+				 (cond ((or (string= mode 'org-mode)
+					    (string= mode 'org-agenda-mode)) (call-interactively 'bh/punch-out))
+				       (t (progn t))
+				       )
+				 )))
+
+(global-set-key (kbd "<f1>") (lambda ()(interactive)
+			       (let ((mode major-mode))
+				 (message "[*] F1 in major mode %s" mode)
+				 (cond ((string= mode 'org-mode) (org-agenda))
+				       ((utils/isgud) (progn
+							(switch-to-buffer "*gud*")
+							(gdb-restore-windows)
+							(gud-refresh)
+							))
+				       (t (progn
+					    (org-agenda)))
+				       )
+				 )))
+
 
 (utils/compile-keybind)
 
