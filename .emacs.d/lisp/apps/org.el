@@ -342,13 +342,14 @@ Callers of this function already widen the buffer view."
 (setq org-refile-allow-creating-parent-nodes (quote confirm))
 
 ; Use IDO for both buffer and file completion and ido-everywhere to t
-(setq org-completion-use-ido t)
-(setq ido-everywhere t)
-(setq ido-max-directory-size 100000)
-(ido-mode (quote both))
+;;(setq org-completion-use-ido t)
+;;(setq ido-everywhere t)
+;;(setq ido-max-directory-size 100000)
+;;(ido-mode (quote both))
+
 ; Use the current window when visiting files and buffers with ido
-(setq ido-default-file-method 'selected-window)
-(setq ido-default-buffer-method 'selected-window)
+;;(setq ido-default-file-method 'selected-window)
+;;(setq ido-default-buffer-method 'selected-window)
 ; Use the current window for indirect buffer display
 (setq org-indirect-buffer-display 'current-window)
 
