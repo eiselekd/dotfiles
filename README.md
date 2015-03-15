@@ -15,18 +15,19 @@ Keybindings:
  * ESC 1 : workspace w1
  * ESC 2 : workspace w2
  * ESC 5 : open file at cursor
- * ESC 6 : find elisp func at point
+ * ESC 6 : find elisp func at cursor
  * F10   : compile, search for "compile.txt" as make command
  * F11   : gdb, search for "gdb.txt" as gdb init-command script  
    * F1 : restore layout
-   * F2 : step into
-   * F3 : step over
-   * F4 : continue
+   * F5 : step into
+   * F6 : step over
+   * F7 : finish
+   * F8 : continue
    * F12: set breakpoint
  * ALT-Shift up/down/left/right : resize window
  * Shift up/down/left/right : jump window
  * Org-mode:
-   * F1 (ESC a,Ctrl-c a) : org-agenda
+   * F1 (ESC a, Ctrl-c a) : org-agenda
    * F2  : org-todo change
    * F3/F4 : clock-in/clock-out
    * F5/F6 : org item narrow/widen
