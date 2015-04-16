@@ -22,6 +22,7 @@
 (add-to-list 'load-path (expand-file-name "flim" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "semi" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "apel" *.emacs.d.dir* ))
+(add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* ))
 
 (require 'config/constants.el)
 
@@ -80,6 +81,7 @@
 ;; (package-install 'wanderlust)
 ;; (package-install 'projmake-mode)
 ;; (package-install 'perspective)
+;; (package-install 'helm) -config)
 ;;  (list-packages)
 ;;  (require 'mode-compile)
 ;; (package-install 'wanderlust)
@@ -142,7 +144,7 @@
 ;;(org-remember-insinuate)
 
 (require 'gtags nil t)
-
+(require 'helm-config nil t)
 
 
 
