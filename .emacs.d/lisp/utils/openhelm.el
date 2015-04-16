@@ -16,6 +16,7 @@
     (message (format "[*] try open helm. Note: install globals (gtags) and helm"))
     (require 'helm-config)
     (require 'helm-gtags)
+    (require 'ggtags nil t)
     
     ;; Helm stuff
     (setq helm-quick-update                     t ; do not display invisible candidates
@@ -33,10 +34,12 @@
 	  helm-gtags-suggested-key-mapping t)
     
     (add-hook 'c-mode-hook '(lambda ()
+			      (message (format "[*] setup hel"))
+
 			      (setq-local show-trailing-whitespace t)
 			      (semantic-mode)
-			      (auto-complete-mode -1)
-			      (company-mode)
+			      ;(auto-complete-mode -1)
+			      ;(company-mode)
 			      (global-set-key (kbd "C-c C-f") 'helm-command-prefix)
 			      (global-unset-key (kbd "C-x c"))
 			      (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-select)
@@ -58,25 +61,25 @@
 			      (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
 			      ;;Too complex for me right now. 
 			      ;;(helm-mode)
-			      (define-key company-mode-map (kbd "M-h") 'company-c-headers)
+			      ;(define-key company-mode-map (kbd "M-h") 'company-c-headers)
 			      (hs-minor-mode)
 			      (define-key hs-minor-mode-map (kbd "C-c C-t") 'hs-toggle-hiding)
 			      (define-key c-mode-map (kbd "C-c C-c") 'compile)
-			      (semantic-mru-bookmark-mode)
-			      (define-key semantic-mode-map (kbd "M-]") 'semantic-ia-fast-jump)
-			      (define-key semantic-mode-map (kbd "M-[") 'semantic-ia-fast-jump-back)
+			      ;(semantic-mru-bookmark-mode)
+			      ;(define-key semantic-mode-map (kbd "M-]") 'semantic-ia-fast-jump)
+			      ;(define-key semantic-mode-map (kbd "M-[") 'semantic-ia-fast-jump-back)
 			      (define-key c-mode-map (kbd "C-c C-i") 'default-c-includes)
 			      (ggtags-mode)
 			      (define-key ggtags-mode-map (kbd "M-.") nil)
-			      (define-key ggtags-mode-map (kbd "M-&lt;") nil)
-			      (define-key ggtags-mode-map (kbd "M-&gt;") nil)
+			      (define-key ggtags-mode-map (kbd "M-<") nil)
+			      (define-key ggtags-mode-map (kbd "M->") nil)
 			      (define-key ggtags-mode-map (kbd "M-n") nil)
 			      (define-key ggtags-mode-map (kbd "M-p") nil)
 			      (define-key ggtags-mode-map (kbd "M-,") nil)
 			      (define-key ggtags-mode-map (kbd "M-]") nil)
-			      (define-key ggtags-mode-map (kbd "M&#x2013;") 'ggtags-find-reference)
+			      ;(define-key ggtags-mode-map (kbd "M&#x2013;") 'ggtags-find-reference)
 			      ;;Flycheck has issues with tramp, just FYI. 
-			      ;;(flycheck-mode)
+			      (flycheck-mode)
 				(linux-c-mode)))
     ))
 

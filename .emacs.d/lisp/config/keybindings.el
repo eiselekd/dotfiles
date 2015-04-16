@@ -55,7 +55,7 @@
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)
 ;; start find-tag
-(global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))
+;(global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))
 ;; open file under cursor
 (global-set-key (kbd "M-5")  'xah-open-file-at-cursor)
 ;; goto function under cursor

@@ -11,7 +11,6 @@ Keybindings:
  * ESC c : flycheck
    * F5/F6 : next/prev-error
  * ESC e : eshell
- * ESC ? : tag
  * ESC 1 : workspace w1
  * ESC 2 : workspace w2
  * ESC 5 : open file at cursor

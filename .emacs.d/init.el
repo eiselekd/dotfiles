@@ -38,7 +38,7 @@
 (require 'ux/popups.el)
 (require 'ux/mark.el)
 (require 'utils/compile.el)
-(require 'utils/ctags.el)
+;;(require 'utils/ctags.el)
 (require 'utils/openfile.el)
 (require 'utils/openhelm.el)
 (require 'utils/debug.el)
