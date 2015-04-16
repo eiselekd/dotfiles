@@ -10,6 +10,7 @@
 
 
 (defun gtag/gtag-init ()
+  (message (format "[*] try open helm. Note: install globals (gtags) and helm"))
   (when (require 'gtags nil t)
     (when (require 'helm-config nil t)
       
