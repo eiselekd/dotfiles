@@ -60,12 +60,15 @@
 (defun flymake-simple-make-init ()
   (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
 
+(require 'pp)
+
 ;;(when (>= emacs-major-version 24)
 ;;  (require 'package)
 ;;  (package-initialize)
 ;;  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+;;  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 ;;  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-
+;;  (package-install 'slime)
 
 ;;(add-to-list 'package-archives                 '("e6h" . "http://www.e6h.org/packages/") t)
 ;;    (package-initialize) ;; You might already have this line
@@ -138,6 +141,7 @@
 (require 'remember)
 ;;(org-remember-insinuate)
 
+(require 'gtags nil t)
 
 
 
