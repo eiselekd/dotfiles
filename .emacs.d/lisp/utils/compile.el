@@ -60,15 +60,14 @@
    mode-compile-default-make-options "-k -j")
 
   (add-hook
-   'c-mode-common-hook
+   'c-mode-hook
    (lambda ()
-     (progn
-       (let* ((c (utils/mode-compile-get-command)))
-	 (if c
-	     (progn
-	       (message "Reading compile file: [%s]" c )
-	       (set (make-local-variable 'compile-command) c)))))))
-  
+     (let* ((c (utils/mode-compile-get-command)))
+       (if c
+	   (progn
+	     (message "Reading compile file: [%s]" c )
+	     (set (make-local-variable 'compile-command) c))))))
+
   
 	   ;;     if ( )
 	       
