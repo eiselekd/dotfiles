@@ -1,4 +1,7 @@
 
+
+;;'(flycheck-c/c++-gcc-executable "/usr/local/bin/gcc-4.9")
+
 (defun utils/flycheck-mode-hook ()
   "Flycheck mode hook."
   ;;; (Bindings) ;;;

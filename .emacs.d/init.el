@@ -41,6 +41,7 @@
 (require 'utils/debug.el)
 (require 'utils/ctags.el)
 (require 'utils/openfile.el)
+(require 'utils/openhelm.el)
 (require 'flymake-cursor)
 (require 'utils/flycheck.el)
 
@@ -143,8 +144,6 @@
 (require 'remember)
 ;;(org-remember-insinuate)
 
-(require 'gtags nil t)
-(require 'helm-config nil t)
 
 
 

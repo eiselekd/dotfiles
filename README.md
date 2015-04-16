@@ -16,6 +16,7 @@ Keybindings:
  * ESC 2 : workspace w2
  * ESC 5 : open file at cursor
  * ESC 6 : find elisp func at cursor
+ * ESC 7 : find func at cursor using gtags
  * ESC F10 : open menu-bar in console mode
  * F10   : compile, search for "compile.txt" as make command
  * F11   : gdb, search for "gdb.txt" as gdb init-command script  
