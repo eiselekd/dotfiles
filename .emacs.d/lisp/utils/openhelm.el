@@ -15,7 +15,7 @@
   (setq-local show-trailing-whitespace t)
 					;(semantic-mode)
 					;(auto-complete-mode -1)
-					;(company-mode)
+  (company-mode)
   (global-set-key (kbd "C-c C-f") 'helm-command-prefix)
   (global-unset-key (kbd "C-x c"))
   (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-select)
@@ -37,7 +37,7 @@
   (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
   ;;Too complex for me right now. 
   ;;(helm-mode)
-					;(define-key company-mode-map (kbd "M-h") 'company-c-headers)
+  (define-key company-mode-map (kbd "M-h") 'company-c-headers)
   (hs-minor-mode)
   (define-key hs-minor-mode-map (kbd "C-c C-t") 'hs-toggle-hiding)
   (define-key c-mode-map (kbd "C-c C-c") 'compile)

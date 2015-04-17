@@ -23,6 +23,7 @@
 (add-to-list 'load-path (expand-file-name "semi" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "apel" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
 (require 'config/constants.el)
 
