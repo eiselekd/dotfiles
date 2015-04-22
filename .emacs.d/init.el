@@ -3,6 +3,7 @@
 ;; note: terminal.app old emacs: install "brew", then "brew install emacs"
 ;; cedet-1-1: emacs -q --no-site-file -l cedet-build.el -f cedet-build
 ;; note: cedet install: move object-class-fast in eieio.el to top
+;; dbg: C-u M-x eval-defun
 (setq ns-right-alternate-modifier nil)
 
 ;; 1: hkset load path
@@ -41,10 +42,10 @@
 (require 'utils/compile.el)
 ;;(require 'utils/ctags.el)
 (require 'utils/openfile.el)
+(require 'utils/flycheck.el)
 (require 'utils/openhelm.el)
 (require 'utils/debug.el)
 (require 'flymake-cursor)
-(require 'utils/flycheck.el)
 
 ;; 3: (re-)define keybindings
 (message (format "[*] set keybindings"))

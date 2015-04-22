@@ -2,6 +2,7 @@
 (defun linux-c-mode ()
   "C mode with adjusted defaults for use with the linux kernel."
   (interactive)
+  (message (format "[*] detected linux mode"))
   (setq c-set-style "linux")
   (setq c-brace-offset -8)
   (setq c-default-style "linux")
@@ -56,7 +57,16 @@
 					;(define-key ggtags-mode-map (kbd "M&#x2013;") 'ggtags-find-reference)
   ;;Flycheck has issues with tramp, just FYI. 
   ;;(flycheck-mode)
-  (linux-c-mode))
+
+  (define-key c-mode-map (kbd "M--") (lambda () (interactive) (
+							       message (format "[*] %s" (utils/flycheck-search-linux-makefile)))
+							       ))
+
+
+  
+  (if (utils/flycheck-search-linux-makefile)
+      (call-interactively 'linux-c-mode)))
+  
 
 ;; https://github.com/fxfactorial/emacsd/blob/master/init.el
 
