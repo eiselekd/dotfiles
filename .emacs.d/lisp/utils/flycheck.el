@@ -23,23 +23,13 @@
           (find-makefile-file-r (buffer-file-name)))
       (error "buffer is not visiting a file"))))
 
-(defun utils/flycheck-parse-linux-makefile (output checker buffer)
-  "Linux makefile output parser."
-  (message "%s" output)
-  (message "%s" buffer-file-name)
-)
-
 (flycheck-define-checker utils/flycheck-linux-makefile-checker
-  "Linux checker"
-  :command ("make" "C=1""-C" (eval (utils/flycheck-search-linux-makefile))
-	    (eval (concat (file-name-sans-extension (file-relative-name buffer-file-name (utils/flycheck-search-linux-makefile))) ".o"))
-
-
-	    ;; "make -C /home/eisele/linux-custom-1";;(eval (utils/flycheck-search-linux-makefile)) 
-	    ;;"drivers/gpio/gpio-kopa.o"
-	     ;;(eval (utils/flycheck-search-linux-makefile)) ;;"/home/eisele/linux-custom-1" 
-            )
-  ;;:error-parser utils/flycheck-parse-linux-makefile
+  "Linux source checker"
+  :command
+  (
+   "make" "C=1""-C" (eval (utils/flycheck-search-linux-makefile))
+   (eval (concat (file-name-sans-extension (file-relative-name buffer-file-name (utils/flycheck-search-linux-makefile))) ".o"))
+   )
   :error-patterns
   ((error line-start
           (message "In file included from") " " (file-name) ":" line ":"
@@ -51,30 +41,18 @@
             ": warning: " (message) line-end)
    (error line-start (file-name) ":" line ":" column
           ": " (or "fatal error" "error") ": " (message) line-end))
-
   :error-filter
   (lambda (errors)
-    (let ((errors (flycheck-sanitize-errors errors))
-          (gosrc (utils/flycheck-search-linux-makefile)) )
+    (let ((errors (flycheck-sanitize-errors errors)))
       (dolist (err errors)
-        ;; File names are relative to the Go source directory, so we need to
-        ;; unexpand and re-expand them
-        (setf (flycheck-error-filename err)
-
-	      (file-name-nondirectory (flycheck-error-filename err)))
-	       
-
-	      ;; (expand-file-name
-              ;;  ;; Get the relative name back, since Flycheck has already
-              ;;  ;; expanded the name for us
-              ;;  (file-relative-name (flycheck-error-filename err))
-              ;;  ;; And expand it against the Go source directory
-              ;;  gosrc))
-        ))
+	(let* ((fn (flycheck-error-filename err))
+	       (rn0 (file-relative-name fn default-directory)) ; flycheck-fix-error-filename converted to absolute, revert
+	       (rn1 (expand-file-name rn0 (utils/flycheck-search-linux-makefile))) ; make absolute relative to "make -C dir"
+	       (ef (file-relative-name rn1 default-directory)) ; relative to source
+	       )
+	  (setf (flycheck-error-filename err) ef)
+	  )))
     errors)
-  
-
-  
   :modes (c-mode c++-mode)
   )
 
