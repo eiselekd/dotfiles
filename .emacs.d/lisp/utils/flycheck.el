@@ -27,7 +27,7 @@
   "Linux source checker"
   :command
   (
-   "make" "C=1""-C" (eval (utils/flycheck-search-linux-makefile))
+   "make" "C=1" "-C" (eval (utils/flycheck-search-linux-makefile))
    (eval (concat (file-name-sans-extension (file-relative-name buffer-file-name (utils/flycheck-search-linux-makefile))) ".o"))
    )
   :error-patterns
@@ -55,13 +55,6 @@
     errors)
   :modes (c-mode c++-mode)
   )
-
-
-
-
-
-
-
 
 ;;'(flycheck-c/c++-gcc-executable "/usr/local/bin/gcc-4.9")
 ;;make-local-variable
