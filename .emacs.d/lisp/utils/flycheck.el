@@ -1,6 +1,8 @@
 ;; http://emacswiki.org/emacs/ElispCookbook#toc29
 ;;(utils/flycheck-search-linux-makefile)
 
+;;;;; ------------------------------------------------------------------
+
 (defun utils/flycheck-search-linux-makefile ()
   "Search for linux top `Makefile' "
   (labels
@@ -56,6 +58,92 @@
   :modes (c-mode c++-mode)
   )
 
+;;;;; ------------------------------------------------------------------
+(defcustom flycheck-generic-makefile-src-root nil
+  "The root of the src directory"
+  :type 'string
+  )
+(put 'flycheck-generic-makefile-src-root 'safe-local-variable (lambda (x) t))
+
+(defun utils/flycheck-generic-makefile-src-root ()
+  "Return if buffer is inside the src root, eather return local file variable or enviroemtnal variable pointing to root of src"
+  (let ((src (or flycheck-generic-makefile-src-root (getenv "FLYCHECK_GENERIC_SRC")))
+	(d (file-name-directory (buffer-file-name)))
+	)
+    (if (string-equal src (substring d 0 (length src)))
+	(progn
+	  (message (format "found src root: %s" src)) 
+	  src)
+        nil)))
+
+(defcustom flycheck-generic-makefile-build-root nil
+  "The root of the build directory"
+  :type 'string
+  )
+(put 'flycheck-generic-makefile-build-root 'safe-local-variable (lambda (x) t))
+(defun utils/flycheck-generic-makefile-build-root ()
+  "Eather return local file variable or enviroemtnal variable pointing to root of build"
+  (let ((src (or flycheck-generic-makefile-build-root (getenv "FLYCHECK_GENERIC_BUILD"))))
+    src))
+
+(defun utils/flycheck-get-generic-offset ()
+  "Search for top `Makefile' "
+  (file-relative-name (file-name-directory (buffer-file-name)) (utils/flycheck-generic-makefile-src-root))
+  )
+
+(defun utils/flycheck-search-generic-makefile ()
+  "Search for top `Makefile' "
+  
+  (concat (file-name-as-directory (utils/flycheck-generic-makefile-build-root)) (utils/flycheck-get-generic-offset))
+  
+  )
+
+
+(flycheck-define-checker utils/flycheck-generic-makefile-checker
+  "Generic makefile checker"
+  :command
+  (
+   "make" "-C" (eval (utils/flycheck-search-generic-makefile)) "all"
+;;   (eval (concat (file-name-sans-extension (file-relative-name buffer-file-name (utils/flycheck-search-generic-makefile))) ".o"))
+   )
+  :error-patterns
+  ((error line-start
+          (message "In file included from") " " (file-name) ":" line ":"
+          column ":"
+          line-end)
+   (info line-start (file-name) ":" line ":" column
+         ": note: " (message) line-end)
+   (warning line-start (file-name) ":" line ":" column
+            ": warning: " (message) line-end)
+   (error line-start (file-name) ":" line ":" column
+          ": " (or "fatal error" "error") ": " (message) line-end))
+
+  ;; :error-parser
+  ;; (lambda (output checker buffer)
+  ;;   (message (format "%s\n" output))
+  ;;   ()
+  ;;   )
+  
+  :error-filter
+  (lambda (errors)
+    (let ((errors (flycheck-sanitize-errors errors)))
+      (dolist (err errors)
+  	(setf (flycheck-error-filename err) (file-name-nondirectory (flycheck-error-filename err)))
+	
+	
+	))
+    errors)
+  :modes (c-mode c++-mode)
+  )
+
+
+
+  ;; :error-parser
+  ;; (lambda (output checker buffer)
+  ;;   (message (format "%s\n" output))
+  ;;   ()
+  ;;   )
+
 ;;'(flycheck-c/c++-gcc-executable "/usr/local/bin/gcc-4.9")
 ;;make-local-variable
 
@@ -64,7 +152,18 @@
   (make-variable-buffer-local 'flycheck-linux-makefile)
   (setq flycheck-linux-makefile (utils/flycheck-search-linux-makefile))
   (if flycheck-linux-makefile
-      (flycheck-select-checker 'utils/flycheck-linux-makefile-checker))
+      (progn
+	(message "[*] enable linux makefile checker")
+	(flycheck-select-checker 'utils/flycheck-linux-makefile-checker)))
+  (if (utils/flycheck-generic-makefile-src-root)
+      (progn
+	(message "[*] enable generic makefile")
+	(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
+	))
+
+  ;;  (if flycheck-generic-makefile
+;;      (flycheck-select-checker 'utils/flycheck-generic-makefile-checker))
+  
   (utils/flycheck-local-keybind ))
 
 (defun utils/flymake-mode-hook ()
