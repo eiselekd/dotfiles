@@ -160,9 +160,6 @@
 	(message "[*] enable generic makefile")
 	(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
 	))
-
-  ;;  (if flycheck-generic-makefile
-;;      (flycheck-select-checker 'utils/flycheck-generic-makefile-checker))
   
   (utils/flycheck-local-keybind ))
 
