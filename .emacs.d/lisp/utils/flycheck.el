@@ -151,6 +151,10 @@
   "Flycheck mode hook."
   (make-variable-buffer-local 'flycheck-linux-makefile)
   (setq flycheck-linux-makefile (utils/flycheck-search-linux-makefile))
+  (message "[*] try match custom checker:")
+  (message (format "[*] buf-dir: %s" (file-name-directory (buffer-file-name))))
+  (message (format "[*] FLYCHECK_GENERIC_SRC: %s" (getenv "FLYCHECK_GENERIC_SRC")))
+  (message (format "[*] FLYCHECK_GENERIC_BUILD: %s" (getenv "FLYCHECK_GENERIC_BUILD")))
   (if flycheck-linux-makefile
       (progn
 	(message "[*] enable linux makefile checker")
@@ -160,6 +164,7 @@
 	(message "[*] enable generic makefile")
 	(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
 	))
+  (flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
   
   (utils/flycheck-local-keybind ))
 
