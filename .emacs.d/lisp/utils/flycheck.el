@@ -21,7 +21,7 @@
 	   ((equal path parent) (throw 'found-it nil))
 	   (t (find-makefile-file-r (directory-file-name parent)))))))
     (if (buffer-file-name)
-        (catch 'found-it 
+        (catch 'found-it
           (find-makefile-file-r (buffer-file-name)))
       (error "buffer is not visiting a file"))))
 
@@ -72,7 +72,7 @@
 	)
     (if (string-equal src (substring d 0 (length src)))
 	(progn
-	  (message (format "found src root: %s" src)) 
+	  (message (format "found src root: %s" src))
 	  src)
         nil)))
 
@@ -93,9 +93,9 @@
 
 (defun utils/flycheck-search-generic-makefile ()
   "Search for top `Makefile' "
-  
+
   (concat (file-name-as-directory (utils/flycheck-generic-makefile-build-root)) (utils/flycheck-get-generic-offset))
-  
+
   )
 
 
@@ -123,14 +123,14 @@
   ;;   (message (format "%s\n" output))
   ;;   ()
   ;;   )
-  
+
   :error-filter
   (lambda (errors)
     (let ((errors (flycheck-sanitize-errors errors)))
       (dolist (err errors)
   	(setf (flycheck-error-filename err) (file-name-nondirectory (flycheck-error-filename err)))
-	
-	
+
+
 	))
     errors)
   :modes (c-mode c++-mode)
@@ -164,8 +164,8 @@
 	(message "[*] enable generic makefile")
 	(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
 	))
-  (flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
-  
+  ;;(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
+
   (utils/flycheck-local-keybind ))
 
 (defun utils/flymake-mode-hook ()
@@ -179,7 +179,7 @@
   (interactive)
   (progn
     (when (require 'projmake-mode nil t)
-      (progn 
+      (progn
 	(projmake-mode)
 	(projmake-discover/search-load-project)
 	(projmake-mode/on)
@@ -195,10 +195,10 @@
   (setq-default
    ;; Wait five seconds before starting checker
    flycheck-idle-change-delay 1)
-  
+
   ;; Enable flycheck globally.
   ;;(global-flycheck-mode t)
-  
+
   (after-load 'popwin
     ;; Use popwin for Flycheck error list.
     (push '(flycheck-error-list-mode :stick t) popwin:special-display-config))
@@ -206,7 +206,7 @@
   (after-load 'popwin
     (push '(flymode-error-list-mode :stick t) popwin:special-display-config))
 
-  
+
   (add-hook 'flycheck-mode-hook 'utils/flycheck-mode-hook)
   (add-hook 'flymake-mode-hook 'utils/flymake-mode-hook)
   (message "[*] Flycheck hook setup")
@@ -214,7 +214,7 @@
 
 (add-hook 'after-init-hook 'utils/flycheck-init)
 
-  
+
 
 ;; (defadvice flymake-find-buildfile
 ;;     (around advice-find-makefile-separate-obj-dir
@@ -241,4 +241,3 @@
 ;;         (error source-dir)))
 
 (provide 'utils/flycheck.el)
-

@@ -18,7 +18,7 @@ Keybindings:
  * ESC 7 : find func at cursor using gtags
  * ESC F10 : open menu-bar in console mode
  * F10   : compile, search for "compile.txt" as make command
- * F11   : gdb, search for "gdb.txt" as gdb init-command script  
+ * F11   : gdb, search for "gdb.txt" as gdb init-command script
    * F1 : restore layout
    * F5 : step into
    * F6 : step over
@@ -33,3 +33,11 @@ Keybindings:
    * F3/F4 : clock-in/clock-out
    * F5/F6 : org item narrow/widen
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
+ * c-mode:
+   * ESC . : gtags find
+   * ESC , : pop markbuffer
+
+Defaults:
+
+ * M > : End of buffer
+ * M < : Top of buffer 
