@@ -71,6 +71,12 @@
 (global-set-key (kbd "M-F")  'flymake-mode)
 ;; flycheck
 (global-set-key (kbd "M-c")  'flycheck-mode)
+;;
+(global-set-key (kbd "M-n")  (lambda ()(interactive)
+			       (progn 
+				 (eww "https://news.ycombinator.com/")
+				 )))
+
 ;; compile errors
 (global-set-key (kbd "<f5>") 'utils/previous-error)
 (global-set-key (kbd "<f6>") 'utils/next-error)

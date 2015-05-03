@@ -44,6 +44,8 @@
 (require 'utils/openfile.el)
 (require 'utils/flycheck.el)
 (require 'utils/openhelm.el)
+;;(require 'utils/hackernews)
+;;(require 'utils/helm-hackernews)
 (require 'utils/debug.el)
 (require 'flymake-cursor)
 
