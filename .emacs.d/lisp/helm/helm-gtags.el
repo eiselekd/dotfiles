@@ -4,7 +4,7 @@
 
 ;; Author: Syohei YOSHIDA <syohex@gmail.com>
 ;; URL: https://github.com/syohex/emacs-helm-gtags
-;; Version: 1.4.6
+;; Version: 1.4.9
 ;; Package-Requires: ((helm "1.5.6") (cl-lib "0.5"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -54,6 +54,7 @@
 (require 'which-func)
 (require 'pulse)
 
+(declare-function helm-comp-read "helm-mode")
 (declare-function cygwin-convert-file-name-from-windows "cygw32.c")
 (declare-function cygwin-convert-file-name-to-windows "cygw32.c")
 
@@ -295,15 +296,17 @@ Always update if value of this variable is nil."
 
 (defun helm-gtags--tag-directory ()
   (with-temp-buffer
-    (unless (zerop (process-file "global" nil t nil "-p"))
-      (error "GTAGS not found"))
-    (goto-char (point-min))
-    (when (looking-at "^\\([^\r\n]+\\)")
-      (let ((tag-path (match-string-no-properties 1)))
-        (file-name-as-directory
-         (if (eq system-type 'cygwin)
-             (cygwin-convert-file-name-from-windows tag-path)
-           tag-path))))))
+    (helm-aif (getenv "GTAGSROOT")
+        it
+      (unless (zerop (process-file "global" nil t nil "-p"))
+        (error "GTAGS not found"))
+      (goto-char (point-min))
+      (when (looking-at "^\\([^\r\n]+\\)")
+        (let ((tag-path (match-string-no-properties 1)))
+          (file-name-as-directory
+           (if (eq system-type 'cygwin)
+               (cygwin-convert-file-name-from-windows tag-path)
+             tag-path)))))))
 
 (defun helm-gtags--find-tag-directory ()
   (setq helm-gtags--real-tag-location nil)
@@ -474,6 +477,13 @@ Always update if value of this variable is nil."
           (insert " " ref-func "|"))
         (forward-line 1)))))
 
+(defun helm-gtags--print-path-in-gtagslibpath (args)
+  (let ((libpath (getenv "GTAGSLIBPATH")))
+    (when libpath
+      (dolist (path (parse-colon-path libpath))
+        (let ((default-directory (file-name-as-directory path)))
+          (apply 'process-file "global" nil t nil "-Poa" args))))))
+
 (defun helm-gtags--exec-global-command (type input &optional detail)
   (let ((args (helm-gtags--construct-command type input)))
     (helm-gtags--find-tag-directory)
@@ -486,6 +496,9 @@ Always update if value of this variable is nil."
               (coding-system-for-write buf-coding))
           (unless (zerop (apply 'process-file "global" nil '(t nil) nil args))
             (error (format "%s: not found" input)))
+          ;; --path options does not support searching under GTAGSLIBPATH
+          (when (eq type 'find-file)
+            (helm-gtags--print-path-in-gtagslibpath args))
           (when detail
             (helm-gtags--show-detail)))))))
 
@@ -856,15 +869,14 @@ Always update if value of this variable is nil."
     :fuzzy-match helm-gtags-fuzzy-match
     :action helm-gtags--find-file-action))
 
+(defsubst helm-gtags--action-by-timer (src)
+  (run-with-timer 0.1 nil (lambda () (helm-gtags--common (list src) nil))))
+
 (defun helm-gtags--select-tag-action (c)
-  (helm-run-after-quit
-   (lambda ()
-     (helm-gtags--common (list (helm-gtags--source-select-tag c)) nil))))
+  (helm-gtags--action-by-timer (helm-gtags--source-select-tag c)))
 
 (defun helm-gtags--select-rtag-action (c)
-  (helm-run-after-quit
-   (lambda ()
-     (helm-gtags--common (list (helm-gtags--source-select-rtag c)) nil))))
+  (helm-gtags--action-by-timer (helm-gtags--source-select-rtag c)))
 
 (defun helm-gtags--select-cache-init-common (args tagfile)
   (let ((cache (helm-gtags--get-result-cache tagfile)))
@@ -945,7 +957,8 @@ Always update if value of this variable is nil."
       (set-process-sentinel proc (helm-gtags--make-gtags-sentinel 'create)))))
 
 (defun helm-gtags--find-tag-simple ()
-  (or (locate-dominating-file default-directory "GTAGS")
+  (or (getenv "GTAGSROOT")
+      (locate-dominating-file default-directory "GTAGS")
       (if (not (yes-or-no-p "File GTAGS not found. Run 'gtags'? "))
           (user-error "Abort")
         (let* ((tagroot (read-directory-name "Root Directory: "))
@@ -1054,7 +1067,7 @@ Jump to reference point if curosr is on its definition"
     (if (string-match helm-gtags--include-regexp line)
         (let ((helm-gtags-use-input-at-cursor t))
           (helm-gtags-find-files (match-string-no-properties 1 line)))
-      (if (thing-at-point 'symbol)
+      (if (and (buffer-file-name) (thing-at-point 'symbol))
           (helm-gtags-find-tag-from-here)
         (call-interactively 'helm-gtags-find-tag)))))
 
