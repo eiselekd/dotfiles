@@ -151,12 +151,11 @@
 (require 'back-button nil t)
 
 (require 'remember)
+
 ;;(org-remember-insinuate)
-
-
-
 
 
 ;;
 ;;(require 'perspective)
 ;;
+

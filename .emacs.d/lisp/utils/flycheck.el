@@ -5,7 +5,7 @@
 
 (defun utils/flycheck-search-linux-makefile ()
   "Search for linux top `Makefile' "
-  (labels
+  (cl-labels
       ((find-makefile-file-r (path)
 	(let* ((parent (file-name-directory path))
 	       (file (concat parent "Makefile")))
