@@ -132,21 +132,21 @@
 ;;(when (fboundp 'winner-mode)
 ;;      (winner-mode 1))
 
-(setq wg-prefix-key (kbd "C-c w"))
-(setq wg-morph-on nil)
-(setq wg-query-for-save-on-emacs-exit nil)
-(require 'workgroups)
-(workgroups-mode 1)
-(setq wg-no-confirm t
-      wg-file "~/.emacs.d/.workgroups"
-      wg-use-faces nil
-      wg-switch-on-load nil)
-(add-hook 'kill-emacs-hook
-	  (lambda ()
-	     (condition-case nil
-		 (wg-save wg-file)
-	       (error nil))))
-(wg-load wg-file)
+;; (setq wg-prefix-key (kbd "C-c w"))
+;; (setq wg-morph-on nil)
+;; (setq wg-query-for-save-on-emacs-exit nil)
+;; (require 'workgroups)
+;; (workgroups-mode 1)
+;; (setq wg-no-confirm t
+;;       wg-file "~/.emacs.d/.workgroups"
+;;       wg-use-faces nil
+;;       wg-switch-on-load nil)
+;; (add-hook 'kill-emacs-hook
+;; 	  (lambda ()
+;; 	     (condition-case nil
+;; 		 (wg-save wg-file)
+;; 	       (error nil))))
+;; (wg-load wg-file)
 
 (require 'back-button nil t)
 
@@ -158,4 +158,7 @@
 ;;
 ;;(require 'perspective)
 ;;
+
+
+
 
