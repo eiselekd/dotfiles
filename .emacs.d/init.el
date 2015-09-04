@@ -48,6 +48,9 @@
     (require 'ggtags)
     (require 'utils/openhelm.el)
 )
+(if (eq system-type 'freebsd)
+    normal-erase-is-backspace-mode
+)
 
 ;;(require 'utils/hackernews)
 ;;(require 'utils/helm-hackernews)
@@ -158,7 +161,3 @@
 ;;
 ;;(require 'perspective)
 ;;
-
-
-
-
