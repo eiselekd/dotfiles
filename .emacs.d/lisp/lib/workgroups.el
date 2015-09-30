@@ -588,7 +588,7 @@ Otherwise, cons a new key-value-pair onto ALIST."
 
 (defun wg-aput (alist &rest key-value-pairs)
   "Add all KEY-VALUE-PAIRS to a copy of ALIST, and return the copy."
-  (flet ((rec (alist kvps) (if (not kvps) alist
+  (cl-flet ((rec (alist kvps) (if (not kvps) alist
                              (wg-dbind (k v . rest) kvps
                                (wg-aset (rec alist rest) k v)))))
     (rec (wg-acopy alist) key-value-pairs)))
@@ -813,7 +813,7 @@ minibuffer is active.")))
 
 (defun wg-scale-wsize (w width-scale height-scale)
   "Scale W's size by WIDTH-SCALE and HEIGHT-SCALE."
-  (flet ((wscale (width)  (truncate (* width  width-scale)))
+  (cl-flet ((wscale (width)  (truncate (* width  width-scale)))
          (hscale (height) (truncate (* height height-scale))))
     (wg-adjust-wsize w #'wscale #'hscale)))
 
@@ -838,7 +838,7 @@ new wlist, return it instead of a new wtree."
         (let* ((min-size (wg-min-size dir))
                (max (- hb1 1 min-size))
                (lastw (wg-last1 wlist)))
-          (flet ((mapwl
+          (cl-flet ((mapwl
                   (wl)
                   (wg-dbind (sw . rest) wl
                     (cons (wg-normalize-wtree
@@ -891,7 +891,7 @@ with `wg-scale-wconfigs-wtree' to fit the frame as it exists."
 If DIR is nil, reverse WTREE horizontally.
 If DIR is 'both, reverse WTREE both horizontally and vertically.
 Otherwise, reverse WTREE vertically."
-  (flet ((inner (w) (if (wg-window-p w) w
+  (cl-flet ((inner (w) (if (wg-window-p w) w
                       (wg-abind w ((d1 dir) edges wlist)
                         (wg-make-wtree
                          d1 edges
@@ -909,7 +909,7 @@ Otherwise, reverse WTREE vertically."
 
 (defun wg-wtree-move-window (wtree offset)
   "Offset `selected-window' OFFSET places in WTREE."
-  (flet ((inner
+  (cl-flet ((inner
           (w)
           (if (wg-window-p w) w
             (wg-abind w ((d1 dir) edges wlist)
@@ -965,7 +965,7 @@ EWIN should be an Emacs window object."
   "Return a new Workgroups wtree from EWTREE or `window-tree'.
 If specified, EWTREE should be an Emacs `window-tree'."
   (wg-error-on-active-minibuffer)
-  (flet ((inner (ewt) (if (windowp ewt) (wg-ewin->window ewt)
+  (cl-flet ((inner (ewt) (if (windowp ewt) (wg-ewin->window ewt)
                         (wg-dbind (dir edges . wins) ewt
                           (wg-make-wtree
                            dir edges (mapcar #'inner wins))))))
@@ -1038,7 +1038,7 @@ Return the buffer if it was found, nil otherwise."
 
 (defun wg-restore-wtree (wtree)
   "Restore WTREE in `selected-frame'."
-  (flet ((inner (w) (if (wg-wtree-p w)
+  (cl-flet ((inner (w) (if (wg-wtree-p w)
                         (wg-abind w ((d dir) wlist)
                           (let ((lastw (wg-last1 wlist)))
                             (dolist (sw wlist)
@@ -1409,7 +1409,7 @@ Query to overwrite if a workgroup with the same name exists."
 
 (defun wg-wtree-buffer-list (wtree)
   "Return a list of unique buffer names visible in WTREE."
-  (flet ((rec (w) (if (wg-window-p w) (list (wg-aget w 'bname))
+  (cl-flet ((rec (w) (if (wg-window-p w) (list (wg-aget w 'bname))
                     (mapcan #'rec (wg-wlist w)))))
     (remove-duplicates (rec wtree) :test #'equal)))
 
