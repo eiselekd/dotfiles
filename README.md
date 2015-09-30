@@ -36,8 +36,9 @@ Keybindings:
  * c-mode:
    * ESC . : gtags find
    * ESC , : pop markbuffer
+   * ESC h : toggle hs-org/minor-mode (enabled default)
 
 Defaults:
 
  * M > : End of buffer
- * M < : Top of buffer 
+ * M < : Top of buffer

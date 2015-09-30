@@ -4,7 +4,7 @@
 ;; (apropos-variable  "-mode-map$" )
 ;; (apropos-variable "function-key-map")
 ;; note: show keybinding "c-h k", "m-x where-is", "c-h m",
-;; note: alt(option) key in mac term enable as META: Menue->Terminal->Preferences => check "option as meta" 
+;; note: alt(option) key in mac term enable as META: Menue->Terminal->Preferences => check "option as meta"
 ;; note: scroll on terminal+macbook: fn + up|down
 
 ;; debug: "c-h l" : read key buffer
@@ -21,22 +21,22 @@
 
 ;; terminal escape hell
 (defadvice terminal-init-xterm (after select-shift-up activate)
-  (define-key function-key-map "\e[[D" [M-up])                                         
+  (define-key function-key-map "\e[[D" [M-up])
   (define-key function-key-map "\e[[B" [M-down])
   (define-key function-key-map "\e[1;9C" [M-right])
 
   (define-key function-key-map "\e[1;2A" [S-up])
-  (define-key function-key-map "\e[1;2D" [S-left])  
-  (define-key function-key-map "\e[1;2C" [S-right])  
-  (define-key function-key-map "\e[1;2B" [S-down])  
+  (define-key function-key-map "\e[1;2D" [S-left])
+  (define-key function-key-map "\e[1;2C" [S-right])
+  (define-key function-key-map "\e[1;2B" [S-down])
 
   ;; define this for mac : alt-shift + up,down,left,right
   (define-key function-key-map "\e[1;4A" [M-S-up])
-  (define-key function-key-map "\e[1;4D" [M-S-left])  
-  (define-key function-key-map "\e[1;4C" [M-S-right])  
-  (define-key function-key-map "\e[1;4B" [M-S-down])  
+  (define-key function-key-map "\e[1;4D" [M-S-left])
+  (define-key function-key-map "\e[1;4C" [M-S-right])
+  (define-key function-key-map "\e[1;4B" [M-S-down])
 
-  (define-key function-key-map "\e[1;2F" [S-end])  
+  (define-key function-key-map "\e[1;2F" [S-end])
   (define-key function-key-map "\e[1;2H" [S-home])
   )
 
@@ -73,7 +73,7 @@
 (global-set-key (kbd "M-c")  'flycheck-mode)
 ;;
 (global-set-key (kbd "M-n")  (lambda ()(interactive)
-			       (progn 
+			       (progn
 				 (eww "https://news.ycombinator.com/")
 				 )))
 
@@ -87,8 +87,8 @@
     (global-set-key (kbd "<f10>") 'utils/compile))
 (defun utils/debug-keybind ()
     (global-set-key (kbd "<f11>") 'utils/debug))
-(defun utils/debug-gud-keybind () 
-  
+(defun utils/debug-gud-keybind ()
+
 ;;  (global-set-key (kbd "<f3>") 'gud-next)
   ;;(global-set-key (kbd "<f3>") 'gud-cont)
 		(global-set-key (kbd "<f4>") 'gud-finish)
@@ -154,7 +154,7 @@
 				       )
 				 )))
 
-(global-set-key (kbd "<f5>") (lambda ()(interactive) 
+(global-set-key (kbd "<f5>") (lambda ()(interactive)
 			       (let ((mode major-mode))
 			       	 (message "[*] F5 in major mode %s" mode)
 				 (cond ((utils/isgud) (call-interactively 'gud-step))  ;;(utils/isgud)
@@ -187,6 +187,7 @@
 				       (t (progn t))
 				       )
 				 )))
+
 
 (utils/compile-keybind)
 
@@ -226,31 +227,31 @@
 ;;(global-set-key [M-up]  'scroll-up)
 ;;(global-set-key [M-down]  'scroll-down)
 ;; mark and clipboard:
-;;(global-set-key (kbd "C-SPC") 'set-mark-command) 
-;;(global-set-key (kbd "C-w")   'kill-region) 
-;;(global-set-key (kbd "M-w")   'kill-ring-save) 
-;;(global-set-key (kbd "C-y")   'yank) 
+;;(global-set-key (kbd "C-SPC") 'set-mark-command)
+;;(global-set-key (kbd "C-w")   'kill-region)
+;;(global-set-key (kbd "M-w")   'kill-ring-save)
+;;(global-set-key (kbd "C-y")   'yank)
 ;; navigating:
-;;(global-set-key (kbd "<down>")    'next-line) 
-;;(global-set-key (kbd "<up>")      'previous-line) 
-;;(global-set-key (kbd "<left>")    'backward-char) 
+;;(global-set-key (kbd "<down>")    'next-line)
+;;(global-set-key (kbd "<up>")      'previous-line)
+;;(global-set-key (kbd "<left>")    'backward-char)
 ;;(global-set-key (kbd "<right>")   'forward-char)
 ;; undo
-;;(global-set-key (kbd "C-_") 'undo) 
+;;(global-set-key (kbd "C-_") 'undo)
 ;;(define-key input-decode-map "\e[1;5C" [(control right)])
-;;(global-set-key [M-right] 'forward-word) 
+;;(global-set-key [M-right] 'forward-word)
 ;;(global-set-key [M-left]  'backward-word)
-;;(global-set-key [M-up]    'scroll-up) 
+;;(global-set-key [M-up]    'scroll-up)
 ;;(global-set-key [M-down]  'scroll-down)
-;;(global-set-key (kbd "ESC-<up>")  'scroll-up) 
+;;(global-set-key (kbd "ESC-<up>")  'scroll-up)
 ;; (global-set-key [M-up] 'scroll-up)
 ;; (global-set-key [M-down] 'scroll-down)
 ;; (global-set-key [(meta up)] 'transpose-line-up_)
 ;; (global-set-key [(meta down)] 'transpose-line-down)
-;;(global-set-key (kbd "M-<LEFT>")  'backwardkfuir-word2_) 
-;;(global-set-key (kbd "M-<RIGHT>") 'forward-word2_) 
-;;(global-set-key (kbd "C-<up>")   'scroll-up2_) 
-;;(global-set-key (kbd "C-<down>") 'scroll-down2_) 
+;;(global-set-key (kbd "M-<LEFT>")  'backwardkfuir-word2_)
+;;(global-set-key (kbd "M-<RIGHT>") 'forward-word2_)
+;;(global-set-key (kbd "C-<up>")   'scroll-up2_)
+;;(global-set-key (kbd "C-<down>") 'scroll-down2_)
 ;;(global-set-key (kbd "<f1>") 'shell)
 
 ;;(require 'back-button)

@@ -74,6 +74,8 @@
 (defun flymake-simple-make-init ()
   (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
 
+(require 'hideshow-org)
+
 (require 'pp)
 
 ;;(when (>= emacs-major-version 24)
