@@ -38,6 +38,9 @@ Keybindings:
    * ESC , : pop markbuffer
    * ESC h : toggle hs-org/minor-mode (enabled default)
 
+Misc:
+ * ESC d : toggle debug on elisp error
+
 Defaults:
 
  * M > : End of buffer

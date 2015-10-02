@@ -4,6 +4,7 @@
 ;; cedet-1-1: emacs -q --no-site-file -l cedet-build.el -f cedet-build
 ;; note: cedet install: move object-class-fast in eieio.el to top
 ;; dbg: C-u M-x eval-defun
+;; use lexical-binding: t
 (setq ns-right-alternate-modifier nil)
 
 ;; 1: hkset load path
