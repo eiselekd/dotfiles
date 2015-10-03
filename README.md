@@ -46,3 +46,4 @@ Defaults:
 
  * M > : End of buffer
  * M < : Top of buffer
+ * Ctrl-x 4 a: add changlog entry
