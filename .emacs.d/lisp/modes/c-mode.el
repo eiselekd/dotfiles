@@ -72,6 +72,7 @@
 
 		   ;; (hs-org/minor-mode)
 		   (global-set-key (kbd "M-h")  'hs-org/minor-mode)
+		   (global-set-key (kbd "M-H")  'orgstruct-mode)
 
 		   (modes/orgstruct-commen)
 		   )))
@@ -86,6 +87,7 @@
 
 	      ;;(hs-org/minor-mode)
 	      (global-set-key (kbd "M-h")  'hs-org/minor-mode)
+	      (global-set-key (kbd "M-H")  'orgstruct-mode)
 
 	      (modes/orgstruct-commen)
 

@@ -33,10 +33,11 @@ Keybindings:
    * F3/F4 : clock-in/clock-out
    * F5/F6 : org item narrow/widen
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
- * c-mode:
+ * c-mode/c++-mode:
    * ESC . : gtags find
    * ESC , : pop markbuffer
    * ESC h : toggle hs-org/minor-mode (enabled default)
+   * ESC H : toggle orgstruct-mode (with '* #' org in comment)
 
 Misc:
  * ESC d : toggle debug on elisp error
