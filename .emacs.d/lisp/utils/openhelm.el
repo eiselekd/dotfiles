@@ -1,4 +1,6 @@
 
+;; commands http://tuhdo.github.io/helm-intro.html
+
 (defun linux-c-mode ()
   "C mode with adjusted defaults for use with the linux kernel."
   (interactive)
@@ -12,7 +14,7 @@
 
 (defun gtag/c-hook ()
   (message (format "[*] setup hel"))
-  
+
   (setq-local show-trailing-whitespace t)
 					;(semantic-mode)
 					;(auto-complete-mode -1)
@@ -36,7 +38,7 @@
   (helm-gtags-mode)
   (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
   (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
-  ;;Too complex for me right now. 
+  ;;Too complex for me right now.
   ;;(helm-mode)
   ;;(define-key company-mode-map (kbd "M-h") 'company-c-headers)
   (hs-minor-mode)
@@ -55,7 +57,7 @@
   (define-key ggtags-mode-map (kbd "M-,") nil)
   (define-key ggtags-mode-map (kbd "M-]") nil)
 					;(define-key ggtags-mode-map (kbd "M&#x2013;") 'ggtags-find-reference)
-  ;;Flycheck has issues with tramp, just FYI. 
+  ;;Flycheck has issues with tramp, just FYI.
   ;;(flycheck-mode)
 
   (define-key c-mode-map (kbd "M--") (lambda () (interactive) (
@@ -63,10 +65,10 @@
 							       ))
 
 
-  
+
   (if (utils/flycheck-search-linux-makefile)
       (call-interactively 'linux-c-mode)))
-  
+
 
 ;; https://github.com/fxfactorial/emacsd/blob/master/init.el
 
@@ -76,7 +78,7 @@
     (require 'helm-config)
     (require 'helm-gtags)
     (require 'ggtags nil t)
-    
+
     ;; Helm stuff
     (setq helm-quick-update                     t ; do not display invisible candidates
 	  helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
@@ -91,7 +93,7 @@
 	  helm-gtags-pulse-at-cursor t
 	  helm-gtags-prefix-key "\C-cg"
 	  helm-gtags-suggested-key-mapping t)
-    
+
     (add-hook 'c++-mode-hook 'gtag/c-hook)
     (add-hook 'c-mode-hook 'gtag/c-hook)
 
