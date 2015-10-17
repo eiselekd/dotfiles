@@ -5,6 +5,7 @@
 ;; note: cedet install: move object-class-fast in eieio.el to top
 ;; dbg: C-u M-x eval-defun
 ;; use lexical-binding: t
+;; toggle-debug-on-error
 (setq ns-right-alternate-modifier nil)
 
 ;; 1: hkset load path
