@@ -80,7 +80,7 @@
 				     (progn
 				       (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
 				       (orgstruct-mode -1)
-				       (hs-org/minor-mode))))
+				       (call-interactively 'hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
 
 		   )))
@@ -99,7 +99,7 @@
 				(progn
 				  (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
 				  (orgstruct-mode -1)
-				  (hs-org/minor-mode))))
+				  (call-interactively 'hs-org/minor-mode))))
 	      ;;(global-set-key (kbd "M-h")  'hs-org/minor-mode)
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
 
