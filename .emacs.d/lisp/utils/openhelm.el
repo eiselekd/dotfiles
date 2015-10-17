@@ -80,7 +80,11 @@
     (require 'ggtags nil t)
 
     (global-set-key (kbd "C-x b") 'helm-mini)
-    
+
+    (global-set-key (kbd "M-q") 'helm-do-grep)
+    (global-set-key (kbd "M-Q") (lambda () (interactive)
+				  (let ((current-prefix-arg '(4))) (call-interactively 'helm-do-grep))))
+
     ;; Helm stuff
     (setq helm-quick-update                     t ; do not display invisible candidates
 	  helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window

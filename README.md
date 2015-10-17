@@ -38,6 +38,8 @@ Keybindings:
    * ESC , : pop markbuffer
    * ESC h : toggle hs-org/minor-mode (enabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
+ * ESC q : grep in current dir
+ * ESC Q : recursive grep from current dir
 
 Misc:
  * ESC d : toggle debug on elisp error
