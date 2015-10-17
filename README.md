@@ -34,12 +34,12 @@ Keybindings:
    * F5/F6 : org item narrow/widen
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
-   * ESC . : gtags find
-   * ESC , : pop markbuffer
+   * ESC . : gtags find ([1])
+   * ESC , : pop markbuffer ([1])
    * ESC h : toggle hs-org/minor-mode (enabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
- * ESC q : grep in current dir
- * ESC Q : recursive grep from current dir
+ * ESC q : grep in current dir ([1])
+ * ESC Q : recursive grep from current dir ([1])
 
 Misc:
  * ESC d : toggle debug on elisp error
@@ -49,3 +49,5 @@ Defaults:
  * M > : End of buffer
  * M < : Top of buffer
  * Ctrl-x 4 a: add changlog entry
+
+[1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/) has to be present 
