@@ -8,6 +8,8 @@
 ;;c
 ;;c
 
+(require 'cl-lib)
+
 (defun modes/outline-show-children (orig-fun &rest args)
   (let (pre-outline-map-region outline-map-region)
     (let ((res)
@@ -70,11 +72,17 @@
 		   (global-set-key (kbd "M-(")  'hs-hide-block)
 		   (global-set-key (kbd "M-)")  'hs-show-block)
 
+		   (modes/orgstruct-commen)
+
 		   ;; (hs-org/minor-mode)
-		   (global-set-key (kbd "M-h")  'hs-org/minor-mode)
+		   (global-set-key (kbd "M-h")
+				   (lambda () (interactive)
+				     (progn
+				       (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
+				       (orgstruct-mode -1)
+				       (hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
 
-		   (modes/orgstruct-commen)
 		   )))
 
 (add-hook 'c-mode-hook
@@ -86,7 +94,13 @@
 		  (ggtags-mode))
 
 	      ;;(hs-org/minor-mode)
-	      (global-set-key (kbd "M-h")  'hs-org/minor-mode)
+	      (global-set-key (kbd "M-h")
+			      (lambda () (interactive)
+				(progn
+				  (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
+				  (orgstruct-mode -1)
+				  (hs-org/minor-mode))))
+	      ;;(global-set-key (kbd "M-h")  'hs-org/minor-mode)
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
 
 	      (modes/orgstruct-commen)
