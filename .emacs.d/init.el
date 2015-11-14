@@ -39,10 +39,13 @@
 (add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
-(if (and (<= emacs-major-version 24)
-	 (<= emacs-minor-version 4))
-    (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
-  )
+;;(if (and (<= emacs-major-version 24)
+;;	 (<= emacs-minor-version 4))
+(add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
+
+
+
+;;  )
 
 ;; magit: /usr/bin/emacsclient.emacs24
 ;; (with-editor-debug)
