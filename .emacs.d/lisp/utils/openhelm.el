@@ -80,11 +80,12 @@
     (require 'ggtags nil t)
 
     (global-set-key (kbd "C-x b") 'helm-mini)
-
+    (global-set-key (kbd "M-X") 'helm-M-x)
     (global-set-key (kbd "M-q") 'helm-do-grep)
     (global-set-key (kbd "M-Q") (lambda () (interactive)
-				  (let ((current-prefix-arg '(4))) (call-interactively 'helm-do-grep))))
-
+				  (let ((current-prefix-arg '(10)))
+				    (call-interactively 'helm-do-grep))))
+    
     ;; Helm stuff
     (setq helm-quick-update                     t ; do not display invisible candidates
 	  helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
@@ -98,8 +99,10 @@
 	  helm-gtags-use-input-at-cursor t
 	  helm-gtags-pulse-at-cursor t
 	  helm-gtags-prefix-key "\C-cg"
-	  helm-gtags-suggested-key-mapping t)
-
+	  helm-gtags-suggested-key-mapping t
+	  )
+    ;; helm-exit-idle-delay 0
+    
     (add-hook 'c++-mode-hook 'gtag/c-hook)
     (add-hook 'c-mode-hook 'gtag/c-hook)
 

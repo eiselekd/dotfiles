@@ -41,8 +41,13 @@ Keybindings:
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
 
+HELM:
+ * C-x b : helm buffer select
+ * M-X   : helm version of M-x
+ 
 Misc:
  * ESC d : toggle debug on elisp error
+ * ESC z : repeat last command (default:M-x z)(continue z to continue repeat)
 
 Defaults:
 

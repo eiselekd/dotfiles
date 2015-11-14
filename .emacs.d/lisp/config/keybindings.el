@@ -222,7 +222,7 @@
 (global-set-key (kbd "ESC <left>") 'pop-global-mark)
 (global-set-key (kbd "ESC <right>") 'apps/unpop-to-mark-command)
 
-
+(global-set-key (kbd "M-z") 'repeat)
 
 ;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
