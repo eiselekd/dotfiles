@@ -34,7 +34,7 @@ Keybindings:
    * F5/F6 : org item narrow/widen
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
-   * ESC . : gtags find ([1])
+   * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
    * ESC , : pop markbuffer ([1])
    * ESC h : toggle hs-org/minor-mode (enabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
@@ -50,4 +50,4 @@ Defaults:
  * M < : Top of buffer
  * Ctrl-x 4 a: add changlog entry
 
-[1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/) has to be present 
+[1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/) has to be present

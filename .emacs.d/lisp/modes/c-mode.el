@@ -83,6 +83,7 @@
 				       (call-interactively 'hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
 
+		   (ggtags-mode)
 		   )))
 
 (add-hook 'c-mode-hook
@@ -104,6 +105,7 @@
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
 
 	      (modes/orgstruct-commen)
+	      (ggtags-mode)
 
 	      )))
 
