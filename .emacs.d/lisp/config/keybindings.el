@@ -72,6 +72,7 @@
 ;;(global-set-key (kbd "M-F")  'utils/projmake-start)
 (global-set-key (kbd "M-F")  'flymake-mode)
 ;; flycheck
+(global-set-key (kbd "M-f")  'flycheck-mode)
 (global-set-key (kbd "M-c")  'flycheck-mode)
 ;;
 (global-set-key (kbd "M-n")  (lambda ()(interactive)

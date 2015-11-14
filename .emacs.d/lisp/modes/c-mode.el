@@ -64,6 +64,11 @@
   (advice-add 'outline-hide-sublevels   :around #'modes/outline-hide-sublevels)
   )
 
+(defun c-mode-addfuncs ()
+  (ggtags-mode)
+  (global-set-key (kbd "M-G")  'magit-log-buffer-file)
+  )
+
 (add-hook 'c++-mode-hook
 	  (lambda ()
 	    (progn (add-to-list 'write-file-functions 'delete-trailing-whitespace)
@@ -82,7 +87,7 @@
 				       (orgstruct-mode -1)
 				       (call-interactively 'hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
-
+		   (c-mode-addfuncs)
 		   )))
 
 (add-hook 'c-mode-hook
@@ -104,7 +109,8 @@
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
 
 	      (modes/orgstruct-commen)
-
+	      (c-mode-addfuncs)
+		   
 	      )))
 
 
