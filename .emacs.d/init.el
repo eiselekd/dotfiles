@@ -28,6 +28,11 @@
 (add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
+;; magit: /usr/bin/emacsclient.emacs24
+;; (with-editor-debug)
+;; (setq with-editor-emacsclient-executable "/usr/bin/emacsclient.emacs24")
+;; M-x find-library cl-lib
+
 (require 'config/constants.el)
 
 (require 'cl)
