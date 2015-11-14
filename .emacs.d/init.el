@@ -18,6 +18,17 @@
   (concat *.emacs.d.dir* "lisp")
   "path to .emacs.d/lisp")
 (message (format "[*] starting emacs config from %s" *.emacs.d.lisp.dir*))
+
+;; (if (and (<= emacs-major-version 24)
+;; 	 (<= emacs-minor-version 4))
+;;     ;;(setq load-path (cons (expand-file-name "lib/cl" *.emacs.d.lisp.dir*  )  load-path ))
+;;     (define-obsolete-function-alias 'cl-struct-define 'cl-defstruct "24.3")
+
+;;     ;;(require 'inline)
+;;     ;;(require 'cl)
+;;     ;;(require 'cl-lib)
+;;   )
+
 (add-to-list 'load-path *.emacs.d.lisp.dir*)
 (add-to-list 'load-path (expand-file-name "lib" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "wanderlust/elmo" *.emacs.d.dir* ))
@@ -28,10 +39,18 @@
 (add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
+(if (and (<= emacs-major-version 24)
+	 (<= emacs-minor-version 4))
+    (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
+  )
+
 ;; magit: /usr/bin/emacsclient.emacs24
 ;; (with-editor-debug)
 ;; (setq with-editor-emacsclient-executable "/usr/bin/emacsclient.emacs24")
 ;; M-x find-library cl-lib
+;;(require 'cl-lib)
+;;(require 'cl)
+;;(require 'cl-macs)
 
 (require 'config/constants.el)
 
@@ -108,6 +127,7 @@
 ;;  (require 'mode-compile)
 ;; (package-install 'wanderlust)
 ;; (package-install 'wl)
+;; (package-install 'dash) (require 'dash)
 ;; (package-install 'magit)
 ;; (list-packages)
 ;; (require 'mode-compile)
