@@ -72,9 +72,9 @@
 ;;(global-set-key (kbd "M-F")  'utils/projmake-start)
 (global-set-key (kbd "M-F")  'flymake-mode)
 ;; flycheck
-(if (not (eq system-type 'darwin))
+;;(if (not (eq system-type 'darwin))
     ;; termninal send \033 f (Meta - f)
-    (global-set-key (kbd "M-f")  'flycheck-mode))
+;;    (global-set-key (kbd "M-f")  'flycheck-mode))
 (global-set-key (kbd "M-c")  'flycheck-mode)
 ;;
 (global-set-key (kbd "M-n")  (lambda ()(interactive)
