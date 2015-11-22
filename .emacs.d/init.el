@@ -72,6 +72,7 @@
 ;;(require 'utils/ctags.el)
 (require 'utils/openfile.el)
 (require 'utils/flycheck.el)
+(require 'utils/irc.el)
 
 (if (eq system-type 'cygwin)
     (require 'ggtags)
