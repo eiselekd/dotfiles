@@ -48,6 +48,7 @@ HELM:
 Misc:
  * ESC d : toggle debug on elisp error
  * ESC z : repeat last command (default:M-x z)(continue z to continue repeat)
+ * ESC i : start irc
 
 Defaults:
 

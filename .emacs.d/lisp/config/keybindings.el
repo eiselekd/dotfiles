@@ -53,6 +53,8 @@
 (global-set-key (kbd "M-d")  (lambda ()(interactive) (toggle-debug-on-error)))
 ;; start org-agenda
 (global-set-key (kbd "M-a")  'org-agenda)
+;; start erc
+(global-set-key (kbd "M-i") 'utils/irc-djcb-erc-start-or-switch) ;; ERC
 
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)

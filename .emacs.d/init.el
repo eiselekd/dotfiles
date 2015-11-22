@@ -17,6 +17,9 @@
 (defconst *.emacs.d.lisp.dir*
   (concat *.emacs.d.dir* "lisp")
   "path to .emacs.d/lisp")
+(defconst *.emacs.moreconf*
+  (substitute-in-file-name "$HOME/emacs"))
+
 (message (format "[*] starting emacs config from %s" *.emacs.d.lisp.dir*))
 
 ;; (if (and (<= emacs-major-version 24)
@@ -29,6 +32,8 @@
 ;;     ;;(require 'cl-lib)
 ;;   )
 
+(add-to-list 'load-path (substitute-in-file-name "$HOME/emacs"))
+(require 'moreconf-erc.el nil t)
 (add-to-list 'load-path *.emacs.d.lisp.dir*)
 (add-to-list 'load-path (expand-file-name "lib" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "wanderlust/elmo" *.emacs.d.dir* ))
@@ -73,6 +78,7 @@
 (require 'utils/openfile.el)
 (require 'utils/flycheck.el)
 (require 'utils/irc.el)
+
 
 (if (eq system-type 'cygwin)
     (require 'ggtags)
