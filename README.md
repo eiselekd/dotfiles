@@ -38,17 +38,19 @@ Keybindings:
    * ESC , : pop markbuffer ([1])
    * ESC h : toggle hs-org/minor-mode (enabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
+   * M-G   : magit hist
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
 
 HELM:
  * C-x b : helm buffer select
  * M-X   : helm version of M-x
- 
+
 Misc:
  * ESC d : toggle debug on elisp error
  * ESC z : repeat last command (default:M-x z)(continue z to continue repeat)
  * ESC i : start irc
+ * ESC j : goto-line
 
 Defaults:
 

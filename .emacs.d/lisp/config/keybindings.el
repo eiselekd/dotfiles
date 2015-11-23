@@ -55,6 +55,8 @@
 (global-set-key (kbd "M-a")  'org-agenda)
 ;; start erc
 (global-set-key (kbd "M-i") 'utils/irc-djcb-erc-start-or-switch) ;; ERC
+;; start org-agenda
+(global-set-key (kbd "M-j")  'goto-line)
 
 ;; start magit
 (global-set-key (kbd "M-g")  'magit-status)
