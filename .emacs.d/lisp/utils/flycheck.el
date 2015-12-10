@@ -59,6 +59,28 @@
   )
 
 ;;;;; ------------------------------------------------------------------
+
+(defcustom flycheck-generic-makefile-cmd nil
+  "The command to run in the build root"
+  :type 'string
+  )
+(put 'flycheck-generic-makefile-cmd 'safe-local-variable (lambda (x) t))
+
+(defun utils/flycheck-generic-makefile-cmd ()
+  "Return if buffer is inside the src root, eather return local file variable or enviroemtnal variable pointing to root of src"
+  (let ((src (or flycheck-generic-makefile-cmd (getenv "FLYCHECK_GENERIC_CMD") "all")))
+    src))
+
+(defcustom flycheck-generic-makefile-addsuffix nil
+  "Weather ot not"
+  :type 'boolean
+  )
+(put 'flycheck-generic-makefile-addsuffix 'safe-local-variable (lambda (x) t))
+
+(defun utils/flycheck-generic-makefile-addsuffix ()
+  "Weather or not to add curdir-srcdir diff to build path"
+  (or flycheck-generic-makefile-addsuffix (if (getenv "FLYCHECK_GENERIC_ADDSUFFIX") t) nil ))
+
 (defcustom flycheck-generic-makefile-src-root nil
   "The root of the src directory"
   :type 'string
@@ -91,11 +113,11 @@
   (file-relative-name (file-name-directory (buffer-file-name)) (utils/flycheck-generic-makefile-src-root))
   )
 
+;; determine where to run make from, the final -C dir will be:
+;; FLYCHECK_GENERIC_BUILD + (if (FLYCHECK_GENERIC_ADDSUFFIX) ( CURDIR - FLYCHECK_GENERIC_BUILD ))
 (defun utils/flycheck-search-generic-makefile ()
   "Search for top `Makefile' "
-
-  (concat (file-name-as-directory (utils/flycheck-generic-makefile-build-root)) (utils/flycheck-get-generic-offset))
-
+  (concat (file-name-as-directory (utils/flycheck-generic-makefile-build-root)) (if (utils/flycheck-generic-makefile-addsuffix) (utils/flycheck-get-generic-offset) ""))
   )
 
 
@@ -103,7 +125,10 @@
   "Generic makefile checker"
   :command
   (
-   "make" "-C" (eval (utils/flycheck-search-generic-makefile)) "all"
+   "make" "-C" (eval (utils/flycheck-search-generic-makefile)) (eval (utils/flycheck-generic-makefile-cmd))
+   ;;"exfat-compile"
+   
+;;   (eval (message (format "make -C %s %s\n" (eval (utils/flycheck-search-generic-makefile)) (eval (utils/flycheck-generic-makefile-cmd)))))
 ;;   (eval (concat (file-name-sans-extension (file-relative-name buffer-file-name (utils/flycheck-search-generic-makefile))) ".o"))
    )
   :error-patterns
@@ -155,6 +180,8 @@
   (message (format "[*] buf-dir: %s" (file-name-directory (buffer-file-name))))
   (message (format "[*] FLYCHECK_GENERIC_SRC: %s" (getenv "FLYCHECK_GENERIC_SRC")))
   (message (format "[*] FLYCHECK_GENERIC_BUILD: %s" (getenv "FLYCHECK_GENERIC_BUILD")))
+  (message (format "[*] FLYCHECK_GENERIC_CMD: %s" (getenv "FLYCHECK_GENERIC_CMD")))
+  (message (format "[*] FLYCHECK_GENERIC_ADDSUFFIX: %s" (getenv "FLYCHECK_GENERIC_ADDSUFFIX")))
   (if flycheck-linux-makefile
       (progn
 	(message "[*] enable linux makefile checker")
