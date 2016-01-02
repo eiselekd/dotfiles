@@ -1,7 +1,7 @@
 
 (defun vcs/magit-init ()
   "Initialize Magit."
-  (message (format "[*] magit init"))
+  (message (format "[*] %s magit init" (timestamp_str)))
   )
 
 
@@ -12,7 +12,8 @@
     (vcs/magit-init))
   )
 
-(with-executable 'git
-		 (vcs/git-init))
+;; switch to load on M-g
+;;(with-executable 'git
+;;		 (vcs/git-init))
 
 (provide 'vcs/git.el)

@@ -236,7 +236,7 @@
 
   (add-hook 'flycheck-mode-hook 'utils/flycheck-mode-hook)
   (add-hook 'flymake-mode-hook 'utils/flymake-mode-hook)
-  (message "[*] Flycheck hook setup")
+  (message "[*] %s Flycheck hook setup" (timestamp_str))
   )
 
 (add-hook 'after-init-hook 'utils/flycheck-init)

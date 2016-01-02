@@ -8,8 +8,17 @@
 ;; toggle-debug-on-error
 (setq ns-right-alternate-modifier nil)
 
+;; (add-to-list 'load-path (substitute-in-file-name "$HOME/git/benchmark-init-el"))
+;; (require 'benchmark-init)
+;; (require 'benchmark-init-modes)
+;; (benchmark-init/activate)
+
 ;; 1: hkset load path
 (if (version< emacs-version "24.3") (setq user-emacs-directory "~/.emacs.d/"))
+
+(defun timestamp_str ()
+  (let ((n (current-time)))
+    (format "%d:%d" (nth 1 n) (nth 2 n))))
 
 (defconst *.emacs.d.dir*
   (file-name-directory (or load-file-name buffer-file-name))
@@ -20,7 +29,7 @@
 (defconst *.emacs.moreconf*
   (substitute-in-file-name "$HOME/emacs"))
 
-(message (format "[*] starting emacs config from %s" *.emacs.d.lisp.dir*))
+(message (format "[*] %s starting emacs config from %s" (timestamp_str) *.emacs.d.lisp.dir*))
 
 ;; (if (and (<= emacs-major-version 24)
 ;; 	 (<= emacs-minor-version 4))
@@ -63,30 +72,37 @@
 (require 'config/constants.el)
 
 (require 'cl)
-(require 'flycheck nil t) ;; -mode
+;;(require 'flycheck nil t) ;; -mode
+(message "[*] %s retired flycheck" (timestamp_str))
 (require 'iswitchb-mode nil t)
-(require 'projmake-mode nil t)
+;;(require 'projmake-mode nil t)
+(message "[*] %s retired projmake-mode" (timestamp_str))
 ;; 2: load apps
-(require 'vcs/git.el)
+;;(require 'vcs/git.el)
 (require 'apps/eshell.el)
-(require 'apps/proced.el)
-(require 'apps/org.el)
+(message "[*] %s retired eshell" (timestamp_str))
+;;(require 'apps/proced.el)
+;;(require 'apps/org.el)
+(message "[*] %s retired org" (timestamp_str))
 (require 'ux/popups.el)
 (require 'ux/mark.el)
 (require 'utils/compile.el)
+(message "[*] %s retired compile" (timestamp_str))
 ;;(require 'utils/ctags.el)
 (require 'utils/openfile.el)
-(require 'utils/flycheck.el)
-(require 'utils/irc.el)
+;;(require 'utils/flycheck.el)
+;;(require 'utils/irc.el)
+(message "[*] %s retired irc" (timestamp_str))
 
 
-(if (eq system-type 'cygwin)
-    (require 'ggtags)
-    (require 'utils/openhelm.el)
-)
+;; (if (eq system-type 'cygwin)
+;;     (require 'ggtags)
+;;     (require 'utils/openhelm.el)
+;; )
 (if (eq system-type 'freebsd)
     normal-erase-is-backspace-mode
 )
+(message "[*] %s retired openhelm" (timestamp_str))
 
 ;;(require 'utils/hackernews)
 ;;(require 'utils/helm-hackernews)
@@ -94,16 +110,16 @@
 (require 'flymake-cursor)
 
 ;; 3: (re-)define keybindings
-(message (format "[*] set keybindings"))
+(message (format "[*] %s set keybindings" (timestamp_str)))
 (require 'config/keybindings.el)
 
 ;;(require 'ux/popups.el.el)
 ;; 4: configure modes
-(message (format "[*] config modes"))
+(message (format "[*] %s config modes" (timestamp_str)))
 (require 'modes/c-mode.el)
 
 (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
-(message (format "[*] try load fringe"))
+(message (format "[*] %s try load fringe" (timestamp_str)))
 (require 'fringe)
 
 (require 'flymake)

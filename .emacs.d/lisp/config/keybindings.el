@@ -59,7 +59,11 @@
 (global-set-key (kbd "M-j")  'goto-line)
 
 ;; start magit
-(global-set-key (kbd "M-g")  'magit-status)
+(global-set-key (kbd "M-g")  (lambda ()(interactive)
+			       (progn
+				 (with-executable 'git
+				   (when (require 'magit nil t)
+				     (magit-status))))))
 ;; start find-tag
 ;(global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))
 ;; open file under cursor

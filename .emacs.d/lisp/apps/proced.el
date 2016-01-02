@@ -1,7 +1,7 @@
 
 (defun apps/proced-init ()
   "Initialize proced."
-  (message (format "[*] proced init"))
+  (message (format "[*] %s proced init" (timestamp_str)))
   (setq-default
    ;; Show all processes.
    proced-filter 'all

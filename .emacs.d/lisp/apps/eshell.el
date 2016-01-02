@@ -71,7 +71,7 @@
 
 (defun apps/eshell-init ()
   "Initialize the Emacs shell."
-  (message (format "[*] eshell init"))
+  (message (format "[*] %s eshell init" (timestamp_str)))
   (setq-default
    ;; Set the path to the shell cache store.
    eshell-directory-name *shell-cache-directory*

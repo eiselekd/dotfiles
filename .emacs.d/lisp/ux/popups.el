@@ -2,7 +2,7 @@
 (defun apps/popup-init ()
   "Initialize popup."
   ;; Install workaround for whitespace-mode bug.
-  (message (format "[*] popup init"))
+  (message (format "[*] %s popup init" (timestamp_str)))
   (after-load 'modes/whitespace
     (defadvice popup-draw (before apps/turn-off-whitespace activate compile)
       "Turn off whitespace mode before showing popup."
@@ -17,7 +17,7 @@
   "Initialize popwin."
   (with-feature 'popwin
     
-    (message (format "[*] popwin init"))
+    (message (format "[*] %s popwin init" (timestamp_str)))
     
     (popwin-mode t)
 
