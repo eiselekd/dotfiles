@@ -83,6 +83,11 @@
     ;; termninal send \033 f (Meta - f)
 ;;    (global-set-key (kbd "M-f")  'flycheck-mode))
 (global-set-key (kbd "M-c")  'flycheck-mode)
+;;(lambda ()(interactive)
+;;			       (progn
+;;				 (require 'flycheck nil t)
+;;				 (require 'utils/flycheck.el)
+;;				 'flycheck-mode)))
 ;;
 (global-set-key (kbd "M-n")  (lambda ()(interactive)
 			       (progn

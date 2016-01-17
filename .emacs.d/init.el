@@ -72,7 +72,7 @@
 (require 'config/constants.el)
 
 (require 'cl)
-;;(require 'flycheck nil t) ;; -mode
+(require 'flycheck nil t) ;; -mode
 (message "[*] %s retired flycheck" (timestamp_str))
 (require 'iswitchb-mode nil t)
 ;;(require 'projmake-mode nil t)
@@ -90,15 +90,16 @@
 (message "[*] %s retired compile" (timestamp_str))
 ;;(require 'utils/ctags.el)
 (require 'utils/openfile.el)
-;;(require 'utils/flycheck.el)
+(require 'utils/flycheck.el)
 ;;(require 'utils/irc.el)
 (message "[*] %s retired irc" (timestamp_str))
 
 
-;; (if (eq system-type 'cygwin)
-;;     (require 'ggtags)
-;;     (require 'utils/openhelm.el)
-;; )
+;;(require 'ggtags)
+(if (eq system-type 'cygwin)
+     (require 'ggtags)
+     (require 'utils/openhelm.el)
+)
 (if (eq system-type 'freebsd)
     normal-erase-is-backspace-mode
 )
@@ -216,3 +217,18 @@
 ;;
 ;;(require 'perspective)
 ;;
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   (quote
+    ((flycheck-clang-include-path "." "inc")
+     (flycheck-gcc-include-path "." "inc")))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
