@@ -76,8 +76,11 @@
   (when (require 'gtags nil t)
     (message (format "[*] try open helm. Note: install globals (gtags) and helm"))
     (require 'helm-config)
+    (message "[*] %s retired helm-config" (timestamp_str))
     (require 'helm-gtags)
+    (message "[*] %s retired helm-gtags" (timestamp_str))
     (require 'ggtags nil t)
+    (message "[*] %s retired ggtags" (timestamp_str))
 
     (global-set-key (kbd "C-x b") 'helm-mini)
     (global-set-key (kbd "M-X") 'helm-M-x)

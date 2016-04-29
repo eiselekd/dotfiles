@@ -50,7 +50,9 @@
 (add-to-list 'load-path (expand-file-name "flim" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "semi" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "apel" *.emacs.d.dir* ))
-(add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "async" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* )) ;; async for helm
+(setq ad-redefinition-action 'accept) ;;ad-handle-definition: `tramp-read-passwd' got redefined
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
 ;;(if (and (<= emacs-major-version 24)
@@ -224,7 +226,8 @@
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-values
    (quote
-    ((flycheck-clang-include-path "." "inc")
+    ((py-indent-offset . 4)
+     (flycheck-clang-include-path "." "inc")
      (flycheck-gcc-include-path "." "inc")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
