@@ -74,10 +74,10 @@
 
 (defun gtag/gtag-init ()
   (when (require 'gtags nil t)
-    (if (and (<= emacs-major-version 24)
-	     (<= emacs-minor-version 5))
+    (if (<= emacs-major-version 24)
+      ( progn
 	(setq tramp-verbose 6)
-	(setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no"))
+	(setq tramp-ssh-controlmaster-options "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")))
     (message (format "[*] try open helm. Note: install globals (gtags) and helm"))
     (require 'helm-config)
     (require 'helm-gtags)
