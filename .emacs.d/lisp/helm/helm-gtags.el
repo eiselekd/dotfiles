@@ -49,10 +49,15 @@
 ;;; Code:
 
 (require 'cl-lib)
+(message "[*] %s retire inside helm-gtags:cl-lib" (timestamp_str))
 (require 'helm)
+(message "[*] %s retire inside helm-gtags:helm" (timestamp_str))
 (require 'helm-files)
+(message "[*] %s retire inside helm-gtags:helm-files" (timestamp_str))
 (require 'which-func)
+(message "[*] %s retire inside helm-gtags:which-func" (timestamp_str))
 (require 'pulse)
+(message "[*] %s retire inside helm-gtags:pulse" (timestamp_str))
 
 (declare-function helm-comp-read "helm-mode")
 (declare-function cygwin-convert-file-name-from-windows "cygw32.c")
@@ -1283,6 +1288,8 @@ Generate new TAG file in selected directory with `C-u C-u'"
     (when helm-gtags-auto-update
       (remove-hook 'after-save-hook 'helm-gtags-update-tags t))))
 
+(message "[*] %s inside helm-gtags keymapping" (timestamp_str))
+    
 ;; Key mapping of gtags-mode.
 (when helm-gtags-suggested-key-mapping
   ;; Current key mapping.
@@ -1307,6 +1314,8 @@ Generate new TAG file in selected directory with `C-u C-u'"
     (define-key helm-gtags-mode-map "\e*" 'helm-gtags-pop-stack)
     (define-key helm-gtags-mode-map "\e." 'helm-gtags-find-tag)
     (define-key helm-gtags-mode-map "\C-x4." 'helm-gtags-find-tag-other-window)))
+
+(message "[*] %s retire inside helm-gtags" (timestamp_str))
 
 (provide 'helm-gtags)
 
