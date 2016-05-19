@@ -58,6 +58,7 @@
 ;;(if (and (<= emacs-major-version 24)
 ;;	 (<= emacs-minor-version 4))
 (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
 
 
 
@@ -132,6 +133,8 @@
 (require 'hideshow-org)
 
 (require 'pp)
+
+
 
 ;;(when (>= emacs-major-version 24)
 ;;  (require 'package)
@@ -212,6 +215,8 @@
 (require 'back-button nil t)
 
 (require 'remember)
+
+(require 'utils/dired.el)
 
 ;;(org-remember-insinuate)
 

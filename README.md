@@ -41,7 +41,9 @@ Keybindings:
    * M-G   : magit hist
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
-
+ * dired:
+  * TAB : toggle subtree
+  
 HELM:
  * C-x b : helm buffer select
  * M-X   : helm version of M-x
