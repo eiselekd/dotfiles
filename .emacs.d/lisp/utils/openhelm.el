@@ -111,7 +111,9 @@
     (add-hook 'c++-mode-hook 'gtag/c-hook)
     (add-hook 'c-mode-hook 'gtag/c-hook)
 
+    
     ))
+
 
 (gtag/gtag-init)
 

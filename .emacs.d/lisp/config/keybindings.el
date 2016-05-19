@@ -58,6 +58,9 @@
 ;; start org-agenda
 (global-set-key (kbd "M-j")  'goto-line)
 
+;;search
+(global-set-key (kbd "C-c o") 'occur)
+
 ;; start magit
 (global-set-key (kbd "M-g")  (lambda ()(interactive)
 			       (progn
