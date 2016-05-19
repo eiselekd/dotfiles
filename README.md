@@ -42,7 +42,11 @@ Keybindings:
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:
-  * TAB : toggle subtree
+  * TAB   : toggle subtree
+  * ESC f : recursive grep in current dir
+  * C-fh  : recursive grep on dir under cursor
+  * C-fg  : find-gre-dired
+  * C-fn  : find-gre-name
   
 HELM:
  * C-x b : helm buffer select

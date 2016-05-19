@@ -61,12 +61,16 @@
 ;;search
 (global-set-key (kbd "C-c o") 'occur)
 
+
 ;; start magit
 (global-set-key (kbd "M-g")  (lambda ()(interactive)
 			       (progn
 				 (with-executable 'git
 				   (when (require 'magit nil t)
 				     (magit-status))))))
+
+
+
 ;; start find-tag
 ;(global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))
 ;; open file under cursor

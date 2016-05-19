@@ -10,31 +10,38 @@
     (local-set-key (kbd "TAB") 'dired-subtree-toggle)
 
     (defvar grep-and-find-map (make-sparse-keymap))
-    (define-key global-map "\C-xf" grep-and-find-map)
-    (define-key global-map "\C-xfg" 'find-grep-dired)
-    (define-key global-map "\C-xff" 'find-name-dired)
-    (define-key global-map "\C-xfl" (lambda (dir pattern)
-				      (interactive "DFind-name locate-style (directory): 
-                     \nsFind-name locate-style (filename wildcard): ")
-				      (find-dired dir (concat "-name '*" pattern "*'"))))
-    (define-key global-map "\C-xg" (lambda ()(interactive) (my/helm-do-grep-current-directory-tree)))
+    (define-key global-map "\C-f" grep-and-find-map)
+    (define-key global-map "\C-fh" 'utils/dired-grep-rec)
+    (define-key global-map "\C-fg" 'find-grep-dired)
+    (define-key global-map "\C-fn" 'find-name-dired)
+    
+    ;;(define-key global-map "\C-xf" 'utils/dired-grep-rec-curdir)
+    ;;(global-set-key "\C-xf" 'utils/dired-grep-rec-curdir )
+
+    (local-set-key (kbd "M-f")    'utils/dired-grep-rec-curdir)
 
     (local-set-key (kbd "<left>") 'dired-subtree-up)
     (local-set-key (kbd "<right>") 'dired-subtree-down)
 
-    (local-set-key (kbd "g") 'utils/dired-grep-rec)
     
     ))
 
 (defun utils/dired-grep-rec ()
   (interactive)
-
   (let* ( (dir-name (or (ignore-errors (dired-get-filename nil))
 			(buffer-file-name)
 			default-directory)))
     (message "recursive grep in dirname: %s " dir-name)
+    (sleep-for 1) 
     (helm-do-grep-1 (list dir-name) t nil '("*"))))
 
+(defun utils/dired-grep-rec-curdir ()
+  (interactive)
+  (let* ( (dir-name (or (buffer-file-name)
+			default-directory)))
+    (message "recursive grep in dirname: %s " dir-name)
+    (sleep-for 1) 
+    (helm-do-grep-1 (list dir-name) t nil '("*"))))
 
 ;;(setq dired-listing-switches "-aBhl  --group-directories-first")
 
