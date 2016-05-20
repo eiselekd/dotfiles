@@ -4,7 +4,7 @@ dotfiles
 Emacs config. Install by replacing ~/.emacs.d with
 "ln -s dotfiles-path/.emacs.d ~/.emacs.d"
 
-Keybindings:
+Keybindings: 
 
  * ESC g : magit
  * ESC p : proced
