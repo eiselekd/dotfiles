@@ -11,6 +11,7 @@ Keybindings:
  * ESC c : flycheck
    * F5/F6 : next/prev-error
  * ESC e : eshell
+ * ESC E : ansi-term
  * ESC 1 : workspace w1
  * ESC 2 : workspace w2
  * ESC 5 : open file at cursor
@@ -63,5 +64,6 @@ Defaults:
  * M > : End of buffer
  * M < : Top of buffer
  * Ctrl-x 4 a: add changlog entry
+ * Ctrl-x Ctrl-[+/-] : bigger/smaller font 
 
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/) has to be present

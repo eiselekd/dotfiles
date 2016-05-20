@@ -47,6 +47,8 @@
 
 ;; start egit
 (global-set-key (kbd "M-e")  'apps/raise-eshell)
+(global-set-key (kbd "M-E")  (lambda()(interactive)
+			       (ansi-term )))
 ;; start proced
 (global-set-key (kbd "M-p")  'proced)
 ;; start proced

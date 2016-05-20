@@ -61,6 +61,7 @@
 (add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
 
 
+;;(set-face-attribute 'default nil :height 100)
 
 ;;  )
 

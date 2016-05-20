@@ -50,7 +50,7 @@
 	(string-match "\\(/\\.?.\\)[^/]+" path)
 	(setq path (replace-match "\\1" nil nil path))))
     path)
-  
+
   (concat
    (with-face (concat (apps/shorten-path (eshell/pwd)) " ")
               :inherit 'header-line)
