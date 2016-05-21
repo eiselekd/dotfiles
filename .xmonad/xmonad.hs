@@ -16,6 +16,9 @@ import XMonad.Layout.Tabbed
 import XMonad.Layout.ThreeColumns
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
+import XMonad.Actions.CycleWindows
+import XMonad.Actions.CycleWS
+import XMonad.Actions.Navigation2D
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 import Debug.Trace (traceShow)
@@ -155,8 +158,23 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Start a terminal.  Terminal to start is specified by myTerminal variable.
   [
 
+    -- Ubuntu keybinding :
+    
     ((altModMask .|. controlMask, xK_t),
      startdefaultinws)
+     
+   , ((altModMask .|. controlMask, xK_Left),
+     prevWS)
+   , ((altModMask .|. controlMask, xK_Right),
+     nextWS)
+
+
+   -- Directional navigation of windows
+   , ((myModMask,                 xK_Right), windowGo R False)
+   , ((myModMask,                 xK_Left ), windowGo L False)
+   , ((myModMask,                 xK_Up   ), windowGo U False)
+   , ((myModMask,                 xK_Down ), windowGo D False)
+
 
 -- spawn $ XMonad.terminal conf
 
