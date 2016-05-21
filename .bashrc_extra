@@ -5,3 +5,20 @@ shopt -s histappend
 
 # After each command, append to the history file and reread it
 export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+
+export LOGDIR=${HOME}/logs
+
+function record () {
+   d=`date +"%Y-%m-%d-%H-%M-%S"`
+   if [ ! -d ${LOGDIR} ]; then mkdir -p ${LOGDIR}; fi
+   touch ${LOGDIR}/${d}
+   script  -a ${LOGDIR}/${d}
+   history > ${LOGDIR}/${d}.history
+
+
+   exec 1> >(logger -s -t $(basename $0)) 2>&1
+}
+
+# enable this to log to journalctl -f
+# exec 1> >(logger -s -t $(basename $0)) 2>&1
+# exec > >(logger -p user.info) 2> >(logger -p user.warn)
