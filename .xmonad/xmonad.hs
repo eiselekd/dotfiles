@@ -18,6 +18,7 @@ import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
+import Debug.Trace (traceShow)
 
 
 ------------------------------------------------------------------------
@@ -26,6 +27,8 @@ import qualified Data.Map        as M
 -- certain contrib modules.
 --
 myTerminal = "/usr/bin/gnome-terminal"
+
+myBrowser = "/usr/bin/google-chrome"
 
 -- The command to lock the screen or show the screensaver.
 myScreensaver = "/usr/bin/gnome-screensaver-command --lock"
@@ -134,6 +137,15 @@ myBorderWidth = 1
 -- "windows key" is usually mod4Mask.
 --
 myModMask = mod4Mask
+altModMask = mod1Mask
+
+
+startdefaultinws :: X ()
+startdefaultinws = do
+    current <- gets (W.currentTag . windowset)
+    if current == "2:web"
+     then spawn (traceShow current $ myBrowser )
+     else spawn (traceShow current $ myTerminal )
 
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   ----------------------------------------------------------------------
@@ -141,8 +153,13 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   --
 
   -- Start a terminal.  Terminal to start is specified by myTerminal variable.
-  [ ((modMask .|. shiftMask, xK_Return),
-     spawn $ XMonad.terminal conf)
+  [
+
+    ((altModMask .|. controlMask, xK_t),
+     startdefaultinws)
+
+-- spawn $ XMonad.terminal conf
+
 
   -- Lock the screen using command specified by myScreensaver.
   , ((modMask .|. controlMask, xK_l),

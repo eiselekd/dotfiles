@@ -1,0 +1,12 @@
+Xephyr :1&
+export DISPLAY=:1 
+
+git clone https://github.com/xmonad/xmonad
+cd xmonad
+cabal sandbox init
+cabal build
+cabal repl
+
+ghci>xmonad def
+
+
