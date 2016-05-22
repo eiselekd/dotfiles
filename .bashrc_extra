@@ -12,6 +12,8 @@ export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; histor
 
 export LOGDIR=${HOME}/logs
 
+alias em="emacs -nw"
+
 function record () {
    d=`date +"%Y-%m-%d-%H-%M-%S"`
    if [ ! -d ${LOGDIR} ]; then mkdir -p ${LOGDIR}; fi
