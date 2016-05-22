@@ -81,7 +81,7 @@ myManageHook = composeAll
     , className =? "VirtualBox"     --> doShift "4:vm"
     , className =? "Xchat"          --> doShift "5:media"
     , className =? "stalonetray"    --> doIgnore
-    , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
+    , isFullscreen --> (doF W.focusDown <+> doFullFloat  )]
 
 
 ------------------------------------------------------------------------
@@ -175,6 +175,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
    , ((myModMask,                 xK_Up   ), windowGo U False)
    , ((myModMask,                 xK_Down ), windowGo D False)
 
+
+   , ((myModMask, xK_b), sendMessage ToggleStruts)
 
 -- spawn $ XMonad.terminal conf
 
@@ -406,7 +408,10 @@ defaults = defaultConfig {
     mouseBindings      = myMouseBindings,
 
     -- hooks, layouts
-    layoutHook         = smartBorders $ myLayout,
-    manageHook         = myManageHook,
-    startupHook        = myStartupHook
+    layoutHook         = avoidStruts $ smartBorders $ myLayout ,
+    manageHook         = myManageHook ,
+    startupHook        = myStartupHook ,
+    
+    handleEventHook    = docksEventHook
+
 }
