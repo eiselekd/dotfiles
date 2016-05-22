@@ -95,21 +95,23 @@ myManageHook = composeAll
 -- which denotes layout choice.
 --
 myLayout = avoidStruts (
-    ThreeColMid 1 (3/100) (1/2) |||
-    Tall 1 (3/100) (1/2) |||
-    Mirror (Tall 1 (3/100) (1/2)) |||
+    Tall 1 (10/100) (2/3) |||
     tabbed shrinkText tabConfig |||
-    Full |||
-    spiral (6/7)) |||
-    noBorders (fullscreenFull Full)
+    Full 
+    ) 
 
+
+-- spiral (6/7) |||
+--    ThreeColMid 1 (3/100) (1/2) |||
+--    
+--    Mirror (Tall 1 (3/100) (1/2)) |||
 
 ------------------------------------------------------------------------
 -- Colors and borders
 -- Currently based on the ir_black theme.
 --
 myNormalBorderColor  = "#7c7c7c"
-myFocusedBorderColor = "#ffb6b0"
+myFocusedBorderColor = "#ffb6ff"
 
 -- Colors for text and backgrounds of each tab when in "Tabbed" layout.
 tabConfig = defaultTheme {
@@ -169,12 +171,22 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      nextWS)
 
 
+   , ((myModMask .|. shiftMask, xK_Left),
+     windowSwap L False)
+   , ((myModMask .|. shiftMask, xK_Right),
+     windowSwap R False)
+   , ((myModMask .|. shiftMask, xK_Up),
+     windowSwap U False)
+   , ((myModMask .|. shiftMask, xK_Down),
+     windowSwap D False)
+
+
+
    -- Directional navigation of windows
    , ((myModMask,                 xK_Right), windowGo R False)
    , ((myModMask,                 xK_Left ), windowGo L False)
    , ((myModMask,                 xK_Up   ), windowGo U False)
    , ((myModMask,                 xK_Down ), windowGo D False)
-
 
    , ((myModMask, xK_b), sendMessage ToggleStruts)
 

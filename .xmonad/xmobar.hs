@@ -17,9 +17,25 @@ Config {
         Run Network "wlp4s0" ["-t","Net: <rx>, <tx>","-H","200","-L","10","-h","#FFB6B0","-l","#CEFFAC","-n","#FFFFCC"] 10,
         Run Network "enp0s31f6" ["-t","Net: <rx>, <tx>","-H","200","-L","10","-h","#FFB6B0","-l","#CEFFAC","-n","#FFFFCC"] 10,
         Run Date "%a %b %_d %l:%M" "date" 10,
+        Run Battery        [ "--template" , "Batt: <acstatus>"
+	, "--Low"      , "10"        -- units: %
+	, "--High"     , "80"        -- units: %
+	, "--low"      , "darkred"
+	, "--normal"   , "darkorange"
+	, "--high"     , "darkgreen"
+
+	, "--" -- battery specific options
+	-- discharging status
+	, "-o"	, "<left>% (<timeleft>)"
+	-- AC "on" status
+	, "-O"	, "<fc=#dAA520>Charging</fc>"
+	-- charged status
+	, "-i"	, "<fc=#006000>Charged</fc>"
+	] 50,
+
         Run StdinReader
     ],
     sepChar = "%",
     alignSep = "}{",
-    template = "%StdinReader% }{ %multicpu%   %memory%   %swap%   %wlp4s0% %enp0s31f6%  <fc=#FFFFCC>%date%</fc>  "
+    template = "%StdinReader% }{ %battery% %multicpu%   %memory%   %swap%   %wlp4s0% %enp0s31f6%  <fc=#FFFFCC>%date%</fc>  "
 }
