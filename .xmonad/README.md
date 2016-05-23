@@ -5,3 +5,4 @@ Win-[Left|Right|Up|Down] : 2d window navigate
 Win-Shift-c   : kill window
 Win-[12...]   : workspace select
 Win-b         : toggle toolbar
+Win-p         : start prog using dmenu

@@ -2,6 +2,11 @@
 -- Author: Vic Fryzel
 -- http://github.com/vicfryzel/xmonad-config
 
+
+import System.Process
+import XMonad.Config.Desktop
+import XMonad.Config.Gnome
+import XMonad.Util.Run (safeSpawn)
 import System.IO
 import System.Exit
 import XMonad
@@ -14,6 +19,7 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ThreeColumns
+import XMonad.Util.Run(runProcessWithInput)
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
 import XMonad.Actions.CycleWindows
@@ -22,7 +28,8 @@ import XMonad.Actions.Navigation2D
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 import Debug.Trace (traceShow)
-
+import System.Environment (getEnvironment)
+import Language.Haskell.TH.Syntax (runIO)
 
 ------------------------------------------------------------------------
 -- Terminal
@@ -45,7 +52,8 @@ myScreenshot = "screenshot"
 
 -- The command to use as a launcher, to launch commands that don't have
 -- preset keybindings.
-myLauncher = "$(yeganesh -x -- -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -nb '#000000' -nf '#FFFFFF' -sb '#7C7C7C' -sf '#CEFFAC')"
+myLauncher = "dmenu_run "
+-- $(yeganesh -x -- -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -nb '#000000' -nf '#FFFFFF' -sb '#7C7C7C' -sf '#CEFFAC')"
 
 
 ------------------------------------------------------------------------
@@ -71,7 +79,7 @@ myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
 --
 myManageHook = composeAll
     [ className =? "Chromium"       --> doShift "2:web"
-    , className =? "Google-chrome"  --> doShift "2:web"
+    , className =? "google-chrome"  --> doShift "2:web"
     , resource  =? "desktop_window" --> doIgnore
     , className =? "Galculator"     --> doFloat
     , className =? "Steam"          --> doFloat
@@ -152,6 +160,18 @@ startdefaultinws = do
      then spawn (traceShow current $ myBrowser )
      else spawn (traceShow current $ myTerminal )
 
+-- groupBy :: String -> Char -> [String]
+-- groupBy str delim = let (start, end) = break (== delim) str
+--                   in start : if null end then [] else groupBy (tail end) delim
+
+startgpanel :: X ()
+startgpanel = do
+     gp <- liftIO $ runProcessWithInput  "pidof" ["gnome-panel"] ""
+     if (length gp) > 0
+      then spawn (traceShow gp $ "killall gnome-panel")
+      else spawn (traceShow gp $ "gnome-panel")
+    
+
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   ----------------------------------------------------------------------
   -- Custom key bindings
@@ -164,6 +184,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     
     ((altModMask .|. controlMask, xK_t),
      startdefaultinws)
+
+   , ((altModMask .|. controlMask, xK_Return),
+     startdefaultinws)
+
      
    , ((altModMask .|. controlMask, xK_Left),
      prevWS)
@@ -181,7 +205,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      windowSwap D False)
 
 
-
    -- Directional navigation of windows
    , ((myModMask,                 xK_Right), windowGo R False)
    , ((myModMask,                 xK_Left ), windowGo L False)
@@ -189,6 +212,12 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
    , ((myModMask,                 xK_Down ), windowGo D False)
 
    , ((myModMask, xK_b), sendMessage ToggleStruts)
+
+   , ((myModMask, xK_g), startgpanel)
+
+-- spawn "gnome-panel"
+--   , ((myModMask .|. shiftMask, xK_g), spawn "killall gnome-panel")
+
 
 -- spawn $ XMonad.terminal conf
 
@@ -377,7 +406,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 -- per-workspace layout choices.
 --
 -- By default, do nothing.
-myStartupHook = return ()
+-- myStartupHook = return ()
 
 
 ------------------------------------------------------------------------
@@ -385,7 +414,7 @@ myStartupHook = return ()
 --
 main = do
   xmproc <- spawnPipe "xmobar ~/.xmonad/xmobar.hs"
-  xmonad $ defaults {
+  xmonad $ defaults  {
       logHook = dynamicLogWithPP $ xmobarPP {
             ppOutput = hPutStrLn xmproc
           , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
@@ -393,7 +422,7 @@ main = do
           , ppSep = "   "
       }
       , manageHook = manageDocks <+> myManageHook
-      , startupHook = setWMName "LG3D"
+      , startupHook = startupHook defaults >> setWMName "LG3D"
   }
 
 
@@ -405,7 +434,7 @@ main = do
 --
 -- No need to modify this.
 --
-defaults = defaultConfig {
+defaults = gnomeConfig {- defaultConfig -} {
     -- simple stuff
     terminal           = myTerminal,
     focusFollowsMouse  = myFocusFollowsMouse,
@@ -422,8 +451,10 @@ defaults = defaultConfig {
     -- hooks, layouts
     layoutHook         = avoidStruts $ smartBorders $ myLayout ,
     manageHook         = myManageHook ,
-    startupHook        = myStartupHook ,
+--    startupHook        = myStartupHook ,
     
     handleEventHook    = docksEventHook
 
 }
+
+
