@@ -1,0 +1,6 @@
+monad:
+	mkdir -p ${HOME}/.config/gnome-session/sessions/ ${HOME}/.local/share/applications/
+	cp .config/gnome-session/sessions/* ${HOME}/.config/gnome-session/sessions/
+	cp .local/share/applications/* ${HOME}/.local/share/applications/
+	echo "export XDG_CURRENT_DESKTOP=Unity" >> ${HOME}/.xsession
+

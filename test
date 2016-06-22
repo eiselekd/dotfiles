@@ -1,0 +1,22 @@
+Script started on Sun 22 May 2016 12:06:19 AM CEST
+]0;eiselekd@ubuntueiselekd: ~/git/dotfiles[01;32meiselekd@ubuntueiselekd[00m:[01;34m~/git/dotfiles[00m$ 
+]0;eiselekd@ubuntueiselekd: ~/git/dotfiles[01;32meiselekd@ubuntueiselekd[00m:[01;34m~/git/dotfiles[00m$ 
+]0;eiselekd@ubuntueiselekd: ~/git/dotfiles[01;32meiselekd@ubuntueiselekd[00m:[01;34m~/git/dotfiles[00m$ 
+]0;eiselekd@ubuntueiselekd: ~/git/dotfiles[01;32meiselekd@ubuntueiselekd[00m:[01;34m~/git/dotfiles[00m$ 
+]0;eiselekd@ubuntueiselekd: ~/git/dotfiles[01;32meiselekd@ubuntueiselekd[00m:[01;34m~/git/dotfiles[00m$ ls -la 
+total 36
+drwxrwxr-x  5 eiselekd eiselekd 4096 May 22 00:06 [0m[01;34m.[0m
+drwxrwxr-x 20 eiselekd eiselekd 4096 May 21 19:45 [01;34m..[0m
+-rw-rw-r--  1 eiselekd eiselekd  318 May 22 00:02 .bashrc_extra
+-rw-rw-r--  1 eiselekd eiselekd   52 May 22 00:02 .bashrc_extra~
+-rw-rw-r--  1 eiselekd eiselekd   52 May 20 17:51 .emacs
+drwxrwxr-x  5 eiselekd eiselekd 4096 May 21 17:01 [01;34m.emacs.d[0m
+drwxrwxr-x  8 eiselekd eiselekd 4096 May 22 00:04 [01;34m.git[0m
+-rw-rw-r--  1 eiselekd eiselekd 2007 May 21 17:01 README.md
+-rw-rw-r--  1 eiselekd eiselekd    0 May 22 00:06 test
+drwxrwxr-x  2 eiselekd eiselekd 4096 May 21 23:53 [01;34m.xmonad[0m
+]0;eiselekd@ubuntueiselekd: ~/git/dotfiles[01;32meiselekd@ubuntueiselekd[00m:[01;34m~/git/dotfiles[00m$ 
+]0;eiselekd@ubuntueiselekd: ~/git/dotfiles[01;32meiselekd@ubuntueiselekd[00m:[01;34m~/git/dotfiles[00m$ exit
+exit
+
+Script done on Sun 22 May 2016 12:06:25 AM CEST
