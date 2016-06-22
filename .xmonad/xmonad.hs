@@ -170,6 +170,13 @@ startgpanel = do
      if (length gp) > 0
       then spawn (traceShow gp $ "killall gnome-panel")
       else spawn (traceShow gp $ "gnome-panel")
+
+startmobar :: X ()
+startmobar = do
+     gp <- liftIO $ runProcessWithInput  "pidof" ["xmobar"] ""
+     if (length gp) > 0
+      then spawn "killall xmobar"
+      else spawn "xmobar"
     
 
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
@@ -212,7 +219,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
    , ((myModMask,                 xK_Down ), windowGo D False)
 
    , ((myModMask, xK_b), sendMessage ToggleStruts)
-
+   -- sendMessage ToggleStruts -- startmobar
    , ((myModMask, xK_g), startgpanel)
 
 -- spawn "gnome-panel"
@@ -400,13 +407,13 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 main = do
   xmproc <- spawnPipe "xmobar ~/.xmonad/xmobar.hs"
   xmonad $ defaults  {
-      logHook = dynamicLogWithPP $ xmobarPP {
+        logHook = dynamicLogWithPP $ xmobarPP {
             ppOutput = hPutStrLn xmproc
           , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
           , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
           , ppSep = "   "
-      }
-      , manageHook = manageDocks <+> myManageHook
+        } ,
+        manageHook = manageDocks <+> myManageHook
       , startupHook = startupHook defaults >> setWMName "LG3D"
   }
 
