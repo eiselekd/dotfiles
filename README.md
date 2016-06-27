@@ -64,6 +64,6 @@ Defaults:
  * M > : End of buffer
  * M < : Top of buffer
  * Ctrl-x 4 a: add changlog entry
- * Ctrl-x Ctrl-[+/-] : bigger/smaller font
+ * Ctrl-x (Ctrl-[+/-]) : bigger/smaller font (terminal)
 
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/) has to be present
