@@ -2,6 +2,9 @@
 #    . ${HOME}/git/dotfiles/.bashrc_extra
 #fi
 
+alias ovc='openssl x509 -text -noout -in ' 
+alias ovk='openssl rsa -text -noout -in ' 
+
 # Avoid duplicates
 export HISTCONTROL=ignoredups:erasedups
 # When the shell exits, append to the history file instead of overwriting it
