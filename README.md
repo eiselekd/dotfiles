@@ -18,8 +18,8 @@ Keybindings:
  * ESC 6 : find elisp func at cursor
  * ESC 7 : find func at cursor using gtags
  * ESC F10 : open menu-bar in console mode
- * F10   : compile, search for "compile.txt" as make command
- * F9    : gdb, search for "gdb.txt" as gdb init-command script
+ * F9    : compile, search for "compile.txt" as make command
+ * F10   : gdb, search for "gdb.txt" as gdb init-command script
    * F1 : restore layout
    * F5 : step into
    * F6 : step over
@@ -64,6 +64,7 @@ Defaults:
  * M > : End of buffer
  * M < : Top of buffer
  * Ctrl-x 4 a: add changlog entry
- * Ctrl-x (Ctrl-[+/-]) : bigger/smaller font (terminal)
+ * Ctrl-[+/-] : bigger/smaller font (terminal)
 
-[1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/) has to be present
+[1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
+has to be present

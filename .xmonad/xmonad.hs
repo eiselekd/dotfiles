@@ -251,21 +251,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. controlMask, xK_k),
      spawn "amixer -q set Master 10%+")
 
-  -- Audio previous.
-  , ((0, 0x1008FF16),
-     spawn "")
-
-  -- Play/pause.
-  , ((0, 0x1008FF14),
-     spawn "")
-
-  -- Audio next.
-  , ((0, 0x1008FF17),
-     spawn "")
-
-  -- Eject CD tray.
-  , ((0, 0x1008FF2C),
-     spawn "eject -T")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings

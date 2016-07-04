@@ -110,9 +110,9 @@
 (global-set-key (kbd "ESC <f10>") 'menu-bar-open)
 
 (defun utils/compile-keybind ()
-    (global-set-key (kbd "<f10>") 'utils/compile))
+    (global-set-key (kbd "<f9>") 'utils/compile))
 (defun utils/debug-keybind ()
-    (global-set-key (kbd "<f9>") 'utils/debug))
+    (global-set-key (kbd "<f10>") 'utils/debug))
 (defun utils/debug-gud-keybind ()
 
 ;;  (global-set-key (kbd "<f3>") 'gud-next)

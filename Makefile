@@ -5,4 +5,5 @@ monad:
 	cp gnome/gnome-session-xmonad /usr/bin/
 	cp gnome/gnome-xmonad.session /usr/share/gnome-session/sessions/
 	cp gnome/gnome-xmonad.desktop /usr/share/xsessions/
+	ln -sf $(CURDIR)/.xmonad/xmobar.hs $(HOME)/.xmobarrc
 
