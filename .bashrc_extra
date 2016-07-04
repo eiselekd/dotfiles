@@ -32,3 +32,6 @@ function record () {
 # exec 1> >(logger -s -t $(basename $0)) 2>&1
 # exec > >(logger -p user.info) 2> >(logger -p user.warn)
 
+
+alias ovc="openssl x509 -noout -text -in "
+alias ovk="openssl rsa  -noout -text -in "
