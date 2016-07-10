@@ -16,11 +16,14 @@ conn setup
 
 conn vpnconn
       leftcert=vpnclient.cert.der
-      leftsubnet=192.168.0.0/24
+      #leftsubnet=192.168.0.0/24
+      #leftprotoport=17/1701
       right=$serverip
       rightsubnet=192.168.0.0/16
+      #rightprotoport=17/1701
       rightid="$serverdn"
       auto=start
 
+#no leftsubnet on udp 17/1701
 EOF
 

@@ -20,9 +20,17 @@ conn vpnconn
       left=<$serverip>
       leftsubnet=192.168.0.0/16
       leftcert=vpnserver.cert.der
+      #leftprotoport=17/1701
       right=%any
       rightca="$cadn"
+      #rightsubnet=192.168.43.0/24
+      #rightprotoport=17/1701
       keyexchange=ikev2
       auto=start
 
+#no leftsubnet on udp 17/1701
+
 EOF
+
+iptables --table nat --append POSTROUTING --jump MASQUERADE
+echo 1 > /proc/sys/net/ipv4/ip_forward
