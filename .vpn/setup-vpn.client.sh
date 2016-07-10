@@ -16,6 +16,7 @@ conn setup
 
 conn vpnconn
       leftcert=vpnclient.cert.der
+      leftsubnet=192.168.0.0/24
       right=$serverip
       rightsubnet=192.168.0.0/16
       rightid="$serverdn"
