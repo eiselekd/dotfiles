@@ -12,10 +12,12 @@ cp vpnca.cert.pem /etc/ipsec.d/cacert/
 cp vpnserver.cert.pem /etc/ipsec.d/cert/
 
 echo <<EOF
+conn setup
+     virtual_private=%v4:192.168.0.0/16
+     nat_traversal=yes
 
 conn vpnconn
-      left=
-      #left=%defaultroute
+      left=<$serverip>
       leftsubnet=192.168.0.0/16
       leftcert=vpnserver.cert.der
       right=%any
