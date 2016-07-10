@@ -17,8 +17,8 @@ conn setup
      nat_traversal=yes
 
 conn vpnconn
+      type=transport
       left=<$serverip>
-      leftsubnet=192.168.0.0/16
       leftcert=vpnserver.cert.der
       #leftprotoport=17/1701
       right=%any
