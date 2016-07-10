@@ -55,11 +55,11 @@
 (setq ad-redefinition-action 'accept) ;;ad-handle-definition: `tramp-read-passwd' got redefined
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
-;;(if (and (<= emacs-major-version 24)
-;;	 (<= emacs-minor-version 4))
 (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
 
+(if (and (<= emacs-major-version 24)
+	 (<= emacs-minor-version 4))
 
 ;;(set-face-attribute 'default nil :height 100)
 
@@ -221,6 +221,7 @@
 
 ;;(org-remember-insinuate)
 
+)
 
 ;;
 ;;(require 'perspective)
