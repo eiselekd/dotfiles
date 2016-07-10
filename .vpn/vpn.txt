@@ -1,0 +1,15 @@
+cadn="C=SE, O=VPNNET, CN=VPNServer Root CA"
+
+serverdn="C=SE, O=VPNNET, CN=VPNServer"
+serversan0=vpnserver.net
+serversan1=vpnserver.net
+servercrl=http://vpnserver.net
+
+clientdn="C=SE, O=VPNNET, CN=VPNClient"
+clientsan0=vpnclient.net
+clientsan1=vpnclient.net
+clientcrl=http://vpnserver.net
+
+if [ -f vpn_priv.txt ]; then
+. vpn_priv.txt
+else

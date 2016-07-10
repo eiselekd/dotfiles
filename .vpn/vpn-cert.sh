@@ -1,21 +1,7 @@
 set -x
 rm *der
 
-if [ -f vpn.txt ]; then
 . vpn.txt
-else
-cadn="C=SE, O=VPNNET, CN=VPNServer Root CA"
-
-serverdn="C=SE, O=VPNNET, CN=VPNServer"
-serversan0=vpnserver.net
-serversan1=vpnserver.net
-servercrl=http://vpnserver.net
-
-clientdn="C=SE, O=VPNNET, CN=VPNClient"
-clientsan0=vpnclient.net
-clientsan1=vpnclient.net
-clientcrl=http://vpnserver.net
-fi
 
 ipsec pki --gen -s 4096 > vpnca.key.der
 ipsec pki --self --ca --lifetime 1460 --in vpnca.key.der --dn "${cadn}" > vpnca.cert.der
