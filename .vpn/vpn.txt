@@ -12,4 +12,5 @@ clientcrl=http://vpnserver.net
 
 if [ -f vpn_priv.txt ]; then
 . vpn_priv.txt
-else
+fi
+
