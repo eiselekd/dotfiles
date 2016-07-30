@@ -58,8 +58,8 @@
 (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
 
-(if (and (>= emacs-major-version 24)
-	 (>= emacs-minor-version 4))
+(if (or (>= emacs-major-version 24)
+	(>= emacs-minor-version 4)) (progn 
 
 ;;(set-face-attribute 'default nil :height 100)
 
@@ -221,7 +221,7 @@
 
 ;;(org-remember-insinuate)
 
-)
+))
 
 ;;
 ;;(require 'perspective)
