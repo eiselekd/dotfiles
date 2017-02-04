@@ -45,3 +45,5 @@ nsidof()
     nsid=$(ps faux | grep -A 1 "lxc $1" | grep -v grep | grep "init" | awk '{print $2}')
     echo $nsid
 }
+
+xset b off
