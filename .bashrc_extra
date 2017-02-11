@@ -51,3 +51,5 @@ nsidof()
 }
 
 xset b off
+
+alias rsynca="rsync -a "
