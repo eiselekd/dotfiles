@@ -52,4 +52,4 @@ nsidof()
 
 xset b off
 
-alias rsynca="rsync -a "
+alias rsynca="rsync -av "
