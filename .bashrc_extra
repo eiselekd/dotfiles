@@ -12,6 +12,10 @@ shopt -s histappend
 
 # After each command, append to the history file and reread it
 # export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+# add /etc/rsyslog.d/bash.conf:
+# local6.*    /var/log/commands.log
+# export PROMPT_COMMAND='RETRN_VAL=$?;logger -p local6.debug "$(whoami) [$$]: $(history 1 | sed "s/^[ ]*[0-9]\+[ ]*//" ) [$RETRN_VAL]"'
+
 
 export LOGDIR=${HOME}/logs
 
