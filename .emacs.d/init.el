@@ -59,7 +59,7 @@
 (add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
 
 (if (or (>= emacs-major-version 24)
-	(>= emacs-minor-version 4)) (progn 
+	(>= emacs-minor-version 4)) (progn
 
 ;;(set-face-attribute 'default nil :height 100)
 
@@ -122,6 +122,7 @@
 ;; 4: configure modes
 (message (format "[*] %s config modes" (timestamp_str)))
 (require 'modes/c-mode.el)
+(require 'modes/lua-mode.el)
 
 (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
 (message (format "[*] %s try load fringe" (timestamp_str)))
