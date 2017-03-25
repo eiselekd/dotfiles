@@ -76,6 +76,12 @@
 		       (ggtags-mode))
 		   (global-set-key (kbd "M-(")  'hs-hide-block)
 		   (global-set-key (kbd "M-)")  'hs-show-block)
+		   (global-set-key (kbd "M-M")
+				   (lambda () (interactive)
+				     (progn
+				       (message "Prepare: helm-man-woman")
+				       (when  (require 'helm-man nil t )
+				     	 (call-interactively 'helm-man-woman)))))
 
 		   (modes/orgstruct-commen)
 
@@ -107,10 +113,11 @@
 				  (call-interactively 'hs-org/minor-mode))))
 	      ;;(global-set-key (kbd "M-h")  'hs-org/minor-mode)
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
+	      (global-set-key (kbd "M-M")  'helm-man-women)
 
 	      (modes/orgstruct-commen)
 	      (c-mode-addfuncs)
-		   
+
 	      )))
 
 
