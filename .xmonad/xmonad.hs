@@ -25,6 +25,7 @@ import XMonad.Util.EZConfig(additionalKeys)
 import XMonad.Actions.CycleWindows
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Navigation2D
+import XMonad.Layout.ToggleLayouts
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 import Debug.Trace (traceShow)
@@ -102,10 +103,11 @@ myManageHook = composeAll
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-myLayout = avoidStruts (
-    Tall 1 (10/100) (2/3) |||
-    tabbed shrinkText tabConfig |||
-    Full 
+myLayout =  avoidStruts ( 
+    toggleLayouts Full (
+    		  Tall 1 (10/100) (2/3) |||
+    		  tabbed shrinkText tabConfig
+		  )
     ) 
 
 
@@ -285,11 +287,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Move focus to the next window.
   , ((modMask, xK_j),
-     windows W.focusDown)
+     windows W.focusUp)
 
   -- Move focus to the previous window.
   , ((modMask, xK_k),
-     windows W.focusUp  )
+     windows W.focusDown  )
 
   -- Move focus to the master window.
   , ((modMask, xK_m),
@@ -314,6 +316,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Expand the master area.
   , ((modMask, xK_l),
      sendMessage Expand)
+
+  -- Switch to Full layout.
+  , ((modMask .|. shiftMask, xK_l),
+      sendMessage (Toggle "Full") )
 
   -- Push window back into tiling.
   , ((modMask, xK_t),
