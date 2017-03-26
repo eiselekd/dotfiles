@@ -53,8 +53,8 @@ myScreenshot = "screenshot"
 
 -- The command to use as a launcher, to launch commands that don't have
 -- preset keybindings.
-myLauncher = "dmenu_run "
--- $(yeganesh -x -- -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -nb '#000000' -nf '#FFFFFF' -sb '#7C7C7C' -sf '#CEFFAC')"
+myLauncher = "dmenu_run -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -nb '#000000' -nf '#FFFFFF' -sb '#7C7C7C' -sf '#CEFFAC'"
+--     $(yeganesh -x -- -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -nb '#000000' -nf '#FFFFFF' -sb '#7C7C7C' -sf '#CEFFAC')"
 
 
 ------------------------------------------------------------------------
@@ -181,6 +181,8 @@ startmobar = do
       else spawn "xmobar"
     
 
+myRestart = "pkill -KILL xmobar && xmonad --recompile && xmonad --restart"
+
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   ----------------------------------------------------------------------
   -- Custom key bindings
@@ -242,7 +244,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Take a selective screenshot using the command specified by mySelectScreenshot.
   , ((modMask .|. shiftMask, xK_p),
-     spawn mySelectScreenshot)
+     spawn "sleep 0.5; scrot '/tmp/%Y-%m-%d_$wx$h_scrot.png' -e 'mv $f ~/pic/'")
+
+     -- spawn mySelectScreenshot)
+  
+
 
   -- Take a full screenshot using the command specified by myScreenshot.
   , ((modMask .|. controlMask .|. shiftMask, xK_p),
@@ -259,7 +265,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Increase volume.
   , ((modMask .|. controlMask, xK_k),
      spawn "amixer -q set Master 10%+")
-
+     
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
@@ -337,12 +343,16 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- TODO: update this binding with avoidStruts, ((modMask, xK_b),
 
   -- Quit xmonad.
-  , ((modMask .|. shiftMask, xK_q),
-     io (exitWith ExitSuccess))
+  , ((modMask .|. shiftMask, xK_q), spawn "/usr/bin/gnome-session-quit  --logout --no-prompt")
+  --     io (exitWith ExitSuccess))
+
 
   -- Restart xmonad.
-  , ((modMask, xK_q),
-     restart "xmonad" True)
+  , ((modMask, xK_q), spawn "pkill -KILL xmobar && xmonad --recompile && xmonad --restart")
+     -- restart "xmonad" True)
+     -- spawn myRestart
+     -- spawn "pkill -KILL xmobar && xmonad --recompile && xmonad --restart"
+     -- restart "xmonad" True
   ]
   ++
 
@@ -449,6 +459,7 @@ defaults = gnomeConfig {- defaultConfig -} {
     -- hooks, layouts
     layoutHook         = avoidStruts $ smartBorders $ myLayout ,
     manageHook         = myManageHook ,
+
 --    startupHook        = myStartupHook ,
     
     handleEventHook    = docksEventHook

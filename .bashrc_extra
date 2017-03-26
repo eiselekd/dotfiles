@@ -2,6 +2,9 @@
 #    . ${HOME}/git/dotfiles/.bashrc_extra
 #fi
 
+#BASHEXTRADIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#export PATH=$PATH:${BASHEXTRADIR}/.xmonad/
+
 alias ovc='openssl x509 -text -noout -in ' 
 alias ovk='openssl rsa -text -noout -in ' 
 
@@ -15,7 +18,6 @@ shopt -s histappend
 # add /etc/rsyslog.d/bash.conf:
 # local6.*    /var/log/commands.log
 # export PROMPT_COMMAND='RETRN_VAL=$?;logger -p local6.debug "$(whoami) [$$]: $(history 1 | sed "s/^[ ]*[0-9]\+[ ]*//" ) [$RETRN_VAL]"'
-
 
 export LOGDIR=${HOME}/logs
 
