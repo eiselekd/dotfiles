@@ -2,7 +2,6 @@
 -- Author: Vic Fryzel
 -- http://github.com/vicfryzel/xmonad-config
 
-
 import System.Process
 import XMonad.Config.Desktop
 import XMonad.Config.Gnome
@@ -11,6 +10,7 @@ import System.IO
 import System.Exit
 import XMonad
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.DynamicLog (xmobar)
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
@@ -31,6 +31,7 @@ import qualified Data.Map        as M
 import Debug.Trace (traceShow)
 import System.Environment (getEnvironment)
 import Language.Haskell.TH.Syntax (runIO)
+
 
 ------------------------------------------------------------------------
 -- Terminal
@@ -91,6 +92,7 @@ myManageHook = composeAll
     , className =? "Xchat"          --> doShift "5:media"
     , className =? "stalonetray"    --> doIgnore
     , isFullscreen --> (doF W.focusDown <+> doFullFloat  )]
+
 
 
 ------------------------------------------------------------------------
@@ -223,6 +225,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
    , ((myModMask,                 xK_Down ), windowGo D False)
 
    , ((myModMask, xK_b), sendMessage ToggleStruts)
+
+   , ((myModMask.|. shiftMask, xK_b), spawn "xdotool windowraise `xdotool search --all --name xmobar`")
+
    -- sendMessage ToggleStruts -- startmobar
    , ((myModMask, xK_g), startgpanel)
 
@@ -347,8 +352,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   --     io (exitWith ExitSuccess))
 
 
-  -- Restart xmonad.
-  , ((modMask, xK_q), spawn "pkill -KILL xmobar && xmonad --recompile && xmonad --restart")
+  -- Restart xmonad. 
+  -- xdotool windowraise `xdotool search --all --name xmobar`
+  , ((modMask, xK_q), spawn "xmonad --recompile; xmonad --restart")
+
+     -- spawn "pkill -KILL xmobar && xmonad --recompile && xmonad --restart")
      -- restart "xmonad" True)
      -- spawn myRestart
      -- spawn "pkill -KILL xmobar && xmonad --recompile && xmonad --restart"
@@ -414,7 +422,9 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 -- per-workspace layout choices.
 --
 -- By default, do nothing.
--- myStartupHook = return ()
+
+myStartupHook = do
+   spawn "xdotool windowraise `xdotool search --all --name xmobar`"
 
 
 ------------------------------------------------------------------------
@@ -429,9 +439,10 @@ main = do
           , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
           , ppSep = "   "
         } ,
-        manageHook = manageDocks <+> myManageHook
+        manageHook = manageDocks <+> myManageHook 
       , startupHook = startupHook defaults >> setWMName "LG3D"
   }
+
 
 
 ------------------------------------------------------------------------
@@ -460,7 +471,7 @@ defaults = gnomeConfig {- defaultConfig -} {
     layoutHook         = avoidStruts $ smartBorders $ myLayout ,
     manageHook         = myManageHook ,
 
---    startupHook        = myStartupHook ,
+   startupHook        = myStartupHook ,
     
     handleEventHook    = docksEventHook
 
