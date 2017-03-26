@@ -9,7 +9,7 @@ Config {
     fgColor = "#ffffff",
     -- position = Static { xpos = 0, ypos = 0, height = 16 }, --width = 2560,
     position = Top,
-    overrideRedirect = False,
+    -- overrideRedirect = False,
     -- lowerOnStart = False,
     commands = [
         Run MultiCpu ["-t","Cpu: <total0> <total1> <total2> <total3>","-L","30","-H","60","-h","#FFB6B0","-l","#CEFFAC","-n","#FFFFCC","-w","3"] 10,
@@ -33,7 +33,6 @@ Config {
 	-- charged status
 	, "-i"	, "<fc=#006000>Charged</fc>"
 	] 50,
-
         Run StdinReader
     ],
     sepChar = "%",
