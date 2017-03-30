@@ -55,3 +55,4 @@ nsidof()
 xset b off
 
 alias rsynca="rsync -av "
+alias sshp="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "
