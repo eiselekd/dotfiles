@@ -13,18 +13,22 @@
 (defun utils/compile ()
   "Compile current context."
   (interactive)
-  (let* ((c (utils/mode-compile-get-command)))
+  (let* ((c (utils/mode-compile-get-command))
+	 (d (utils/mode-compile-get-dir))
+	 )
     (if (get-buffer "*compilation*") ; If old compile window exists
-	(progn 
+	(progn
 	  (delete-windows-on (get-buffer "*compilation*")) ; Delete the compilation windows
 	  (kill-buffer "*compilation*") ; and kill the buffers
 	  )
       )
+    (message "[=] in dir %s: '%s']" d c )
     (cond
      (c
       (progn
-	(set 'compile-command c)
-	(call-interactively 'compile)))
+	(let ((default-directory d))
+	  (set 'compile-command c)
+	  (call-interactively 'compile))))
      ;;((fboundp 'mode-compile) (call-interactively 'mode-compile))
      (t (call-interactively 'compile)))))
 
@@ -36,12 +40,18 @@
       (nth 0 a)
       )))
 
+(defun utils/mode-compile-get-dir ()
+  (let* ((source-dir (eval default-directory)) ;;(file-name-directory (buffer-file-name)))
+	 (gud-config-dir (locate-dominating-file source-dir "compile.txt")))
+    (message "c-mode-common-hook, search for compile.txt in %s: %s" source-dir gud-config-dir )
+    (if gud-config-dir gud-config-dir source-dir )))
+
 (defun utils/mode-compile-get-command ()
   (let* ((source-dir (eval default-directory)) ;;(file-name-directory (buffer-file-name)))
 	 (gud-config-dir (locate-dominating-file source-dir "compile.txt")))
     (message "c-mode-common-hook, search for compile.txt in %s: %s" source-dir gud-config-dir )
     (if gud-config-dir
-	(progn 
+	(progn
 	  (message "Reading compile file: [%s]" gud-config-dir )
 	  (let* ((f (concat gud-config-dir "compile.txt")))
 	    (message "Reading compile file: [%s]" (utils/compile-read-config f) )
@@ -51,7 +61,7 @@
   "Initialize mode-compile."
 
   (message "[*] Initialize mode-compile" )
-  
+
   (setq-default
    ;; Set a sane compilation frame name.
    mode-compile-other-frame-name "*compilation*"
@@ -68,15 +78,15 @@
 	     (message "Reading compile file: [%s]" c )
 	     (set (make-local-variable 'compile-command) c))))))
 
-  
+
 	   ;;     if ( )
-	       
-	   
+
+
 	   ;; (file-name-nondirectory buffer-file-name)
 	   ;; ))))
-  
 
-	      
+
+
 	   ;;    (unless (or (file-exists-p \"makefile\")
 	   ;; 		  (file-exists-p \"Makefile\"))
 	   ;; 	(set (make-local-variable 'compile-command)
@@ -84,7 +94,7 @@
 	   ;; 		     (if buffer-file-name
 	   ;; 			 (shell-quote-argument
 	   ;; 			  (file-name-sans-extension buffer-file-name))))))))
-  
+
   ;; (after-load 'mode-compile
   ;;   (with-executable 'clang
   ;;     (add-to-list 'cc-compilers-list "clang")
@@ -112,7 +122,7 @@
     (when my-tags-file
       (message "Loading tags file: %s" my-tags-file)
       (visit-tags-table my-tags-file))))
-  
+
 ;;(concat "cd " (project-root) " && scons")
 
 (defun utils/next-error ()
@@ -152,7 +162,7 @@
   (add-hook 'compilation-filter-hook 'utils/compilation-filter-hook)
 
   ;; (if (file-exists-p *.cedet-root.el*)
-  ;;     (progn 
+  ;;     (progn
   ;; 	(load-file *.cedet-root.el*)
   ;; 	(when
   ;; 	    (and
