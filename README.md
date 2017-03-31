@@ -9,6 +9,7 @@ Keybindings:
  * ESC g : magit [2]
  * ESC p : proced
  * ESC c : flycheck
+   * ESC C : flycheck with configure
    * F5/F6 : next/prev-error
  * ESC e : eshell
  * ESC E : ansi-term
@@ -66,7 +67,7 @@ Defaults:
  * M < : Top of buffer
  * Ctrl-x 4 a: add changlog entry
  * Ctrl-[+/-] : bigger/smaller font (terminal)
-
+ * Ctrl-l : recenter
 
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present

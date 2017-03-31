@@ -1,6 +1,29 @@
 ;; http://emacswiki.org/emacs/ElispCookbook#toc29
 ;;(utils/flycheck-search-linux-makefile)
 
+(defun utils/projmake-sethere ()
+  "Projmake start."
+  ;;; (Bindings) ;;;
+  (interactive)
+  (let
+      ((FLYCHECK_GENERIC_SRC       (read-from-minibuffer "FLYCHECK_GENERIC_SRC: " (or (utils/flycheck-generic-makefile-src-root) default-directory)))
+       (FLYCHECK_GENERIC_BUILD     (read-from-minibuffer "FLYCHECK_GENERIC_BUILD: " (or (utils/flycheck-generic-makefile-build-root) default-directory)))
+       (FLYCHECK_GENERIC_CMD       (read-from-minibuffer "FLYCHECK_GENERIC_CMD: " (or (utils/flycheck-generic-makefile-cmd) "all")))
+       (FLYCHECK_GENERIC_ADDSUFFIX (read-from-minibuffer "FLYCHECK_GENERIC_ADDSUFFIX: " (utils/flycheck-generic-makefile-addsuffix)))
+       )
+    (progn
+      (setenv "FLYCHECK_GENERIC_SRC" FLYCHECK_GENERIC_SRC)
+      (setenv "FLYCHECK_GENERIC_BUILD" FLYCHECK_GENERIC_BUILD)
+      (if (not (equal FLYCHECK_GENERIC_CMD "")) (setenv "FLYCHECK_GENERIC_CMD" FLYCHECK_GENERIC_CMD))
+      (if (not (equal FLYCHECK_GENERIC_ADDSUFFIX "")) (setenv "FLYCHECK_GENERIC_ADDSUFFIX" FLYCHECK_GENERIC_ADDSUFFIX))
+      (message (format "[*] FLYCHECK_GENERIC_SRC: %s" (getenv "FLYCHECK_GENERIC_SRC")))
+      (message (format "[*] FLYCHECK_GENERIC_BUILD: %s" (getenv "FLYCHECK_GENERIC_BUILD")))
+      (message (format "[*] FLYCHECK_GENERIC_CMD: %s" (getenv "FLYCHECK_GENERIC_CMD")))
+      (message (format "[*] FLYCHECK_GENERIC_ADDSUFFIX: %s" (getenv "FLYCHECK_GENERIC_ADDSUFFIX")))
+      (message (format "[*] Start fycheck mode"))
+      (flycheck-mode))))
+
+
 ;;;;; ------------------------------------------------------------------
 
 (defun utils/flycheck-search-linux-makefile ()
@@ -127,7 +150,7 @@
   (
    "make" "-C" (eval (utils/flycheck-search-generic-makefile)) (eval (utils/flycheck-generic-makefile-cmd))
    ;;"exfat-compile"
-   
+
 ;;   (eval (message (format "make -C %s %s\n" (eval (utils/flycheck-search-generic-makefile)) (eval (utils/flycheck-generic-makefile-cmd)))))
 ;;   (eval (concat (file-name-sans-extension (file-relative-name buffer-file-name (utils/flycheck-search-generic-makefile))) ".o"))
    )

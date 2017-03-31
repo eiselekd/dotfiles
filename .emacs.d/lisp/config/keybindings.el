@@ -92,6 +92,8 @@
     ;; termninal send \033 f (Meta - f)
 ;;    (global-set-key (kbd "M-f")  'flycheck-mode))
 (global-set-key (kbd "M-c")  'flycheck-mode)
+(global-set-key (kbd "M-C")  (lambda ()(interactive) (call-interactively 'utils/projmake-sethere)))
+
 ;;(lambda ()(interactive)
 ;;			       (progn
 ;;				 (require 'flycheck nil t)
