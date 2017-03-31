@@ -9,3 +9,7 @@
 .emacs.d/elpa/
 .emacs.d/session*
 .emacs.d/session*
+.emacs.d/org-clock-save.el
+.emacs.d/recentf
+.emacs.d/tramp
+.xmonad/xmonad.state

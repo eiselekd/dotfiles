@@ -6,7 +6,7 @@ Emacs config. Install by replacing ~/.emacs.d with
 
 Keybindings:
 
- * ESC g : magit
+ * ESC g : magit [2]
  * ESC p : proced
  * ESC c : flycheck
    * F5/F6 : next/prev-error
@@ -67,5 +67,7 @@ Defaults:
  * Ctrl-x 4 a: add changlog entry
  * Ctrl-[+/-] : bigger/smaller font (terminal)
 
+
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present
+[2] Magit cheetsheet: https://github.com/magit/magit/wiki/Cheatsheet
