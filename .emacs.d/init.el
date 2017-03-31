@@ -56,6 +56,7 @@
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
 (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/haskell-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
 
 (if (or (>= emacs-major-version 24)
@@ -95,6 +96,8 @@
 ;;(require 'utils/ctags.el)
 (require 'utils/openfile.el)
 (require 'utils/flycheck.el)
+
+;;(require 'haskell-mode)
 ;;(require 'utils/irc.el)
 (message "[*] %s retired irc" (timestamp_str))
 
@@ -123,6 +126,7 @@
 (message (format "[*] %s config modes" (timestamp_str)))
 (require 'modes/c-mode.el)
 (require 'modes/lua-mode.el)
+(require 'modes/haskell-mode.el)
 
 (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
 (message (format "[*] %s try load fringe" (timestamp_str)))
