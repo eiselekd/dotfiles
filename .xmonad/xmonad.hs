@@ -7,6 +7,7 @@ import XMonad.Config.Desktop
 import XMonad.Config.Gnome
 import XMonad.Util.Run (safeSpawn)
 import System.IO
+import System.Info
 import System.Exit
 import XMonad
 import XMonad.Hooks.DynamicLog
@@ -20,7 +21,7 @@ import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ThreeColumns
 import XMonad.Util.Run(runProcessWithInput)
-import XMonad.Util.Run(spawnPipe)
+import XMonad.Util.Run(spawnPipe, unsafeSpawn, safeSpawn)
 import XMonad.Util.EZConfig(additionalKeys)
 import XMonad.Actions.CycleWindows
 import XMonad.Actions.CycleWS
@@ -38,9 +39,18 @@ import Language.Haskell.TH.Syntax (runIO)
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal = "/usr/bin/gnome-terminal"
 
-myBrowser = "/usr/bin/google-chrome"
+myTerminal :: String
+myTerminal = do
+  if os == "freebsd"
+    then "xterm"
+    else "/usr/bin/gnome-terminal"
+
+myBrowser :: String
+myBrowser = do
+  if os == "freebsd"
+    then "chromium"
+    else "/usr/bin/google-chrome"
 
 -- The command to lock the screen or show the screensaver.
 myScreensaver = "/usr/bin/gnome-screensaver-command --lock"
@@ -161,8 +171,8 @@ startdefaultinws :: X ()
 startdefaultinws = do
     current <- gets (W.currentTag . windowset)
     if current == "2:web"
-     then spawn (traceShow current $ myBrowser )
-     else spawn (traceShow current $ myTerminal )
+     then ( unsafeSpawn myBrowser )
+     else ( unsafeSpawn myTerminal )
 
 -- groupBy :: String -> Char -> [String]
 -- groupBy str delim = let (start, end) = break (== delim) str
@@ -195,11 +205,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- Ubuntu keybinding :
     
-    ((altModMask .|. controlMask, xK_t),
-     startdefaultinws)
+    ((altModMask .|. controlMask, xK_t), startdefaultinws )
 
-   , ((altModMask .|. controlMask, xK_Return),
-     startdefaultinws)
+-- startdefaultinws
+  
+   , ((altModMask .|. controlMask, xK_Return), startdefaultinws )
 
      
    , ((altModMask .|. controlMask, xK_Left),
@@ -348,7 +358,13 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- TODO: update this binding with avoidStruts, ((modMask, xK_b),
 
   -- Quit xmonad.
-  , ((modMask .|. shiftMask, xK_q), spawn "/usr/bin/gnome-session-quit  --logout --no-prompt")
+  , ((modMask .|. shiftMask, xK_q),
+     if os == "freebsd"
+       then io (exitWith ExitSuccess)
+       else spawn "/usr/bin/gnome-session-quit  --logout --no-prompt"
+    )
+    
+  -- , ((modMask .|. shiftMask, xK_q), spawn "/usr/bin/gnome-session-quit  --logout --no-prompt")
   --     io (exitWith ExitSuccess))
 
 

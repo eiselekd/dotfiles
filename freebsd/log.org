@@ -16,7 +16,7 @@ done
 /usr/local/lib/xorg/modules/driver/intel_drv.so => 
 # sudo X -configure
 
-*** /usr/local/etc/X11/xorg.conf.d/20-intel.conf
+ *** /usr/local/etc/X11/xorg.conf.d/20-intel.conf
 
 Section "Device"
  Identifier "Intel IGP"
@@ -24,6 +24,10 @@ Section "Device"
  Option "AccelMethod" "SNA"
  Option "TearFree" "true"
 EndSection
+
+** ~/.xinitrc
+
+exec xmonad
 
 ** /etc/rc.conf
 
@@ -40,7 +44,6 @@ moused_enable="YES"
 
 # chromium:
 kern.ipc.shm_allow_removed=1
-
 
 ** /boot/loader.conf
 
