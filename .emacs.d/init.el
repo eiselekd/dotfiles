@@ -107,8 +107,11 @@
      (require 'ggtags)
      (require 'utils/openhelm.el)
 )
-(if (eq system-type 'freebsd)
-    normal-erase-is-backspace-mode
+(if (or (eq system-type 'freebsd) (eq system-type 'berkeley-unix))
+    (progn
+      (require 'simple)
+      (normal-erase-is-backspace-mode)
+      )
 )
 (message "[*] %s retired openhelm" (timestamp_str))
 
