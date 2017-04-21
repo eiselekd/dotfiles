@@ -1,0 +1,50 @@
+
+* T430s setup FreeBSD 11.0
+
+** Install Windows Manager
+
+#+BEGIN bash
+portsnap fetch
+portsnap extract
+portsnap update
+for d in x11/pixman x11/xorg x11-drivers/xf86-video-intel x11-wm/hs-xmonad-contrib x11-wm/hs-xmonad x11/xinit
+do
+   (cd $d; make install distclean)
+done
+#+END_SRC
+
+/usr/local/lib/xorg/modules/driver/intel_drv.so => 
+# sudo X -configure
+
+*** /usr/local/etc/X11/xorg.conf.d/20-intel.conf
+
+Section "Device"
+ Identifier "Intel IGP"
+ Driver "intel"
+ Option "AccelMethod" "SNA"
+ Option "TearFree" "true"
+EndSection
+
+** /etc/rc.conf
+
+font8x8="iso15-8x8"
+font8x14="iso15-8x14"
+font8x16="iso15-8x16"
+
+# xorg
+hald_enable="YES"
+dbus_enable="YES"
+moused_enable="YES"
+
+** /etc/sysctl.conf
+
+# chromium:
+kern.ipc.shm_allow_removed=1
+
+
+** /boot/loader.conf
+
+sem_load="YES"
+linux_load="YES"
+i915kms_load="YES"
+
