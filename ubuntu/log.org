@@ -1,5 +1,9 @@
 * Setup
 
+** T460s
+
+bios version 1.22 and uefi boot
+
 **  /etc/default/keyboad
 
 XKBLAYOUT="de"
@@ -11,8 +15,6 @@ then: dpkg-reconfigure console-setup
 apt-add-repository universe
 apt update
 apt install --yes debootstrap gdisk zfs-initramfs
-
-
 
 *** Partition
 
