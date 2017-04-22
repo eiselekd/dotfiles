@@ -31,6 +31,8 @@ sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB -n1:0:0 -t
 zfs snapshot rpool/ROOT/ubuntu/ubuntu@install-minimal
 zfs list -t snapshot
 zfs create rpool/home/eiselekd
+zfs create -o mountpoint=/src rpool/src
+zfs create -o mountpoint=/work rpool/work
 
 *** links 
 [1] http://dotfiles.tnetconsulting.net/articles/2016/0327/ubuntu-zfs-native-root.html
