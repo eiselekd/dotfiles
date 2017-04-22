@@ -14,7 +14,7 @@ apt install --yes debootstrap gdisk zfs-initramfs git emacs
 
 rm -rf /mnt/*
 
-zpool create -o ashift=12 \
+zpool create -f -o ashift=12 \
       -O atime=off -O canmount=off -O compression=lz4 -O normalization=formD \
       -O mountpoint=/ -R /mnt \
       rpool ${D}-part1
