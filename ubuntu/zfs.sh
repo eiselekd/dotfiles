@@ -1,6 +1,8 @@
 #!/bin/sh
 # define ${D} before call
 
+if [ -z ${D} ]; then echo "disk id missing"; exit 1; fi
+
 hname=homebox
 ifname=enp0s31f6
 echo "############### ifname:  ${ifname} : change?  ###############"
@@ -9,6 +11,8 @@ echo "############### hostname:${hname}  : change?  ###############"
 apt-add-repository universe
 apt update
 apt install --yes debootstrap gdisk zfs-initramfs git emacs
+
+rm -rf /mnt/*
 
 zpool create -o ashift=12 \
       -O atime=off -O canmount=off -O compression=lz4 -O normalization=formD \
