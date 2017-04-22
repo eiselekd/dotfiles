@@ -50,7 +50,7 @@ myBrowser :: String
 myBrowser = do
   if os == "freebsd"
     then "chromium"
-    else "/usr/bin/google-chrome"
+    else "if which google-chrome > /dev/null ; then google-chrome; else chromium-browser; fi"
 
 -- The command to lock the screen or show the screensaver.
 myScreensaver = "/usr/bin/gnome-screensaver-command --lock"
