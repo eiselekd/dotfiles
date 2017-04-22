@@ -44,7 +44,7 @@ myTerminal :: String
 myTerminal = do
   if os == "freebsd"
     then "xterm"
-    else "/usr/bin/gnome-terminal"
+    else "if which gnome-terminal > /dev/null ; then /usr/bin/gnome-terminal; else xterm; fi"
 
 myBrowser :: String
 myBrowser = do
@@ -205,11 +205,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
     -- Ubuntu keybinding :
     
-    ((altModMask .|. controlMask, xK_t), startdefaultinws )
-
 -- startdefaultinws
   
-   , ((altModMask .|. controlMask, xK_Return), startdefaultinws )
+     ((altModMask .|. controlMask, xK_Return), startdefaultinws )
 
      
    , ((altModMask .|. controlMask, xK_Left),
@@ -363,6 +361,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
        then io (exitWith ExitSuccess)
        else spawn "/usr/bin/gnome-session-quit  --logout --no-prompt"
     )
+
+  , ((altModMask .|. controlMask, xK_q), io (exitWith ExitSuccess) )
+
     
   -- , ((modMask .|. shiftMask, xK_q), spawn "/usr/bin/gnome-session-quit  --logout --no-prompt")
   --     io (exitWith ExitSuccess))
@@ -492,5 +493,6 @@ defaults = gnomeConfig {- defaultConfig -} {
     handleEventHook    = docksEventHook
 
 }
+
 
 

@@ -1,0 +1,8 @@
+* Setup
+
+**  /etc/default/keyboad
+
+XKBLAYOUT="de"
+
+then: dpkg-reconfigure console-setup
+
