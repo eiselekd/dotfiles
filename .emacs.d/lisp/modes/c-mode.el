@@ -67,7 +67,16 @@
 (defun c-mode-addfuncs ()
   (ggtags-mode)
   (global-set-key (kbd "M-G")  'magit-log-buffer-file)
+
+  (when (require 'hideshow nil t)
+    (progn
+      (global-set-key (kbd "M-(")  'hs-toggle-hiding)
+      (global-set-key (kbd "M-)")  'hs-toggle-hiding)
+      ))
+  (global-set-key (kbd "M-SPC")  (lambda () (interactive) (setq write-file-functions (delete 'delete-trailing-whitespace write-file-functions ))))
+    
   )
+
 
 (add-hook 'c++-mode-hook
 	  (lambda ()

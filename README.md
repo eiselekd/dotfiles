@@ -41,7 +41,12 @@ Keybindings:
    * ESC h : toggle hs-org/minor-mode (enabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
    * M-G   : magit hist
+<<<<<<< bc16c19e70d6c8fb3e3fc8f789249e676ee10816
    * M-M   : helm query man db
+=======
+   * M-SPC : disable remove space on write
+   * M-( + M-) : toggle block hide/show
+>>>>>>> all
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:
