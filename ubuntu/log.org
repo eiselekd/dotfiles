@@ -2,7 +2,7 @@
 
 ** T460s
 
-bios version 1.22 and uefi boot
+Intel NVme ssd: bios version 1.22 and uefi boot
 
 **  /etc/default/keyboad
 

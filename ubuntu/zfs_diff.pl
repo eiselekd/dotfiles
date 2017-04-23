@@ -5,6 +5,8 @@
 #    --from and --to should poin to the snapshot directories:
 #    zfs_diff.pl --from=<rpool/root mountpoint>/.zfs/snapshots/a --from=<rpool/root mountpoint>/.zfs/snapshots/b a.txt
 # 3. The output directory will be created in /tmp/root/...
+#    The output is a directory tree that has {m,+,-} flags tagged into the directory
+#    names. The files of a 'm' are the diff output.
     
 use Getopt::Long;
 use File::Basename;
@@ -74,7 +76,8 @@ sub tagpath {
 	$c = $$c{'c'}{$d};
 	$$c{'f'}{$flag} = 1;
     }
-    $$c{'a'} = $file;
+    $$c{'a'} = [] if (!exists($$c{'a'}));
+    push(@{$$c{'a'}}, $file);
 }
 
 #
@@ -139,37 +142,40 @@ sub genpath {
     my @lfags = sort (keys %{$$h{'f'}});
     my $flags = scalar(@lfags) ? "{".join(",",@lfags)."}"  :"";
     my $n = $base."/".$$h{'n'}.$flags;
-    if (exists($$h{'a'}{'r'})) {
-	if ($$h{'a'}{'m'}) {
-	    my $m = $$h{'a'}{'m'};
-	    `ls -lad $$m{'src'} > /tmp/a.attr`;
-	    `ls -lad $$m{'dst'} > /tmp/b.attr`;
-	    print (" Attr $n.attr\n") if ($OPT{'verbose'});
-	    my $cmd = "diff /tmp/a.attr /tmp/b.attr > '$n.attr'";
-	    `$cmd`;
-	}
-	if ($$h{'a'}{'link'}) {
-	    my $diff = $$h{'a'}{'link'};
-	    if (-e $$diff{'src'}) { 
-		my $cmd = "ln -s '".$$diff{'src'}."' '$n'";
-		print (" Link $cmd\n") if ($OPT{'verbose'});
-		`$cmd`;
-	    }
-	}
-	if ( -d $$h{'a'}{'r'}) {
-	    print ("Path $n\n") if ($OPT{'verbose'});
-	    mkpath($n) ;
-	} else {
-	    $dodir = 0;
-	    if ($$h{'a'}{'diff'}) {
-		my $diff = $$h{'a'}{'diff'};
-		my $cmd = "diff -Naur '".$$diff{'src'}."' '".$$diff{'dst'}."' > '$n.diff'";
-		`$cmd`;
-		print (" Diff $cmd\n") if ($OPT{'verbose'});
-		`ls -la $$diff{'src'} > /tmp/a.attr`;
-		`ls -la $$diff{'dst'} > /tmp/b.attr`;
+    
+    foreach $a (@{$$h{'a'}}) { # single files can have multiple entries
+	if (exists($$a{'r'})) {
+	    if ($$a{'m'}) {
+		my $m = $$a{'m'};
+		`ls -lad $$m{'src'} > /tmp/a.attr`;
+		`ls -lad $$m{'dst'} > /tmp/b.attr`;
+		print (" Attr $n.attr\n") if ($OPT{'verbose'});
 		my $cmd = "diff /tmp/a.attr /tmp/b.attr > '$n.attr'";
 		`$cmd`;
+	    }
+	    if ($$a{'link'}) {
+		my $diff = $$a{'link'};
+		if (-e $$diff{'src'} && ! -e $n) {  # generate only if dest exists, only generate once
+		    my $cmd = "ln -s '".$$diff{'src'}."' '$n'";
+		    print (" Link $cmd\n") if ($OPT{'verbose'});
+		    `$cmd`;
+		}
+	    }
+	    if ( -d $$a{'r'}) {
+		print ("Path $n\n") if ($OPT{'verbose'});
+		mkpath($n) ;
+	    } else {
+		$dodir = 0;
+		if ($$a{'diff'}) {
+		    my $diff = $$a{'diff'};
+		    my $cmd = "diff -Naur '".$$diff{'src'}."' '".$$diff{'dst'}."' > '$n.diff'";
+		    `$cmd`;
+		    print (" Diff $cmd\n") if ($OPT{'verbose'});
+		    `ls -la $$diff{'src'} > /tmp/a.attr`;
+		    `ls -la $$diff{'dst'} > /tmp/b.attr`;
+		    my $cmd = "diff /tmp/a.attr /tmp/b.attr > '$n.attr'";
+		    `$cmd`;
+		}
 	    }
 	}
     };
