@@ -1,4 +1,10 @@
 #!/usr/bin/perl
+# this script generates a merged tree out of the output of "zfs diff".
+# 1. first generate a diff:  zfs diff rpool/root@a rpool/root@b > a.txt
+# 2. call zfs_diff.pl with --from, --to  and a.txt:
+#    --from and --to should poin to the snapshot directories:
+#    zfs_diff.pl --from=<rpool/root mountpoint>/.zfs/snapshots/a --from=<rpool/root mountpoint>/.zfs/snapshots/b a.txt
+# 3. The output directory will be created in /tmp/root/...
     
 use Getopt::Long;
 use File::Basename;
@@ -18,6 +24,8 @@ Getopt::Long::Configure(qw(bundling));
 GetOptions(\%OPT,qw{
     quiet|q+
     verbose|v+
+    from=s
+    to=s
 } ,@g_more) or usage(\*STDERR);
 
 $def = $ARGV[0];
@@ -48,8 +56,8 @@ sub splitpath {
 $m = readfile($def);
 
 $root = {'n'=>'root','f'=>{},'c'=>{}};
-$from = "/.zfs/snapshot/install";
-$to   = "/.zfs/snapshot/install-minimal";
+$from = $OPT{'from'} or die("Specify --from=<ori-snapshot>"); #"/.zfs/snapshot/install";
+$to   = $OPT{'to'} or die("Specify --to=<patched-snapshot>"); "/.zfs/snapshot/install-minimal";
 $tmp  = "/tmp/dirs4";
 
 sub _tagpath {
@@ -103,14 +111,18 @@ foreach my $l (@l) {
 	};
     } elsif ($l =~ /^\+\s*(.*)/) {
 	($f,$flag,$b) = ($1,'+',$to);
-	$$action{'link'} = {
-	    'src' => "$to/$f",
-	};
+	if (! -d "$to/$f") {
+	    $$action{'link'} = {
+		'src' => "$to/$f",
+	    };
+	}
     } elsif ($l =~ /^R\s*(.*) -> (.*)/) {
 	($f,$flag,$b,$fto) = ($1,'+',$from,$2);
-	$$action{'link'} = {
-	    'src' => "$to/$fto",
-	};
+	if (! -d "$to/$f") {
+	    $$action{'link'} = {
+		'src' => "$to/$fto",
+	    };
+	}
     } else {
 	die("Cannot classify $l\n");
     }
@@ -138,9 +150,11 @@ sub genpath {
 	}
 	if ($$h{'a'}{'link'}) {
 	    my $diff = $$h{'a'}{'link'};
-	    my $cmd = "ln -s '".$$diff{'src'}."' '$n.attr'";
-	    print (" Link $cmd\n") if ($OPT{'verbose'});
-	    `$cmd`;
+	    if (-e $$diff{'src'}) { 
+		my $cmd = "ln -s '".$$diff{'src'}."' '$n'";
+		print (" Link $cmd\n") if ($OPT{'verbose'});
+		`$cmd`;
+	    }
 	}
 	if ( -d $$h{'a'}{'r'}) {
 	    print ("Path $n\n") if ($OPT{'verbose'});
