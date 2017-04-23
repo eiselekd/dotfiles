@@ -37,3 +37,7 @@ zfs create -o mountpoint=/work rpool/work
 *** links 
 [1] http://dotfiles.tnetconsulting.net/articles/2016/0327/ubuntu-zfs-native-root.html
 [2] https://github.com/zfsonlinux/zfs/wiki/Ubuntu-17.04-Root-on-ZFS
+
+** X11
+disable trackpad:
+xinput set-prop 13 "Device Enabled" 0
