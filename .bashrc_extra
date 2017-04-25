@@ -98,7 +98,8 @@ alias sshp="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no 
 
 alias segfault="env SEGFAULT_SIGNALS='abrt segv' LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so"
 
-if [ ! -z "${DISPLAY}" ]; then 
-   echo #xinput set-prop 13 "Device Enabled" 0
+if [ ! -z "${DISPLAY}" ]; then
+   setxkbmap de
+   # xinput set-prop 13 "Device Enabled" 0
 fi
 
