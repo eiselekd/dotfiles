@@ -43,6 +43,8 @@ $zfs snapshot -r rpool/ROOT@date
 
 List snapshots recursive
 $zfs list -r -t snapshot rpool/ROOT
+List usage:
+$zfs get -H -o name,value -r used rpool/ROOT
 
 *** links 
 [1] http://dotfiles.tnetconsulting.net/articles/2016/0327/ubuntu-zfs-native-root.html
