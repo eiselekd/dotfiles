@@ -34,6 +34,16 @@ zfs create rpool/home/eiselekd
 zfs create -o mountpoint=/src rpool/src
 zfs create -o mountpoint=/work rpool/work
 
+*** snapshots
+
+Take snapshot:
+$zfs snapshot rpool/ROOT@date
+Take snapshot recursive:
+$zfs snapshot -r rpool/ROOT@date
+
+List snapshots recursive
+$zfs list -r -t snapshot rpool/ROOT
+
 *** links 
 [1] http://dotfiles.tnetconsulting.net/articles/2016/0327/ubuntu-zfs-native-root.html
 [2] https://github.com/zfsonlinux/zfs/wiki/Ubuntu-17.04-Root-on-ZFS
