@@ -51,6 +51,16 @@ duh()
 	du -h --max-depth 1 $1 | sort -h | tac
 }
 
+zfsprotect()
+{
+	sudo zfs set readonly=on rpool/ROOT/ubuntu
+}
+
+zfsunprotect()
+{
+	sudo zfs set readonly=off rpool/ROOT/ubuntu
+}
+
 nsidof()
 {
     nsid=$(ps faux | grep -A 1 "lxc $1" | grep -v grep | grep "init" | awk '{print $2}')

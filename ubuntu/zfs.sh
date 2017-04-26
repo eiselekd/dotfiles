@@ -37,6 +37,8 @@ zfs create                                            rpool/var/log
 zfs create                                            rpool/var/spool
 zfs create -o com.sun:auto-snapshot=false -o exec=on  rpool/var/tmp
 
+zfs create -o mountpoint=/tmp                         rpool/tmp
+
 #If you use /srv on this system:
 zfs create                                            rpool/srv
 

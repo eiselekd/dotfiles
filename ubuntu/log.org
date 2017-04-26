@@ -84,3 +84,14 @@ nmcli con del <con-name>
 [1] https://docs.fedoraproject.org/en-US/Fedora/25/html/Networking_Guide/sec-Connecting_to_a_Network_Using_nmcli.html
 [2] https://nullr0ute.com/2016/09/connect-to-a-wireless-network-using-command-line-nmcli/
 
+
+** systemd
+
+# show services
+systemctl status
+# show past logging 
+journalctl 
+# show active logging
+journalctl -f
+
+
