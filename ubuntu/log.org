@@ -53,3 +53,34 @@ $zfs get -H -o name,value -r used rpool/ROOT
 ** X11
 disable trackpad:
 xinput set-prop 13 "Device Enabled" 0
+
+
+** network
+
+# simple 
+nmcli radio
+nmcli device
+
+nmcli device wifi rescan
+nmcli device wifi list
+nmcli device wifi connect <SSID-Name> password <wireless-password>
+
+# status:
+nmcli dev wifi list
+
+# connect to wifi
+nmcli con add <con-name> myconname ifname <ifname> type wifi ssid <ssid>
+nmcli con modify MyCafe wifi-sec.key-mgmt wpa-psk
+nmcli con modify MyCafe wifi-sec.psk <password>
+nmcli radio wifi on
+nmcli con show
+nmcli con up uuid <uuid>
+# unconnect
+nmcli radio wifi off
+nmcli con del <con-name> 
+
+
+*** links
+[1] https://docs.fedoraproject.org/en-US/Fedora/25/html/Networking_Guide/sec-Connecting_to_a_Network_Using_nmcli.html
+[2] https://nullr0ute.com/2016/09/connect-to-a-wireless-network-using-command-line-nmcli/
+
