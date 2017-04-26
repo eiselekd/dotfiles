@@ -46,6 +46,11 @@ alias sshp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no 
 alias scpp='scp -o PreferredAuthentications=password -o PubkeyAuthentication=no '
 alias xshare='x11vnc -display :0 -auth .Xauthority'
 
+duh()
+{
+	du -h --max-depth 1 $1 | sort -h | tac
+}
+
 nsidof()
 {
     nsid=$(ps faux | grep -A 1 "lxc $1" | grep -v grep | grep "init" | awk '{print $2}')

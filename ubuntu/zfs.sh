@@ -8,6 +8,10 @@ ifname=enp0s31f6
 echo "############### ifname:  ${ifname} : change?  ###############"
 echo "############### hostname:${hname}  : change?  ###############"
 
+echo "##### need to partition with sgdisk ######"
+# sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB  -n3:-512M:0 -t3:ef00 -c3:UEFI -n1:0:0 -t1:bf01 -c1:ZFS <dev>
+# sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB -n1:0:0 -t1:bf01 -c1:ZFS /dev/disk/by-id/nvme-eui.0000000001000000e4d25c4ddd934d01
+
 apt-add-repository universe
 apt update
 apt install --yes debootstrap gdisk zfs-initramfs git emacs
