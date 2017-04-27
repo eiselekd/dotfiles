@@ -278,7 +278,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Increase volume.
   , ((modMask .|. controlMask, xK_k),
      spawn "amixer -q set Master 10%+")
-     
+
+  , ((modMask, xK_g),           moveTo Next HiddenNonEmptyWS)
+    
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
