@@ -66,6 +66,20 @@ zfsprotstatus()
 	sudo zfs get -H -r readonly rpool
 }
 
+zfssnapshots()
+{
+	sudo zfs list -r -t snapshot rpool/ROOT
+}
+
+zfstakesnapshot()
+{
+	zfs list 
+	zfs snapshot rpool/home/eiselekd@`date +'%Y-%m-%d'`
+	zfs snapshot rpool/ROOT/ubuntu@`date +'%Y-%m-%d'`
+	zfs snapshot rpool/home/root@`date +'%Y-%m-%d'`
+	zfs list -t snapshot
+}
+
 nsidof()
 {
     nsid=$(ps faux | grep -A 1 "lxc $1" | grep -v grep | grep "init" | awk '{print $2}')
