@@ -91,7 +91,39 @@ nmcli con del <con-name>
 systemctl status
 # show past logging 
 journalctl 
-# show active logging
+# show active logging:
 journalctl -f
+# show active loggin only resolved:
+journalctl -f -u systemd-resolved
 
+# services
+service systemd-resolved restart
+systemctl restart systemd-resolved.service
+# systemd-resolved:
+systemd-resolve --status
+systemd-resolve www.test.com
+# dns.watch:
+84.200.69.80
+# debug logging for systemd-resolved:
+mkdir -p /etc/systemd/system/systemd-resolved.service.d
+echo -e "[Service]\nEnvironment=SYSTEMD_LOG_LEVEL=debug" >> /etc/systemd/system/systemd-resolved.service.d/log-level.conf
+systemctl daemon-reload
+systemctl restart systemd-resolved.service
 
+# cmdline
+systemd_log_level=debug
+
+# unbound:
+sudo systemctl disable systemd-resolved
+sudo systemctl stop systemd-resolved
+/etc/NetworkManager/NetworkManager.conf
+ : add [main] : dns=unbound
+sudo systemctl enable unbound-resolvconf
+sudo systemctl enable unbound
+
+#/lib/systemd/systemd-sysv-install enable unbound
+
+*** links 
+[1] https://fedoraproject.org/wiki/How_to_debug_Systemd_problems
+[2] http://wiki.ipfire.org/en/dns/public-servers
+[3] http://www.hecticgeek.com/2017/04/ubuntu-17-04-systemd-dns-issues/
