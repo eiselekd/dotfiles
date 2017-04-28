@@ -68,16 +68,21 @@ zfsprotstatus()
 
 zfssnapshots()
 {
-	sudo zfs list -r -t snapshot rpool/ROOT
+	sudo zfs list -r -t snapshot rpool/ROOT rpool/home
 }
 
 zfstakesnapshot()
 {
-	zfs list 
-	zfs snapshot rpool/home/eiselekd@`date +'%Y-%m-%d'`
-	zfs snapshot rpool/ROOT/ubuntu@`date +'%Y-%m-%d'`
-	zfs snapshot rpool/home/root@`date +'%Y-%m-%d'`
-	zfs list -t snapshot
+	sudo zfs list 
+	sudo zfs snapshot rpool/home/eiselekd@`date +'%Y-%m-%d'`
+	sudo zfs snapshot rpool/ROOT/ubuntu@`date +'%Y-%m-%d'`
+	sudo zfs snapshot rpool/home/root@`date +'%Y-%m-%d'`
+	sudo zfs list -t snapshot
+}
+
+zfsdiff()
+{
+	sudo bash ${HOME}/git/dotfiles/ubuntu/zfs_do_diff.sh $1 $2 $3
 }
 
 nsidof()

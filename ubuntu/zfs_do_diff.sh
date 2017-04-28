@@ -1,6 +1,8 @@
 #!/bin/sh
 #set -x
 
+if [ "$#" != "3" ]; then echo "zfs_do_diff.sh <dataset> <from> <to>"; exit 1; fi
+
 d=`dirname $0`
 b=`readlink -f $d`
  
