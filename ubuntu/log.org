@@ -127,3 +127,33 @@ sudo systemctl enable unbound
 [1] https://fedoraproject.org/wiki/How_to_debug_Systemd_problems
 [2] http://wiki.ipfire.org/en/dns/public-servers
 [3] http://www.hecticgeek.com/2017/04/ubuntu-17-04-systemd-dns-issues/
+
+** docker
+/etc/default/docker:
++ DOCKER_OPTS="--storage-driver=zfs"
+service docker restart
+systemctl restart docker
+
+docker info
+...
+Storage Driver: zfs
+...
+
+docker run -it ubuntu  bash
+
+*** build from Dockerfile
+
+from dir of Dockerfile:
+docker build -t <name> .
+
+*** building with docker-compose
+
+docker-compose.yml:
+docker-compose up -d
+docker-compose up -d --build
+
+
+
+
+*** links
+[1] https://www.youtube.com/watch?v=nDmvwevnJNc&feature=youtu.be
