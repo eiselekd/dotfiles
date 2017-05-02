@@ -152,7 +152,9 @@ docker-compose.yml:
 docker-compose up -d
 docker-compose up -d --build
 
-
+teardown:
+docker-compose rm --all
+docker rmi <imgid>
 
 
 *** links
