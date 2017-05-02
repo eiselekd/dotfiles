@@ -53,7 +53,7 @@ myBrowser = do
     else "if which google-chrome > /dev/null ; then google-chrome; else chromium-browser; fi"
 
 -- The command to lock the screen or show the screensaver.
-myScreensaver = "/usr/bin/gnome-screensaver-command --lock"
+myScreensaver = "xwd | convert xwd:- capture_objects.png"
 
 -- The command to take a selective screenshot, where you select
 -- what you'd like to capture on the screen.
