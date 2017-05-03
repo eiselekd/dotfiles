@@ -140,11 +140,15 @@
   (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
 
 (require 'hideshow-org)
-(when
-    (require 'hideif nil t) ;; hide-ifdef-block show-ifdef-block
-  (progn
-    (setq hide-ifdef-shadow nil)
-    ))
+(if
+    (require 'hideif-changed nil t) ;; hide-ifdef-block show-ifdef-block
+    (progn
+      (message "[+] >> hideif-changed loaded")
+      (setq hide-ifdef-shadow nil)
+      )
+  (message "[+] >> hideif-changed failed")
+    
+  )
 
 (require 'pp)
 

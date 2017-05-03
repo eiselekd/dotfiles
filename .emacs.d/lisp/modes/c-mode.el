@@ -68,6 +68,7 @@
   (ggtags-mode)
   (global-set-key (kbd "M-G")  'magit-log-buffer-file)
 
+  (require 'prepaint nil t)
   (when (require 'hideshow nil t)
     (progn
       (global-set-key (kbd "M-(")  'hs-toggle-hiding)
@@ -82,13 +83,20 @@
 				    (progn
 				      (message "[+] hs-org/minor-mode hook")
 				      (hide-ifdef-mode)
-				      (define-key hs-org/minor-mode-map (kbd "M-1")
-					(lambda () (interactive)
-					  (progn
-					    (setq hide-ifdef-shadow 't)
-					    (call-interactively 'hide-ifdef-define)
-					    )))
 
+				      ;; in hs-ifdef mode:
+				      ;; M-0 : undefine sym over cursor
+				      ;; M-1 : define sym over cursor
+				      ;; M-2 : hideshow-ifdef evaluation
+				      (define-key hs-org/minor-mode-map (kbd "M-1")
+					(lambda ()  (interactive)
+					  (let* ((default (save-excursion
+							    (current-word 'strict)))
+						 (var (read-minibuffer "Define what? " default))
+						 (val (read-from-minibuffer (format "Set %s to? (default 1): " var)
+									    nil nil t nil "1")))
+					    (hif-set-var var (or val 1)))))
+				      
 				      (define-key hs-org/minor-mode-map (kbd "M-0")
 					(lambda () (interactive)
 					  (progn
@@ -96,6 +104,20 @@
 					    (call-interactively 'hide-ifdef-undef)
 					    )))
 
+				      (define-key hs-org/minor-mode-map (kbd "M-2")
+					(lambda () (interactive)
+					  (progn
+					    (setq hide-ifdef-shadow 't)
+					    (call-interactively 'hide-ifdefs)
+					    )))
+
+				      (define-key hs-org/minor-mode-map (kbd "M-3")
+					(lambda () (interactive)
+					  (progn
+					    (message "[=] hs-ifdef-env: '%s'" hide-ifdef-env)
+					    )))
+
+				      
 				      )))
 
 
