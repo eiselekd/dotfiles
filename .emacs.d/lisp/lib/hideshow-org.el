@@ -39,7 +39,7 @@
 ;;
 ;; (add-to-list 'load-path "/path/to/hideshow-org-directory")
 ;; (require 'hideshow-org)
-;; 
+;;
 ;;; Keymaps:
 ;;
 ;; I set this as my global key.
@@ -64,7 +64,7 @@
 ;; TAB.  Hopefully, this will be sufficient such that
 ;; hs-org/minor-mode does not get in the way of anyone's normal
 ;; programming habits.
-;; 
+;;
 ;; Many thanks to the developers of hideshow.el.  Thanks to
 ;; yasnippets.el for showing me how one could piggyback on an already
 ;; bound key.
@@ -98,7 +98,7 @@
   (make-variable-buffer-local var))
 
 (defmacro hs-org/define-keys ()
-  `(progn 
+  `(progn
      ,@(mapcar (lambda (key) `(hs-org/define-key ,key hs-org/hideshow)) hs-org/trigger-keys-block)
      ,@(mapcar (lambda (key) `(hs-org/define-key ,key hs-org/hideshow-all)) hs-org/trigger-keys-all)
      ))
@@ -124,7 +124,7 @@ You can customize the key through `hs-org/trigger-key-block'."
   ;; The indicator for the mode line.  Nothing.  hs will already be in there.
   ""
   :group 'editing
-  
+
   (hs-org/define-keys)
   ;; We want hs-minor-mode on when hs-org/minor-mode is on.
   (if hs-org/minor-mode
@@ -133,7 +133,7 @@ You can customize the key through `hs-org/trigger-key-block'."
           (progn (condition-case err
                      (hs-minor-mode t)
                    ;; Catch the error, and handle it.
-                   (error 
+                   (error
                     ;; If we can't turn on hideshow, we can't turn on
                     ;; hs-org.
                     (hs-org/minor-mode nil)
@@ -142,13 +142,31 @@ You can customize the key through `hs-org/trigger-key-block'."
         (setq hs-org/started-hideshow-p nil))
       ;; hs-org/minor-mode was turned off.
       (when hs-org/started-hideshow-p
-        (condition-case err 
+        (condition-case err
             (hs-minor-mode nil)
           (error (error "hs-org: %s" (cadr err))))))
   (let ((hs (cdr (assoc 'hs-minor-mode minor-mode-alist))))
     (if hs-org/minor-mode
         (setcar hs (replace-regexp-in-string "\\+*$" "+" (car hs)))
         (setcar hs (replace-regexp-in-string "\\++$" "" (car hs))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;, hs-ifdef toggle check
+(defun hs-org/hideshowifdef-overlay-at (position)
+  "Return hideshow overlay at POSITION, or nil if none to be found."
+  (let ((overlays (overlays-at position))
+        ov found)
+    (while (and (not found) (setq ov (car overlays)))
+      (setq found (and (overlay-get ov 'hide-ifdef) ov)
+            overlays (cdr overlays)))
+    found))
+
+(defun hs-org/hideshowifdef-hidden-p ()
+  "Return non-nil if point is in an already-hidden block, otherwise nil."
+  (save-excursion
+    (end-of-line)
+    (hs-org/hideshowifdef-overlay-at (point))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun hs-org/hideshow (&optional key)
   "Hide or show a block."
@@ -163,23 +181,37 @@ You can customize the key through `hs-org/trigger-key-block'."
       (setq other-keys (cdr other-keys)))
     (when (commandp command)
       (call-interactively command))
-    (when (and (equal last-point (point))
-               (not mark-active))
-      (hs-toggle-hiding)
+
+    (let ((last-hs-ifdef-p (hs-org/hideshowifdef-hidden-p)))
+
+      ;; try to toggle ifdef block
+      (when (and (equal last-point (point))
+		 (not mark-active))
+	(if (hs-org/hideshowifdef-hidden-p)
+	    (show-ifdef-block)
+	  (hide-ifdef-block))
+	)
+
+      ;; if hideshow-ifdef didnt succeed try next
+      (when (and
+	     (eq last-hs-ifdef-p (hs-org/hideshowifdef-hidden-p))
+	     (equal last-point (point))
+	     (not mark-active))
+	(hs-toggle-hiding)
       ;; I was thinking about trying to do some kind of thing where
       ;; the point that you were at in the hidden block would be
       ;; saved, but I think that'd best be addressed by hideshow.el
       ;; directly.
-      
+
 ;;       (hs-life-goes-on
 ;;        (if (hs-already-hidden-p)
-;;            (progn 
+;;            (progn
 ;;              (hs-show-block)
 ;;              (when hs-org/last-point
 ;;                (goto-char hs-org/last-point)))
 ;;            (setq hs-org/last-point (point))
 ;;           (hs-hide-block)))
-      )))
+	))))
 
 (defun hs-org/hideshow-all (&optional key)
   "Hide or show all blocks."
@@ -196,8 +228,11 @@ You can customize the key through `hs-org/trigger-key-block'."
       (call-interactively command))
     (when (equal last-point (point))
       (if hs-org/hide-show-all-next
-          (hs-show-all)
-          (hs-hide-all))
+          (progn
+	    (call-interactively  'show-ifdefs)
+	    (hs-show-all))
+	(progn
+	  (hs-hide-all)))
       (setq hs-org/hide-show-all-next (not hs-org/hide-show-all-next)))))
-  
+
 (provide 'hideshow-org)

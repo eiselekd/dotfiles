@@ -74,7 +74,7 @@
       (global-set-key (kbd "M-)")  'hs-toggle-hiding)
       ))
   (global-set-key (kbd "M-SPC")  (lambda () (interactive) (setq write-file-functions (delete 'delete-trailing-whitespace write-file-functions ))))
-    
+
   )
 
 

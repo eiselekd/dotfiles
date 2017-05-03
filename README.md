@@ -38,7 +38,7 @@ Keybindings:
  * c-mode/c++-mode:
    * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
    * ESC , : pop markbuffer ([1])
-   * ESC h : toggle hs-org/minor-mode (enabled default)
+   * ESC h : toggle hs-org/minor-mode (toggle blocks and ifdef blocks, disabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
    * M-G   : magit hist
    * M-M   : helm query man db

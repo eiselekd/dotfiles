@@ -140,6 +140,11 @@
   (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
 
 (require 'hideshow-org)
+(when
+    (require 'hideif nil t) ;; hide-ifdef-block show-ifdef-block
+  (progn
+    (setq hide-ifdef-shadow nil)
+    ))
 
 (require 'pp)
 
