@@ -78,6 +78,28 @@
   )
 
 
+(add-hook 'hs-org/minor-mode-hook (lambda ()
+				    (progn
+				      (message "[+] hs-org/minor-mode hook")
+				      (hide-ifdef-mode)
+				      (define-key hs-org/minor-mode-map (kbd "M-1")
+					(lambda () (interactive)
+					  (progn
+					    (setq hide-ifdef-shadow 't)
+					    (call-interactively 'hide-ifdef-define)
+					    )))
+
+				      (define-key hs-org/minor-mode-map (kbd "M-0")
+					(lambda () (interactive)
+					  (progn
+					    (setq hide-ifdef-shadow 't)
+					    (call-interactively 'hide-ifdef-undef)
+					    )))
+
+				      )))
+
+
+
 (add-hook 'c++-mode-hook
 	  (lambda ()
 	    (progn (add-to-list 'write-file-functions 'delete-trailing-whitespace)

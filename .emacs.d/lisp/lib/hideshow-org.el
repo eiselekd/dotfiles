@@ -182,18 +182,24 @@ You can customize the key through `hs-org/trigger-key-block'."
     (when (commandp command)
       (call-interactively command))
 
-    (let ((last-hs-ifdef-p (hs-org/hideshowifdef-hidden-p)))
-
-      ;; try to toggle ifdef block
+    (let ((last-hs-ifdef-p (hs-org/hideshowifdef-hidden-p))
+	  (do-hiding 't)
+	  )
+      ;; try to toggle ifdef block if standing on a ifdef line
       (when (and (equal last-point (point))
 		 (not mark-active))
-	(if (hs-org/hideshowifdef-hidden-p)
-	    (show-ifdef-block)
-	  (hide-ifdef-block))
-	)
+	(save-excursion
+	  (beginning-of-line)
+	  (when (looking-at hif-ifx-else-endif-regexp)
+	    (progn
+	      (if (hs-org/hideshowifdef-hidden-p)
+		  (show-ifdef-block)
+		(hide-ifdef-block))
+	      (setq done-hiding 't)))))
 
       ;; if hideshow-ifdef didnt succeed try next
       (when (and
+	     do-hiding
 	     (eq last-hs-ifdef-p (hs-org/hideshowifdef-hidden-p))
 	     (equal last-point (point))
 	     (not mark-active))
