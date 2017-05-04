@@ -144,7 +144,12 @@ docker run -it ubuntu  bash
 *** build from Dockerfile
 
 from dir of Dockerfile:
-docker build -t <name> .
+docker build -t <imagename> .
+
+# create container and run interactive (-i)
+docker run --name <containername> -v <hostpath>:<targetpath> -ti <imagename>
+# restart container
+docker start -i <containername> 
 
 *** building with docker-compose
 
@@ -155,6 +160,7 @@ docker-compose up -d --build
 teardown:
 docker-compose rm --all
 docker rmi <imgid>
+docker rm <containeridid>
 
 
 *** links
