@@ -115,6 +115,7 @@
 					(lambda () (interactive)
 					  (progn
 					    (message "[=] hs-ifdef-env: '%s'" hide-ifdef-env)
+					    (message "[=] hs-ifdef-env-linenr: '%s'" hide-ifdef-env-linenr)
 					    )))
 
 				      

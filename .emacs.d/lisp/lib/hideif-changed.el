@@ -313,7 +313,11 @@ Several variables affect how the hiding is done:
         ;; `hide-ifdef-env' being buffer local) by clearing this variable
         ;; (C-c @ C) everytime before hiding current buffer.
 ;;      (set (make-local-variable 'hide-ifdef-env)
-;;           (default-value 'hide-ifdef-env))
+	;;           (default-value 'hide-ifdef-env))
+
+	(set (make-local-variable 'hide-ifdef-env-linenr)
+	     nil)
+	
         (set 'hide-ifdef-env (default-value 'hide-ifdef-env))
         ;; Some C/C++ headers might have other ways to prevent reinclusion and
         ;; thus would like `hide-ifdef-expand-reinclusion-protection' to be nil.
@@ -1741,7 +1745,9 @@ first arg will be `hif-etc'."
                            ;; Lazy evaluation, eval only if hif-lookup find it.
                            ;; Define it anyway, even if nil it's still in list
                            ;; and therefore considered defined.
-                           (push (cons (intern name) expr) hide-ifdef-env)))))
+			   (progn
+			     (push (cons (intern name) min) hide-ifdef-env-linenr)
+			     (push (cons (intern name) expr) hide-ifdef-env))))))
             ;; #undef
             (and name
                  (hif-undefine-symbol (intern name))))))
