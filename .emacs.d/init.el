@@ -128,6 +128,7 @@
 ;; 4: configure modes
 (message (format "[*] %s config modes" (timestamp_str)))
 (require 'modes/c-mode.el)
+(require 'modes/ruby-mode.el)
 (require 'modes/lua-mode.el)
 (require 'modes/haskell-mode.el)
 
