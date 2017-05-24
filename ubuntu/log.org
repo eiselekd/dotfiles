@@ -69,7 +69,7 @@ nmcli device wifi connect <SSID-Name> password <wireless-password>
 nmcli dev wifi list
 
 # connect to wifi
-nmcli con add <con-name> myconname ifname <ifname> type wifi ssid <ssid>
+nmcli con add con-name <myconname> ifname <ifname> type wifi ssid <ssid>
 nmcli con modify MyCafe wifi-sec.key-mgmt wpa-psk
 nmcli con modify MyCafe wifi-sec.psk <password>
 nmcli radio wifi on
