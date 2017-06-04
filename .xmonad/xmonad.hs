@@ -28,6 +28,7 @@ import XMonad.Actions.CycleWS
 import XMonad.Actions.Navigation2D
 import XMonad.Layout.ToggleLayouts
 import qualified XMonad.StackSet as W
+import qualified XMonad.Actions.DynamicWorkspaceOrder as WD
 import qualified Data.Map        as M
 import Debug.Trace (traceShow)
 import System.Environment (getEnvironment)
@@ -209,12 +210,23 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   
      ((altModMask .|. controlMask, xK_Return), startdefaultinws )
 
-     
+   -- cycle workspaces
+   --, ((altModMask .|. controlMask, xK_Left),
+   --  prevWS)
+   --, ((altModMask .|. controlMask, xK_Right),
+   --  nextWS)
    , ((altModMask .|. controlMask, xK_Left),
-     prevWS)
+     WD.moveTo Prev HiddenNonEmptyWS)
    , ((altModMask .|. controlMask, xK_Right),
-     nextWS)
+     WD.moveTo Next HiddenNonEmptyWS)
 
+   -- cycle screen focus
+  , ((modMask .|. controlMask , xK_Right),
+     nextScreen)
+  , ((modMask .|. controlMask , xK_Left),
+     prevScreen)
+
+  
 
    , ((myModMask .|. shiftMask, xK_Left),
      windowSwap L False)
