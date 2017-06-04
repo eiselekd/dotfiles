@@ -132,6 +132,7 @@
 (require 'modes/lua-mode.el)
 (require 'modes/haskell-mode.el)
 (require 'modes/web-mode.el)
+(require 'modes/javascript-mode.el)
 
 (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
 (message (format "[*] %s try load fringe" (timestamp_str)))
