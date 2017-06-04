@@ -4,6 +4,18 @@
 
 Intel NVme ssd: bios version 1.22 and uefi boot
 
+Disable trackpad:
+
+function disable_trackpad() 
+{
+  l=`xinput list | grep Synaptics `
+  if [ ! -z "$l" ]; then
+    id=`expr "$l" : '.*id=\([0-9]\+\)'`
+    xinput --disable $id
+  fi
+}
+
+
 **  /etc/default/keyboad
 
 XKBLAYOUT="de"

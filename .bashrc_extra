@@ -98,8 +98,27 @@ alias sshp="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no 
 
 alias segfault="env SEGFAULT_SIGNALS='abrt segv' LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so"
 
+function disable_trackpad() 
+{
+  # xinput set-prop 13 "Device Enabled" 0
+  l=`xinput list | grep Synaptics `
+  if [ ! -z "$l" ]; then
+    id=`expr "$l" : '.*id=\([0-9]\+\)'`
+    xinput --disable $id
+  fi
+}
+
+function enable_trackpad() 
+{
+  l=`xinput list | grep Synaptics `
+  if [ ! -z "$l" ]; then
+    id=`expr "$l" : '.*id=\([0-9]\+\)'`
+    xinput --enable $id
+  fi
+}
+
 if [ ! -z "${DISPLAY}" ]; then
    setxkbmap de
-   # xinput set-prop 13 "Device Enabled" 0
+   disable_trackpad
 fi
 
