@@ -15,5 +15,5 @@ Keybindings
  * Win-[j,k]     : select tab in tabbed Layout 
  * Win-Shift-l   : toggle beween Full-[Tall,tabbed]
  * CTRL-WIN-[m,j,k] : audio control
- * Win-Shift-p   : screensot using scrot
+ * Win-Shift-p   : screenshot using scrot
 
