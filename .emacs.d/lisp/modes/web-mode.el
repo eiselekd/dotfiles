@@ -15,6 +15,7 @@
        (progn 
 	 (setq web-mode-markup-indent-offset 4)
 	 (setq web-mode-code-indent-offset 4)
+	 (setq indent-tabs-mode gnil)
 	 )
        )
 
