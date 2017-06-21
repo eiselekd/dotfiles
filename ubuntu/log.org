@@ -185,6 +185,7 @@ recompile mainline with deb-pkg:
 git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 git clone https://github.com/zfsonlinux/spl
 git clone https://github.com/zfsonlinux/zfs
+git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 
 (cd linux; make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-custom)
 
@@ -217,7 +218,16 @@ possibly: echo zfs >> /etc/initramfs-tools/modules
 update-initramfs -u
 
 
+*** wifi t460s
 
+[    6.218916] iwlwifi 0000:04:00.0: no suitable firmware found!
+[    6.220111] iwlwifi 0000:04:00.0: minimum version required: iwlwifi-8000C-22                                                                                                                                                                                                 
+[    6.221293] iwlwifi 0000:04:00.0: maximum version supported: iwlwifi-8000C-30                                                                                                                                                                                                
+[    6.222504] iwlwifi 0000:04:00.0: check git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git                                                                                                                                                            
+
+
+
+cp linux-firmware/iwlwifi-8265-22.ucode /lib/firmware/
 
 *** links
 [1] https://wiki.ubuntu.com/KernelTeam/GitKernelBuild
