@@ -37,15 +37,15 @@ import Language.Haskell.TH.Syntax (runIO)
 
 ------------------------------------------------------------------------
 -- Terminal
--- The preferred terminal program, which is used in a binding below and by
--- certain contrib modules.
+-- The preferred terminal program, which is used in a binding below and certain
+-- by contrib modules.
 --
 
 myTerminal :: String
 myTerminal = do
   if os == "freebsd"
     then "xterm"
-    else "if which gnome-terminal > /dev/null ; then /usr/bin/gnome-terminal; else xterm; fi"
+    else "if which konsole > /dev/null ; then /usr/bin/konsole; else xterm; fi"
 
 myBrowser :: String
 myBrowser = do

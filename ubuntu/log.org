@@ -177,3 +177,11 @@ docker rm <containeridid>
 
 *** links
 [1] https://www.youtube.com/watch?v=nDmvwevnJNc&feature=youtu.be
+
+** kernel
+
+recompile mainline with deb-pkg:
+make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-custom
+
+*** links
+[1] https://wiki.ubuntu.com/KernelTeam/GitKernelBuild
