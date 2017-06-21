@@ -205,6 +205,20 @@ sh autogen.sh
 make -s -j `getconf _NPROCESSORS_ONLN` deg
 )
 
+... dpkg -i kmod-*deb
+
+cd /lib/modules/<version>
+mkdir kernel/zfs
+cp -r extra/zfs/*  kernel/zfs/
+cp -r extra/spl/*  kernel/zfs/
+depmod -a <version>
+
+possibly: echo zfs >> /etc/initramfs-tools/modules 
+update-initramfs -u
+
+
+
+
 *** links
 [1] https://wiki.ubuntu.com/KernelTeam/GitKernelBuild
 [2] https://github.com/zfsonlinux/zfs/wiki/Building-ZFS
