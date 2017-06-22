@@ -189,7 +189,6 @@ git clone https://github.com/zfsonlinux/spl
 git clone https://github.com/zfsonlinux/zfs
 git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 
-
 (cd linux; make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-custom)
 
 d=`pwd`
@@ -241,14 +240,12 @@ systemctl enable zfs-share
 systemctl enable zfs.target
 systemctl enable zfs-zed
 
-
 *** wifi t460s
 
 [    6.218916] iwlwifi 0000:04:00.0: no suitable firmware found!
 [    6.220111] iwlwifi 0000:04:00.0: minimum version required: iwlwifi-8000C-22                                                                                                                                                                                                 
 [    6.221293] iwlwifi 0000:04:00.0: maximum version supported: iwlwifi-8000C-30                                                                                                                                                                                                
 [    6.222504] iwlwifi 0000:04:00.0: check git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git                                                                                                                                                            
-
 
 cp linux-firmware/iwlwifi-8265-22.ucode /lib/firmware/
 
