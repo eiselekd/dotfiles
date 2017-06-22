@@ -232,7 +232,14 @@ cp zfs-mount.service /lib/systemd/system/
 cp zfs-share.service /lib/systemd/system/
 cp zfs.target /lib/systemd/system/
 cp system/zfs-zed.service /lib/systemd/system/
-... enable ...
+
+> change /usr/local/ prefix to / in service definitions
+
+systemctl enable zfs-import-cache
+systemctl enable zfs-mount
+systemctl enable zfs-share
+systemctl enable zfs.target
+systemctl enable zfs-zed
 
 
 *** wifi t460s
