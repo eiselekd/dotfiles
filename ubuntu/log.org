@@ -180,6 +180,8 @@ docker rm <containeridid>
 
 ** kernel and zfs recompile
 
+apt install rpm autoconf libtool uuid-dev libblkid-dev attr-dev
+
 recompile mainline with deb-pkg:
 
 git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
@@ -197,14 +199,14 @@ d=`pwd`
  git checkout master
  sh autogen.sh
  ./configure --with-linux=$d/linux --with-linux-obj=$d/linux
- make -s -j `getconf _NPROCESSORS_ONLN` deb
+ make -s -j `getconf _NPROCESSORS_ONLN` ; make deb 
 )
 (
 cd ../zfs
 git checkout master
 sh autogen.sh
-./configure --with-spl=$d/spl and --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux
-make -s -j `getconf _NPROCESSORS_ONLN` deg
+./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux
+make -s -j `getconf _NPROCESSORS_ONLN` ; make deb
 )
 
 ... dpkg -i kmod-*deb
@@ -218,6 +220,20 @@ depmod -a <version>
 possibly: echo zfs >> /etc/initramfs-tools/modules 
 update-initramfs -u
 
+*** zfs-initramfs : for 7.0.0
+
+add 
+GRUB_CMDLINE_LINUX_DEFAULT=" boot=zfs "
+to /etc/default/grub
+and update-grub
+
+cp zfs-import-cache.service /lib/systemd/system/zfs-import-cache.service
+cp zfs-mount.service /lib/systemd/system/
+cp zfs-share.service /lib/systemd/system/
+cp zfs.target /lib/systemd/system/
+cp system/zfs-zed.service /lib/systemd/system/
+... enable ...
+
 
 *** wifi t460s
 
@@ -225,7 +241,6 @@ update-initramfs -u
 [    6.220111] iwlwifi 0000:04:00.0: minimum version required: iwlwifi-8000C-22                                                                                                                                                                                                 
 [    6.221293] iwlwifi 0000:04:00.0: maximum version supported: iwlwifi-8000C-30                                                                                                                                                                                                
 [    6.222504] iwlwifi 0000:04:00.0: check git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git                                                                                                                                                            
-
 
 
 cp linux-firmware/iwlwifi-8265-22.ucode /lib/firmware/
