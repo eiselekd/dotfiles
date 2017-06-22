@@ -187,6 +187,7 @@ git clone https://github.com/zfsonlinux/spl
 git clone https://github.com/zfsonlinux/zfs
 git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 
+
 (cd linux; make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-custom)
 
 d=`pwd`
@@ -195,7 +196,7 @@ d=`pwd`
  cd spl
  git checkout master
  sh autogen.sh
- ./configure --with-linux=$d/linuxPATH --with-linux-obj=$d/linux
+ ./configure --with-linux=$d/linux --with-linux-obj=$d/linux
  make -s -j `getconf _NPROCESSORS_ONLN` deb
 )
 (
