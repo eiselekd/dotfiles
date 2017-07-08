@@ -90,6 +90,12 @@ xinput set-prop 13 "Device Enabled" 0
 
 ** network
 
+# 16.04
+move eth0 (or similar if) to /etc/network/interfaces.d
+decomment auto to prevent startjob systemd 
+#auto eth0
+#iface eth0 inet dhcp
+
 # simple 
 nmcli radio
 nmcli device
