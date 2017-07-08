@@ -16,6 +16,27 @@ function disable_trackpad()
 }
 
 
+** X60s
+
+Figure out key pressed:
+$xev
+Show keymapping:
+$xmodmap -pke
+X60s issues keycode 166 (left-page, XF86Back) and 167 (right-page, XF86Forward)
+other keyboard issue 112 and 117,
+
+$xmodmap -e "keycode  166 = Prior NoSymbol Prior"
+$xmodmap -e "keycode  167 = Next NoSymbol Next"
+
+*** determine X60s model
+
+if  dmesg|grep X60s >/dev/null; then
+echo "found X60s"
+fi
+
+*** links 
+[1] https://wiki.archlinux.org/index.php/xmodmap
+
 **  /etc/default/keyboad
 
 XKBLAYOUT="de"
