@@ -279,3 +279,8 @@ cp linux-firmware/iwlwifi-8265-22.ucode /lib/firmware/
 *** links
 [1] https://wiki.ubuntu.com/KernelTeam/GitKernelBuild
 [2] https://github.com/zfsonlinux/zfs/wiki/Building-ZFS
+
+** xterm
+
+*** .Xresources
+xterm*savelines: 16384
