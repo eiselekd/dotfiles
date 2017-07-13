@@ -284,3 +284,10 @@ cp linux-firmware/iwlwifi-8265-22.ucode /lib/firmware/
 
 *** .Xresources
 xterm*savelines: 16384
+xterm*on3Clicks: bracket
+
+
+xrdb -merge .Xresources
+xrdb -query
+*** links 
+[1] https://lukas.zapletalovi.com/2013/07/hidden-gems-of-xterm.html

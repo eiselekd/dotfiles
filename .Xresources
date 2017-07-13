@@ -1,2 +1,4 @@
 xterm*savelines: 16384
 xterm*on3Clicks: bracket
+*customization: -color
+xterm*termName:  xterm-256color
