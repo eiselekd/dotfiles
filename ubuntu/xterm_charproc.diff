@@ -1,0 +1,12 @@
+--- xterm-322.ori/charproc.c	2017-07-13 18:55:15.896862294 +0200
++++ xterm-322/charproc.c	2017-07-13 18:58:19.143682329 +0200
+@@ -7458,7 +7458,8 @@
+     	{ "line",	Select_LINE },
+     	{ "group",	Select_GROUP },
+     	{ "page",	Select_PAGE },
+-    	{ "all",	Select_ALL },
++	{ "bracket",    Select_BRACKET },
++	{ "all",	Select_ALL },
+ #if OPT_SELECT_REGEX
+     	{ "regex",	Select_REGEX },
+ #endif
