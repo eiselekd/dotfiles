@@ -1,5 +1,5 @@
---- xterm-322/button.c	2015-12-31 12:26:38.000000000 +0100
-+++ xterm-322.diff/button.c	2017-07-12 23:16:31.937073800 +0200
+--- xterm-322.ori/button.c	2017-07-13 18:55:15.892861414 +0200
++++ xterm-322/button.c	2017-07-13 19:00:35.216640602 +0200
 @@ -2980,10 +2980,10 @@
  #endif
  
@@ -13,7 +13,7 @@
  
  #if OPT_DEC_CHRSET
      if (CSET_DOUBLE(GetLineDblCS(ld))) {
-@@ -2991,7 +2991,21 @@
+@@ -2991,7 +2991,20 @@
      }
  #endif
      if (temp.col < (int) ld->lineSize)
@@ -25,7 +25,6 @@
 +static int
 +class_of(LineData *ld, CELL *cell)
 +{
-+    CELL temp = *cell;
 +    int result = 0;
 +
 +    result = char_at(ld, cell);
@@ -36,7 +35,7 @@
      return result;
  }
  
-@@ -3006,6 +3020,8 @@
+@@ -3006,6 +3019,8 @@
  
  #define CClassOf(name) class_of(ld.name, &((screen->name)))
  
@@ -45,21 +44,13 @@
  /*
   * If the given column is past the end of text on the given row, bump to the
   * beginning of the next line.
-@@ -3463,6 +3479,7 @@
+@@ -3463,6 +3478,113 @@
  	screen->saveStartW = screen->startSel;
  	break;
  
-+    do_line:
-     case Select_LINE:
- 	TRACE(("Select_LINE\n"));
- 	while (LineTstWrapped(ld.endSel)
-@@ -3490,7 +3507,112 @@
- 	trimLastLine(screen, &(ld.endSel), &(screen->endSel));
- 	break;
- 
--    case Select_GROUP:		/* paragraph */
-+    case Select_GROUP:		/* brackets */
-+      TRACE(("Select_GROUP\n"));
++    case Select_BRACKET:		/* brackets */
++
++      TRACE(("Select_BRACKET\n"));
 +	int open = CharAT(startSel);
 +	int close = 0;
 +	switch (open) {
@@ -162,8 +153,8 @@
 +	}
 +
 +	break;
++    do_line:
 +
-+   //case Select_GROUP:		/* paragraph */
- 	TRACE(("Select_GROUP\n"));
- 	if (okPosition(screen, &(ld.startSel), &(screen->startSel))) {
- 	    /* scan backward for beginning of group */
+     case Select_LINE:
+ 	TRACE(("Select_LINE\n"));
+ 	while (LineTstWrapped(ld.endSel)
