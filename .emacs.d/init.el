@@ -103,12 +103,15 @@
 
 
 (require 'ggtags)
-(if (or (eq system-type 'cygwin)
-        (string-match "Microsoft"  ;; Linux subsystem for Windows
-	 (with-temp-buffer (shell-command "uname -r" t)
-			   (goto-char (point-max))
-			   (delete-char -1)
-			   (buffer-string))))
+(if
+  (or
+    (eq system-type 'cygwin)
+    (string-match "Microsoft"  ;; Linux subsystem for Windows
+		  (with-temp-buffer
+		    (shell-command "uname -r" t)
+		    (goto-char (point-max))
+		    (delete-char -1)
+		    (buffer-string))))
     (require 'ggtags)
     (require 'utils/openhelm.el)
 )
