@@ -32,8 +32,10 @@
 	      (require 'haskell nil t)
 	      (require 'haskell-interactive-mode nil t )
 	      (require 'haskell-commands nil t)
+	      (require 'haskell-doc nil t)
+	      (haskell-doc-mode)
 
-	      
+	      (define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 	      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
 	      (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
 	      (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
@@ -43,6 +45,7 @@
 	      
 	      (when  (require 'haskell-cabal nil t )
 		(progn 
+		  (message "[+] Enter haskell-cabal")
 		  (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
 		  (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
 		  (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
