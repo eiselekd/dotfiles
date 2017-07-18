@@ -102,10 +102,15 @@
 (message "[*] %s retired irc" (timestamp_str))
 
 
-;;(require 'ggtags)
-(if (eq system-type 'cygwin)
-     (require 'ggtags)
-     (require 'utils/openhelm.el)
+(require 'ggtags)
+(if (or (eq system-type 'cygwin)
+        (string-match "Microsoft"  ;; Linux subsystem for Windows
+	 (with-temp-buffer (shell-command "uname -r" t)
+			   (goto-char (point-max))
+			   (delete-char -1)
+			   (buffer-string))))
+    (require 'ggtags)
+    (require 'utils/openhelm.el)
 )
 (if (or (eq system-type 'freebsd) (eq system-type 'berkeley-unix))
     (progn
