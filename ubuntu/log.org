@@ -6,7 +6,7 @@ Intel NVme ssd: bios version 1.22 and uefi boot
 
 Disable trackpad:
 
-function disable_trackpad() 
+function disable_trackpad()
 {
   l=`xinput list | grep Synaptics `
   if [ ! -z "$l" ]; then
@@ -34,7 +34,7 @@ if  dmesg|grep X60s >/dev/null; then
 echo "found X60s"
 fi
 
-*** links 
+*** links
 [1] https://wiki.archlinux.org/index.php/xmodmap
 
 **  /etc/default/keyboad
@@ -79,7 +79,7 @@ $zfs list -r -t snapshot rpool/ROOT
 List usage:
 $zfs get -H -o name,value -r used rpool/ROOT
 
-*** links 
+*** links
 [1] http://dotfiles.tnetconsulting.net/articles/2016/0327/ubuntu-zfs-native-root.html
 [2] https://github.com/zfsonlinux/zfs/wiki/Ubuntu-17.04-Root-on-ZFS
 
@@ -92,11 +92,11 @@ xinput set-prop 13 "Device Enabled" 0
 
 # 16.04
 move eth0 (or similar if) to /etc/network/interfaces.d
-decomment auto to prevent startjob systemd 
+decomment auto to prevent startjob systemd
 #auto eth0
 #iface eth0 inet dhcp
 
-# simple 
+# simple
 nmcli radio
 nmcli device
 
@@ -116,7 +116,7 @@ nmcli con show
 nmcli con up uuid <uuid>
 # unconnect
 nmcli radio wifi off
-nmcli con del <con-name> 
+nmcli con del <con-name>
 
 
 *** links
@@ -128,8 +128,8 @@ nmcli con del <con-name>
 
 # show services
 systemctl status
-# show past logging 
-journalctl 
+# show past logging
+journalctl
 # show active logging:
 journalctl -f
 # show active loggin only resolved:
@@ -162,7 +162,7 @@ sudo systemctl enable unbound
 
 #/lib/systemd/systemd-sysv-install enable unbound
 
-*** links 
+*** links
 [1] https://fedoraproject.org/wiki/How_to_debug_Systemd_problems
 [2] http://wiki.ipfire.org/en/dns/public-servers
 [3] http://www.hecticgeek.com/2017/04/ubuntu-17-04-systemd-dns-issues/
@@ -188,7 +188,7 @@ docker build -t <imagename> .
 # create container and run interactive (-i)
 docker run --name <containername> -v <hostpath>:<targetpath> -ti <imagename>
 # restart container
-docker start -i <containername> 
+docker start -i <containername>
 
 *** building with docker-compose
 
@@ -225,7 +225,7 @@ d=`pwd`
  git checkout master
  sh autogen.sh
  ./configure --with-linux=$d/linux --with-linux-obj=$d/linux
- make -s -j `getconf _NPROCESSORS_ONLN` ; make deb 
+ make -s -j `getconf _NPROCESSORS_ONLN` ; make deb
 )
 (
 cd ../zfs
@@ -243,12 +243,12 @@ cp -r extra/zfs/*  kernel/zfs/
 cp -r extra/spl/*  kernel/zfs/
 depmod -a <version>
 
-possibly: echo zfs >> /etc/initramfs-tools/modules 
+possibly: echo zfs >> /etc/initramfs-tools/modules
 update-initramfs -u
 
 *** zfs-initramfs : for 7.0.0
 
-add 
+add
 GRUB_CMDLINE_LINUX_DEFAULT=" boot=zfs "
 to /etc/default/grub
 and update-grub
@@ -270,9 +270,9 @@ systemctl enable zfs-zed
 *** wifi t460s
 
 [    6.218916] iwlwifi 0000:04:00.0: no suitable firmware found!
-[    6.220111] iwlwifi 0000:04:00.0: minimum version required: iwlwifi-8000C-22                                                                                                                                                                                                 
-[    6.221293] iwlwifi 0000:04:00.0: maximum version supported: iwlwifi-8000C-30                                                                                                                                                                                                
-[    6.222504] iwlwifi 0000:04:00.0: check git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git                                                                                                                                                            
+[    6.220111] iwlwifi 0000:04:00.0: minimum version required: iwlwifi-8000C-22
+[    6.221293] iwlwifi 0000:04:00.0: maximum version supported: iwlwifi-8000C-30
+[    6.222504] iwlwifi 0000:04:00.0: check git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 
 cp linux-firmware/iwlwifi-8265-22.ucode /lib/firmware/
 
@@ -282,6 +282,15 @@ cp linux-firmware/iwlwifi-8265-22.ucode /lib/firmware/
 
 ** xterm
 
+Add support for bracket matching highlight for 3-button click
+
+apt source xterm
+suco apt build-dep xterm
+cat xterm_button.c  xterm_charproc.diff xterm_ptyx.h | patch -p1 -d <xterm-dir>
+cd xterm-dir
+debuild -us -uc
+and install package
+
 *** .Xresources
 xterm*savelines: 16384
 xterm*on3Clicks: bracket
@@ -289,5 +298,5 @@ xterm*on3Clicks: bracket
 
 xrdb -merge .Xresources
 xrdb -query
-*** links 
+*** links
 [1] https://lukas.zapletalovi.com/2013/07/hidden-gems-of-xterm.html
