@@ -13,9 +13,25 @@ Config {
     -- lowerOnStart = False,
     commands = [
         Run Date "%a %b %_d %l:%M" "date" 10,
+        Run Battery        [ "--template" , "Batt: <acstatus>"
+	, "--Low"      , "10"        -- units: %
+	, "--High"     , "80"        -- units: %
+	, "--low"      , "darkred"
+	, "--normal"   , "darkorange"
+	, "--high"     , "darkgreen"
+
+	, "--" -- battery specific options
+	-- discharging status
+	, "-o"	, "<left>% (<timeleft>)"
+	-- AC "on" status
+	, "-O"	, "<fc=#dAA520>Charging</fc>"
+	-- charged status
+	, "-i"	, "<fc=#006000>Charged</fc>"
+	] 50,
+
         Run StdinReader
     ],
     sepChar = "%",
     alignSep = "}{",
-    template = "%StdinReader% }{  <fc=#FFFFCC>%date%</fc>  "
+    template = "%StdinReader% }{ %battery% <fc=#FFFFCC>%date%</fc>  "
 }
