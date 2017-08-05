@@ -1,6 +1,10 @@
 all:
 	@echo "make monad  : install gnome + xmonad"
 	@echo "make bashrc : install bashrc_extra"
+	@echo "nmcli device wifi rescan"
+	@echo "nmcli device wifi list"
+	@echo "nmcli device wifi connect <SSID-Name> password <wireless-password>"
+
 
 monad:
 	cp gnome/gnome-session-xmonad /usr/bin/
