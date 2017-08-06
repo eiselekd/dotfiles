@@ -67,6 +67,11 @@ zfs create rpool/home/eiselekd
 zfs create -o mountpoint=/src rpool/src
 zfs create -o mountpoint=/work rpool/work
 
+*** scrubbing
+
+zpool scrub <pool> 
+zpool status
+
 *** snapshots
 
 Take snapshot:
