@@ -14,18 +14,24 @@ export n=`getconf _NPROCESSORS_ONLN`
 
 (
     cd spl
-    make distclean
+    git reset --hard HEAD
+    git pull --rebase
     sh autogen.sh
     ./configure --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
-    make -s -j $n || exit 1;
+    make     || exit 1;
     make deb || exit 1;
+
+    # install spl for zfs build
+    sudo dpkg -i *deb
+    
 )
 
 (
     cd  zfs
-    make distclean
+    git reset --hard HEAD
+    git pull --rebase
     sh autogen.sh
     ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
-    make -s  || exit 1;
+    make     || exit 1;
     make deb || exit 1;
 )
