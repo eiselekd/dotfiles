@@ -1,0 +1,106 @@
+diff --git a/cmd/mount_zfs/Makefile.am b/cmd/mount_zfs/Makefile.am
+index bc9fb4c34..d4d7a7587 100644
+--- a/cmd/mount_zfs/Makefile.am
++++ b/cmd/mount_zfs/Makefile.am
+@@ -16,4 +16,5 @@ mount_zfs_SOURCES = \
+ 
+ mount_zfs_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+-	$(top_builddir)/lib/libzfs/libzfs.la
++	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la
+diff --git a/cmd/zdb/Makefile.am b/cmd/zdb/Makefile.am
+index ea6806b2c..4685bec20 100644
+--- a/cmd/zdb/Makefile.am
++++ b/cmd/zdb/Makefile.am
+@@ -15,4 +15,5 @@ zdb_SOURCES = \
+ zdb_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+ 	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la \
+ 	$(top_builddir)/lib/libzpool/libzpool.la
+diff --git a/cmd/zed/Makefile.am b/cmd/zed/Makefile.am
+index 53d5aa71c..fbd650f4e 100644
+--- a/cmd/zed/Makefile.am
++++ b/cmd/zed/Makefile.am
+@@ -42,7 +42,8 @@ zed_SOURCES = $(ZED_SRC) $(FMA_SRC)
+ zed_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+ 	$(top_builddir)/lib/libuutil/libuutil.la \
+-	$(top_builddir)/lib/libzfs/libzfs.la
++	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la
+ 
+ zed_LDADD += -lrt
+ zed_LDFLAGS = -pthread
+diff --git a/cmd/zhack/Makefile.am b/cmd/zhack/Makefile.am
+index f720e8286..12c0e0a4d 100644
+--- a/cmd/zhack/Makefile.am
++++ b/cmd/zhack/Makefile.am
+@@ -12,4 +12,5 @@ zhack_SOURCES = \
+ zhack_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+ 	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la \
+ 	$(top_builddir)/lib/libzpool/libzpool.la
+diff --git a/cmd/zinject/Makefile.am b/cmd/zinject/Makefile.am
+index b709a2f5a..b50114f23 100644
+--- a/cmd/zinject/Makefile.am
++++ b/cmd/zinject/Makefile.am
+@@ -14,4 +14,5 @@ zinject_SOURCES = \
+ zinject_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+ 	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la \
+ 	$(top_builddir)/lib/libzpool/libzpool.la
+diff --git a/cmd/zpool/Makefile.am b/cmd/zpool/Makefile.am
+index d7e1741c1..e2ee34137 100644
+--- a/cmd/zpool/Makefile.am
++++ b/cmd/zpool/Makefile.am
+@@ -16,7 +16,8 @@ zpool_SOURCES = \
+ zpool_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+ 	$(top_builddir)/lib/libuutil/libuutil.la \
+-	$(top_builddir)/lib/libzfs/libzfs.la
++	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la 
+ 
+ zpool_LDADD += -lm $(LIBBLKID)
+ 
+diff --git a/cmd/zstreamdump/Makefile.am b/cmd/zstreamdump/Makefile.am
+index f80b5018e..1ec2daee1 100644
+--- a/cmd/zstreamdump/Makefile.am
++++ b/cmd/zstreamdump/Makefile.am
+@@ -11,4 +11,5 @@ zstreamdump_SOURCES = \
+ 
+ zstreamdump_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+-	$(top_builddir)/lib/libzfs/libzfs.la
++	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la
+diff --git a/cmd/ztest/Makefile.am b/cmd/ztest/Makefile.am
+index 930a7ec3a..c911a9ce8 100644
+--- a/cmd/ztest/Makefile.am
++++ b/cmd/ztest/Makefile.am
+@@ -17,6 +17,7 @@ ztest_SOURCES = \
+ ztest_LDADD = \
+ 	$(top_builddir)/lib/libnvpair/libnvpair.la \
+ 	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la \
+ 	$(top_builddir)/lib/libzpool/libzpool.la
+ 
+ ztest_LDADD += -lm
+diff --git a/tests/zfs-tests/tests/functional/libzfs/Makefile.am b/tests/zfs-tests/tests/functional/libzfs/Makefile.am
+index d885bc1ab..642dd1472 100644
+--- a/tests/zfs-tests/tests/functional/libzfs/Makefile.am
++++ b/tests/zfs-tests/tests/functional/libzfs/Makefile.am
+@@ -13,7 +13,8 @@ DEFAULT_INCLUDES += \
+ 	-I$(top_srcdir)/lib/libspl/include
+ 
+ many_fds_LDADD = \
+-	$(top_builddir)/lib/libzfs/libzfs.la
++	$(top_builddir)/lib/libzfs/libzfs.la \
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la
+ 
+ pkgexec_PROGRAMS = many_fds
+ many_fds_SOURCES = many_fds.c
