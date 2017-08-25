@@ -170,6 +170,46 @@ sudo systemctl enable unbound
 
 #/lib/systemd/systemd-sysv-install enable unbound
 
+
+*** systemd-networkd systemd-resolved
+
+/etc/network/interfaces to:
+auto lo
+iface lo inet loopback
+and remove /etc/network/interfaces.d
+
+start:
+
+#+begin_src bash:
+systemctl start systemd-networkd.service
+systemctl start systemd-resolved.service
+systemctl enable systemd-networkd.service
+systemctl enable systemd-resolved.service
+#+end_src
+
+#+begin_src /etc/systemd/network/bridge0.netdev: 
+[NetDev]
+Name=br0
+Kind=bridge
+#+end_src
+
+#+begin_src /etc/systemd/network/bridge.network: 
+[Match]
+Name=br0
+[Network]
+DHCP=ipv4
+#+end_src
+
+#+begin_src /etc/systemd/network/eth.network: 
+[Match]
+Name=en*
+[Network]
+Bridge=br0
+#+end_src
+
+=> all en* interfaces under bridge
+
+
 *** links
 [1] https://fedoraproject.org/wiki/How_to_debug_Systemd_problems
 [2] http://wiki.ipfire.org/en/dns/public-servers
@@ -478,3 +518,4 @@ pip3 install jupyter
  linux-4.13 and perf:
  sudo apt install  libelf-dev  libaudit-dev  libgtk2.0-dev  systemtap-sdt-dev  libgtk2.0-dev liblzma-dev libbfd-dev libdw-dev libiberty-dev binutils-dev zlib1g-dev
  cd linux-4.13/tools/perf && make
+
