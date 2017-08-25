@@ -295,6 +295,33 @@ depmod -a <version>
 possibly: echo zfs >> /etc/initramfs-tools/modules
 update-initramfs -u
 
+
+add
+GRUB_CMDLINE_LINUX_DEFAULT=" boot=zfs "
+to /etc/default/grub
+and update-grub
+
+*** zfs-initramfs : for 7.0.0 needed
+
+
+cp zfs-import-cache.service /lib/systemd/system/zfs-import-cache.service
+cp zfs-mount.service /lib/systemd/system/
+cp zfs-share.service /lib/systemd/system/
+cp zfs.target /lib/systemd/system/
+cp system/zfs-zed.service /lib/systemd/system/
+
+> change /usr/local/ prefix to / in service definitions
+
+systemctl enable zfs-import-cache
+systemctl enable zfs-mount
+systemctl enable zfs-share
+systemctl enable zfs.target
+systemctl enable zfs-zed
+
+
+
+*** zfs compile problem
+
 tests/functions/libzfs : 
 
 --- a/tests/zfs-tests/tests/functional/libzfs/Makefile.am
@@ -438,26 +465,6 @@ index d885bc1ab..642dd1472 100644
 
 
 
-*** zfs-initramfs : for 7.0.0
-
-add
-GRUB_CMDLINE_LINUX_DEFAULT=" boot=zfs "
-to /etc/default/grub
-and update-grub
-
-cp zfs-import-cache.service /lib/systemd/system/zfs-import-cache.service
-cp zfs-mount.service /lib/systemd/system/
-cp zfs-share.service /lib/systemd/system/
-cp zfs.target /lib/systemd/system/
-cp system/zfs-zed.service /lib/systemd/system/
-
-> change /usr/local/ prefix to / in service definitions
-
-systemctl enable zfs-import-cache
-systemctl enable zfs-mount
-systemctl enable zfs-share
-systemctl enable zfs.target
-systemctl enable zfs-zed
 
 *** wifi t460s
 
