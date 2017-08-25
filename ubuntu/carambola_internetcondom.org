@@ -1,0 +1,117 @@
+* Purpose
+
+Curiouse what your phone sends/receives?
+Use a low-cost Carambola2 to setup as a accesspoint and
+monitor traffic:
+
++----------+     +----+                +-----------+            +-------+
+| internet | <-> | PC | <-usb-dongle>  |carambola2 |  < ((o)) > | Phone |
++----------+     +----+                +-----------+            +-------+
+
+Using bridges on the PC nad carambola2 units, logically create one big l2 network:
+
++----------+     +-----------+       
+| internet | <+> |eth     PC | 
++----------+ <+> |usb-eth    |
+              |  +-----------+    
+              |  +----------------+
+             <+> |eth0 carambola2 |
+              |  |                |          +-------+
+             <+> |wifi            |< ((o)) > | Phone |
+                 +----------------+          +-------+
+
+On the pc setup a bridge with eth and usb-dongle iface as ports.
+On the carambola setup a bridge with eth0 and wlan as ports.
+The result will be a single l2 network. To monitor traffic, hook wireshark 
+on the usb-dongle iface.
+
+* Setup PC using systemd-networkd.service:
+
+/etc/network/interfaces to:
+auto lo
+iface lo inet loopback
+and remove /etc/network/interfaces.d
+
+#+begin_src bash:
+systemctl start systemd-networkd.service
+systemctl start systemd-resolved.service
+systemctl enable systemd-networkd.service
+systemctl enable systemd-resolved.service
+#+end_src
+
+#+begin_src /etc/systemd/network/bridge0.netdev: 
+[NetDev]
+Name=br0
+Kind=bridge
+#+end_src
+
+#+begin_src /etc/systemd/network/bridge.network: 
+[Match]
+Name=br0
+[Network]
+DHCP=ipv4
+#+end_src
+
+#+begin_src /etc/systemd/network/eth.network: 
+[Match]
+Name=en*
+[Network]
+Bridge=br0
+#+end_src
+
+#+begin_src bash:
+systemctl restart systemd-networkd.service
+#+end_src
+
+* Setup Carambola2
+
+#+begin_src /etc/config/network: 
+
+config interface 'loopback'
+        option ifname 'lo'
+        option proto 'static'
+        option ipaddr '127.0.0.1'
+        option netmask '255.0.0.0'
+
+config globals 'globals'
+        option ula_prefix 'fd30:3db6:e4ed::/48'
+
+config interface 'lan'
+        option type 'bridge'
+        option ifname 'eth0'
+        option proto 'dhcp'
+
+config interface 'wan'
+        option ifname 'eth1'
+        option proto 'dhcp'
+
+config interface 'wan6'
+        option ifname 'eth1'
+        option proto 'dhcpv6'
+
+#+end_src
+
+#+begin_src /etc/config/wireless: 
+
+config wifi-device 'radio0'
+        option type 'mac80211'
+        option channel '4'
+        option hwmode '11g'
+        option path 'platform/ar933x_wmac'
+        option htmode 'HT20'
+        option disabled '0'
+
+config wifi-iface
+        option device 'radio0'
+        option network 'lan'
+        option mode 'ap'
+        option encryption 'none'
+        option ssid 'Carambola2'
+        option 'encryption' 'psk2'
+        option 'key' 'xxxx'
+
+#+end_src
+
+* links
+[1] http://www.8devices.com/wiki/carambola:2:gettingstarted
+  
