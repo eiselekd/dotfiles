@@ -23,7 +23,8 @@ Using bridges on the PC nad carambola2 units, logically create one big l2 networ
 On the pc setup a bridge with eth and usb-dongle iface as ports.
 On the carambola setup a bridge with eth0 and wlan as ports.
 The result will be a single l2 network. To monitor traffic, hook wireshark 
-on the usb-dongle iface.
+on the usb-dongle iface. Use Statistics->Endpoints to monitor where your 
+phone is connecting to.
 
 * Setup PC using systemd-networkd.service:
 
