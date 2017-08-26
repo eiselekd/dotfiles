@@ -22,7 +22,7 @@ Using bridges on the PC and carambola2 units, logically create one big l2 networ
               |  |+-------+         |    
               |  +------------------+    
               |  +------------------+
-              |  | br0              |
+              |  | br(lan)          |
               |  |+----+            |
              <+> ||eth0| carambola2 |
               |  ||    |            |          +-------+
