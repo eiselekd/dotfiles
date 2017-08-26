@@ -1,15 +1,19 @@
 * Purpose
 
 Curiouse what your phone sends/receives?
-Use a low-cost Carambola2 to setup as a accesspoint and
-monitor traffic:
+Use a low-cost Carambola2 to setup as a accesspoint 
+and monitor traffic:
+
+#+begin_src:
 
 +----------+     +----+                +-----------+            +-------+
 | internet | <-> | PC | <-usb-dongle>  |carambola2 |  < ((o)) > | Phone |
 +----------+     +----+                +-----------+            +-------+
+#+end_src
 
-Using bridges on the PC nad carambola2 units, logically create one big l2 network:
+Using bridges on the PC and carambola2 units, logically create one big l2 network:
 
+#+begin_src:
 +----------+     +-----------+       
 | internet | <+> |eth     PC | 
 +----------+ <+> |usb-eth    |
@@ -19,12 +23,13 @@ Using bridges on the PC nad carambola2 units, logically create one big l2 networ
               |  |                |          +-------+
              <+> |wifi            |< ((o)) > | Phone |
                  +----------------+          +-------+
+#+end_src
 
 On the pc setup a bridge with eth and usb-dongle iface as ports.
 On the carambola setup a bridge with eth0 and wlan as ports.
 The result will be a single l2 network. To monitor traffic, hook wireshark 
 on the usb-dongle iface. Use Statistics->Endpoints to monitor where your 
-phone is connecting to.
+phone is connecting to. *Dont expect to get any insight in the mess you discover.*
 
 * Setup PC using systemd-networkd.service:
 
@@ -112,6 +117,11 @@ config wifi-iface
         option 'key' 'xxxx'
 
 #+end_src
+
+
+* Next steps:
+
+Implement filtering on the carambola2 side .
 
 * links
 [1] http://www.8devices.com/wiki/carambola:2:gettingstarted
