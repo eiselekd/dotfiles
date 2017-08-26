@@ -6,23 +6,29 @@ and monitor traffic:
 
 #+begin_src:
 
-+----------+     +----+                +-----------+            +-------+
-| internet | <-> | PC | <-usb-dongle>  |carambola2 |  < ((o)) > | Phone |
-+----------+     +----+                +-----------+            +-------+
++----------+     +--------------+                +----------------------+            +-------+
+| internet | <-> |eth PC usb-eth| <-usb-dongle>  |eth0  carambola2  wifi|  < ((o)) > | Phone |
++----------+     +--------------+                +----------------------+            +-------+
 #+end_src
 
 Using bridges on the PC and carambola2 units, logically create one big l2 network:
 
 #+begin_src:
-+----------+     +-----------+       
-| internet | <+> |eth     PC | 
-+----------+ <+> |usb-eth    |
-              |  +-----------+    
-              |  +----------------+
-             <+> |eth0 carambola2 |
-              |  |                |          +-------+
-             <+> |wifi            |< ((o)) > | Phone |
-                 +----------------+          +-------+
+                 +------------------+       
+                 | br0              |       
++----------+     ++-------+         | 
+| internet | <+> ||eth    |    PC   | 
++----------+ <+> ||usb-eth|         |
+              |  |+-------+         |    
+              |  +------------------+    
+              |  +------------------+
+              |  | br0              |
+              |  |+----+            |
+             <+> ||eth0| carambola2 |
+              |  ||    |            |          +-------+
+             <+> ||wifi|            |< ((o)) > | Phone |
+                 |+----+            |          +-------+
+                 +------------------+
 #+end_src
 
 On the pc setup a bridge with eth and usb-dongle iface as ports.
