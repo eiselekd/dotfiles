@@ -526,3 +526,8 @@ pip3 install jupyter
  sudo apt install  libelf-dev  libaudit-dev  libgtk2.0-dev  systemtap-sdt-dev  libgtk2.0-dev liblzma-dev libbfd-dev libdw-dev libiberty-dev binutils-dev zlib1g-dev
  cd linux-4.13/tools/perf && make
 
+** recompile ubuntu package
+DEB_BUILD_OPTIONS="debug nostrip noopt"         dpkg-buildpackage -us -uc -b
+DEB_BUILD_OPTIONS="debug nostrip noopt nocheck" dpkg-buildpackage -us -uc -b
+
+

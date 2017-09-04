@@ -216,7 +216,9 @@
 	))
   ;;(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
 
-  (utils/flycheck-local-keybind ))
+  (utils/flycheck-local-keybind )
+  (setq flycheck-clang-language-standard "c++14")
+  )
 
 (defun utils/flymake-mode-hook ()
   "Flycheck mode hook."
