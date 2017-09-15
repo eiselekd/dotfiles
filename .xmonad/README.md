@@ -16,4 +16,6 @@ Keybindings
  * Win-Shift-l   : toggle beween Full-[Tall,tabbed]
  * CTRL-WIN-[m,j,k] : audio control
  * Win-Shift-p   : screenshot using scrot
+ * Win-Shift-Alt-[left,right,up,down] : shrink and expand vertical/horizontal 
+ * Win-Shift-[left,right,up,down] : move window position
 
