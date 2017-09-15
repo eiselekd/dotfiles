@@ -19,6 +19,7 @@ import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
+import XMonad.Layout.ResizableTile
 import XMonad.Layout.ThreeColumns
 import XMonad.Util.Run(runProcessWithInput)
 import XMonad.Util.Run(spawnPipe, unsafeSpawn, safeSpawn)
@@ -118,7 +119,7 @@ myManageHook = composeAll
 --
 myLayout =  avoidStruts ( 
     toggleLayouts Full (
-    		  Tall 1 (10/100) (2/3) |||
+    		  ResizableTall 1 (10/100) (2/3) [] |||
     		  tabbed shrinkText tabConfig
 		  )
     ) 
@@ -350,6 +351,15 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask, xK_l),
      sendMessage Expand)
 
+  , ((modMask .|. shiftMask .|. altModMask, xK_Left),
+     sendMessage Shrink)
+  , ((modMask .|. shiftMask .|. altModMask, xK_Right),
+     sendMessage Expand)
+  , ((modMask .|. shiftMask .|. altModMask, xK_Up),
+     sendMessage MirrorExpand)
+  , ((modMask .|. shiftMask .|. altModMask, xK_Down),
+     sendMessage MirrorShrink)
+  
   -- Switch to Full layout.
   , ((modMask .|. shiftMask, xK_l),
       sendMessage (Toggle "Full") )
