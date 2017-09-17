@@ -5,8 +5,8 @@
 #BASHEXTRADIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #export PATH=$PATH:${BASHEXTRADIR}/.xmonad/
 
-alias ovc='openssl x509 -text -noout -in ' 
-alias ovk='openssl rsa -text -noout -in ' 
+alias ovc='openssl x509 -text -noout -in '
+alias ovk='openssl rsa -text -noout -in '
 
 # Avoid duplicates
 export HISTCONTROL=ignoredups:erasedups
@@ -73,7 +73,7 @@ zfssnapshots()
 
 zfstakesnapshot()
 {
-	sudo zfs list 
+	sudo zfs list
 	sudo zfs snapshot rpool/home/eiselekd@`date +'%Y-%m-%d'`
 	sudo zfs snapshot rpool/ROOT/ubuntu@`date +'%Y-%m-%d'`
 	sudo zfs snapshot rpool/home/root@`date +'%Y-%m-%d'`
@@ -98,7 +98,7 @@ alias sshp="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no 
 
 alias segfault="env SEGFAULT_SIGNALS='abrt segv' LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so"
 
-function disable_trackpad() 
+function disable_trackpad()
 {
   # xinput set-prop 13 "Device Enabled" 0
   l=`xinput list | grep Synaptics `
@@ -108,7 +108,7 @@ function disable_trackpad()
   fi
 }
 
-function enable_trackpad() 
+function enable_trackpad()
 {
   l=`xinput list | grep Synaptics `
   if [ ! -z "$l" ]; then
@@ -126,6 +126,8 @@ if dmesg | grep X60s >/dev/null; then
 xmodmap -e "keycode  166 = Prior NoSymbol Prior"
 xmodmap -e "keycode  167 = Next NoSymbol Next"
 fi
+
+export PATH=${HOME}/bin/bin:${PATH}
 
 if [ -d ${HOME}/.cabal/bin ]; then
    export PATH=${HOME}/.cabal/bin:${PATH}
