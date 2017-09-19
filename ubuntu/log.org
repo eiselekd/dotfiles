@@ -531,3 +531,62 @@ DEB_BUILD_OPTIONS="debug nostrip noopt"         dpkg-buildpackage -us -uc -b
 DEB_BUILD_OPTIONS="debug nostrip noopt nocheck" dpkg-buildpackage -us -uc -b
 
 
+
+* networking Virtualbox:
+** create bridge
+# https://www.virtualbox.org/wiki/Advanced_Networking_Linux
+PATH=/sbin:/usr/bin:/bin:/usr/bin
+# create a tap                                                                                                                                                          
+tunctl -t tap1 -g vboxusers
+ip link set up dev tap1
+# create the bridge                                                                                                                                                     
+brctl addbr br0
+brctl addif br0 tap1
+# set the IP address and routing                                                                                                                                        
+ip link set up dev br0
+ip addr add 10.1.1.1/24 dev br0
+ip route add 10.1.1.0/24 dev br0
+
+*** shutdown
+tunctl -d tap1
+
+** create forwarding
+# https://www.virtualbox.org/wiki/Advanced_Networking_Linux
+INTIF="br0"
+EXTIF="wlp4s0"
+echo 1 > /proc/sys/net/ipv4/ip_forward
+# clear existing iptable rules, set a default policy
+iptables -P INPUT ACCEPT
+iptables -F INPUT
+iptables -P OUTPUT ACCEPT
+iptables -F OUTPUT
+iptables -P FORWARD DROP
+iptables -F FORWARD
+iptables -t nat -F
+# set forwarding and nat rules
+iptables -A FORWARD -i $EXTIF -o $INTIF -j ACCEPT
+iptables -A FORWARD -i $INTIF -o $EXTIF -j ACCEPT
+iptables -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
+
+***  shutdown
+
+# clear existing iptable rules, set a default policy
+#iptables -P INPUT ACCEPT
+#iptables -F INPUT
+#iptables -P OUTPUT ACCEPT
+#iptables -F OUTPUT
+#iptables -P FORWARD DROP
+#iptables -F FORWARD
+#iptables -t nat -F
+#
+## disable forwarding
+#echo 0 > /proc/sys/net/ipv4/ip_forward
+#echo 1 > /proc/sys/net/ipv4/ip_dynaddr
+
+# possibley do:
+# insert NAT rule
+#iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+# enable forwarding
+#echo 1 > /proc/sys/net/ipv4/ip_forward
+
+
