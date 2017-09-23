@@ -67,6 +67,7 @@
 (defun c-mode-addfuncs ()
   (ggtags-mode)
   (global-set-key (kbd "M-G")  'magit-log-buffer-file)
+  (global-set-key (kbd "M-i")  (lambda () (interactive) (c-mode-add-irony)))
 
   (require 'prepaint nil t)
   (when (require 'hideshow nil t)
@@ -78,6 +79,15 @@
 
   )
 
+(defun c-mode-add-irony ()
+  (progn
+    (when (and (require 'company nil t) (require 'irony nil t) (require 'company-irony nil t))
+      (progn
+	(message "[+] activate company-irony")
+	(call-interactively 'company-mode)
+	(call-interactively 'company-irony)
+	))
+    ))
 
 (add-hook 'hs-org/minor-mode-hook (lambda ()
 				    (progn
@@ -96,7 +106,7 @@
 						 (val (read-from-minibuffer (format "Set %s to? (default 1): " var)
 									    nil nil t nil "1")))
 					    (hif-set-var var (or val 1)))))
-				      
+
 				      (define-key hs-org/minor-mode-map (kbd "M-0")
 					(lambda () (interactive)
 					  (progn
@@ -118,7 +128,7 @@
 					    (message "[=] hs-ifdef-env-linenr: '%s'" hide-ifdef-env-linenr)
 					    )))
 
-				      
+
 				      )))
 
 

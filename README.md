@@ -41,6 +41,7 @@ Keybindings:
    * ESC h : toggle hs-org/minor-mode (toggle blocks and ifdef blocks, disabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
    * M-G   : magit hist
+   * M-i   : start irony mode
    * M-M   : helm query man db
    * M-SPC : disable remove space on write
    * M-( + M-) : toggle block hide/show
