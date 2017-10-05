@@ -117,6 +117,11 @@ function enable_trackpad()
   fi
 }
 
+# lsw case: use xming
+if uname -a | grep Microsoft; then
+   export DISPLAY=0:0
+fi
+
 if [ ! -z "${DISPLAY}" ]; then
    setxkbmap de
    disable_trackpad
