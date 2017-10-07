@@ -1,0 +1,9 @@
+* permissions
+
+takeown.exe /f <dir> /r
+takeown.exe /f <file> 
+
+use cygwin's chown / chmod to set mermissions. Otherwise
+use Properties->Security (Advanced), look on Allow/Deny and inheritance.
+
+
