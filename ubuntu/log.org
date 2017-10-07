@@ -621,6 +621,7 @@ sudo chroot /mnt /bin/bash
 grub-install /dev/sdX # where /dev/sdX is the main drive where /dev/sdXW is a partition of
 grub-update # generate /boor/grub/grub.cfg (from /etc/grub.d/*)
 
+convert msdos part to gpt with gdisk
 
 ** links
 [ https://askubuntu.com/questions/661947/add-windows-10-to-grub-os-list ]
