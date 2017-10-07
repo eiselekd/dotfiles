@@ -608,3 +608,4 @@ menuentry "Windows 10" --class windows --class os {
 ** links
 [ https://askubuntu.com/questions/661947/add-windows-10-to-grub-os-list ]
 [ http://www.rodsbooks.com/gdisk/index.html ]
+[ https://wiki.ubuntuusers.de/EFI_Problembehebung/ ]
