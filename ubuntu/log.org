@@ -590,3 +590,21 @@ iptables -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
 #echo 1 > /proc/sys/net/ipv4/ip_forward
 
 
+
+* Add Win10 to grub
+
+https://help.ubuntu.com/community/UEFI
+use boot-repair to convert o uefi
+
+sudo blkid /dev/sda2
+Then edit /etc/grub.d/40_custom, and at the end of the file add:
+
+menuentry "Windows 10" --class windows --class os {
+   insmod ntfs
+   search --no-floppy --set=root --fs-uuid $your_uuid_here$
+   ntldr /bootmgr
+}
+
+** links
+[ https://askubuntu.com/questions/661947/add-windows-10-to-grub-os-list ]
+[ http://www.rodsbooks.com/gdisk/index.html ]

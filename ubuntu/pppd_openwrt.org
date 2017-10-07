@@ -4,8 +4,11 @@ ppdtarget.sh:
 
 echo "Starting pppd..."
 
-pid=`ps | grep "/bin/ash --login" | grep -v grep | awk '{print $1;}'`
-kill -SIGSTOP $pid
+getpid() {
+  ps | grep "/bin/ash --login" | grep -v grep | awk '{print $1;}'
+}
+  
+kill -SIGSTOP `getpid`
 
 stty -F /dev/ttyATH0 raw
 stty -F /dev/ttyATH0 -a
