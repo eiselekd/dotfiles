@@ -605,7 +605,25 @@ menuentry "Windows 10" --class windows --class os {
    ntldr /bootmgr
 }
 
+** efi part
+
+mkfs.fat -F32 /dev/sdxY
+sudo mount /dev/sdXY /mnt/boot/efi 
+
+sudo mount /dev/sdXW /mnt/ 
+# sudo mount /dev/sdXY /mnt/boot if seperate
+
+sudo mount -o bind /dev /mnt/dev 
+sudo mount -o bind /sys /mnt/sys 
+sudo mount -t proc /proc /mnt/proc 
+sudo chroot /mnt /bin/bash
+
+grub-install /dev/sdX # where /dev/sdX is the main drive where /dev/sdXW is a partition of
+grub-update # generate /boor/grub/grub.cfg (from /etc/grub.d/*)
+
+
 ** links
 [ https://askubuntu.com/questions/661947/add-windows-10-to-grub-os-list ]
 [ http://www.rodsbooks.com/gdisk/index.html ]
 [ https://wiki.ubuntuusers.de/EFI_Problembehebung/ ]
+[ https://wiki.ubuntuusers.de/GRUB_2/Reparatur/ ]
