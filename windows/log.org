@@ -4,6 +4,10 @@ takeown.exe /f <dir> /r
 takeown.exe /f <file> 
 
 use cygwin's chown / chmod to set mermissions. Otherwise
-use Properties->Security (Advanced), look on Allow/Deny and inheritance.
+use Properties->Security (Advanced):
+ - 1. Disable Inheritance
+ - 2. Remove all other accounts
+ - 3. Enable subfolders and files, all access parameters set
+ - 4. check Replace all chind object permissions ...
 
 
