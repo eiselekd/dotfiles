@@ -27,8 +27,9 @@ Keybindings:
    * F7 : finish
    * F8 : continue
    * F12: set breakpoint
- * ALT-Shift up/down/left/right : resize window
- * Shift up/down/left/right : jump window
+ * Win-ALT-Shift up/down/left/right : resize window
+ * Win up/down/left/right : jump window
+ * Win-Shift up/down/left/right : move window
  * Org-mode:
    * F1 (ESC a, Ctrl-c a) : org-agenda
    * F2  : org-todo change
