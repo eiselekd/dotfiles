@@ -81,11 +81,13 @@
 
 (defun c-mode-add-irony ()
   (progn
-    (when (and (require 'company nil t) (require 'irony nil t) (require 'company-irony nil t))
+    (when (and (require 'company nil t) (require 'irony nil t) (require 'company-irony nil t) (require 'irony-cdb nil t))
       (progn
-	(message "[+] activate company-irony")
+	(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+    	(message "[+] activate company-irony")
 	(call-interactively 'company-mode)
 	(call-interactively 'company-irony)
+	(global-set-key (kbd "M-I")  (lambda () (interactive) (irony-cdb-menu)))
 	))
     ))
 
