@@ -11,3 +11,22 @@ use Properties->Security (Advanced):
  - 4. check Replace all chind object permissions ...
 
 
+
+* ATM on gigabrix
+
+  Enable MEBx bios menue extension
+  Reboot and press Ctrl-P 
+  Login with default admin:admin
+  Change pass (special char needed)
+  Enable network provisioning
+  Access port 16992
+  Allocate user to use with Manageability Commander
+
+** Ctrl
+  Use Intel Management and Security Status tab on target.
+  Use Manageability Commander Tool Mesh Edition from open-manageability
+
+** links
+[ http://www.virten.net/2013/11/howto-intel-nuc-remote-kvm-with-amt-powered-by-vpro/ ]
+[ http://www.meshcommander.com/open-manageability ]
+
