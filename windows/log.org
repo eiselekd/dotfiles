@@ -26,6 +26,7 @@ use Properties->Security (Advanced):
   Use Intel Management and Security Status (IMSS) tab on target.
   Use Manageability Commander Tool Mesh Edition from open-manageability or MeshCommander from same site
   Sol driver and services.msc Intel Management services and devmgmt.msc SOL com driver
+  On target start open-manageability Outpost Tool and enable Serial agent
 
 ** links
 [ http://www.virten.net/2013/11/howto-intel-nuc-remote-kvm-with-amt-powered-by-vpro/ ]
