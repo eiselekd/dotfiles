@@ -23,10 +23,11 @@ use Properties->Security (Advanced):
   Allocate user to use with Manageability Commander
 
 ** Ctrl
-  Use Intel Management and Security Status tab on target.
+  Use Intel Management and Security Status (IMSS) tab on target.
   Use Manageability Commander Tool Mesh Edition from open-manageability
+  Sol driver and services.msc Intel Management services and devmgmt.msc SOL com driver
 
 ** links
 [ http://www.virten.net/2013/11/howto-intel-nuc-remote-kvm-with-amt-powered-by-vpro/ ]
 [ http://www.meshcommander.com/open-manageability ]
-
+[ https://software.intel.com/en-us/articles/intel-active-management-technology-start-here-guide-intel-amt-9 ]
