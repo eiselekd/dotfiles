@@ -74,7 +74,7 @@ myLauncher = "dmenu_run -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
 --
-myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
+myWorkspaces = ["1:term","2:code","3:web","4:vm","5:media"] ++ map show [6..9]
 
 
 ------------------------------------------------------------------------
@@ -92,8 +92,8 @@ myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
 -- 'className' and 'resource' are used below.
 --
 myManageHook = composeAll
-    [ className =? "Chromium"       --> doShift "2:web"
-    , className =? "google-chrome"  --> doShift "2:web"
+    [ className =? "Chromium"       --> doShift "3:web"
+    , className =? "google-chrome"  --> doShift "3:web"
     , resource  =? "desktop_window" --> doIgnore
     , className =? "Galculator"     --> doFloat
     , className =? "Steam"          --> doFloat
@@ -117,17 +117,17 @@ myManageHook = composeAll
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-myLayout =  avoidStruts ( 
+myLayout =  avoidStruts (
     toggleLayouts Full (
     		  ResizableTall 1 (10/100) (2/3) [] |||
     		  tabbed shrinkText tabConfig
 		  )
-    ) 
+    )
 
 
 -- spiral (6/7) |||
 --    ThreeColMid 1 (3/100) (1/2) |||
---    
+--
 --    Mirror (Tall 1 (3/100) (1/2)) |||
 
 ------------------------------------------------------------------------
@@ -172,7 +172,7 @@ altModMask = mod1Mask
 startdefaultinws :: X ()
 startdefaultinws = do
     current <- gets (W.currentTag . windowset)
-    if current == "2:web"
+    if current == "3:web"
      then ( unsafeSpawn myBrowser )
      else ( unsafeSpawn myTerminal )
 
@@ -193,7 +193,7 @@ startmobar = do
      if (length gp) > 0
       then spawn "killall xmobar"
       else spawn "xmobar"
-    
+
 
 myRestart = "pkill -KILL xmobar && xmonad --recompile && xmonad --restart"
 
@@ -206,9 +206,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   [
 
     -- Ubuntu keybinding :
-    
+
 -- startdefaultinws
-  
+
      ((altModMask .|. controlMask, xK_Return), startdefaultinws )
 
    -- cycle workspaces
@@ -227,7 +227,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. controlMask , xK_Left),
      prevScreen)
 
-  
+
 
    , ((myModMask .|. shiftMask, xK_Left),
      windowSwap L False)
@@ -273,7 +273,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      spawn "sleep 0.5; scrot '/tmp/%Y-%m-%d_$wx$h_scrot.png' -e 'mv $f ~/pic/'")
 
      -- spawn mySelectScreenshot)
-  
+
 
 
   -- Take a full screenshot using the command specified by myScreenshot.
@@ -293,7 +293,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      spawn "amixer -q set Master 10%+")
 
   , ((modMask, xK_g),           moveTo Next HiddenNonEmptyWS)
-    
+
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
@@ -359,7 +359,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      sendMessage MirrorExpand)
   , ((modMask .|. shiftMask .|. altModMask, xK_Down),
      sendMessage MirrorShrink)
-  
+
   -- Switch to Full layout.
   , ((modMask .|. shiftMask, xK_l),
       sendMessage (Toggle "Full") )
@@ -388,12 +388,12 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   , ((altModMask .|. controlMask, xK_q), io (exitWith ExitSuccess) )
 
-    
+
   -- , ((modMask .|. shiftMask, xK_q), spawn "/usr/bin/gnome-session-quit  --logout --no-prompt")
   --     io (exitWith ExitSuccess))
 
 
-  -- Restart xmonad. 
+  -- Restart xmonad.
   -- xdotool windowraise `xdotool search --all --name xmobar`
   , ((modMask, xK_q), spawn "xmonad --recompile; xmonad --restart")
 
@@ -480,7 +480,7 @@ main = do
           , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
           , ppSep = "   "
         } ,
-        manageHook = manageDocks <+> myManageHook 
+        manageHook = manageDocks <+> myManageHook
       , startupHook = startupHook defaults >> setWMName "LG3D"
   }
 
@@ -513,10 +513,7 @@ defaults = gnomeConfig {- defaultConfig -} {
     manageHook         = myManageHook ,
 
    startupHook        = myStartupHook ,
-    
+
     handleEventHook    = docksEventHook
 
 }
-
-
-
