@@ -532,8 +532,9 @@ DEB_BUILD_OPTIONS="debug nostrip noopt nocheck" dpkg-buildpackage -us -uc -b
 
 
 
-* networking Virtualbox:
-** create bridge
+* networking 
+** Virtualbox
+*** create bridge
 # https://www.virtualbox.org/wiki/Advanced_Networking_Linux
 PATH=/sbin:/usr/bin:/bin:/usr/bin
 # create a tap                                                                                                                                                          
@@ -550,7 +551,7 @@ ip route add 10.1.1.0/24 dev br0
 *** shutdown
 tunctl -d tap1
 
-** create forwarding
+*** create forwarding
 # https://www.virtualbox.org/wiki/Advanced_Networking_Linux
 INTIF="br0"
 EXTIF="wlp4s0"
@@ -590,6 +591,20 @@ iptables -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
 #echo 1 > /proc/sys/net/ipv4/ip_forward
 
 
+** wifi monitor
+Open monitor example:
+# setup /etc/network/interfaces
+iface mon0 inet manual
+iface mon0 inet6 manual
+iface phy0.mon inet manual
+iface phy1.mon inet manual
+
+iw phy <phy-with-"iw dev"-i.e.-phy1> interface add mon0 type monitor flags none control otherbss
+ifconfig mon0 up promisc
+# delete maneaged device or add "iface <managed-iface> inet6 manual 
+iw dev <managed-dev-ie.wlx60e3271fed8e> del 
+
+iw dev mon0 set channel 11 
 
 * Add Win10 to grub
 
@@ -628,3 +643,4 @@ convert msdos part to gpt with gdisk
 [ http://www.rodsbooks.com/gdisk/index.html ]
 [ https://wiki.ubuntuusers.de/EFI_Problembehebung/ ]
 [ https://wiki.ubuntuusers.de/GRUB_2/Reparatur/ ]
+
