@@ -11,7 +11,8 @@
 		  (setq org-reveal-root (concat  "file://" *.emacs.d.dir* "lisp/modes/reveal.js"  ))
 		  (message "[+] ox-reveal: '%s'" org-reveal-root)
 		  
-		  (global-set-key (kbd "<f7>")  'org-reveal-export-to-html)
+		  (global-set-key (kbd "<f7>")  'org-beamer-export-to-pdf)
+		  (global-set-key (kbd "S-<f7>")  'org-reveal-export-to-html)
 		  (global-set-key (kbd "<f8>")  'org-twbs-export-to-html)
 		  
 		  ))
