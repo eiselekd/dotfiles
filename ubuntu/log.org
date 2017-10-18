@@ -600,6 +600,8 @@ iface phy0.mon inet manual
 iface phy1.mon inet manual
 
 iw phy <phy-with-"iw dev"-i.e.-phy1> interface add mon0 type monitor flags none control otherbss
+# or "iw dev <dev> set type monitor" 
+
 ifconfig mon0 up promisc
 # delete maneaged device or add "iface <managed-iface> inet6 manual 
 iw dev <managed-dev-ie.wlx60e3271fed8e> del 
