@@ -1,3 +1,5 @@
+(defun ck/org-confirm-babel-evaluate (lang body)
+  (not (or (string= lang "latex") (string= lang "plantuml"))))
 
 (add-hook 'org-mode-hook
           (lambda ()
@@ -7,6 +9,19 @@
 	      (require 'ox-html)
 	      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 
+	      ;; active Org-babel languages
+	      (org-babel-do-load-languages
+	       'org-babel-load-languages
+	       '(;; other Babel languages
+		 (plantuml . t)))
+
+	      (setq org-confirm-babel-evaluate 'ck/org-confirm-babel-evaluate)
+	      
+	      (setq org-plantuml-jar-path (concat  *.emacs.d.dir* "lisp/modes/plantuml.jar"  ))
+	      (message "[+] org-plantuml: '%s'" org-plantuml-jar-path)
+	      
+	      (global-set-key (kbd "<f9>")  'org-toggle-inline-images)
+	      
 	      (when (require 'ox-reveal nil t)
 		(progn
 		  

@@ -39,6 +39,9 @@ Keybindings:
    * shieft-F7 : export reveal slides
    * F8 : export html
    * shieft-F8 : export twbs html
+   * F9 : diplay inline img
+   * C-c C-c: evaluate source block
+     (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
    * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
