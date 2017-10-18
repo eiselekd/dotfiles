@@ -35,6 +35,8 @@ Keybindings:
    * F2  : org-todo change
    * F3/F4 : clock-in/clock-out
    * F5/F6 : org item narrow/widen
+   * F7 : export reveal slides
+   * F8 : export twbs html
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
    * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
