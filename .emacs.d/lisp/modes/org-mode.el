@@ -5,6 +5,8 @@
 	      (message "[+] org-version: '%s'" org-version)
 	      (require 'ox)
 	      (require 'ox-html)
+	      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+
 	      (when (require 'ox-reveal nil t)
 		(progn
 		  
