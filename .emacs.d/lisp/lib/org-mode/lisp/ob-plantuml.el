@@ -82,9 +82,12 @@ This function is called by `org-babel-execute-src-block'."
 	 (full-body (org-babel-plantuml-make-body body params))
 	 (cmd (if (string= "" org-plantuml-jar-path)
 		  (error "`org-plantuml-jar-path' is not set")
-		(concat "java " java " -jar "
-			(shell-quote-argument
-			 (expand-file-name org-plantuml-jar-path))
+		(concat (if (eq system-type 'cygwin)
+			     "bash -c '" "")
+		        "java " java " -jar "
+			(if (eq system-type 'cygwin)
+			    (format "`cygpath -w %s`" (expand-file-name org-plantuml-jar-path))(shell-quote-argument
+			 (expand-file-name org-plantuml-jar-path)) )
 			(if (string= (file-name-extension out-file) "png")
 			    " -tpng" "")
 			(if (string= (file-name-extension out-file) "svg")
@@ -108,7 +111,11 @@ This function is called by `org-babel-execute-src-block'."
 			" -p " cmdline " < "
 			(org-babel-process-file-name in-file)
 			" > "
-			(org-babel-process-file-name out-file)))))
+			(org-babel-process-file-name out-file)
+			(if (eq system-type 'cygwin)
+			    " ' " "")
+
+			))))
     (unless (file-exists-p org-plantuml-jar-path)
       (error "Could not find plantuml.jar at %s" org-plantuml-jar-path))
     (with-temp-file in-file (insert full-body))

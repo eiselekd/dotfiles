@@ -18,6 +18,12 @@
 	      (setq org-confirm-babel-evaluate 'ck/org-confirm-babel-evaluate)
 	      
 	      (setq org-plantuml-jar-path (concat  *.emacs.d.dir* "lisp/modes/plantuml.jar"  ))
+
+	      ;; (setq org-plantuml-jar-path (shell-command-to-string "cygpath --window /home/eiselekd/.emacs.d/lisp/modes/plantuml.jar"))
+	      
+
+	      
+	      
 	      (message "[+] org-plantuml: '%s'" org-plantuml-jar-path)
 	      
 	      (global-set-key (kbd "<f9>")  'org-toggle-inline-images)
