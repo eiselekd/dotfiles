@@ -61,7 +61,7 @@
 (add-to-list 'load-path (expand-file-name "lib/irony-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/company-irony" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/org-mode/lisp" *.emacs.d.lisp.dir*  ))
-
+(add-to-list 'load-path (expand-file-name "lib/latex-preview-pane" *.emacs.d.lisp.dir*  ))
 
 (if (or (>= emacs-major-version 24)
 	(>= emacs-minor-version 4)) (progn
@@ -146,6 +146,8 @@
 (require 'modes/web-mode.el)
 (require 'modes/javascript-mode.el)
 (require 'modes/org-mode.el)
+(require 'modes/tex-mode.el)
+
 
 (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
 (message (format "[*] %s try load fringe" (timestamp_str)))
