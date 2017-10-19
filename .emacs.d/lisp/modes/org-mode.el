@@ -26,7 +26,7 @@
 
 	      (message "[+] org-plantuml: '%s'" org-plantuml-jar-path)
 
-	      (global-set-key (kbd "S-<f9>")  'org-toggle-inline-images)
+	      (global-set-key (kbd "M-<f9>")  'org-toggle-inline-images)
 
 	      (when (require 'ox-reveal nil t)
 		(progn

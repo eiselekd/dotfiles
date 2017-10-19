@@ -38,7 +38,7 @@
   (helm-gtags-mode)
   (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
   (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
-  (define-key helm-gtags-mode-map (kbd "M-:") 'helm-dash-at-point)
+  (define-key helm-gtags-mode-map (kbd "M--") 'helm-dash-at-point)
 
   (setq-local helm-dash-docsets '("C++"))
   ;;(add-hook 'go-mode-hook 'go-doc)

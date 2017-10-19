@@ -148,6 +148,8 @@
 (require 'modes/org-mode.el)
 (require 'modes/tex-mode.el)
 
+(require 'ov)
+
 (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
 (message (format "[*] %s try load fringe" (timestamp_str)))
 (require 'fringe)

@@ -39,7 +39,7 @@ Keybindings:
    * shieft-F7 : export reveal slides
    * F8 : export html
    * shieft-F8 : export twbs html
-   * shieft-F9 : diplay inline img
+   * ESC-F9 : diplay inline img
    * C-c C-c: evaluate source block
      (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
@@ -55,6 +55,7 @@ Keybindings:
    * M-M   : helm query man db
    * M-SPC : disable remove space on write
    * M-( + M-) : toggle block hide/show
+   * F9    : mix org and c++ mode
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:
