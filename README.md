@@ -39,7 +39,7 @@ Keybindings:
    * shieft-F7 : export reveal slides
    * F8 : export html
    * shieft-F8 : export twbs html
-   * F9 : diplay inline img
+   * shieft-F9 : diplay inline img
    * C-c C-c: evaluate source block
      (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
@@ -49,6 +49,7 @@ Keybindings:
    * ESC : : helm dash query (sqlite3 needed, use helm-dash-update-docset)
    * ESC h : toggle hs-org/minor-mode (toggle blocks and ifdef blocks, disabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
+   * F9    : switch between org-mode and c-mode
    * M-G   : magit hist
    * M-i   : start irony mode
    * M-M   : helm query man db

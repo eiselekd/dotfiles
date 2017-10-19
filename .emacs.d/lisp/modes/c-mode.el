@@ -10,6 +10,33 @@
 
 (require 'cl-lib)
 
+(defun c-mode/toggle-org ()
+  (interactive)
+  (setq org-startup-folded nil)
+  (org-mode)
+  ;;(outline-show-all)
+  (global-set-key (kbd "<f9>")  'c-mode/toggle-c-mode)
+  )
+(defun c-mode/toggle-c-mode ()
+  (interactive)
+  (c-mode)
+  (global-set-key (kbd "<f9>")  'c-mode/toggle-org)
+  )
+
+(defun c++-mode/toggle-org ()
+  (interactive)
+  (setq org-startup-folded nil)
+  (org-mode)
+  ;;(outline-show-all)
+  (global-set-key (kbd "<f9>")  'c++-mode/toggle-c++-mode)
+  )
+(defun c++-mode/toggle-c++-mode ()
+  (interactive)
+  (c++-mode)
+  (global-set-key (kbd "<f9>")  'c++-mode/toggle-org)
+  )
+
+
 (defun modes/outline-show-children (orig-fun &rest args)
   (let (pre-outline-map-region outline-map-region)
     (let ((res)
@@ -159,6 +186,7 @@
 				       (orgstruct-mode -1)
 				       (call-interactively 'hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
+		   (global-set-key (kbd "<f9>")  'c++-mode/toggle-org)
 		   (c-mode-addfuncs)
 		   )))
 
@@ -180,6 +208,7 @@
 	      ;;(global-set-key (kbd "M-h")  'hs-org/minor-mode)
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
 	      (global-set-key (kbd "M-M")  'helm-man-women)
+	      (global-set-key (kbd "<f9>")  'c-mode/toggle-org)
 
 	      (modes/orgstruct-commen)
 	      (c-mode-addfuncs)
