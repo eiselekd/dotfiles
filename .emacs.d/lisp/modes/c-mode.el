@@ -87,12 +87,18 @@
 
 (defun c++-mode/toggle-org ()
   (interactive)
-  (message "[>] c++ to org mode")
-  (require 'multi-mode-util nil t)
-  (multi-mode-init 'c++-mode)
-  (setq org-startup-folded nil)
-  (multi-install-chunk-finder "/\\*" "\\*/" 'org-mode)
-  (sync-buffer-overlays))
+
+  (if (or (not (boundp 'multi-indirect-buffers-alist)) (<= (length multi-indirect-buffers-alist) 1))
+      (progn 
+	(message "[>] multimode c++ and org mode")
+	(require 'multi-mode-util nil t)
+	(multi-mode-init 'c++-mode)
+	(setq org-startup-folded nil)
+	(multi-install-chunk-finder "/\\*" "\\*/" 'org-mode)
+	(sync-buffer-overlays))
+    (progn
+      (message "[>] simple c++ mode")
+      (multi-mode-quit))))
 
 
 ;; \"/*\" \"*/\"
