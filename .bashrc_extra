@@ -132,7 +132,7 @@ xmodmap -e "keycode  166 = Prior NoSymbol Prior"
 xmodmap -e "keycode  167 = Next NoSymbol Next"
 fi
 
-export PATH=${HOME}/bin/bin:${PATH}
+export PATH=${HOME}/bin/bin:${HOME}/bin-emacs/bin:${PATH}
 
 if [ -d ${HOME}/.cabal/bin ]; then
    export PATH=${HOME}/.cabal/bin:${PATH}
