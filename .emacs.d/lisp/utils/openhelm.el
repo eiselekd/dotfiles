@@ -38,6 +38,11 @@
   (helm-gtags-mode)
   (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
   (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+  (define-key helm-gtags-mode-map (kbd "M-:") 'helm-dash-at-point)
+
+  (setq-local helm-dash-docsets '("C++"))
+  ;;(add-hook 'go-mode-hook 'go-doc)
+
   ;;Too complex for me right now.
   ;;(helm-mode)
   ;;(define-key company-mode-map (kbd "M-h") 'company-c-headers)
@@ -81,6 +86,7 @@
     (message (format "[*] try open helm. Note: install globals (gtags) and helm"))
     (require 'helm-config)
     (require 'helm-gtags)
+    (require 'helm-dash)
     (require 'ggtags nil t)
     (message "[*] %s retired helm-internal" (timestamp_str))
 
@@ -90,7 +96,7 @@
     (global-set-key (kbd "M-Q") (lambda () (interactive)
 				  (let ((current-prefix-arg '(10)))
 				    (call-interactively 'helm-do-grep))))
-    
+
     ;; Helm stuff
     (setq helm-quick-update                     t ; do not display invisible candidates
 	  helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
@@ -107,11 +113,11 @@
 	  helm-gtags-suggested-key-mapping t
 	  )
     ;; helm-exit-idle-delay 0
-    
+
     (add-hook 'c++-mode-hook 'gtag/c-hook)
     (add-hook 'c-mode-hook 'gtag/c-hook)
 
-    
+
     ))
 
 
