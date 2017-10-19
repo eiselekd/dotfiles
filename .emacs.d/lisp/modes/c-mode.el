@@ -85,18 +85,15 @@
     ))
 
 
-
-
-
-
 (defun c++-mode/toggle-org ()
   (interactive)
   (message "[>] c++ to org mode")
   (require 'multi-mode-util nil t)
   (multi-mode-init 'c++-mode)
+  (setq org-startup-folded nil)
   (multi-install-chunk-finder "/\\*" "\\*/" 'org-mode)
   (sync-buffer-overlays))
-  
+
 
 ;; \"/*\" \"*/\"
   
