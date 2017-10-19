@@ -36,10 +36,10 @@ Keybindings:
    * F3/F4 : clock-in/clock-out
    * F5/F6 : org item narrow/widen
    * F7 : export slides as pdf
-   * shieft-F7 : export reveal slides
+   * shift-F7 : export reveal slides
    * F8 : export html
-   * shieft-F8 : export twbs html
-   * ESC-F9 : diplay inline img
+   * shift-F8 : export twbs html
+   * shift-F9 : diplay inline images
    * C-c C-c: evaluate source block
      (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
  * F7 : org-capture (ctrl-c c), i.e "F7 n"

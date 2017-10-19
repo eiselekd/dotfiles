@@ -293,7 +293,7 @@
 				       (call-interactively 'hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
 		   (global-set-key (kbd "<f9>")  'c++-mode/toggle-org)
-		   (global-set-key (kbd "S-<f9>") 'sync-buffer-overlays)
+		   ;;(global-set-key (kbd "S-<f9>") 'sync-buffer-overlays)
 
 		   (add-hook 'multi-select-mode-hook 'sync-buffer-overlays)
 		   
