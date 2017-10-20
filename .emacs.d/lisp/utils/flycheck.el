@@ -46,7 +46,7 @@
     (if (buffer-file-name)
         (catch 'found-it
           (find-makefile-file-r (buffer-file-name)))
-      (error "buffer is not visiting a file"))))
+      nil)))
 
 (flycheck-define-checker utils/flycheck-linux-makefile-checker
   "Linux source checker"

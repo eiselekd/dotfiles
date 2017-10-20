@@ -70,9 +70,10 @@
 							       ))
 
 
-
   (if (utils/flycheck-search-linux-makefile)
-      (call-interactively 'linux-c-mode)))
+      (call-interactively 'linux-c-mode))
+  
+  )
 
 
 ;; https://github.com/fxfactorial/emacsd/blob/master/init.el

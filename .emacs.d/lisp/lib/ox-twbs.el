@@ -42,6 +42,9 @@
 
 (require 'ox-publish)
 (require 'format-spec)
+(require 'htmlize)
+(require 'ov)
+
 (eval-when-compile (require 'cl) (require 'table nil 'noerror))
 
 
@@ -105,7 +108,9 @@
     (underline . org-twbs-underline)
     (verbatim . org-twbs-verbatim)
     (verse-block . org-twbs-verse-block))
-  :filters-alist '((:filter-final-output . org-twbs-final-function))
+  :filters-alist '((:filter-final-output . org-twbs-final-function)
+		   (:filter-parse-tree . org-twbs-tree-filter)
+		   )
   :menu-entry
   '(?w "Export to TWBS HTML"
        ((?H "As HTML buffer" org-twbs-export-as-html)
@@ -150,6 +155,15 @@
 
 
 ;;; Internal Variables
+
+(defun org-twbs-tree-filter (data _backend info)
+  (let ((a))
+    (org-element-map data '(paragraph)
+      (lambda (object)
+	(message "%s" object)
+	)))
+  data)
+
 
 (defvar org-twbs-format-table-no-css)
 (defvar htmlize-buffer-places)  ; from htmlize.el
@@ -2601,10 +2615,24 @@ INFO is a plist holding contextual information.  See
 
 ;;;; Paragraph
 
+;; test weather the region is tagged with a `iscodeparagraph' overlay
+(defun org-twbs-multimode-outer-p (paragraph info)
+  (let * ((beg (org-element-property :begin paragraph))
+	  (end (org-element-property :end paragraph))
+	  (ov (ov-in beg end))
+	  (ret nil))
+       (dolist (e (ov-in beg end))
+	 (if (ov-val e 'iscodeparagraph )
+	     (setq ret t)))
+       ret))
+
 (defun org-twbs-paragraph (paragraph contents info)
   "Transcode a PARAGRAPH element from Org to HTML.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
+
+  ;;(debug)
+
   (let* ((parent (org-export-get-parent paragraph))
          (parent-type (org-element-type parent))
          (style '((footnote-definition " class=\"footpara\"")))
@@ -2633,6 +2661,13 @@ the plist used as a communication channel."
                   "</span> " raw))))
             (label (org-element-property :name paragraph)))
         (org-twbs--wrap-image contents info caption label)))
+     ;; code section in multimode buffer
+     ;;(t ;;(org-twbs-multimode-outer-p paragraph info)
+     ;; (message "{-} code-section %s-%s"  (org-element-property :begin paragraph) (org-element-property :end paragraph))
+
+      ;;(org-twbs-src-block '((:language . C++ . :value . ,contents)) contents info)
+
+     ;; )
      ;; Regular paragraph.
      (t (format "<p%s>\n%s</p>" extra contents)))))
 

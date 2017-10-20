@@ -27,7 +27,7 @@
 
 ;; remove all overlays marked with `ismultimode' from buffer
 (defun clean-intermediate-overlays (buf)
-  (with-current-buffer buf 
+  (with-current-buffer buf
       (dolist (e (ov-all))
 	(if (ov-val e 'ismultimode )
 	    (ov-reset e)))))
@@ -42,8 +42,8 @@
     (message "org:%s" org-buf)
     (message "c++:%s" c++-buf)
 
-    (clean-intermediate-overlays c++-buf) 
-    (clean-intermediate-overlays org-buf) 
+    (clean-intermediate-overlays c++-buf)
+    (clean-intermediate-overlays org-buf)
 
     (setq org-ov (get-real-ov org-buf))
     (with-current-buffer c++-buf
@@ -84,12 +84,84 @@
       )
     ))
 
+(defun mmode/chunkrange (start-pat end-pat beg end)
+  (let ((ret nil))
+    (progn
+      (save-excursion
+	(goto-char beg)
+	(when (re-search-forward start-pat end t)
+	  (let ((s (point)))
+            (when (re-search-forward end-pat end t)
+	      (re-search-backward end-pat nil t)
+	      (setq ret (list s (1-(point))))))))
+      ret)))
+
+(defun mmode/chunks (start-pat end-pat outer inner beg end)
+  (let* ((n (mmode/chunkrange start-pat end-pat beg end))
+	(s (if n (car n) (point-max)))
+	(e (if n (nth 1 n) (point-max))))
+    (if	n
+	(let ((chunks '()))
+	  (if (< beg s)
+	      (setq chunks (append chunks `(( ,outer ,(list beg s))))))
+	  (setq chunks (append chunks `(( ,inner ,(list s e)))))
+	  (append chunks
+		  (mmode/chunks start-pat end-pat outer inner e end)))
+        `(( ,outer ,(list beg end))))))
+
+(defun mmode-org-c++/chunks ()
+  (mmode/chunks "/\\*" "\\*/" 'c++-mode 'org-mode (point-min) (point-max) ))
+
+(defun mmode-org/chunks ()
+  (seq-filter (lambda (x) (string= 'org-mode (car x))) (mmode/chunks "/\\*" "\\*/" 'c++-mode 'org-mode (point-min) (point-max) )))
+
+(defun show-chunks ()
+  (interactive)
+  (let ((content ""))
+     (require 'htmlize)
+     (message "[:] regions    :%s" (mmode-org-c++/chunks))
+     (message "[:] org-regions %s" (mmode-org/chunks))
+     (dolist (e (mmode-org-c++/chunks))
+       (let* ((typ (car e))
+	      (r (cadr e))
+	      (start (car r))
+	      (end (nth 1 r)))
+	 (message "[i] %s-%s" start end)
+	 (cond
+	  ((string= typ 'org-mode)
+	   (save-excursion
+             (save-restriction
+	       (goto-char start)
+	       (push-mark end)
+	       (setq mark-active t)
+	       (org-export-to-buffer 'html "*Org HTML Export*"
+		 nil nil nil t nil
+		 (lambda ()
+		   (with-current-buffer (get-buffer-create "*Org HTML Export*")
+		     (setq content (concat content "---org mode ---\n" (buffer-string)))
+		     )
+		   ))
+	       (kill-buffer "*Org HTML Export*")
+	       )))
+	  ((string= typ 'c++-mode)
+	   (save-excursion
+             (save-restriction
+	       (setq content (concat content "---- c++ mode ---- \n" (htmlize-region-for-paste start end)))
+	       ))
+	  ))
+	 ))
+     (with-current-buffer (get-buffer-create "*Org HTML Export*")
+       (erase-buffer)
+       (insert content)
+      )
+     )
+   )
 
 (defun c++-mode/toggle-org ()
   (interactive)
 
   (if (or (not (boundp 'multi-indirect-buffers-alist)) (<= (length multi-indirect-buffers-alist) 1))
-      (progn 
+      (progn
 	(message "[>] multimode c++ and org mode")
 	(require 'multi-mode-util nil t)
 	(multi-mode-init 'c++-mode)
@@ -102,14 +174,14 @@
 
 
 ;; \"/*\" \"*/\"
-  
+
   ;; (let ((all (mapcar (lambda (x) (list (ov-beg x) (ov-end x) (ov-prop x))) (ov-all))))
   ;;   (setq org-startup-folded nil)
   ;;   (org-mode)
   ;;   (dolist (e all)
   ;;     (let ((ov0))
   ;; 	(setq ov0 (ov (nth 0 e) (nth 1 e) (nth 2 e)))))
-    
+
   ;;   ;;(ov/printranges all)
   ;;   )
   ;; ;;(outline-show-all)
@@ -124,7 +196,7 @@
     (dolist (e all)
       (let ((ov0))
 	(setq ov0 (ov (nth 0 e) (nth 1 e) (nth 2 e)))))
-    
+
     ;;(ov/printranges all)
     )
   (global-set-key (kbd "<f9>")  'c++-mode/toggle-org)
@@ -297,9 +369,10 @@
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
 		   (global-set-key (kbd "<f9>")  'c++-mode/toggle-org)
 		   ;;(global-set-key (kbd "S-<f9>") 'sync-buffer-overlays)
+		   (global-set-key (kbd "S-<f9>") 'show-chunks)
 
 		   (add-hook 'multi-select-mode-hook 'sync-buffer-overlays)
-		   
+
 		   (c-mode-addfuncs)
 		   )))
 
