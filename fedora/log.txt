@@ -1,0 +1,7 @@
+* xmonad
+yum install cabal-rpm
+cabal update
+yum install ghc-template-haskell-devel
+yum install ghc-xmonad-devel ghc-xmonad-contrib-devel
+
+
