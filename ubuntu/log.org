@@ -92,6 +92,11 @@ $zfs get -H -o name,value -r used rpool/ROOT
 disable trackpad:
 xinput set-prop 13 "Device Enabled" 0
 
+xmonad test:
+apt-get install xserver-xephyr
+Xephyr :1 -ac -screen 800x600
+run 
+DISPLAY=:1 xmonad
 
 ** acpi
 acpi -b : battery life
@@ -529,6 +534,7 @@ pip3 install jupyter
 ** recompile ubuntu package
 DEB_BUILD_OPTIONS="debug nostrip noopt"         dpkg-buildpackage -us -uc -b
 DEB_BUILD_OPTIONS="debug nostrip noopt nocheck" dpkg-buildpackage -us -uc -b
+
 
 
 
