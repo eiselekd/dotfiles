@@ -33,3 +33,12 @@ use Properties->Security (Advanced):
 [ http://www.meshcommander.com/open-manageability ]
 [ http://www.meshcommander.com/meshcommander ]
 [ https://software.intel.com/en-us/articles/intel-active-management-technology-start-here-guide-intel-amt-9 ]
+
+* cmd.exe scripting
+
+ | Bash                            | cmd.exe                |
+ |---------------------------------+------------------------|
+ | . <script>                      | call "<batscript>.bat" |
+ | $1, $2...                       | "%1", "%2"             |
+ | if [ "%1" == "a" ] then; ... fi | if "%1"=="a" ( ... )   |
+ | a="b"                           | set a="b"              |
