@@ -142,3 +142,5 @@ alias prepare_xilinx='source /mnt/data1/btfs0/eda/Xilinx_ISE_14.7/14.7/ISE_DS/se
 alias prepare_modelsim0='sh /opt/modelsim/prepare.sh'
 alias prepare_modelsim='source /opt/modelsim/prepare_user.sh'
 
+export GOPATH=${HOME}/.gopath
+
