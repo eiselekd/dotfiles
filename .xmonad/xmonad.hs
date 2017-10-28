@@ -172,7 +172,7 @@ altModMask = mod1Mask
 startdefaultinws :: X ()
 startdefaultinws = do
     current <- gets (W.currentTag . windowset)
-    if current == "3:web"
+    if current == "5:web"
      then ( unsafeSpawn myBrowser )
      else ( unsafeSpawn myTerminal )
 
