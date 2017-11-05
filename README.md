@@ -42,6 +42,9 @@ Keybindings:
    * shift-F9 : diplay inline images
    * C-c C-c: evaluate source block
      (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
+   * Agenda:
+     * enter time: C-c . : enter timestamp
+     * edit timestamps : cursor in timestamp and shift-arrows
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
    * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
@@ -86,3 +89,6 @@ Defaults:
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present
 [2] Magit cheetsheet: https://github.com/magit/magit/wiki/Cheatsheet
+
+Org-mode timeentry:
+[3] http://orgmode.org/manual/The-date_002ftime-prompt.html#The-date_002ftime-prompt
