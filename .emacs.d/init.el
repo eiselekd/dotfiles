@@ -91,7 +91,10 @@
 ;;(require 'apps/eshell.el)
 (message "[*] %s retired eshell" (timestamp_str))
 ;;(require 'apps/proced.el)
-(require 'apps/org.el)
+
+(setq org-agenda-files (quote ("~/todo.org" "~/git/org" )))
+;;(require 'apps/org.el)
+
 (message "[*] %s retired org" (timestamp_str))
 (require 'ux/popups.el)
 (require 'ux/mark.el)
