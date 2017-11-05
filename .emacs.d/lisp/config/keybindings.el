@@ -157,7 +157,7 @@
 			       (let ((mode major-mode))
 				 (message "[*] F2 in major mode %s" mode)
 				 (cond ((or (string= mode 'org-mode)
-					    (string= mode 'org-agenda-mode)) (call-interactively 'org-todo))
+					    (string= mode 'org-agenda-mode)) (call-interactively 'bh/org-sparse-tree))
 				       ((utils/isgud) (call-interactively 'gud-step))
 				       (t (progn t))
 				       )

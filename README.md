@@ -32,7 +32,7 @@ Keybindings:
  * Win-Shift up/down/left/right : move window
  * Org-mode:
    * F1 (ESC a, Ctrl-c a) : org-agenda
-   * F2 : org-todo change
+   * F2 : filter items with :plan: tag
    * F4 : column view (r: recreate, q: quit column view) see [4]
    * F3/S-F3 : clock-in/clock-out
    * F5/S-F5 : org item narrow/widen

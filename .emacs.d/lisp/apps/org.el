@@ -1,4 +1,4 @@
-;; http://doc.norang.ca/org-mode.html 
+;; http://doc.norang.ca/org-mode.html
 
 (require 'org)
 (require 'org-agenda)
@@ -16,9 +16,9 @@
 (defun bh/local-keys ()
   (local-set-key (kbd "<f5>") 'bh/org-todo)
   (local-set-key (kbd "<f6>") 'bh/widen))
-  
 
-(add-hook 'org-mode-hook 
+
+(add-hook 'org-mode-hook
           (lambda ()
 	    (bh/local-keys)
 	    ))
@@ -69,7 +69,7 @@
                 (org-agenda-sorting-strategy
                  '(todo-state-down effort-up category-keep))))
 	      ("W" agenda "" ((org-agenda-ndays 31)))
-	      
+
               (" " "Agenda"
                ((agenda "" nil)
                 (tags "REFILE"
@@ -360,5 +360,9 @@ Callers of this function already widen the buffer view."
   (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 
 (setq org-refile-target-verify-function 'bh/verify-refile-target)
+
+(defun bh/org-sparse-tree()
+  (interactive)
+  (org-match-sparse-tree nil "+plan"))
 
 (provide 'apps/org.el)
