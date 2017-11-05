@@ -44,7 +44,8 @@ Keybindings:
      (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
    * Agenda:
      * enter time: C-c . : enter timestamp
-     * edit timestamps : cursor in timestamp and shift-arrows
+     * edit timestamps : cursor in timestamp or in calendar "C-c ."
+       * use: S-arrow, "<", ">" 
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
    * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
