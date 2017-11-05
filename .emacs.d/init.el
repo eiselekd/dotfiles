@@ -280,3 +280,7 @@
  )
 
 (setq visible-bell 1)
+
+;; try load local dotfiles.lo
+(if (file-exists-p "~/.emacs.config")
+		   (load "~/.emacs.config"))

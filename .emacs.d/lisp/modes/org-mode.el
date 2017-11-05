@@ -16,13 +16,15 @@
 		 (plantuml . t)))
 
 	      (setq org-confirm-babel-evaluate 'ck/org-confirm-babel-evaluate)
+	      (setq org-enforce-todo-dependencies 't)
 
 	      (setq org-plantuml-jar-path (concat  *.emacs.d.dir* "lisp/modes/plantuml.jar"  ))
 	      (message "[+] org-plantuml: '%s'" org-plantuml-jar-path)
 
 	      ;; (setq org-plantuml-jar-path (shell-command-to-string "cygpath --window /home/eiselekd/.emacs.d/lisp/modes/plantuml.jar"))
 	      
-	      
+	      (global-set-key (kbd "<f5>")  'org-narrow-to-subtree)
+	      (global-set-key (kbd "S-<f5>")  'widen)
 
 	      
 	      (global-set-key (kbd "S-<f9>")  'org-toggle-inline-images)
