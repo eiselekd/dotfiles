@@ -194,6 +194,15 @@ as the default task."
 (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
 ;; Save clock data and state changes and notes in the LOGBOOK drawer
 (setq org-clock-into-drawer t)
+(setq org-export-with-drawers t)
+
+(defun jbd-org-export-format-drawer (name content)
+  "Export drawers to drawer HTML class."
+  (setq content (org-remove-indentation content))
+  (format "@<div class=\"drawer\">%s@</div>\n" content))
+
+(setq org-export-format-drawer-function 'jbd-org-export-format-drawer)
+
 ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
 ;;(setq org-clock-out-remove-zero-time-clocks t)
 ;; Clock out when moving task to a done state
@@ -364,5 +373,14 @@ Callers of this function already widen the buffer view."
 (defun bh/org-sparse-tree()
   (interactive)
   (org-match-sparse-tree nil "+plan"))
+
+(defun bh/org-sparse-poject-export()
+  (interactive)
+  (save-restriction
+
+    (org-taskjuggler-export-and-process)))
+
+;;(org-narrow-to-subtree)))
+
 
 (provide 'apps/org.el)

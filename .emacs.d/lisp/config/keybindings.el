@@ -165,8 +165,9 @@
 
 (global-set-key (kbd "<f4>") (lambda ()(interactive)
 			       (let ((mode major-mode))
-				 (message "[*] F2 in major mode %s" mode)
-				 (cond ((string= mode 'org-mode) (call-interactively 'org-columns))
+				 (message "[*] F4 in major mode %s" mode)
+				 (cond ((string= mode 'org-mode)
+					(call-interactively 'org-columns))
 				       ((string= mode 'org-agenda-mode) (call-interactively 'org-agenda-columns))
 				       (t (progn t))
 				       )

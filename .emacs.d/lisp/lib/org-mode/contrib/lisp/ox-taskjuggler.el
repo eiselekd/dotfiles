@@ -211,6 +211,17 @@ marked with `org-taskjuggler-project-tag'"
   :group 'org-export-taskjuggler
   :type 'integer)
 
+(defcustom org-taskjuggler-default-resource-def ""
+  "Default resource allocation when no resources are defined"
+  :group 'org-export-taskjuggler
+  :type 'string)
+
+(defcustom org-taskjuggler-default-shieft-def ""
+  "Default shieft allocation when nothing else is defined"
+  :group 'org-export-taskjuggler
+  :type 'string)
+
+
 (defcustom org-taskjuggler-default-reports
   '("textreport report \"Plan\" {
   formats html
@@ -518,10 +529,13 @@ against UNIQUE-IDS.  If the (downcased) first token of the
 headline is not unique try to add more (downcased) tokens of the
 headline or finally add more underscore characters (\"_\")."
   (let ((id (org-string-nw-p (org-element-property :TASK_ID item))))
+    (message "%s" id)
     ;; If an id is specified, use it, as long as it's unique.
     (if (and id (not (member id unique-ids))) id
       (let* ((parts (split-string (org-element-property :raw-value item)))
-	     (id (org-taskjuggler--clean-id (downcase (pop parts)))))
+	     (idf (pop parts))
+	     (idf2 (or idf "undef"))
+	     (id (org-taskjuggler--clean-id (downcase idf2))))
 	;; Try to add more parts of the headline to make it unique.
 	(while (and (car parts) (member id unique-ids))
 	  (setq id (concat id "_"
@@ -633,15 +647,20 @@ Return complete project plan as a string in TaskJuggler syntax."
   (let* ((tree (plist-get info :parse-tree))
          (project (or (org-taskjuggler-get-project info)
                       (error "No project specified"))))
+    (message "# [+] start\n")
     (concat
      ;; 1. Insert header.
+     (message "# [+] 1. Insert header\n")
      (org-element-normalize-string org-taskjuggler-default-global-header)
      ;; 2. Insert project.
+     (message "# [+] 2. Insert project\n")
      (org-taskjuggler--build-project project info)
      ;; 3. Insert global properties.
+     (message "# [+] 3. Insert global properties\n")
      (org-element-normalize-string org-taskjuggler-default-global-properties)
      ;; 4. Insert resources.  Provide a default one if none is
      ;;    specified.
+     (message "# [+] 4. Insert resources\n")
      (let ((main-resources
             ;; Collect contents from various trees marked with
             ;; `org-taskjuggler-resource-tag'.  Only gather top level
@@ -665,9 +684,13 @@ Return complete project plan as a string in TaskJuggler syntax."
             (mapconcat
              (lambda (resource) (org-taskjuggler--build-resource resource info))
              main-resources "")
-          (format "resource %s \"%s\" {\n}\n" (user-login-name) user-full-name))
+          (format "resource %s \"%s\" {\n%s}\n"
+		  (user-login-name)
+		  (if (< 0 (length user-full-name))  user-full-name (user-login-name))
+		  org-taskjuggler-default-resource-def))
         ;; 5. Insert tasks.
-        (let ((main-tasks
+        (message "# [+] 5. Insert tasks\n")
+	(let ((main-tasks
                ;; If `org-taskjuggler-keep-project-as-task' is
                ;; non-nil, there is only one task.  Otherwise, every
                ;; direct children of PROJECT is a top level task.
@@ -696,6 +719,7 @@ Return complete project plan as a string in TaskJuggler syntax."
            main-tasks ""))
         ;; 6. Insert reports.  If no report is defined, insert default
         ;;    reports.
+        (message "# [+] 6. Insert reports\n")
         (let ((main-reports
                ;; Collect contents from various trees marked with
                ;; `org-taskjuggler-report-tag'.  Only gather top level
@@ -995,16 +1019,18 @@ Return a list of reports."
 	 errors)
     (message (format "Processing TaskJuggler file %s..." file))
     (save-window-excursion
-      (let ((outbuf (get-buffer-create "*Org Taskjuggler Output*")))
+      (let ((outbuf (get-buffer-create "*Org Taskjuggler Output*"))
+	    (cmd ""))
 	(unless (file-directory-p out-dir)
 	  (make-directory out-dir t))
 	(with-current-buffer outbuf (erase-buffer))
-	(shell-command
-	 (replace-regexp-in-string
+	(setq cmd (replace-regexp-in-string
 	  "%f" (shell-quote-argument full-name)
 	  (replace-regexp-in-string
 	   "%o" (shell-quote-argument out-dir)
-	   org-taskjuggler-process-command t t) t t) outbuf)
+	   org-taskjuggler-process-command t t) t t))
+	(message "[+] %s" cmd)
+	(shell-command cmd outbuf)
 	;; Collect standard errors from output buffer.
 	(setq errors (org-taskjuggler--collect-errors outbuf)))
       (if (not errors)

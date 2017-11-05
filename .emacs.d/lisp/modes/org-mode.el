@@ -7,6 +7,7 @@
 	      (message "[+] org-version: '%s'" org-version)
 	      (require 'ox)
 	      (require 'ox-html)
+	      
 	      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 
 	      ;; active Org-babel languages
@@ -19,12 +20,28 @@
 	      (setq org-confirm-babel-evaluate 'ck/org-confirm-babel-evaluate)
 	      (setq org-enforce-todo-dependencies 't)
 	      (setq org-columns-default-format "%70ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM %5TAGS")
-	      (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
+	      (setq org-global-properties (quote (("Effort_ALL" . "1:00 2:00 4:00 1d 2d 4d 8d")
 						  ("STYLE_ALL" . "habit"))))
 	      
 	      (setq org-plantuml-jar-path (concat  *.emacs.d.dir* "lisp/modes/plantuml.jar"  ))
+	      (setq org-taskjuggler-default-project-duration 16256)
 	      (message "[+] org-plantuml: '%s'" org-plantuml-jar-path)
 
+	      (setq org-taskjuggler-default-resource-def "
+shifts home
+
+")
+	      
+	      (setq org-taskjuggler-default-global-properties
+"
+shift home \"home\" {
+workinghours mon - fri 20:00 - 23:00
+workinghours sat - sun 8:00 - 12:00
+}
+
+")
+	      
+	      
 
 	      ;; (setq org-plantuml-jar-path (shell-command-to-string "cygpath --window /home/eiselekd/.emacs.d/lisp/modes/plantuml.jar"))
 	      
@@ -47,6 +64,51 @@
 		(progn
 		  (message "[+] ox-twbs")
 		  (global-set-key (kbd "S-<f8>")  'org-twbs-export-to-html)
+		  ))
+	      (when (require 'ox-taskjuggler nil t)
+		(progn
+		  (message "[+] ox-taskjuggler")
+
+		  (setq org-taskjuggler-default-reports
+			'("textreport report \"Plan\" {
+  formats html
+  header '== %title =='
+
+  center -8<-
+    [#Plan Plan] | [#Resource_Allocation Resource Allocation]
+    ----
+    === Plan ===
+    <[report id=\"plan\"]>
+    ----
+    === Resource Allocation ===
+    <[report id=\"resourceGraph\"]>
+  ->8-
+}
+
+# A traditional Gantt chart with a project overview.
+taskreport plan \"\" {
+  headline \"Project Plan\"
+  columns bsi, name, start, end, effort, chart
+  loadunit shortauto
+  hideresource 1
+}
+
+# A graph showing resource allocation. It identifies whether each
+# resource is under- or over-allocated for.
+resourcereport resourceGraph \"\" {
+  headline \"Resource Allocation Graph\"
+  columns no, name, effort, daily # weekly
+  loadunit shortauto
+  hidetask ~(isleaf() & isleaf_())
+  sorttasks plan.start.up
+}"))
+
+
+		  
+		  (global-set-key (kbd "<f9>")  'bh/org-sparse-poject-export)
+
+		  
+		  
 		  ))
 
 	      )))
