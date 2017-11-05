@@ -95,3 +95,4 @@ has to be present
 Org-mode timeentry:
 [3] http://orgmode.org/manual/The-date_002ftime-prompt.html#The-date_002ftime-prompt
 [4] http://orgmode.org/manual/Effort-estimates.html#Effort-estimates, https://writequit.org/denver-emacs/presentations/2017-04-11-time-clocking-with-org.html
+[5] http://doc.norang.ca/org-mode.html#ReviewingEstimates

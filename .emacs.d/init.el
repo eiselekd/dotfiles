@@ -93,7 +93,7 @@
 ;;(require 'apps/proced.el)
 
 (setq org-agenda-files (quote ("~/todo.org" "~/git/org" )))
-;;(require 'apps/org.el)
+(require 'apps/org.el)
 
 (message "[*] %s retired org" (timestamp_str))
 (require 'ux/popups.el)
