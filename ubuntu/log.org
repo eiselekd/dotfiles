@@ -616,6 +616,13 @@ iw dev mon0 set channel 11
 
 
 ** pptp on pi
+sudo apt-get install avahi-daemon pptpd
+raspi-config -> change hostname
+test:
+sudo apt-get install avahi-utils
+avahi-browse -a
+ping rpi0.local
+
 *** links
 [1] https://www.howtogeek.com/51237/setting-up-a-vpn-pptp-server-on-debian/
 * Add Win10 to grub
