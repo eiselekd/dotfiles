@@ -1,2 +1,66 @@
-* 
+* Carambola:
 
+br0: eth0 wan 
+
+/etc/pptpd.conf:
+localip 192.168.2.31
+remoteip 192.168.2.30-192.168.2.30
+
+
+/etc/ppp/options.pptpd 
+
+debug
+#logfile /tmp/pptp-server.log
+auth
+name "pptp-server"
+lcp-echo-failure 3
+lcp-echo-interval 60
+default-asyncmap
+mtu 1482
+mru 1482
+nobsdcomp
+nodeflate
+#noproxyarp
+#nomppc
+require-mschap-v2
+refuse-chap
+refuse-mschap
+
+#noipx
+ms-dns 192.168.11.1
+
+refuse-eap
+refuse-pap
+#ms-dns 172.16.1.1
+#plugin radius.so
+#radius-config-file /etc/radius.conf
+
+
+
+
+
+/etc/ppp/chap-secrets:
+username <TAB> * <TAB> users-password <TAB> *
+
+sudo /etc/init.d/pptpd restart
+
+** openwrt version:
+
+uci set pptpd.pptpd.localip='192.168.2.31'
+uci set pptpd.pptpd.remoteip='192.168.2.30-30'
+uci set pptpd.pptpd.enabled='1
+uci set pptpd.'@login[0]'.username='...'
+uci set pptpd.'@login[0]'.password='...'
+uci set network.lan.ipaddr='192.168.2.31'
+uci commit 
+reload_config
+/etc/init.d/pptpd restart
+
+/et/firewall.user:
+iptables -F
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT    
+
+** links 
+[1] https://jasonschaefer.com/pptp-server-on-the-openwrt/
