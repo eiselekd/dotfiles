@@ -108,7 +108,7 @@ define Build/Compile
 		$(TARGET_CONFIGURE_OPTS) 
 endef
 
-define Package/Pandora/install
+define Package/aosvpn/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_BUILD_DIR)/qe $(1)/usr/bin
 endef
