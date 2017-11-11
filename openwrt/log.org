@@ -1,5 +1,7 @@
 * Carambola:
 
+** vpn
+
 br0: eth0 wan 
 
 /etc/pptpd.conf:
@@ -56,7 +58,7 @@ uci commit
 reload_config
 /etc/init.d/pptpd restart
 
-/et/firewall.user:
+/etc/firewall.user:
 iptables -F
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
@@ -64,3 +66,40 @@ iptables -P FORWARD ACCEPT
 
 ** links 
 [1] https://jasonschaefer.com/pptp-server-on-the-openwrt/
+
+* packages
+
+#+BEGIN_SRC
+
+include $(TOPDIR)/rules.mk
+
+PKG_NAME:=aosvpn
+PKG_VERSION:=1.0.0
+PKG_RELEASE:=1
+PKG_MAINTAINER:=Iifo@info.com
+PKG_LICENSE:=Proprietary
+
+include $(INCLUDE_DIR)/package.mk
+
+define Package/aosvpn
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=AOS VPN
+  DEPENDS:=+socat
+  URL:=http://nodo/
+endef
+
+define Package/aosvpn/description
+	Bundle aos vpn
+endef
+
+define Build/Compile
+endef
+
+define Package/Pandora/install
+	cp -r ./files/* $(1)/
+endef
+
+$(eval $(call BuildPackage,aosvpn))
+
+#+END_SRC
