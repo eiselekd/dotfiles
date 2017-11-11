@@ -93,11 +93,24 @@ define Package/aosvpn/description
 	Bundle aos vpn
 endef
 
+define Build/Prepare
+	mkdir -p $(PKG_BUILD_DIR)
+	$(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
+
+define Build/Configure
+	(cd $(PKG_BUILD_DIR); \
+		./configure --enable-tiny)
+endef
+
 define Build/Compile
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+		$(TARGET_CONFIGURE_OPTS) 
 endef
 
 define Package/Pandora/install
-	cp -r ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(CP) $(PKG_BUILD_DIR)/qe $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,aosvpn))
