@@ -232,6 +232,7 @@ Storage Driver: zfs
 ...
 
 docker run -it ubuntu  bash
+docker run -it ubuntu:trusty  bash
 
 *** build from Dockerfile
 
