@@ -6,7 +6,7 @@ Emacs config. Install by replacing ~/.emacs.d with
 
 Keybindings:
 
- * ESC g : magit [2]
+ * ESC g/G : magit [2] (all)
  * ESC p : proced
  * ESC c : flycheck
    * ESC C : flycheck with configure
