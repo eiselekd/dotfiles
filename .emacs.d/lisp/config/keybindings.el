@@ -63,13 +63,21 @@
 ;;search
 (global-set-key (kbd "C-c o") 'occur)
 
-
 ;; start magit
+(global-set-key (kbd "M-G")  (lambda ()(interactive)
+			       (progn
+				 (with-executable 'git
+				   (when (and
+					  (require 'magit nil t)
+					  (require 'utils/magit-util.el nil t))
+				     (utils/magit-commit-all)
+				     )))))
 (global-set-key (kbd "M-g")  (lambda ()(interactive)
 			       (progn
 				 (with-executable 'git
 				   (when (require 'magit nil t)
 				     (magit-status))))))
+
 
 
 
