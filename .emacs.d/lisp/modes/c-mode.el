@@ -277,6 +277,8 @@
   (global-set-key (kbd "M-G")  'magit-log-buffer-file)
   (global-set-key (kbd "M-i")  (lambda () (interactive) (c-mode-add-irony)))
 
+  (setq c-basic-offset 4)
+
   (require 'prepaint nil t)
   (when (require 'hideshow nil t)
     (progn
