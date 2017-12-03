@@ -61,6 +61,8 @@ Keybindings:
    * M-SPC : disable remove space on write
    * M-( + M-) : toggle block hide/show
    * F9    : mix org and c++ mode
+ * haskell-mode:
+   * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:

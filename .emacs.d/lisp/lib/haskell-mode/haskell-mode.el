@@ -1192,6 +1192,7 @@ generated."
          (command (haskell-cabal--compose-hasktags-command dir)))
     (if (not command)
         (error "Unable to compose hasktags command")
+      (message "[+] %s" command)
       (shell-command command)
       (haskell-mode-message-line "Tags generated.")
       (when and-then-find-this-tag
