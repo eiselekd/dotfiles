@@ -144,3 +144,6 @@ alias prepare_modelsim='source /opt/modelsim/prepare_user.sh'
 
 export GOPATH=${HOME}/.gopath
 
+
+alias nmcli_scan="nmcli device wifi rescan"
+alias nmcli_list="nmcli device wifi list"

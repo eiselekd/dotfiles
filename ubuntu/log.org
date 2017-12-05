@@ -606,6 +606,7 @@ iptables -t nat -A POSTROUTING -o $EXTIF -j MASQUERADE
 #echo 1 > /proc/sys/net/ipv4/ip_forward
 
 
+
 ** wifi monitor
 Open monitor example:
 # setup /etc/network/interfaces
@@ -622,6 +623,112 @@ ifconfig mon0 up promisc
 iw dev <managed-dev-ie.wlx60e3271fed8e> del 
 
 iw dev mon0 set channel 11 
+
+
+** wifi hopstapd
+
+/etc/NetworkManager/NetworkManager.conf
+[keyfile]
+unmanaged-devices=interface-name:wlxf4f26d1cdf6a
+
+
+hostapd -dd /etc/hostapd/hostapd.conf
+
+*** /etc/hostapd/hostapd.conf
+
+# Schnittstelle und Treiber
+interface=wlxf4f26d1cdf6a
+driver=nl80211
+
+# WLAN-Konfiguration
+ssid=WLAN_AP-SSID
+channel=2
+
+# ESSID sichtbar
+ignore_broadcast_ssid=0
+
+# Ländereinstellungen
+country_code=DE
+ieee80211d=1
+
+# Übertragungsmodus
+hw_mode=g
+
+# Optionale Einstellungen
+# supported_rates=10 20 55 110 60 90 120 180 240 360 480 540
+
+# Draft-N Modus aktivieren (optional, nur für entsprechende Karten)
+# ieee80211n=1
+
+# Übertragungsmodus / Bandbreite 40MHz
+# ht_capab=[HT40+][SHORT-GI-40][DSSS_CCK-40]
+
+# Beacons
+beacon_int=100
+dtim_period=2
+
+# MAC-Authentifizierung
+macaddr_acl=0
+
+# max. Anzahl der Clients
+max_num_sta=20
+
+# Größe der Datenpakete/Begrenzung
+rts_threshold=2347
+fragm_threshold=2346
+
+# hostapd Log Einstellungen
+logger_syslog=-1
+logger_syslog_level=2
+logger_stdout=-1
+logger_stdout_level=2
+
+# temporäre Konfigurationsdateien
+dump_file=/tmp/hostapd.dump
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0
+
+# Authentifizierungsoptionen 
+auth_algs=3
+
+# wmm-Funktionalität
+wmm_enabled=0
+
+# Verschlüsselung / hier rein WPA2
+wpa=2
+rsn_preauth=1
+rsn_preauth_interfaces=wlxf4f26d1cdf6a
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+
+# Schlüsselintervalle / Standardkonfiguration
+wpa_group_rekey=600
+wpa_ptk_rekey=600
+wpa_gmk_rekey=86400
+
+# Zugangsschlüssel (PSK) / hier in Klartext (ASCII)
+wpa_passphrase=123testing
+
+
+
+
+
+# #interface=wlan0
+# #interface=wlp3s0
+# interface=wlxf4f26d1cdf6a
+# driver=nl80211
+# ssid=my_ap
+# hw_mode=g
+# channel=6
+# macaddr_acl=0
+# auth_algs=1
+# ignore_broadcast_ssid=0
+# wpa=3
+# wpa_passphrase=my_password
+# wpa_key_mgmt=WPA-PSK
+# wpa_pairwise=TKIP
+# rsn_pairwise=CCMP
+
 
 
 ** pptp on pi
