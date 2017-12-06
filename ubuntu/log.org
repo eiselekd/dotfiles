@@ -631,6 +631,7 @@ iw dev mon0 set channel 11
 [keyfile]
 unmanaged-devices=interface-name:wlxf4f26d1cdf6a
 
+systemctl restart NetworkManager
 
 hostapd -dd /etc/hostapd/hostapd.conf
 
