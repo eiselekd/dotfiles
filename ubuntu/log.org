@@ -821,3 +821,11 @@ cd emacs
 
 make bootstrap
 make install
+
+* tmux
+
+tmux new -s eap
+
+tmux attach -t eap
+detach:
+ctrl-b d
