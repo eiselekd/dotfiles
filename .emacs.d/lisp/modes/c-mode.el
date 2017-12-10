@@ -278,6 +278,7 @@
   (global-set-key (kbd "M-i")  (lambda () (interactive) (c-mode-add-irony)))
 
   (setq c-basic-offset 4)
+  (setq c-default-style "bsd")
 
   (require 'prepaint nil t)
   (when (require 'hideshow nil t)
@@ -300,6 +301,16 @@
 	(global-set-key (kbd "M-I")  (lambda () (interactive) (irony-cdb-menu)))
 	))
     ))
+
+(defun normal-c-mode ()
+  "C mode with defaults."
+  (interactive)
+  (message (format "[*] detected standard c mode"))
+
+  (setq c-basic-offset 4
+        c-indent-level 4
+        c-default-style "bsd")
+  )
 
 (add-hook 'hs-org/minor-mode-hook (lambda ()
 				    (progn
@@ -376,6 +387,7 @@
 		   (add-hook 'multi-select-mode-hook 'sync-buffer-overlays)
 
 		   (c-mode-addfuncs)
+		   (normal-c-mode)
 		   )))
 
 (add-hook 'c-mode-hook
@@ -400,7 +412,7 @@
 
 	      (modes/orgstruct-commen)
 	      (c-mode-addfuncs)
-
+	      (normal-c-mode)
 	      )))
 
 

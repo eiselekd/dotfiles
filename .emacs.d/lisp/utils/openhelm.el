@@ -72,7 +72,7 @@
 
   (if (utils/flycheck-search-linux-makefile)
       (call-interactively 'linux-c-mode))
-  
+
   )
 
 

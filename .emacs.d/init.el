@@ -64,6 +64,14 @@
 (add-to-list 'load-path (expand-file-name "lib/org-mode/contrib/lisp" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/latex-preview-pane" *.emacs.d.lisp.dir*  ))
 
+(require 'cc-mode)				      
+(setq c-default-style 
+      '((java-mode . "java")
+	(awk-mode . "awk")
+	(c-mode . "bsd")
+	(c++-mode . "bsd")
+	(other . "gnu")))
+
 (if (or (>= emacs-major-version 24)
 	(>= emacs-minor-version 4)) (progn
 
