@@ -1556,17 +1556,17 @@ Please send bugs-fixes/contributions/comments to boubaker@cena.fr")
 
 (defmacro mc--eval (sym &optional arg)
   ;; Evaluate symbol
-  (` (cond
-      ((and (symbolp (, sym))
-            (fboundp (, sym)))
-       (funcall (, sym) (, arg)))
+  `(cond
+      ((and (symbolp ,sym )
+            (fboundp ,sym ))
+       (funcall ,sym ,arg ))
       (t
-       (eval (, sym))))))
+       (eval ,sym ))))
 
 (defmacro mc--common-completion (alist)
   ;; Return the greatest common string for all
   ;; possible completions in alist.
-  (` (try-completion "" (, alist))))
+  `(try-completion "" ,alist ))
 
 (defun mc--byte-recompile-files (files)
   ;; Byte recompile all FILES which are older than their
@@ -1878,7 +1878,7 @@ Please send bugs-fixes/contributions/comments to boubaker@cena.fr")
 
 (defmacro mc--cleanup-makefile-list (makefile-list)
   ;; Remove unusable and/or backups makefiles from list
-  (` (let ((newlist))
+  `(let ((newlist))
        (mapcar
         '(lambda (x)
            (if (and (mc--makefile-test-p x)
@@ -1889,8 +1889,8 @@ Please send bugs-fixes/contributions/comments to boubaker@cena.fr")
                (setq newlist (cons x newlist))
              (mc--msg "Removing makefile \"%s\" from completion list"
                       x)))
-        (, makefile-list))
-       newlist)))
+        ,makefile-list )
+       newlist))
 
 (defun mc--makefile-to-use (&optional directory)
   ;; Find the makefile to use in the current directory
@@ -2013,15 +2013,15 @@ Please send bugs-fixes/contributions/comments to boubaker@cena.fr")
 
 (defmacro mc--assq-get-fcomp (asq)
   ;; Return compile-function associated to ASQ
-  (` (let* ((mode  (cdr  (, asq)))
+  `(let* ((mode  (cdr  ,asq ))
             (massq (assq mode mode-compile-modes-alist)))
-       (if massq (car-safe (cdr massq))))))
+       (if massq (car-safe (cdr massq)))))
 
 (defmacro mc--assq-get-fkill (asq)
   ;; Return kill-compile-function associated to ASQ
-  (` (let* ((mode  (cdr  (, asq)))
+  `(let* ((mode  (cdr  ,asq ))
             (massq (assq mode mode-compile-modes-alist)))
-       (if massq (car-safe (cdr-safe (cdr massq)))))))
+       (if massq (car-safe (cdr-safe (cdr massq))))))
 
 (defun mc--lookin-for-shell ()
   ;; Look into current-buffer to see if it is a shell script
