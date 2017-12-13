@@ -756,6 +756,13 @@ menuentry "Windows 10" --class windows --class os {
    ntldr /bootmgr
 }
 
+menuentry "Windows 10 uefi" --class windows --class os {
+  insmod ntfs
+  set root=(hd0,gpt2)
+  chainloader (${root})/EFI/Microsoft/Boot/bootmgfw.efi
+  boot
+}
+
 ** efi part
 
 mkfs.fat -F32 /dev/sdxY
