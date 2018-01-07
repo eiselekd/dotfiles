@@ -836,3 +836,11 @@ tmux new -s eap
 tmux attach -t eap
 detach:
 ctrl-b d
+
+* alsa
+
+sudo apt-get install pavucontrol pulseaudio
+pulseaudio -D
+pacmd info
+pavucontrol
+
