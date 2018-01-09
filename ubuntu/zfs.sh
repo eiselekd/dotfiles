@@ -1,6 +1,8 @@
 #!/bin/sh
 # define ${D} before call
-
+# see: https://janweitz.de/article/creating-a-zfs-zroot-raid-10-on-ubuntu-16.04/
+#      https://github.com/zfsonlinux/zfs/wiki/Ubuntu-16.04-Root-on-ZFS
+#      https://github.com/zfsonlinux/pkg-zfs/wiki/HOWTO-install-Ubuntu-17.04-to-a-Whole-Disk-Native-ZFS-Root-Filesystem-using-Ubiquity-GUI-installer
 if [ -z ${D} ]; then echo "disk id missing"; exit 1; fi
 
 hname=homebox
