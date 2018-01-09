@@ -732,6 +732,18 @@ wpa_passphrase=123testing
 
 
 
+** wireshark capture
+
+*** nonroot user capure
+groupadd wireshark
+usermod -a -G wireshark user1
+usermod -a -G wireshark root
+newgrp wireshark
+chgrp wireshark /usr/local/bin/dumpcap
+chmod 755 /usr/local/bin/dumpcap
+setcap cap_net_raw,cap_net_admin=eip /usr/local/bin/dumpcap
+getcap /usr/local/bin/dumpcap
+
 ** pptp on pi
 sudo apt-get install avahi-daemon pptpd
 raspi-config -> change hostname
