@@ -6,6 +6,17 @@ cd ~/git
 export d=/home/eiselekd/git
 export n=`getconf _NPROCESSORS_ONLN`
 
+prep()
+{
+    apt install libattr1-dev
+    apt install alien
+  apt install libuuid1-dev
+  apt install uuid-dev
+  apt install libblkid-dev
+  apt install libattr1-dev
+ 
+}
+
 dogit()
 {
     if [ ! -d linux ]; then
