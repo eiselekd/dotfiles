@@ -89,6 +89,11 @@
 
 (require 'config/constants.el)
 
+(require 'ansi-color)
+(defun display-ansi-colors ()
+  (interactive)
+  (ansi-color-apply-on-region (point-min) (point-max)))
+
 (require 'cl)
 (require 'flycheck nil t) ;; -mode
 (message "[*] %s retired flycheck" (timestamp_str))
