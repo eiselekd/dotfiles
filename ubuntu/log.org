@@ -856,3 +856,14 @@ pulseaudio -D
 pacmd info
 pavucontrol
 
+
+
+* zfs
+zpool import -N -o readonly=on -f -R /mnt/gentoo -F -T <txg> 
+list txg with 
+python zfs_revert-0.1.py  -tb=5860495360 -bs=512 /dev/sdd1
+where 5860495360 is from fdisk -l
+
+[1] https://github.com/zfsonlinux/zfs/issues/2831
+[2[ https://serverfault.com/questions/842955/restoring-data-after-zfs-destroy
+
