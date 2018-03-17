@@ -1,23 +1,21 @@
 #!/bin/bash
-
 set -euxo pipefail
-cd ~/git
 
-export d=/home/eiselekd/git
+export d=`pwd`
 export n=`getconf _NPROCESSORS_ONLN`
 
-prep()
+function doprep
 {
-    apt install libattr1-dev
-    apt install alien
-  apt install libuuid1-dev
-  apt install uuid-dev
-  apt install libblkid-dev
-  apt install libattr1-dev
- 
+    sudo apt install libattr1-dev
+    sudo apt install alien
+    sudo apt install libuuid1-dev
+    sudo apt install uuid-dev 
+    sudo apt install libblkid-dev libblkid-dev
+    sudo apt install libattr1-dev
+    sudo apt-get build-dep linux-headers-`uname -r`
 }
 
-dogit()
+function dogit
 {
     if [ ! -d linux ]; then
 	git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
@@ -31,66 +29,98 @@ dogit()
     done
 }
 
-dospl ()
+function prepconfig
 {
-    cd spl
+    cf=config-`uname -r`
+    if [ ! -f /boot/${cf} ]; then
+	echo "Cannot find kernel config ${cf}"; exit 1;
+    fi
+    ( cp /boot/${cf} ${d}/linux/.config; cd ${d}/linux; make oldconfig )
+}
+
+function dolinux
+{
+    (cd ${d}/linux; DEB_BUILD_OPTIONS="debug nostrip noopt" make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-custom)
+}
+
+function installlinux
+{
+     (cd ${d}/; sudo dpkg -i linux-*.deb )
+     (cd ${d}/linux; DEB_BUILD_OPTIONS="debug nostrip noopt" sudo make -j `getconf _NPROCESSORS_ONLN` modules_install LOCALVERSION=-custom)
+}
+
+function dospl
+{
+    cd ${d}/spl
     git reset --hard HEAD
     git pull --rebase
     sh autogen.sh
     ./configure --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
-    { V=1 make     2>&1     | tee log.txt     } || exit 1;
-    { V=1 make deb 2>&1     | tee log_deb.txt } || exit 1;
+    V=1 make ;
+    LC_TIME=C V=1 make deb;
 }
 
-dospldeb ()
+function dospldeb
 {
-    cd spl
-    # install spl for zfs build
+    cd ${d}/spl
+     # install spl for zfs build
     sudo dpkg -i *deb
 }
 
-dolinux ()
+function dozfs
 {
-    (cd linux; DEB_BUILD_OPTIONS="debug nostrip noopt" make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-custom)
-}
-
-installlinux ()
-{
-    cd ~/git
-    sudo dpkg -i linux-*.deb
-    (cd linux DEB_BUILD_OPTIONS="debug nostrip noopt" make -j `getconf _NPROCESSORS_ONLN` modules_install LOCALVERSION=-custom)
-}
-
-dozfs ()
-{
-    cd  zfs
+    cd ${d}/zfs
     git reset --hard HEAD
     git pull --rebase
     sh autogen.sh
     ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
-    { V=1 make 2>&1     | tee log.txt     } || exit 1;
-    { V=1 make deb 2>&1 | tee log_deb.txt } || exit 1;
+    V=1 make;
+    LC_TIME=C V=1 make deb;
 }
 
-dozfsdeb ()
+function dozfsdeb
 {
-    cd zfs
+    cd ${d}/zfs
     # install spl for zfs build
     sudo dpkg -i *deb
 }
 
-dokernelrearrange ()
+function dokernelrearrange
 {
-    cd /lib/modules/<version>
-    mkdir kernel/zfs
-    cp -r extra/zfs/*  kernel/zfs/
-    cp -r extra/spl/*  kernel/zfs/
-    depmod -a <version>
+    v=$(cd $d/linux; make kernelversion)-custom
+    cd /lib/modules/${v}
+    if [ ! -d /lib/modules/${v}/extra/zfs ]; then
+	echo "modules dir /lib/modules/${v}/extra/zfs not found"; exit 1
+    fi
+    sudo mkdir kernel/zfs
+    sudo cp -r extra/zfs/*  kernel/zfs/
+    sudo cp -r extra/spl/*  kernel/zfs/
+    sudo depmod -a ${v}
 }
 
+# # for root on zfs
+# function doextra 
+# {
+#     if cat /etc/initramfs-tools/modules | grep zfs ; then
+# 	echo "zfs" >> /etc/initramfs-tools/modules
+# 	update-initramfs -u
+#     fi
+# }
+
+
+if [ -z "$1" ]; then
+    echo "$0 [git,linux]"; exit 1
+fi
+
 case "$1" in
+    prep)
+	doprep
+	;;
     git)
 	dogit
+	;;
+    prepconfig)
+	prepconfig
 	;;
     linux)
 	dolinux
@@ -112,6 +142,9 @@ case "$1" in
 	;;
     rearrange)
 	dokernelrearrange
+	;;
+    *)
+	echo "$1 command unknown"; exit 1
 	;;
 esac
 

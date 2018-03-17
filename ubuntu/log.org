@@ -95,7 +95,7 @@ xinput set-prop 13 "Device Enabled" 0
 xmonad test:
 apt-get install xserver-xephyr
 Xephyr :1 -ac -screen 800x600
-run 
+run
 DISPLAY=:1 xmonad
 
 ** acpi
@@ -192,20 +192,20 @@ systemctl enable systemd-networkd.service
 systemctl enable systemd-resolved.service
 #+end_src
 
-#+begin_src /etc/systemd/network/bridge0.netdev: 
+#+begin_src /etc/systemd/network/bridge0.netdev:
 [NetDev]
 Name=br0
 Kind=bridge
 #+end_src
 
-#+begin_src /etc/systemd/network/bridge.network: 
+#+begin_src /etc/systemd/network/bridge.network:
 [Match]
 Name=br0
 [Network]
 DHCP=ipv4
 #+end_src
 
-#+begin_src /etc/systemd/network/eth.network: 
+#+begin_src /etc/systemd/network/eth.network:
 [Match]
 Name=en*
 [Network]
@@ -328,18 +328,18 @@ systemctl enable zfs-zed
 
 *** zfs compile problem
 
-tests/functions/libzfs : 
+tests/functions/libzfs :
 
 --- a/tests/zfs-tests/tests/functional/libzfs/Makefile.am
 +++ b/tests/zfs-tests/tests/functional/libzfs/Makefile.am
 @@ -13,7 +13,8 @@ DEFAULT_INCLUDES += \
         -I$(top_srcdir)/lib/libspl/include
- 
+
  many_fds_LDADD = \
 -       $(top_builddir)/lib/libzfs/libzfs.la
 +       $(top_builddir)/lib/libzfs/libzfs.la \
 +       $(top_builddir)/lib/libzfs_core/libzfs_core.la
- 
+
 
 ../../lib/libzfs/.libs/libzfs.so: undefined reference to `lzc_load_key'
 ../../lib/libzfs/.libs/libzfs.so: undefined reference to `lzc_promote'
@@ -367,7 +367,7 @@ index bc9fb4c34..d4d7a7587 100644
 --- a/cmd/mount_zfs/Makefile.am
 +++ b/cmd/mount_zfs/Makefile.am
 @@ -16,4 +16,5 @@ mount_zfs_SOURCES = \
- 
+
  mount_zfs_LDADD = \
  	$(top_builddir)/lib/libnvpair/libnvpair.la \
 -	$(top_builddir)/lib/libzfs/libzfs.la
@@ -394,7 +394,7 @@ index 53d5aa71c..fbd650f4e 100644
 -	$(top_builddir)/lib/libzfs/libzfs.la
 +	$(top_builddir)/lib/libzfs/libzfs.la \
 +	$(top_builddir)/lib/libzfs_core/libzfs_core.la
- 
+
  zed_LDADD += -lrt
  zed_LDFLAGS = -pthread
 diff --git a/cmd/zhack/Makefile.am b/cmd/zhack/Makefile.am
@@ -427,16 +427,16 @@ index d7e1741c1..e2ee34137 100644
  	$(top_builddir)/lib/libuutil/libuutil.la \
 -	$(top_builddir)/lib/libzfs/libzfs.la
 +	$(top_builddir)/lib/libzfs/libzfs.la \
-+	$(top_builddir)/lib/libzfs_core/libzfs_core.la 
- 
++	$(top_builddir)/lib/libzfs_core/libzfs_core.la
+
  zpool_LDADD += -lm $(LIBBLKID)
- 
+
 diff --git a/cmd/zstreamdump/Makefile.am b/cmd/zstreamdump/Makefile.am
 index f80b5018e..1ec2daee1 100644
 --- a/cmd/zstreamdump/Makefile.am
 +++ b/cmd/zstreamdump/Makefile.am
 @@ -11,4 +11,5 @@ zstreamdump_SOURCES = \
- 
+
  zstreamdump_LDADD = \
  	$(top_builddir)/lib/libnvpair/libnvpair.la \
 -	$(top_builddir)/lib/libzfs/libzfs.la
@@ -452,7 +452,7 @@ index 930a7ec3a..c911a9ce8 100644
  	$(top_builddir)/lib/libzfs/libzfs.la \
 +	$(top_builddir)/lib/libzfs_core/libzfs_core.la \
  	$(top_builddir)/lib/libzpool/libzpool.la
- 
+
  ztest_LDADD += -lm
 diff --git a/tests/zfs-tests/tests/functional/libzfs/Makefile.am b/tests/zfs-tests/tests/functional/libzfs/Makefile.am
 index d885bc1ab..642dd1472 100644
@@ -460,12 +460,12 @@ index d885bc1ab..642dd1472 100644
 +++ b/tests/zfs-tests/tests/functional/libzfs/Makefile.am
 @@ -13,7 +13,8 @@ DEFAULT_INCLUDES += \
  	-I$(top_srcdir)/lib/libspl/include
- 
+
  many_fds_LDADD = \
 -	$(top_builddir)/lib/libzfs/libzfs.la
 +	$(top_builddir)/lib/libzfs/libzfs.la \
 +	$(top_builddir)/lib/libzfs_core/libzfs_core.la
- 
+
  pkgexec_PROGRAMS = many_fds
  many_fds_SOURCES = many_fds.c
 
@@ -544,21 +544,21 @@ DEB_BUILD_OPTIONS="debug nostrip noopt nocheck" dpkg-buildpackage -us -uc -b
 /etc/minicom/minirc.usb0
 pu port             /dev/ttyUSB0
 pu baudrate         115200
-pu rtscts           No 
+pu rtscts           No
 pu xonxoff          Yes
 
-* networking 
+* networking
 ** Virtualbox
 *** create bridge
 # https://www.virtualbox.org/wiki/Advanced_Networking_Linux
 PATH=/sbin:/usr/bin:/bin:/usr/bin
-# create a tap                                                                                                                                                          
+# create a tap
 tunctl -t tap1 -g vboxusers
 ip link set up dev tap1
-# create the bridge                                                                                                                                                     
+# create the bridge
 brctl addbr br0
 brctl addif br0 tap1
-# set the IP address and routing                                                                                                                                        
+# set the IP address and routing
 ip link set up dev br0
 ip addr add 10.1.1.1/24 dev br0
 ip route add 10.1.1.0/24 dev br0
@@ -616,13 +616,13 @@ iface phy0.mon inet manual
 iface phy1.mon inet manual
 
 iw phy <phy-with-"iw dev"-i.e.-phy1> interface add mon0 type monitor flags none control otherbss
-# or "iw dev <dev> set type monitor" 
+# or "iw dev <dev> set type monitor"
 
 ifconfig mon0 up promisc
-# delete maneaged device or add "iface <managed-iface> inet6 manual 
-iw dev <managed-dev-ie.wlx60e3271fed8e> del 
+# delete maneaged device or add "iface <managed-iface> inet6 manual
+iw dev <managed-dev-ie.wlx60e3271fed8e> del
 
-iw dev mon0 set channel 11 
+iw dev mon0 set channel 11
 
 
 ** wifi hopstapd
@@ -689,7 +689,7 @@ dump_file=/tmp/hostapd.dump
 ctrl_interface=/var/run/hostapd
 ctrl_interface_group=0
 
-# Authentifizierungsoptionen 
+# Authentifizierungsoptionen
 auth_algs=3
 
 # wmm-Funktionalität
@@ -778,14 +778,14 @@ menuentry "Windows 10 uefi" --class windows --class os {
 ** efi part
 
 mkfs.fat -F32 /dev/sdxY
-sudo mount /dev/sdXY /mnt/boot/efi 
+sudo mount /dev/sdXY /mnt/boot/efi
 
-sudo mount /dev/sdXW /mnt/ 
+sudo mount /dev/sdXW /mnt/
 # sudo mount /dev/sdXY /mnt/boot if seperate
 
-sudo mount -o bind /dev /mnt/dev 
-sudo mount -o bind /sys /mnt/sys 
-sudo mount -t proc /proc /mnt/proc 
+sudo mount -o bind /dev /mnt/dev
+sudo mount -o bind /sys /mnt/sys
+sudo mount -t proc /proc /mnt/proc
 sudo chroot /mnt /bin/bash
 
 grub-install /dev/sdX # where /dev/sdX is the main drive where /dev/sdXW is a partition of
@@ -830,7 +830,7 @@ sudo systemctl enable rc-local
 sudo apt-get build-dep  emacs25
 sudo apt-get install libgtk-3-dev
 sudo apt-get install libwebkitgtk-dev
-sudo apt-get install libwebkitgtk-3.0-dev 
+sudo apt-get install libwebkitgtk-3.0-dev
 sudo apt-get install libwebkit2gtk-4.0-dev
 
 git clone -b master git://git.sv.gnu.org/emacs.git
@@ -855,22 +855,3 @@ sudo apt-get install pavucontrol pulseaudio
 pulseaudio -D
 pacmd info
 pavucontrol
-
-
-
-* zfs
-zpool import -N -o readonly=on -f -R /mnt/gentoo -F -T <txg> 
-list txg with 
-python zfs_revert-0.1.py  -tb=5860495360 -bs=512 /dev/sdd1
-where 5860495360 is from fdisk -l
-
-[1] https://github.com/zfsonlinux/zfs/issues/2831
-[2] https://serverfault.com/questions/842955/restoring-data-after-zfs-destroy
-[3] http://www.giis.co.in/Zfs_ondiskformat.pdf
-[4] https://www.joyent.com/blog/zfs-forensics-recovering-files-from-a-destroyed-zpool
-
-sources
-[4] https://github.com/markus512/zfs-recover/blob/master/zfs_recover.py
-[5] https://github.com/nkchenz/zfspy/tree/master/zfspy
-[6] https://github.com/hiliev/py-zfs-rescue
-[7] https://www.dfrws.org/sites/default/files/session-files/paper-digital_forensic_implications_of_zfs.pdf

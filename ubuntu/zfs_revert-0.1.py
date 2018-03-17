@@ -66,7 +66,13 @@ print 'Reading from %s blocks to the end'%l_skip
 
 #get the uberblocks from the beginning and end
 yberblocks_a=formatstd(subprocess.Popen('sync && dd bs=%s if=%s count=%s | od -A x -x | %s -A 2 "b10c 00ba" | %s -v "\-\-"'%(bs,file, a_count,grep_cmd,grep_cmd), shell=True, stdout=subprocess.PIPE).communicate()[0])
+
+print('sync && dd bs=%s if=%s count=%s | od -A x -x | %s -A 2 "b10c 00ba" | %s -v "\-\-"'%(bs,file, a_count,grep_cmd,grep_cmd))
+print(yberblocks_a)
+
 yberblocks_l=formatstd(subprocess.Popen('sync && dd bs=%s if=%s skip=%s | od -A x -x | %s -A 2 "b10c 00ba" | %s -v "\-\-"'%(bs,file, l_skip,grep_cmd,grep_cmd), shell=True, stdout=subprocess.PIPE).communicate()[0])
+
+print(yberblocks_l)
 
 
 yberblocks=[]
@@ -75,12 +81,14 @@ for p in yberblocks_a:
     if len(p) > 0:
         #format the hex address to decmal so dd would eat it.
         p[0]=(int(p[0], 16)/bs)
+        print("a");
         yberblocks.append(p)
 
 for p in yberblocks_l:
     if len(p) > 0:
         #format the hex address to decmal so dd would eat it and add the skipped part.
         p[0]=((int(p[0], 16)/bs)+int(l_skip)) #we have to add until the place we skipped so the adresses would mach.
+        print("l");
         yberblocks.append(p)
 print '----'
 #here will be kept the output that you will see later(TXG, timestamp and the adresses, should be 4, might be less)
@@ -120,7 +128,10 @@ while True:
     keys.sort()
     print 'TXG\tTIME\tTIMESTAMP\tBLOCK ADDRESSES'
     for k in keys:
-        print '%s\t%s\t%s\t%s'%(k, koik[k]['htime'],koik[k]['timestamp'],koik[k]['addresses'])
+        print '%s\t%s\t%s\t%s [0x%x,0x%x,0x%x,0x%x]'%(k, koik[k]['htime'],koik[k]['timestamp'],koik[k]['addresses'],
+                                                      int(koik[k]['addresses'][0]),
+                                                      int(koik[k]['addresses'][1]),
+                                                      int(koik[k]['addresses'][2]),int(koik[k]['addresses'][3]))
     try:
         save_txg=int(input('What is the last TXG you wish to keep?\n'))
         keys = koik.keys()
