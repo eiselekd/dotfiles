@@ -287,7 +287,8 @@
  ;;'(custom-enabled-themes (quote (wombat)))
  '(safe-local-variable-values
    (quote
-    ((py-indent-offset . 4)
+    ((verilog-library-directories "." "../../cortexm7/verilog")
+     (py-indent-offset . 4)
      (flycheck-clang-include-path "." "inc")
      (flycheck-gcc-include-path "." "inc")))))
 (custom-set-faces
