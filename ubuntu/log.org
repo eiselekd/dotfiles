@@ -865,5 +865,11 @@ python zfs_revert-0.1.py  -tb=5860495360 -bs=512 /dev/sdd1
 where 5860495360 is from fdisk -l
 
 [1] https://github.com/zfsonlinux/zfs/issues/2831
-[2[ https://serverfault.com/questions/842955/restoring-data-after-zfs-destroy
+[2] https://serverfault.com/questions/842955/restoring-data-after-zfs-destroy
+[3] http://www.giis.co.in/Zfs_ondiskformat.pdf
 
+sources
+[4] https://github.com/markus512/zfs-recover/blob/master/zfs_recover.py
+[5] https://github.com/nkchenz/zfspy/tree/master/zfspy
+[6] https://github.com/hiliev/py-zfs-rescue
+[7] https://www.dfrws.org/sites/default/files/session-files/paper-digital_forensic_implications_of_zfs.pdf
