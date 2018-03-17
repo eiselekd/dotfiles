@@ -867,6 +867,7 @@ where 5860495360 is from fdisk -l
 [1] https://github.com/zfsonlinux/zfs/issues/2831
 [2] https://serverfault.com/questions/842955/restoring-data-after-zfs-destroy
 [3] http://www.giis.co.in/Zfs_ondiskformat.pdf
+[4] https://www.joyent.com/blog/zfs-forensics-recovering-files-from-a-destroyed-zpool
 
 sources
 [4] https://github.com/markus512/zfs-recover/blob/master/zfs_recover.py
