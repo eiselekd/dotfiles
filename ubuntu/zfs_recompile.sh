@@ -55,6 +55,7 @@ function dospl
     git reset --hard HEAD
     git pull --rebase
     sh autogen.sh
+    # todo: ubuntu style lib/exe-dir
     ./configure --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
     V=1 make ;
     LC_TIME=C V=1 make deb;
@@ -73,6 +74,7 @@ function dozfs
     git reset --hard HEAD
     git pull --rebase
     sh autogen.sh
+    # todo: ubuntu style lib/exe-dir
     ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
     V=1 make;
     LC_TIME=C V=1 make deb;
