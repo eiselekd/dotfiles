@@ -45,16 +45,16 @@ struct rescue_disc {
 struct rescue_disc disk[3];
 
 /* disk 0 */
-#define DISK0_LABEL01 "disk0-start.bin"
-#define DISK0_LABEL23 "disk0-end.bin"
+#define DISK0_LABEL01 "ata-WDC_WD30EZRX-00D8PB0_WD-WMC4N1642572-part1-start.bin"
+#define DISK0_LABEL23 "ata-WDC_WD30EZRX-00D8PB0_WD-WMC4N1642572-part1-end.bin"
 
 /* disk 1 */
-#define DISK1_LABEL01 "disk1-start.bin"
-#define DISK1_LABEL23 "disk1-end.bin"
+#define DISK1_LABEL01 "ata-WDC_WD30EFRX-68EUZN0_WD-WCC4N1KPRKPX-part1-start.bin"
+#define DISK1_LABEL23 "ata-WDC_WD30EFRX-68EUZN0_WD-WCC4N1KPRKPX-part1-end.bin"
 
 /* disk 2 */
-#define DISK2_LABEL01 "disk2-start.bin"
-#define DISK2_LABEL23 "disk2-end.bin"
+#define DISK2_LABEL01 "ata-WDC_WD30EFRX-68EUZN0_WD-WCC4N7ZXC1E0-part1-start.bin"
+#define DISK2_LABEL23 "ata-WDC_WD30EFRX-68EUZN0_WD-WCC4N7ZXC1E0-part1-end.bin"
 
 void load_label_file(vdev_label_t *vl, char *fn, int idx) {
     int fd; uint64_t r;
