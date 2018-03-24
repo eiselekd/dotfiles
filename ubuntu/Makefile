@@ -10,3 +10,7 @@ prepare:
 
 raidz-calc.exe: raidz-calc.c
 	gcc -g -o raidz-calc.exe raidz-calc.c  -lm
+
+test:
+	./raidz-calc.exe        1034000:2200
+	python3 ./raidz-calc.py 1034000:2200

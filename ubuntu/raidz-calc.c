@@ -120,6 +120,8 @@ vdev_raidz_map_alloc(zio_t *zio, uint64_t ashift, uint64_t dcols,
 	uint64_t q, r, c, bc, col, acols, scols, coff, devidx, asize, tot;
 	uint64_t off = 0;
 
+	printf("[+] : 0x%llx:0x%lx ashift:%d,%d,%d\n", (long long unsigned)zio->io_offset, (long unsigned)zio->io_size, ashift, dcols, nparity);
+
 	/*
 	 * "Quotient": The number of data sectors for this stripe on all but
 	 * the "big column" child vdevs that also contain "remainder" data.
@@ -261,14 +263,15 @@ main(int argc, char *argv[])
 {
     uint64_t offset = 0;
     uint64_t size = 0;
-    uint64_t dcols = 0;
+    uint64_t dcols = 3;
     uint64_t nparity = 1;
-    uint64_t unit_shift = 9;  /* shouldn't be hard-coded.  sector size */
+    uint64_t unit_shift = 12;  /* shouldn't be hard-coded.  sector size */
     raidz_col_t *cols;
     int i;
 
-    if (argc < 4) {
-        fprintf(stderr, "Usage: %s offset size ndisks [nparity [ashift]]\n", argv[0]);
+    if (argc < 2) {
+    usage:
+        fprintf(stderr, "Usage: %s offset:size [ndisks [nparity [ashift]]]\n", argv[0]);
         fprintf(stderr, "  ndisks is number of disks in raid pool, including parity\n");
         fprintf(stderr, "  nparity defaults to 1 (raidz1)\n");
         fprintf(stderr, "  ashift defaults to 9 (512-byte sectors)\n");
@@ -276,9 +279,11 @@ main(int argc, char *argv[])
     }
 
     /* XXX - check return values */
-    offset = strtoull(argv[1], NULL, 16);
-    size = strtoull(argv[2], NULL, 16);
-    dcols = strtoull(argv[3], NULL, 16);
+    if (2 != sscanf(argv[1], "%llx:%x", (long long unsigned *)&offset, &size))
+	goto usage;
+
+    if (argc >=3)
+	dcols = strtoull(argv[3], NULL, 16);
 
     if (size == 0 || dcols == 0) { /* should check size multiple of ashift...*/
         fprintf(stderr, "size and/or number of columns must be > 0\n");
