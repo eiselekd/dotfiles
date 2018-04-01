@@ -234,7 +234,7 @@ where 5860495360 is from fdisk -l
 [3] http://www.giis.co.in/Zfs_ondiskformat.pdf
 [4] https://www.joyent.com/blog/zfs-forensics-recovering-files-from-a-destroyed-zpool
 [5] https://github.com/limelime/cust-live-deb/issues/298
-
+[6] https://gist.github.com/jjwhitney/baaa63144da89726e482
 
 
 sources

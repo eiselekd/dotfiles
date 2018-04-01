@@ -52,13 +52,13 @@ function installlinux
 function dospl
 {
     cd ${d}/spl
-    git reset --hard HEAD
-    git pull --rebase
+    #git reset --hard HEAD
+    #git pull --rebase
     sh autogen.sh
     # todo: ubuntu style lib/exe-dir
     ./configure --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
     V=1 make ;
-    LC_TIME=C V=1 make deb;
+    #LC_TIME=C V=1 make deb;
 }
 
 function dospldeb
@@ -71,13 +71,13 @@ function dospldeb
 function dozfs
 {
     cd ${d}/zfs
-    git reset --hard HEAD
-    git pull --rebase
+    #git reset --hard HEAD
+    #git pull --rebase
     sh autogen.sh
     # todo: ubuntu style lib/exe-dir
     ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
     V=1 make;
-    LC_TIME=C V=1 make deb;
+    #LC_TIME=C V=1 make deb;
 }
 
 function dozfsdeb

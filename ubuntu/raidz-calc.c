@@ -93,7 +93,6 @@ abd_t *
 abd_get_offset_size(abd_t *sabd, size_t off, size_t size)
 {
 	ASSERT3U(off + size, <=, sabd->abd_size);
-
 	return 0;
 }
 
