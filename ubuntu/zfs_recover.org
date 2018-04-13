@@ -487,7 +487,7 @@ TXG	TIME	TIMESTAMP	BLOCK ADDRESSES
 
 physical read: zdb -R datapool 0.2:4200:8000:r | xxd | less
 
-
+zdb -ddddddd datapool
 
 
 virtual read :zdb -Rv datapool 0:1034000:2200  | less
