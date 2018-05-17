@@ -8,7 +8,7 @@ function doprep
 {
     sudo apt install libattr1-dev
     sudo apt install alien
-    sudo apt install libuuid1-dev
+    #sudo apt install libuuid1-dev
     sudo apt install uuid-dev 
     sudo apt install libblkid-dev libblkid-dev
     sudo apt install libattr1-dev
