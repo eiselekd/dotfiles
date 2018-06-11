@@ -1,13 +1,45 @@
-;;; quilt.el v0.4 - a minor mode for working with files in quilt
-;;; http://selenic.com/quilt/
-;;;
-;;; Copyright 2005  Matt Mackall <mpm@selenic.com>
-;;;
-;;; This software may be used and distributed according to the terms
-;;; of the GNU General Public License, version 2 or later,
-;;; incorporated herein by reference.
-;;;
-;;; Usage: add (load "~/quilt.el") to your .emacs file
+;;; quilt.el --- a minor mode for working with files in quilt
+
+;; This file is not part of Emacs
+
+;; Copyright (C) 2011 Jari Aalto <jari.aalto@cante.net>
+;; Copyright (C) 2005 Matt Mackall <mpm@selenic.com>
+
+;; Author:	Matt Mackall <mpm@selenic.com>
+;; Maintainer:	Jari Aalto <jari.aalto@cante.net>
+;; Version:	0.4.1
+;; Keywords:	extensions
+;; URL:
+
+;; This program is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by the Free
+;; Software Foundation; either version 2 of the License, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+;; for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+;;
+;; Visit <http://www.gnu.org/copyleft/gpl.html> for more information.
+
+;; This software may be used and distributed according to the terms
+;; of the GNU General Public License, incorporated herein by reference.
+;;
+;;; Commentary:
+;;
+;; Usage: add (load "~/quilt.el") to your .emacs file.
+;;
+;;; History:
+;;
+;;  0.4.1 2011 Jari Aalto <jari.aato@cante.net>
+;;        - Fix nested defuns and lm-mnt.el QA issues in header.
+;;  0.4   2005 Matt Mackall <mpm@selenic.com>
+;;
+;;; Code:
 
 (defun quilt-find-dir (fn)
   "find the top level dir for quilt from fn"
@@ -19,7 +51,8 @@
 	(quilt-find-dir (directory-file-name d))))))
 
 (defun quilt-dir (&optional fn)
-  (quilt-find-dir (if fn fn buffer-file-name)))
+  (quilt-find-dir (if fn fn (or buffer-file-name
+				dired-directory))))
 
 (defun quilt-drop-dir (fn)
   (let* ((d (quilt-find-dir fn)))
@@ -36,9 +69,9 @@
   "check if the current buffer is quilt controlled"
   (if (not fn)
       nil
-    (let* ((pd (file-name-nondirectory 
+    (let* ((pd (file-name-nondirectory
 		(directory-file-name (file-name-directory fn)))))
-      (and 
+      (and
        (not (string-match "\\(~$\\|\\.rej$\\)" fn))
        (not (equal pd "patches"))
        (not (equal pd ".pc"))
@@ -68,31 +101,35 @@
   (split-string (quilt-cmd-to-string "series") "\n"))
 
 (defun quilt-top-patch ()
-  (let* ((top (quilt-cmd-to-string "top")))
+  (let ((top (quilt-cmd-to-string "top")))
     (if (equal top "")
 	nil
 	(substring top 0 -1))))
 
+(defun quilt-to-alist (list n)		;
+  (if list
+      (cons (cons (car list) n)
+	    (quilt-to-alist (cdr list) (+ 1 n)))
+    nil))
+
 (defun quilt-complete-list (p l)
-  (defun to-alist (list n)
-    (if list
-	(cons (cons (car list) n)
-	      (to-alist (cdr list) (+ 1 n)))
-      nil))
-  (completing-read p (to-alist l 0) nil t))
+  (completing-read p (quilt-to-alist l 0) nil t))
+
+(defun quilt-editable-1 (file dirs qd)
+  (if (car dirs)
+      (if (file-exists-p (concat qd ".pc/" (car dirs) "/" file))
+	  't
+	(quilt-editable-1 file (cdr dirs) qd))
+    nil))
 
 (defun quilt-editable (f)
   (let* ((qd (quilt-dir))
 	 (fn (quilt-drop-dir f)))
-    (defun editable (file dirs)
-      (if (car dirs)
-	  (if (file-exists-p (concat qd ".pc/" (car dirs) "/" file))
-	      't
-	    (editable file (cdr dirs)))
-	nil))
-    (editable fn (if quilt-edit-top-only
-		     (list (quilt-top-patch))
-		     (cdr (cdr (directory-files (concat qd ".pc/"))))))))
+    (quilt-editable-1 fn
+		      (if quilt-edit-top-only
+			  (list (quilt-top-patch))
+			(cdr (cdr (directory-files (concat qd ".pc/")))))
+		      qd)))
 
 (defun quilt-short-patchname ()
   (let* ((p (quilt-top-patch)))
@@ -107,25 +144,27 @@
   (interactive)
   (defvar quilt-mode-line nil)
   (make-variable-buffer-local 'quilt-mode-line)
-  (setq quilt-mode-line 
+  (setq quilt-mode-line
 	(concat " Q:" (quilt-short-patchname)))
   (force-mode-line-update))
 
+(defun quilt-revert-1 (buf)
+  (save-excursion
+    (set-buffer buf)
+    (if (quilt-owned-p buffer-file-name)
+	(quilt-update-modeline))
+    (if (and (quilt-owned-p buffer-file-name)
+	     (not (buffer-modified-p)))
+	(revert-buffer 't 't))))
+
+(defun quilt-revert-list (buffers)
+  (if (not (cdr buffers))
+      nil
+    (quilt-revert-1 (car buffers))
+    (quilt-revert-list (cdr buffers))))
+
 (defun quilt-revert ()
-  (defun revert (buf)
-    (save-excursion
-      (set-buffer buf)
-      (if (quilt-owned-p buffer-file-name)
-	  (quilt-update-modeline))
-      (if (and (quilt-owned-p buffer-file-name)
-	       (not (buffer-modified-p)))
-	  (revert-buffer 't 't))))
-  (defun revert-list (buffers)
-    (if (not (cdr buffers))
-	nil
-      (revert (car buffers))
-      (revert-list (cdr buffers))))
-  (revert-list (buffer-list)))
+  (quilt-revert-list (buffer-list)))
 
 (defun quilt-push (arg)
   "Push next patch, force with prefix arg"
@@ -285,9 +324,9 @@
 \\{quilt-mode-map}
 "
   (interactive "p")
-  (setq quilt-mode 
-	(if (null arg) 
-	    (not quilt-mode) 
+  (setq quilt-mode
+	(if (null arg)
+	    (not quilt-mode)
 	  (> (prefix-numeric-value arg) 0)))
   (if quilt-mode
       (let* ((f buffer-file-name))
@@ -301,12 +340,9 @@
   "Enable quilt mode for quilt-controlled files."
   (if (quilt-p) (quilt-mode 1)))
 
-(add-hook 'find-file-hooks 'quilt-hook)
-(add-hook 'after-revert-hook 'quilt-hook)
-
 (or (assq 'quilt-mode minor-mode-alist)
     (setq minor-mode-alist
-	  (cons '(quilt-mode quilt-mode-line) minor-mode-alist)))  
+	  (cons '(quilt-mode quilt-mode-line) minor-mode-alist)))
 
 (or (assq 'quilt-mode-map minor-mode-map-alist)
     (setq minor-mode-map-alist
