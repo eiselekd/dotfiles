@@ -13,8 +13,6 @@
 ;; (require 'benchmark-init-modes)
 ;; (benchmark-init/activate)
 
-(require 'quilt)
-
 ;; 1: hkset load path
 (if (version< emacs-version "24.3") (setq user-emacs-directory "~/.emacs.d/"))
 

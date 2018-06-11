@@ -92,6 +92,14 @@
 ;; goto workspace 2
 (global-set-key (kbd "M-2")  (lambda ()(interactive)(wg-switch-to-workgroup (wg-get-workgroup 'name "w2"))))
 
+(global-set-key (kbd "M-s")
+		(lambda ()(interactive)
+		  (progn
+		    (when (require 'quilt nil t)
+		      (progn
+			(message "[*] quilt loaded")
+			)))))
+
 ;; flymake
 ;;(global-set-key (kbd "M-F")  'utils/projmake-start)
 (global-set-key (kbd "M-F")  'flymake-mode)
