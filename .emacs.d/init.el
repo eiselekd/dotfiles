@@ -72,6 +72,11 @@
 	(c++-mode . "bsd")
 	(other . "gnu")))
 
+(when (require 'quilt nil t)
+  (progn
+    (message "[*] quilt loaded")
+    ))
+
 (if (or (>= emacs-major-version 24)
 	(>= emacs-minor-version 4)) (progn
 
