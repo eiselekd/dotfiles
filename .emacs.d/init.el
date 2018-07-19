@@ -93,6 +93,7 @@
 ;;(require 'cl-macs)
 
 (require 'config/constants.el)
+(require 'nhexl-mode)
 
 (require 'ansi-color)
 (defun display-ansi-colors ()
