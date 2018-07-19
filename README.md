@@ -10,6 +10,8 @@ Keybindings:
  * ESC p : proced
  * ESC c : flycheck
    * ESC C : flycheck with configure
+   * ESC M-c : verbose flycheck mode (ESC ESC c)
+   * ESC M-C : verbose flycheck select checker interactively 
    * F5/F6 : next/prev-error
  * ESC e : eshell
  * ESC E : ansi-term
@@ -46,7 +48,7 @@ Keybindings:
    * Agenda:
      * enter time: C-c . : enter timestamp
      * edit timestamps : cursor in timestamp or in calendar "C-c ."
-       * use: S-arrow, "<", ">" 
+       * use: S-arrow, "<", ">"
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
    * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
@@ -89,6 +91,7 @@ Defaults:
  * Ctrl-x 4 a: add changlog entry
  * Ctrl-[+/-] : bigger/smaller font (terminal)
  * Ctrl-l : recenter
+ * M : | M-x : Eval command
 
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present

@@ -265,8 +265,31 @@
   )
 
 (add-hook 'after-init-hook 'utils/flycheck-init)
+(add-hook 'c++-mode-hook (lambda ()
+			   (flycheck-mode)
+			   (flycheck-select-checker 'c/c++-gcc)
+			   ;;(flycheck-select-checker 'c/c++-clang)
+			   (setq flycheck-clang-language-standard "c++14")
+			   (setq flycheck-gcc-language-standard "c++14")
+			   ))
 
+;;			   (setq flycheck-command-wrapper-function
+;;				 (lambda (command)
+;;				   (progn
+;;				     (message "[+] run: %s" command)
+;;				     command))
 
+(defun flycheck-mode-verbose ()
+  (interactive)
+  (progn
+    (flycheck-compile (flycheck-get-checker-for-buffer))
+    ))
+
+(defun flycheck-mode-verbose-select ()
+  (interactive)
+  (progn
+    (call-interactively 'flycheck-compile)
+    ))
 
 ;; (defadvice flymake-find-buildfile
 ;;     (around advice-find-makefile-separate-obj-dir
