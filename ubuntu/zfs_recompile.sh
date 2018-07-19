@@ -94,7 +94,7 @@ function dokernelrearrange
     if [ ! -d /lib/modules/${v}/extra/zfs ]; then
 	echo "modules dir /lib/modules/${v}/extra/zfs not found"; exit 1
     fi
-    sudo mkdir kernel/zfs
+    sudo mkdir -p kernel/zfs
     sudo cp -r extra/zfs/*  kernel/zfs/
     sudo cp -r extra/spl/*  kernel/zfs/
     sudo depmod -a ${v}
