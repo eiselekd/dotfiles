@@ -74,7 +74,7 @@
 				     )))))
 (global-set-key (kbd "M-g")  (lambda ()(interactive)
 			       (progn
-				 (setq with-editor-file-name-history-exclude 1)
+				 ;;(setq with-editor-file-name-history-exclude 1)
 				 (with-executable 'git
 				   (when (require 'magit nil t)
 				     (magit-status))))))

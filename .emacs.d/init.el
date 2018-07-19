@@ -91,7 +91,8 @@
 ;;(require 'cl-lib)
 ;;(require 'cl)
 ;;(require 'cl-macs)
-
+;;(require 'magit)
+				      
 (require 'config/constants.el)
 (require 'nhexl-mode)
 
@@ -221,6 +222,9 @@
 ;; (package-install 'wl)
 ;; (package-install 'dash) (require 'dash)
 ;; (package-install 'magit)
+
+;; (require 'magit)
+
 ;; (list-packages)
 ;; (require 'mode-compile)
 ;;  (list-packages)

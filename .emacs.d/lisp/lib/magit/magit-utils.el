@@ -69,8 +69,10 @@ less well behaved than the former, more modern alternatives.
 
 If you would like to use Ivy or Helm completion with Magit but
 not enable the respective modes globally, then customize this
-option to use `ivy-completing-read'
-or `helm--completing-read-default'."
+option to use `ivy-completing-read' or
+`helm--completing-read-default'.  If you choose to use
+`ivy-completing-read', note that the items may always be shown in
+alphabetical order, depending on your version of Ivy."
   :group 'magit-essentials
   :type '(radio (function-item magit-builtin-completing-read)
                 (function-item magit-ido-completing-read)
@@ -351,6 +353,9 @@ and delay of your graphical environment or operating system."
 
 ;;; User Input
 
+(defvar helm-completion-in-region-default-sort-fn)
+(defvar ivy-sort-functions-alist)
+
 (defvar magit-completing-read--silent-default nil)
 
 (defun magit-completing-read (prompt collection &optional
@@ -397,12 +402,12 @@ acts similarly to `completing-read', except for the following:
   `magit-completing-read-function' is set to its default value of
   `magit-builtin-completing-read'."
   (setq magit-completing-read--silent-default nil)
-  (if-let (dwim (and def
-                     (nth 2 (-first (pcase-lambda (`(,cmd ,re ,_))
-                                      (and (eq this-command cmd)
-                                           (or (not re)
-                                               (string-match-p re prompt))))
-                                    magit-dwim-selection))))
+  (if-let ((dwim (and def
+                      (nth 2 (-first (pcase-lambda (`(,cmd ,re ,_))
+                                       (and (eq this-command cmd)
+                                            (or (not re)
+                                                (string-match-p re prompt))))
+                                     magit-dwim-selection)))))
       (if (eq dwim 'ask)
           (if (y-or-n-p (format "%s %s? " prompt def))
               def
@@ -430,20 +435,21 @@ acts similarly to `completing-read', except for the following:
         '(metadata (display-sort-function . identity))
       (complete-with-action action collection string pred))))
 
+(defvar ivy-sort-functions-alist)
+
 (defun magit-builtin-completing-read
   (prompt choices &optional predicate require-match initial-input hist def)
   "Magit wrapper for standard `completing-read' function."
+  (unless (or (bound-and-true-p helm-mode)
+              (bound-and-true-p ivy-mode))
+    (setq prompt (magit-prompt-with-default prompt def))
+    (setq choices (magit--completion-table choices)))
   (cl-letf (((symbol-function 'completion-pcm--all-completions)
              #'magit-completion-pcm--all-completions))
-    (completing-read (if (or (bound-and-true-p helm-mode)
-                             (bound-and-true-p ivy-mode))
-                         prompt
-                       (magit-prompt-with-default prompt def))
-                     (magit--completion-table choices)
-                     predicate require-match
-                     initial-input hist def)))
-
-(defvar helm-completion-in-region-default-sort-fn)
+    (let ((ivy-sort-functions-alist nil))
+      (completing-read prompt choices
+                       predicate require-match
+                       initial-input hist def))))
 
 (defun magit-completing-read-multiple
   (prompt choices &optional sep default hist keymap)
@@ -953,6 +959,12 @@ Like `message', except that if the users configured option
 `magit-no-message' to prevent the message corresponding to
 FORMAT-STRING to be displayed, then don't."
   (unless (--first (string-prefix-p it format-string) magit-no-message)
+    (apply #'message format-string args)))
+
+(defun magit-msg (format-string &rest args)
+  "Display a message at the bottom of the screen, but don't log it.
+Like `message', except that `message-log-max' is bound to nil."
+  (let ((message-log-max nil))
     (apply #'message format-string args)))
 
 (provide 'magit-utils)
