@@ -190,8 +190,30 @@ iface br1 inet dhcp
 
 
 * Qemu test
+
+** recompile seabios without optionrom
+
+  git clone http://review.coreboot.org/p/coreboot
+  sudo apt-get install gnat-5 && make crossgcc
+  export PATH...
+  apt-get source qemu-kvm
+  cd qemu-2.11+dfsg/roms/; git clone git://git.qemu-project.org/seabios.git/
+  make -C seabios clean distclean
+  cp config.seabios-256k config.seabios-256k-custom
+  echo ... >> config.seabios-256k-custom
+  make build-seabios-config-seabios-256k-custom
+
+  qemu-2.11+dfsg/roms/seabios/builds/seabios-256k-custom/bios.bin
+  
+  checkedin bios.bin: version 1.11.0-42-g8c3f57e
+
+  src/qemu-2.11+dfsg/roms/
+  make -C seabios oldnoconfig
+
+* start
  $qemu-img create testimg.img 10G
- $qemu-system-x86_64 -hda testimg.img -cdrom Downloads/FreeNAS-11.2-BETA1.iso -boot d \
-  -device vfio-pci,host=01:00.0,id=hostdev0,bus=pci.0,addr=0x7 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x8
 
  - rebind satacard to vfio-pci driver: ./vfio-pci-bind.sh 0000:01:00.0
+ $qemu-system-x86_64 -hda testimg.img -cdrom Downloads/FreeNAS-11.2-BETA1.iso -boot d \
+  -device vfio-pci,host=01:00.0,id=hostdev0,bus=pci.0,addr=0x7 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x8
+ - add -bios ... option
