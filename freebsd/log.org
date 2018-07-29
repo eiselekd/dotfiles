@@ -63,3 +63,8 @@ sem_load="YES"
 linux_load="YES"
 i915kms_load="YES"
 
+
+* packages
+ portsnap fetch
+ portsnap extract
+ cd /usr/ports/....; make install

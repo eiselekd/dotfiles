@@ -535,9 +535,7 @@ pip3 install jupyter
 ** recompile ubuntu package
 DEB_BUILD_OPTIONS="debug nostrip noopt"         dpkg-buildpackage -us -uc -b
 DEB_BUILD_OPTIONS="debug nostrip noopt nocheck" dpkg-buildpackage -us -uc -b
-
-
-
+(-b build binary only to skip dpkg-source problems)
 
 ** uart
 
