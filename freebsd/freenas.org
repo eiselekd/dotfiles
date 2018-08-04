@@ -238,6 +238,8 @@ ada4: 68EUZN0 : WD-WCC4N7ZXC1E0 : R1  ->poolstrider1
 
 * next cloud
 
+jail static address: vnet0|<ip>
+
 jexec <jailid> sh:
 Use /usr/local/share/nextcloud/fix-apps_paths.json  to fix /usr/local/www/nextcloud/config
 #+BEGIN_SRC :
