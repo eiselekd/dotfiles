@@ -853,3 +853,8 @@ sudo apt-get install pavucontrol pulseaudio
 pulseaudio -D
 pacmd info
 pavucontrol
+
+* dolphin filemanager
+apt-get install dolphin kio-extras
+smb://<ip> ...
+nfs://<ip> ...
