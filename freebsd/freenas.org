@@ -203,6 +203,8 @@ ada4: 68EUZN0 : WD-WCC4N7ZXC1E0 : R1  ->poolstrider1
  - jls list
  - jexec <id> sh
 
+[1]  https://www.cyberciti.biz/faq/how-to-create-freenas-jails-with-iocage/
+
 * Qemu test
   
 ** recompile seabios without optionrom
