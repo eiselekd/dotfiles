@@ -245,7 +245,7 @@ jail static address: vnet0|<ip>
 jexec <jailid> sh:
 Use /usr/local/share/nextcloud/fix-apps_paths.json  to fix /usr/local/www/nextcloud/config
 #+BEGIN_SRC :
-/usr/local/www/nextcloud/config:
+/usr/local/www/nextcloud/config/config.php:
 
   ...
 
@@ -269,5 +269,7 @@ Use /usr/local/share/nextcloud/fix-apps_paths.json  to fix /usr/local/www/nextcl
 );
 
 #+END_SRC
+
+mysql credentials in jails /root/* dir after install
 
 [1] https://help.nextcloud.com/t/freebsd-nextcloud-13-0-1-update-too-many-redirects-error-bug/30494/8
