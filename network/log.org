@@ -1,5 +1,14 @@
 * unify controller
 
+docker+kvm:
+create file /etc/docker/daemon.json:
+{
+    "iptables" : false
+}
+or 
+$iptables -A FORWARD -i br0 -o br0 -j ACCEPT
+
+
 $ docker pull linuxserver/unifi
 
 mkdir -p /var/lib/unifi/config
@@ -24,6 +33,7 @@ mca-cli
 set-inform http://$address:8080/inform
 
 [1] https://hub.docker.com/r/linuxserver/unifi/
+[2] https://anteru.net/blog/2017/docker-kvm-and-iptables/index.html
 
 * Mikrotik iphone l2tp
 
