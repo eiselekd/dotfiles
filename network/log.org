@@ -1,0 +1,57 @@
+* unify controller
+
+$ docker pull linuxserver/unifi
+
+mkdir -p /var/lib/unifi/config
+docker create \
+  --name=unifi \
+  -v /var/lib/unifi/config:/config \
+  -e PGID=1000 -e PUID=1000  \
+  -p 3478:3478/udp \
+  -p 10001:10001/udp \
+  -p 8080:8080 \
+  -p 8081:8081 \
+  -p 8443:8443 \
+  -p 8843:8843 \
+  -p 8880:8880 \
+  -p 6789:6789 \
+  linuxserver/unifi
+
+webgui https://localhost:8443
+
+ssh ubnt@$AP-IP
+mca-cli
+set-inform http://$address:8080/inform
+
+[1] https://hub.docker.com/r/linuxserver/unifi/
+
+* Mikrotik iphone l2tp
+
+#+BEGIN_SRC : 
+# proxy-arp needed on interface for VPN
+/interface bridge add name=lan arp=proxy-arp protocol-mode=none
+/interface bridge port add bridge=lan interface=ether7
+/ip address add address=192.168.1.254/24 interface=lan
+# DHCP
+/ip pool add name=dhcp-lan ranges=192.168.1.50-192.168.1.150
+/ip dhcp-server add address-pool=dhcp-lan disabled=no interface=lan name=dhcp-lan lease-time=1h
+/ip dhcp-server network add address=192.168.1.0/24 netmask=24 gateway=192.168.1.254 dns-server=192.168.1.254 domain=lan
+# VPN interface
+/interface l2tp-server add name=vpn user=<user>
+# Firewall
+/ip firewall filter add action=accept chain=input protocol=udp dst-port=500,1701,4500 comment="Accept VPN"
+/ip firewall filter add action=accept chain=input protocol=ipsec-esp comment="Accept IPSEC"
+/ip firewall filter add action=accept chain=input in-interface=vpn comment="Accept VPN to router"
+/ip firewall filter add action=accept chain=forward in-interface=vpn src-address-list=lan comment="Accept from VPN"
+# L2TP/IPSEC
+/ip cloud set ddns-enabled=yes
+/interface l2tp-server server set authentication=mschap2 default-profile=default enabled=yes ipsec-secret=<secret> use-ipsec=yes
+/ppp profile set *0 dns-server=192.168.1.254 local-address=192.168.1.254 remote-address=dhcp-lan
+/ppp secret add name=<user> password=<password>
+/ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-128-cbc
+/ip ipsec peer add address=0.0.0.0/0 enc-algorithm=aes-256,aes-128 exchange-mode=main-l2tp generate-policy=port-override secret=<secret>
+#+END_SRC : 
+
+[1] https://forum.mikrotik.com/viewtopic.php?f=13&t=119337&p=640377#p640377
+
+
