@@ -52,6 +52,8 @@ set-inform http://$address:8080/inform
 /ip ipsec peer add address=0.0.0.0/0 enc-algorithm=aes-256,aes-128 exchange-mode=main-l2tp generate-policy=port-override secret=<secret>
 #+END_SRC : 
 
+winconsole via wine
+
 [1] https://forum.mikrotik.com/viewtopic.php?f=13&t=119337&p=640377#p640377
 
 
