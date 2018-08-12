@@ -226,6 +226,7 @@ ada4: 68EUZN0 : WD-WCC4N7ZXC1E0 : R1  ->poolstrider1
   
 ** start
 
+ $ qemu-img create -f qcow2 testing.qcow2 30G
  $ qemu-img create testimg.img 10G
  - rebind satacard to vfio-pci driver: 
  $ vfio-pci-bind.sh 0000:01:00.0

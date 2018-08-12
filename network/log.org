@@ -1,5 +1,29 @@
 * unify controller
 
+** kvm
+
+note: mongodb needs > 5gb db space
+/etc/init.f/unifi in 16.04:
+
+unifi need java-8:
+[1] https://community.ubnt.com/t5/UniFi-Wireless/UniFi-Installation-Scripts-Works-on-Ubuntu-18-04-and-16-04/td-p/2375150
+
+apt install oracle-java8-set-default -y
+add-apt-repository ppa:webupd8team/java -y
+apt update
+echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+apt install oracle-java8-installer -y
+apt install oracle-java8-set-default -y
+echo "JAVA_HOME="/usr/lib/jvm/java-8-oracle"" >> /etc/environment
+source /etc/environment
+
+
+webgui https://192.168.4.9:8443
+
+[1] https://community.ubnt.com/t5/UniFi-Wireless/Java-Home-Directory-Fail-Issue-on-Ubuntu-RESOLVED/td-p/474037
+
+
+** docker
 docker+kvm:
 create file /etc/docker/daemon.json:
 {
