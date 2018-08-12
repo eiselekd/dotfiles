@@ -42,3 +42,7 @@ use Properties->Security (Advanced):
  | $1, $2...                       | "%1", "%2"             |
  | if [ "%1" == "a" ] then; ... fi | if "%1"=="a" ( ... )   |
  | a="b"                           | set a="b"              |
+
+* install win in qemu from usb stick
+
+ $qemu-system-x86_64 -enable-kvm -device qemu-xhci -usb -device usb-host,vendorid=0x951,productid=0x16aa -boot menu=on -m 10000 -drive id=disk,file=/mnt/data-n0/vm/win10-passthrough.qcow2,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0
