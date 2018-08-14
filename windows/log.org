@@ -68,3 +68,11 @@ cd "${DESTDIR}" && find . | cpio --quiet $cpio_owner_root -o -H newc | gzip >>"$
 05:00.1 0403: 1002:aa68 # hdmi audio
 grub: pci-stub.ids=1002:68f9,1002:aa68
 
+** spice view
+
+apt-get install virt-viewer
+virt-viewer --connect qemu+ssh://user@server/system vmname
+
+** keyboard:
+
+[1] https://unix.stackexchange.com/questions/198736/passthrough-ps-2-keyboard-to-guest-os
