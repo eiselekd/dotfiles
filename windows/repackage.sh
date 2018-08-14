@@ -1,4 +1,5 @@
 #!/bin/bash
+b=`pwd`
 
 if [ -z $1 ]; then
     echo "Usage: $0 <execute-script> : where <execute-script> is called with extracted cpio basedir"; exit 1
@@ -26,7 +27,7 @@ cd /tmp/b; zcat /tmp/a1 | cpio --extract
 
 head -c ${h} /boot/${i} > /tmp/h
 
-bash $1 /tmp/b
+(cd $b; bash ${b}/${1} /tmp/b)
 
 cpio_owner_root="-R 0:0"
 (cd /tmp/b/; find . | cpio --quiet $cpio_owner_root -o -H newc | gzip > /tmp/c )
