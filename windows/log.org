@@ -49,6 +49,9 @@ use Properties->Security (Advanced):
 
 
 * gcard passthrough:
+
+Radeon 5450
+
 ** mkinitramfs
 
 skipcpio /boot/<img> > real
