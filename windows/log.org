@@ -54,6 +54,8 @@ Radeon 5450
 ** radeon driver crash
 
 [1] https://www.redhat.com/archives/vfio-users/2016-January/msg00301.html
+[2] https://lists.gnu.org/archive/html/qemu-devel/2016-10/msg08066.html
+[3] https://bugzilla.redhat.com/show_bug.cgi?id=1408808
 
 ** mkinitramfs
 
