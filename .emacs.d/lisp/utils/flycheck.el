@@ -270,7 +270,7 @@
 			   (flycheck-select-checker 'c/c++-gcc)
 			   ;;(flycheck-select-checker 'c/c++-clang)
 			   (setq flycheck-clang-language-standard "c++14")
-			   (setq flycheck-gcc-language-standard "c++14")
+			   (setq flycheck-gcc-language-standard "c++17")
 			   ))
 
 ;;			   (setq flycheck-command-wrapper-function
