@@ -91,7 +91,27 @@ virt-viewer --connect qemu+ssh://user@server/system vmname
 
 [1] https://unix.stackexchange.com/questions/198736/passthrough-ps-2-keyboard-to-guest-os
 
-** arch:
+** arch threads
 [1] https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF
 [2] https://bbs.archlinux.org/viewtopic.php?id=162768&p=41
 [3] https://www.reddit.com/r/pcmasterrace/comments/3lno0t/gpu_passthrough_revisited_an_updated_guide_on_how/
+[4] https://www.evonide.com/non-root-gpu-passthrough-setup/#QEMU_setup
+
+<qemu:commandline>
+    <qemu:arg value='-vga'/>
+    <qemu:arg value='none'/>
+    <qemu:arg value='-bios'/>
+    <qemu:arg value='/usr/lib/qemu/bios.bin'/>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='ioh3420,bus=pcie.0,addr=1c.0,multifunction=on,port=1,chassis=1,id=root'/>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='vfio-pci,host=01:00.0,bus=root,addr=00.0,multifunction=on,x-vga=on'/>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='vfio-pci,host=01:00.1,bus=pcie.0'/>
+  </qemu:commandline>
+
+xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'
+
+** OMVF :
+apt-get install omvf 
+and select uefi when createin vm
