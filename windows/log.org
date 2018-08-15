@@ -51,6 +51,9 @@ use Properties->Security (Advanced):
 * gcard passthrough:
 
 Radeon 5450
+** radeon driver crash
+
+[1] https://www.redhat.com/archives/vfio-users/2016-January/msg00301.html
 
 ** mkinitramfs
 
