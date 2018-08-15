@@ -50,8 +50,14 @@ use Properties->Security (Advanced):
 
 * gcard passthrough:
 
-Radeon 5450
 ** radeon driver crash
+
+ for legacy AMD Catalyst driver switch to qemu-machine type q35
+ select machine q35 
+ -machine pc-q35-2.11 
+ SATA disk contollers 
+
+ Radeon 5450
 
 [1] https://www.redhat.com/archives/vfio-users/2016-January/msg00301.html
 [2] https://lists.gnu.org/archive/html/qemu-devel/2016-10/msg08066.html
@@ -84,3 +90,7 @@ virt-viewer --connect qemu+ssh://user@server/system vmname
 ** keyboard:
 
 [1] https://unix.stackexchange.com/questions/198736/passthrough-ps-2-keyboard-to-guest-os
+
+** arch:
+[1] https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF
+[2] https://bbs.archlinux.org/viewtopic.php?id=162768&p=41
