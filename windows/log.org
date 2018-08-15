@@ -94,3 +94,4 @@ virt-viewer --connect qemu+ssh://user@server/system vmname
 ** arch:
 [1] https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF
 [2] https://bbs.archlinux.org/viewtopic.php?id=162768&p=41
+[3] https://www.reddit.com/r/pcmasterrace/comments/3lno0t/gpu_passthrough_revisited_an_updated_guide_on_how/
