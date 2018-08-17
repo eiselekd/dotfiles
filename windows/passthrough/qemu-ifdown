@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ -n "$(ip addr | grep vmtap0)" ];
+then
+	echo Downing vmtap0 link...
+
+	# Down vmtap0
+	ip link set vmtap0 down
+	sleep 0.5s
+
+	if [ -n "$(brctl show br0 | grep vmtap0)" ];
+	then
+		# Remove from br0
+		echo Removing vmtap0 from bridge...
+		brctl delif br0 vmtap0
+	fi
+fi

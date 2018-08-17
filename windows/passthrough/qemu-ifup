@@ -1,0 +1,28 @@
+#!/bin/sh
+
+iface=vmtap0
+if [ -z "$(ip addr | grep vmtap0)" ];
+then
+	echo No vmtap0 interface, creating...
+
+	# No vmtap0 yet.
+	ip tuntap add mode tap vmtap0
+	sleep 0.5s
+	iface=vmtap0
+else
+	echo Using existing vmtap0,vmtap1 interface...
+fi
+
+# Add to br0
+if [ -z "$(brctl show br0 | grep ${iface})" ];
+then
+	echo Adding ${iface} to bridge...
+	brctl addif br0 ${iface}
+	sleep 0.5s
+fi
+
+# Up vmtap0
+echo Upping ${iface} link...
+ip link set ${iface} up
+sleep 0.5s
+
