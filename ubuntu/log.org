@@ -863,3 +863,6 @@ nfs://<ip> ...
 disable gui login:
 sudo systemctl enable multi-user.target --force
 sudo systemctl set-default multi-user.target
+
+sudo systemctl enable graphical.target --force
+sudo systemctl set-default graphical.target

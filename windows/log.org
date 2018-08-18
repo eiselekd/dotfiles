@@ -117,3 +117,9 @@ apt-get install omvf
 and select uefi when createin vm
 ** win err: 
 
+
+* linux test
+ GK208 GeForce GT 710B
+ - noveau : x11: Segfault 
+            wayland: work, sound repeats 
+ - nvidia : x11: works, sound repeats
