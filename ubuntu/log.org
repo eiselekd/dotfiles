@@ -859,3 +859,7 @@ apt-get install dolphin kio-extras
 smb://<ip> ...
 nfs://<ip> ...
 
+* login
+disable gui login:
+sudo systemctl enable multi-user.target --force
+sudo systemctl set-default multi-user.target
