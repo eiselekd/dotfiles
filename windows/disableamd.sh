@@ -7,6 +7,7 @@ d=$1
 echo "install vfio-pci /sbin/vfio-pci-override-vga.sh" >> ${d}/etc/modprobe.d/vfio.conf
 #echo "blacklist radeon"                                >> ${d}/etc/modprobe.d/blacklist.conf
 echo "blacklist nouveau"                               >> ${d}/etc/modprobe.d/blacklist.conf
+echo "blacklist nvidia"                                >> ${d}/etc/modprobe.d/blacklist.conf
 
 cp vfio-pci-override-vga.sh ${d}/sbin/vfio-pci-override-vga.sh
 chmod a+rwx ${d}/sbin/vfio-pci-override-vga.sh
