@@ -21,7 +21,7 @@ cp ${b}/uefi/usr/share/edk2.git/ovmf-x64/OVMF_VARS-pure-efi.fd .
 OPTS=""
 # Basic CPU settings.
 OPTS="$OPTS -cpu host,kvm=off"
-OPTS="$OPTS -smp 2,sockets=1,cores=2,threads=1"
+OPTS="$OPTS -smp 4,sockets=1,cores=4,threads=1"
 # Enable KVM full virtualization support.
 OPTS="$OPTS -enable-kvm"
 # Assign memory to the vm.
@@ -29,8 +29,8 @@ OPTS="$OPTS -m 4000"
 
 # VFIO GPU and GPU sound passthrough.
 if [ "$passthrough" == "1" ]; then
-    OPTS="$OPTS -device vfio-pci,host=02:00.0,multifunction=on"
-    OPTS="$OPTS -device vfio-pci,host=02:00.1"
+    OPTS="$OPTS -device vfio-pci,host=05:00.0,multifunction=on"
+    OPTS="$OPTS -device vfio-pci,host=05:00.1"
 fi
 
 # Supply OVMF (general UEFI bios, needed for EFI boot support with GPT disks).
@@ -70,5 +70,7 @@ if [ "${net}" == "1" ]; then
 else
     OPTS="$OPTS -net none "
 fi
+
+OPTS="$OPTS -spice port=5900,addr=127.0.0.1,disable-ticketing "
 
 sudo qemu-system-x86_64 $OPTS

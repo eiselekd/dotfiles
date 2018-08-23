@@ -1,10 +1,9 @@
 #!/bin/bash
-
 b=$(pwd)
 
 passthrough=0
 qxl=1
-uefi=1
+uefi=0
 ovmf=0
 net=0
 while getopts "bpQUon" opt; do
@@ -30,12 +29,8 @@ OPTS="$OPTS -m 4000"
 # VFIO GPU and GPU sound passthrough.
 if [ "$passthrough" == "1" ]; then
     #,multifunction=on,romfile=/mnt/nvidia_efi.rom" ,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom
-    #OPTS="$OPTS -device vfio-pci,host=05:00.0,multifunction=on,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom"
-    #,romfile=${b}/bioses/XFX.HD5450.1024.110612_1.rom
-    OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on" 
-    #,romfile=/mnt/data-n0/vms-win/romfile_radeon.bin
-    #,romfile=/mnt/nvidia_efi.rom"
-    OPTS="$OPTS -device vfio-pci,host=01:00.1"
+    OPTS="$OPTS -device vfio-pci,host=05:00.0,multifunction=on"
+    OPTS="$OPTS -device vfio-pci,host=05:00.1"
 fi
 
 # Supply OVMF (general UEFI bios, needed for EFI boot support with GPT disks).
@@ -49,10 +44,12 @@ if [ "$uefi" == "1" ]; then
 	OPTS="$OPTS -drive if=pflash,format=raw,readonly,file=${b}/ovmf_pkg/OVMF.fd"
 	OPTS="$OPTS -drive if=pflash,format=raw,file=${b}/OVMF_VARS-pure-efi.fd"
     fi
+else
+    OPTS="$OPTS -bios ${b}/seabios.bin "
 fi
 
 # Load our created VM image as a harddrive.
-OPTS="$OPTS -hda ${b}/win10_uefi_cpu_host_qemu_vm.qcow2"
+OPTS="$OPTS -hda ${b}/win10_legacy_cpu_host_qemu_vm.qcow2"
 # Load our OS setup image e.g. ISO file.
 
 #OPTS="$OPTS -cdrom ${b}/windows_10.iso"
@@ -60,6 +57,7 @@ OPTS="$OPTS -cdrom ${b}/virtio-win-0.1.141.iso"
 
 if [ "$qxl" == "1" ]; then
     # Use the following emulated video device (use none for disabled).
+    #OPTS="$OPTS -vga none"
     OPTS="$OPTS -vga qxl"
 else
     # Use an emulated video device (use none for disabled).
@@ -90,12 +88,6 @@ if [ "$passthrough" == "1" ]; then
     OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
     OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
 fi
-#if [ "$passthrough" == "1" ]; then
-#    OPTS="$OPTS -usb"
-#    OPTS="$OPTS -device usb-ehci,id=ehci"
-#    OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
-#    OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
-#fi
 
 #OPTS="$OPTS -device usb-host,hostbus=3,hostaddr=4"
 #OPTS="$OPTS -device usb-host,hostbus=3,hostaddr=2"

@@ -11,7 +11,7 @@ use Properties->Security (Advanced):
  - 4. check Replace all chind object permissions ...
 
 
-
+ 
 * ATM on gigabrix
 
   Enable MEBx bios menue extension
@@ -112,6 +112,22 @@ virt-viewer --connect qemu+ssh://user@server/system vmname
 
 xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'
 
+  <features>
+    <acpi/>
+    <apic/>
+    <hyperv>
+      <relaxed state='on'/>
+      <vapic state='on'/>
+      <spinlocks state='on' retries='8191'/>
+      <vendor_id state='on' value='test'/>
+    </hyperv>
+    <kvm>
+      <hidden state='on'/>
+    </kvm>
+    <vmport state='off'/>
+  </features>
+
+
 ** OMVF :
 apt-get install omvf 
 and select uefi when createin vm
@@ -123,3 +139,43 @@ and select uefi when createin vm
  - noveau : x11: Segfault 
             wayland: work, sound repeats 
  - nvidia : x11: works, sound repeats
+
+* NVidia flash with
+
+https://www.techpowerup.com/download/nvidia-nvflash/
+
+
+sudo nvflash_linux  --save /tmp/nvidia.rom 
+
+NVIDIA Firmware Update Utility (Version 5.414.0)
+Simplified Version For OEM Only
+Adapter: GeForce GT 710       (10DE,128B,0000,0000) H:--:NRM  S:00,B:05,D:00,F:00
+
+Identifying EEPROM...
+EEPROM ID (7F,9D42) : PMC Pm25LQ020 2.3-3.6V 2048Kx1S, page
+Reading adapter firmware image...
+IFR Data Size         : 1164 bytes
+IFR CRC32             : CF1166A7
+IFR Image Size        : 1536 bytes
+IFR Image CRC32       : 66302A97
+IFR Subsystem ID      : 0000-0000
+Image Size            : 167936 bytes
+Version               : 80.28.A6.00.11
+RC32                : D3697E3F
+Image Hash            : 2F6FCEF455A9D2462C3184827417106D
+Subsystem ID          : 0000-0000
+Hierarchy ID          : Normal Board
+Chip SKU              : 203-0
+Project               : 2132-0014
+CDP                   : N/A
+Build Date            : 10/09/15
+Modification Date     : 01/06/16
+UEFI Support          : Yes
+UEFI Version          : 0x10033 (Jul 13 2015 @ 19761311 )
+UEFI Variant Id       : 0x0000000000000004 ( GK1xx )
+UEFI Signer(s)        : Microsoft Corporation UEFI CA 2011
+InfoROM Version       : N/A
+InfoROM Backup Exist  : NO
+License Placeholder   : Absent
+GPU Mode              : N/A
+Saving of image completed.
