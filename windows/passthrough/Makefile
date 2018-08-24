@@ -1,30 +1,42 @@
 all:
-	@echo "make linux   : start linux"
-	@echo "make linux-p : start linux with 05:00.0 as passthrough"
-	@echo "make OPTIONS=.. win7  : start uefi (TianaCore) win7"
-	@echo "make OPTIONS=.. win10 : start uefi (TianaCore) win10"
+	@echo "make OPTIONS=.. win7[-p]  : start uefi (TianaCore) win7"
+	@echo "make OPTIONS=.. win10[-p] : start uefi (TianaCore) win10"
 	@echo "options: "
 	@echo " -n : add networking via br0"
 	@echo " -o : use tianacore in ovmf_pkg/"
 	@echo " -Q : remove qlx video device"
 	@echo " -p : enable passthrough"
 
-linux:
-	bash linux_uefi.sh 
+win10-legacy:
+	bash win10_legacy_cpu_host_qemu_vm.sh -n $(OPTIONS) 
 
-linux-p:
-	bash linux_uefi.sh -p
+win10-legacy-p:
+	bash win10_legacy_cpu_host_qemu_vm.sh -p -n $(OPTIONS) 
 
-remote:
-	remote-viewer
+win10-legacy-p-nvidia:
+	bash win10_legacy_cpu_host_qemu_vm.sh -p -n -V $(OPTIONS) 
 
 
-win7:
-	bash win7_uefi_cpu_host_qemu_vm.sh -o $(OPTIONS)
-
-win10:
+win10-uefi:
 	bash win10_uefi_cpu_host_qemu_vm.sh -o $(OPTIONS) 
+
+win10-uefi-p:
+	bash win10_uefi_cpu_host_qemu_vm.sh -p -o -n $(OPTIONS) 
+
+win10-uefi-p-nvidia:
+	bash win10_uefi_cpu_host_qemu_vm.sh -p -o -n -V $(OPTIONS) 
+
 
 
 br0:
 	sudo bash br0.sh
+
+remote:
+	remote-viewer
+
+win7:
+	bash win7_uefi_cpu_host_qemu_vm.sh -o $(OPTIONS)
+
+win7-p:
+	bash win7_uefi_cpu_host_qemu_vm.sh -p -o -Q -n
+

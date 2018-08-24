@@ -179,3 +179,15 @@ InfoROM Backup Exist  : NO
 License Placeholder   : Absent
 GPU Mode              : N/A
 Saving of image completed.
+
+This method did not work for me with a 1080 GTX. I reseated the GPU in PCIe lane
+2 of my botherboard, swapped primary GPU to the iGPU and then dumped the rom
+using nvflash.
+
+While the device was still the primary GPU (after reseating and rebooting), I
+had to use a patching utility[0] before it could be passed through.
+
+Thanks
+Alex
+
+[0] https://github.com/Matoking/NVIDIA-vBIOS-VFIO-Patcher

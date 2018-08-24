@@ -7,20 +7,23 @@ qxl=1
 uefi=1
 ovmf=0
 net=0
-while getopts "bpQUon" opt; do
+nvidia=0
+nvidiavendor=
+while getopts "bpQUonV" opt; do
   case $opt in
       p) passthrough=1 ;;
       Q) qxl=0 ;;
       U) uefi=0 ;;
       n) net=1 ;;
       o) ovmf=1 ;;
+      V) nvidia=1; nvidiavendor=",hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time,hv_vendor_id=whatever" ;;
   esac
 done
 
 cp ${b}/uefi/usr/share/edk2.git/ovmf-x64/OVMF_VARS-pure-efi.fd .
 OPTS=""
 # Basic CPU settings.
-OPTS="$OPTS -cpu host,kvm=off"
+OPTS="$OPTS -cpu host,kvm=off${nvidiavendor}"
 OPTS="$OPTS -smp 4,sockets=1,cores=4,threads=1"
 # Enable KVM full virtualization support.
 OPTS="$OPTS -enable-kvm"
@@ -29,13 +32,19 @@ OPTS="$OPTS -m 4000"
 
 # VFIO GPU and GPU sound passthrough.
 if [ "$passthrough" == "1" ]; then
-    #,multifunction=on,romfile=/mnt/nvidia_efi.rom" ,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom
-    #OPTS="$OPTS -device vfio-pci,host=05:00.0,multifunction=on,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom"
-    #,romfile=${b}/bioses/XFX.HD5450.1024.110612_1.rom
-    OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on" 
-    #,romfile=/mnt/data-n0/vms-win/romfile_radeon.bin
-    #,romfile=/mnt/nvidia_efi.rom"
-    OPTS="$OPTS -device vfio-pci,host=01:00.1"
+    if [ "$nvidia" == "1" ]; then
+	echo "passthrough nvidia legacy"
+	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on,romfile=${b}/bioses/nvidia_patched.rom,x-vga=on" 
+	OPTS="$OPTS -device vfio-pci,host=01:00.1"
+    else
+	#,multifunction=on,romfile=/mnt/nvidia_efi.rom" ,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom
+	#OPTS="$OPTS -device vfio-pci,host=05:00.0,multifunction=on,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom"
+	#,romfile=${b}/bioses/XFX.HD5450.1024.110612_1.rom
+	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on" 
+	#,romfile=/mnt/data-n0/vms-win/romfile_radeon.bin
+	#,romfile=/mnt/nvidia_efi.rom"
+	OPTS="$OPTS -device vfio-pci,host=01:00.1"
+    fi
 fi
 
 # Supply OVMF (general UEFI bios, needed for EFI boot support with GPT disks).
