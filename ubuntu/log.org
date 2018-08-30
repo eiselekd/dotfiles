@@ -633,6 +633,10 @@ systemctl restart NetworkManager
 
 hostapd -dd /etc/hostapd/hostapd.conf
 
+** debug NetworkManager.
+service NetworkManager stop
+NM_PPP_DEBUG=1 /usr/sbin/NetworkManager --no-daemon
+
 *** /etc/hostapd/hostapd.conf
 
 # Schnittstelle und Treiber

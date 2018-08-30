@@ -8,8 +8,11 @@ echo "install vfio-pci /sbin/vfio-pci-override-vga.sh" >> ${d}/etc/modprobe.d/vf
 echo "blacklist radeon"                                >> ${d}/etc/modprobe.d/blacklist.conf
 echo "blacklist nouveau"                               >> ${d}/etc/modprobe.d/blacklist.conf
 echo "blacklist nvidia"                                >> ${d}/etc/modprobe.d/blacklist.conf
-echo "blacklist i915"                                  >> ${d}/etc/modprobe.d/blacklist.conf
 
+echo "blacklist i915"                                  >> ${d}/etc/modprobe.d/blacklist.conf
+echo "blacklist snd_hda_intel"                         >> ${d}/etc/modprobe.d/blacklist.conf
+
+#echo "options kvm ignore_msrs=1" >  ${d}/etc/modprobe.d/kvm.conf
 
 cp vfio-pci-override-vga.sh ${d}/sbin/vfio-pci-override-vga.sh
 chmod a+rwx ${d}/sbin/vfio-pci-override-vga.sh
