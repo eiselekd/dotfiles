@@ -147,7 +147,7 @@
 
 (defun utils/compile-init ()
   "Initialize compile module."
-  (message "")
+  (message "Initialize compile module")
   (setq-default
    ;; Prevent input in compilation buffer.
    compilation-disable-input nil

@@ -7,7 +7,7 @@
 	      (message "[+] org-version: '%s'" org-version)
 	      (require 'ox)
 	      (require 'ox-html)
-	      
+
 	      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 
 	      ;; active Org-babel languages
@@ -22,7 +22,7 @@
 	      (setq org-columns-default-format "%70ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM %5TAGS")
 	      (setq org-global-properties (quote (("Effort_ALL" . "1:00 2:00 4:00 1d 2d 4d 8d")
 						  ("STYLE_ALL" . "habit"))))
-	      
+
 	      (setq org-plantuml-jar-path (concat  *.emacs.d.dir* "lisp/modes/plantuml.jar"  ))
 	      (setq org-taskjuggler-default-project-duration 16256)
 	      (message "[+] org-plantuml: '%s'" org-plantuml-jar-path)
@@ -31,7 +31,7 @@
 shifts home
 
 ")
-	      
+
 	      (setq org-taskjuggler-default-global-properties
 "
 shift home \"home\" {
@@ -40,20 +40,20 @@ workinghours sat - sun 8:00 - 12:00
 }
 
 ")
-	      
-	      
+
+
 
 	      ;; (setq org-plantuml-jar-path (shell-command-to-string "cygpath --window /home/eiselekd/.emacs.d/lisp/modes/plantuml.jar"))
-	      
+
 	      (global-set-key (kbd "<f5>")  'org-narrow-to-subtree)
 	      (global-set-key (kbd "S-<f5>")  'widen)
 	      (global-set-key (kbd "<f3>") 'org-clock-in)
-	      (global-set-key (kbd "S-<f3>") 'org-clock-out)	      
+	      (global-set-key (kbd "S-<f3>") 'org-clock-out)
 	      (global-set-key (kbd "S-<f9>")  'org-toggle-inline-images)
-	      
+
 	      (global-set-key (kbd "<f7>")  'org-beamer-export-to-pdf)
 	      (global-set-key (kbd "<f8>")  'org-html-export-to-html)
-	      
+
 	      (when (require 'ox-reveal nil t)
 		(progn
 		  (setq org-reveal-root (concat  "file://" *.emacs.d.dir* "lisp/modes/reveal.js"  ))
@@ -104,11 +104,11 @@ resourcereport resourceGraph \"\" {
 }"))
 
 
-		  
-		  (global-set-key (kbd "<f9>")  'bh/org-sparse-poject-export)
 
-		  
-		  
+		  ;;(global-set-key (kbd "<f9>")  'bh/org-sparse-poject-export)
+
+
+
 		  ))
 
 	      )))
