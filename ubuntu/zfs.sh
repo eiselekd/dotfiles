@@ -5,7 +5,7 @@
 #      https://github.com/zfsonlinux/pkg-zfs/wiki/HOWTO-install-Ubuntu-17.04-to-a-Whole-Disk-Native-ZFS-Root-Filesystem-using-Ubiquity-GUI-installer
 if [ -z ${D} ]; then echo "disk id missing"; exit 1; fi
 
-hname=homebox
+hname=DL15W6J72
 ifname=enp0s31f6
 echo "############### ifname:  ${ifname} : change?  ###############"
 echo "############### hostname:${hname}  : change?  ###############"
@@ -56,7 +56,7 @@ zfs create -o com.sun:auto-snapshot=false \
 
 
 chmod 1777 /mnt/var/tmp
-debootstrap zesty /mnt
+debootstrap bionic /mnt
 zfs set devices=off rpool
 
 
@@ -80,6 +80,7 @@ mount --rbind /sys  /mnt/sys
 
 mkdir -p /mnt/tmp/
 cp update.sh /mnt/tmp/update.sh
+chmod 1777 /mnt/tmp/
 echo "execute /tmp/update.sh in choot"
 
 chroot /mnt /bin/bash --login

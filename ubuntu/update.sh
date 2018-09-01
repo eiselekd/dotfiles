@@ -2,15 +2,14 @@
 
 cat > /etc/apt/sources.list <<EOF
 
-deb http://archive.ubuntu.com/ubuntu zesty main universe
-deb-src http://archive.ubuntu.com/ubuntu zesty main universe
+deb http://archive.ubuntu.com/ubuntu bionic main universe
+deb-src http://archive.ubuntu.com/ubuntu bionic main universe
 
-deb http://security.ubuntu.com/ubuntu zesty-security main universe
-deb-src http://security.ubuntu.com/ubuntu zesty-security main universe
+deb http://security.ubuntu.com/ubuntu bionic-security main universe
+deb-src http://security.ubuntu.com/ubuntu bionic-security main universe
 
-deb http://archive.ubuntu.com/ubuntu zesty-updates main universe
-deb-src http://archive.ubuntu.com/ubuntu zesty-updates main universe
-
+deb http://archive.ubuntu.com/ubuntu bionic-updates main universe
+deb-src http://archive.ubuntu.com/ubuntu bionic-updates main universe
 EOF
 
 ln -s /proc/self/mounts /etc/mtab
@@ -20,7 +19,7 @@ locale-gen en_US.UTF-8
 
 apt install --yes --no-install-recommends linux-image-generic
 apt install --yes zfs-initramfs
-apt install --yes grub-pc
+#apt install --yes grub-pc
 
 addgroup --system lpadmin
 addgroup --system sambashare
