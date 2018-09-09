@@ -81,13 +81,14 @@ function dozfs
     #./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
 
     # build with kernel variant
-    ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux \
-		--build=x86_64-linux-gnu --prefix=${p}/usr --includedir=\${prefix}/include --mandir=\${prefix}/share/man --infodir=\${prefix}/share/info --sysconfdir=${p}/etc --localstatedir=/var --disable-silent-rules --libdir=\${prefix}/lib/x86_64-linux-gnu --libexecdir=\${prefix}/lib/x86_64-linux-gnu --disable-maintainer-mode --disable-dependency-tracking --bindir=${p}/usr/bin --sbindir=${p}/sbin --libdir=${p}/lib --with-udevdir=${p}/lib/udev --with-systemdunitdir=${p}/lib/systemd/system --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdgeneratordir=${p}/usr/lib/systemd/system-generators --with-config=user --with-systemdmodulesloaddir=${p}//usr/lib/modules-load.d --with-mounthelperdir=${p}/sbin --with-dracutdir=${p}/usr/lib/dracut/modules.d/02zfsexpandknowledge
+    ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux --with-linux=$d/linux \
+		--build=x86_64-linux-gnu --prefix=${p}/usr --includedir=\${prefix}/include --mandir=\${prefix}/share/man --infodir=\${prefix}/share/info --sysconfdir=${p}/etc --localstatedir=/var --libdir=\${prefix}/lib/x86_64-linux-gnu --libexecdir=\${prefix}/lib/x86_64-linux-gnu  --bindir=${p}/usr/bin --sbindir=${p}/sbin --libdir=${p}/lib --with-udevdir=${p}/lib/udev --with-systemdunitdir=${p}/lib/systemd/system --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdgeneratordir=${p}/usr/lib/systemd/system-generators --with-systemdmodulesloaddir=${p}//usr/lib/modules-load.d --with-mounthelperdir=${p}/sbin --with-dracutdir=${p}/usr/lib/dracut/modules.d/02zfsexpandknowledge
 
 
     
     V=1 make;
     v=1 make install;
+    v=1 make deb;
     #LC_TIME=C V=1 make deb;
 }
 
