@@ -89,6 +89,10 @@ function dozfs
     V=1 make;
     v=1 make INSTALL_MOD_PATH=${p} install;
 
+    sudo mkdir -p /lib/modules/${v}/kernel/zfs
+    sudo cp /opt/${v}/lib/modules/${v}/extra/* /lib/modules/${v}/kernel/zfs
+    sudo depmod -a ${v}
+    
     #make INSTALL_MOD_PATH=${p} -C modules modules
 
     #make DESTDIR=${p} -C modules 
