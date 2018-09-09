@@ -1,0 +1,49 @@
+diff --git a/etc/init.d/Makefile.am b/etc/init.d/Makefile.am
+index 93432386a..593f6f1b6 100644
+--- a/etc/init.d/Makefile.am
++++ b/etc/init.d/Makefile.am
+@@ -4,7 +4,8 @@ init_SCRIPTS = zfs-import zfs-mount zfs-share zfs-zed
+ initcommondir = $(sysconfdir)/zfs
+ initcommon_SCRIPTS = zfs-functions
+ 
+-initconfdir = $(DEFAULT_INITCONF_DIR)
++initconfdir = $(sysconfdir)/default
++#$(DEFAULT_INITCONF_DIR)
+ initconf_SCRIPTS = zfs
+ 
+ EXTRA_DIST = \
+diff --git a/include/linux/blkdev_compat.h b/include/linux/blkdev_compat.h
+index 274552d5d..1914e8521 100644
+--- a/include/linux/blkdev_compat.h
++++ b/include/linux/blkdev_compat.h
+@@ -29,12 +29,18 @@
+ #ifndef _ZFS_BLKDEV_H
+ #define	_ZFS_BLKDEV_H
+ 
++#undef	refcount_t
++#undef	refcount_add
++
+ #include <linux/blkdev.h>
+ #include <linux/elevator.h>
+ #include <linux/backing-dev.h>
+ #include <linux/hdreg.h>
+ #include <linux/msdos_fs.h>	/* for SECTOR_* */
+ 
++#define	refcount_t	zfs_refcount_t
++#define	refcount_add	zfs_refcount_add
++
+ #ifndef HAVE_FMODE_T
+ typedef unsigned __bitwise__ fmode_t;
+ #endif /* HAVE_FMODE_T */
+diff --git a/include/spl/sys/atomic.h b/include/spl/sys/atomic.h
+index 51b547923..c2d41a7df 100644
+--- a/include/spl/sys/atomic.h
++++ b/include/spl/sys/atomic.h
+@@ -27,6 +27,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
++
+ #include <sys/types.h>
+ 
+ /*
