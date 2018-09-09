@@ -88,6 +88,11 @@ $zfs get -H -o name,value -r used rpool/ROOT
 [1] http://dotfiles.tnetconsulting.net/articles/2016/0327/ubuntu-zfs-native-root.html
 [2] https://github.com/zfsonlinux/zfs/wiki/Ubuntu-17.04-Root-on-ZFS
 
+** zfs kernel dep
+PATH="/opt/$(uname -r)/usr/bin:/opt/$(uname -r)/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+/usr/share/initramfs-tools/hooks/zfs :  initramfs.diff
+
+
 ** X11
 disable trackpad:
 xinput set-prop 13 "Device Enabled" 0
@@ -300,6 +305,7 @@ depmod -a <version>
 
 possibly: echo zfs >> /etc/initramfs-tools/modules
 update-initramfs -u
+
 
 
 add

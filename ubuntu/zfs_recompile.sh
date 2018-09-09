@@ -86,17 +86,15 @@ function dozfs
     ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux --with-linux=$d/linux \
 		--build=x86_64-linux-gnu --prefix=${p}/usr --includedir=\${prefix}/include --mandir=\${prefix}/share/man --infodir=\${prefix}/share/info --sysconfdir=${p}/etc --localstatedir=/var --libdir=\${prefix}/lib/x86_64-linux-gnu --libexecdir=\${prefix}/lib/x86_64-linux-gnu  --bindir=${p}/usr/bin --sbindir=${p}/sbin --libdir=${p}/lib --with-udevdir=${p}/lib/udev --with-systemdunitdir=${p}/lib/systemd/system --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdgeneratordir=${p}/usr/lib/systemd/system-generators --with-systemdmodulesloaddir=${p}//usr/lib/modules-load.d --with-mounthelperdir=${p}/sbin --with-dracutdir=${p}/usr/lib/dracut/modules.d/02zfsexpandknowledge \
 
-    V=1 make;
-    v=1 make INSTALL_MOD_PATH=${p} install;
+    V=1 LD_RUN_PATH=${p}/lib make;
+    v=1 LD_RUN_PATH=${p}/lib make INSTALL_MOD_PATH=${p} install;
 
     sudo mkdir -p /lib/modules/${v}/kernel/zfs
-    sudo cp /opt/${v}/lib/modules/${v}/extra/* /lib/modules/${v}/kernel/zfs
+    sudo cp -r /opt/${v}/lib/modules/${v}/extra/* /lib/modules/${v}/kernel/zfs
     sudo depmod -a ${v}
     
     #make INSTALL_MOD_PATH=${p} -C modules modules
-
     #make DESTDIR=${p} -C modules 
-    
     #LC_TIME=C V=1 make deb;
 }
 
