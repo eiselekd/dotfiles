@@ -876,3 +876,7 @@ sudo systemctl set-default multi-user.target
 
 sudo systemctl enable graphical.target --force
 sudo systemctl set-default graphical.target
+
+* locale
+sudo update-locale LANG=en_US.UTF-8 LANGUAGE=en.UTF-8
+
