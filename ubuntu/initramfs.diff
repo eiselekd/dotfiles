@@ -1,5 +1,5 @@
---- zfs.ori	2018-09-09 21:49:27.916763998 +0200
-+++ zfs.change	2018-09-09 21:49:21.040722232 +0200
+--- /tmp/zfs.ori	2018-09-09 21:49:27.916763998 +0200
++++ /usr/share/initramfs-tools/hooks/zfs	2018-09-09 21:54:30.542280072 +0200
 @@ -34,6 +34,8 @@
  	;;
  esac
@@ -16,13 +16,13 @@
 +	if [ -e "/opt/${version}/${ii}" ]
 +	then
 +	    COPY_EXEC_LIST_P="$COPY_EXEC_LIST_P /opt/${version}/${ii}"
-+	    OPT_FOUND="1"
++	    OPT_FOUND=1
 +	else
 +	    COPY_EXEC_LIST_P="$COPY_EXEC_LIST_P $ii"
 +	fi
  done
 +COPY_EXEC_LIST="$COPY_EXEC_LIST_P"
-+if [ "1" == "${OPT_FOUND}" ]; then
++if [  "${OPT_FOUND}" -eq 1 ]; then
 +    echo "export PATH=\"/opt/${version}/sbin:/opt/${version}/usr/sbin:/opt/${version}/bin:/opt/${version}/usr/bin:$PATH\"" > $DESTDIR/conf/conf.d/zfsenv
 +fi
  

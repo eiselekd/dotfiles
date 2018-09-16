@@ -5,8 +5,14 @@ if [ -z $1 ]; then
     echo "Usage: $0 <execute-script> : where <execute-script> is called with extracted cpio basedir"; exit 1
 fi
 
-v=4.19.0-rc2-custom
-#$(uname -r)
+v=$(uname -r)
+while getopts "v:" o; do
+    case "${o}" in
+        v)
+            v=${OPTARG}
+            ;;
+    esac
+done
 i=initrd.img-${v}
 
 if [ ! -f dracut/skipcpio/skipcpio ]; then
