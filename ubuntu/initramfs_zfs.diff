@@ -1,0 +1,18 @@
+--- /tmp/zfs	2018-09-18 21:20:43.693021077 +0200
++++ /usr/share/initramfs-tools/scripts/zfs	2018-09-18 21:22:10.472509095 +0200
+@@ -11,8 +11,13 @@
+ 
+ # Paths to what we need - in the initrd, these paths are hardcoded,
+ # so override the defines in zfs-functions.
+-ZFS="/sbin/zfs"
+-ZPOOL="/sbin/zpool"
++LNXPREFIX=""
++if [ -e "/opt/$(uname -r)/sbin/zpool" ]; then
++   LNXPREFIX="/opt/$(uname -r)"
++fi
++
++ZFS="${LNXPREFIX}/sbin/zfs"
++ZPOOL="${LNXPREFIX}/sbin/zpool"
+ ZPOOL_CACHE="/etc/zfs/zpool.cache"
+ export ZFS ZPOOL ZPOOL_CACHE
+ 

@@ -7,5 +7,8 @@ fi
 for ref in "$@"; do
     for sha1 in $(git rev-list "$@")
     do
+	#%Cred%h%Creset -%C(yellow)%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset
+	#git log --pretty=format:'%H : %s' --abbrev-commit ${sha1}
+	git log --pretty=oneline --abbrev-commit ${sha1}
     done
 done
