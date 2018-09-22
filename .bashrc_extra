@@ -133,6 +133,7 @@ xmodmap -e "keycode  167 = Next NoSymbol Next"
 fi
 
 export PATH=${HOME}/bin/bin:${HOME}/bin-emacs/bin:${PATH}
+export PATH=${PATH}:${HOME}/bin/git-scripts
 
 if [ -d ${HOME}/.cabal/bin ]; then
    export PATH=${HOME}/.cabal/bin:${PATH}
