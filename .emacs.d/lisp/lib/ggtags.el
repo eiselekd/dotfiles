@@ -214,7 +214,7 @@ GNU Global 6.5+ required."
   :safe #'booleanp
   :group 'ggtags)
 
-(defcustom ggtags-update-on-save t
+(defcustom ggtags-update-on-save nil
   "Non-nil to update tags for current buffer on saving."
   ;; It is reported that `global --single-update' can be slow in sshfs
   ;; directories. See https://github.com/leoliu/ggtags/issues/85.
