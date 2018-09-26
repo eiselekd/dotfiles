@@ -4,6 +4,11 @@ dotfiles
 Emacs config. Install by replacing ~/.emacs.d with
 "ln -s dotfiles-path/.emacs.d ~/.emacs.d"
 
+    if [ -f ~/git/dotfiles/.bashrc_extra ]; then
+        source ~/git/dotfiles/.bashrc_extra
+    fi
+
+
 Keybindings:
 
  * ESC g/G : magit [2] (G: commit --all)

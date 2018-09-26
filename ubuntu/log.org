@@ -269,6 +269,13 @@ docker run --rm -e DISPLAY=$DISPLAY \
             --cap-drop=ALL --security-opt=no-new-privileges \
             IMAGENAME IMAGECOMMAND
 
+Xephyr :1 -extension MIT-SHM -extension XTEST &
+docker run --rm -e DISPLAY=:1 \
+            -v /tmp/.X11-unix/X1:/tmp/.X11-unix/X1:rw \
+            --user $(id -u):$(id -g) \
+            --cap-drop=ALL --security-opt=no-new-privileges \
+            IMAGENAME IMAGECOMMAND
+
 https://github.com/mviereck/x11docker/wiki/Short-setups-to-provide-X-display-to-container
 
 *** links
