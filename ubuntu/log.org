@@ -260,6 +260,16 @@ docker-compose rm --all
 docker rmi <imgid>
 docker rm <containeridid>
 
+*** Docker X11
+xhost +SI:localuser:$(id -un)
+docker run --rm -e DISPLAY=$DISPLAY \
+            -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+            --user $(id -u):$(id -g) \
+            --ipc=host \
+            --cap-drop=ALL --security-opt=no-new-privileges \
+            IMAGENAME IMAGECOMMAND
+
+https://github.com/mviereck/x11docker/wiki/Short-setups-to-provide-X-display-to-container
 
 *** links
 [1] https://www.youtube.com/watch?v=nDmvwevnJNc&feature=youtu.be
