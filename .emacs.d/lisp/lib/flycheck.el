@@ -6260,6 +6260,7 @@ See URL `http://asciidoctor.org'."
 (flycheck-def-args-var flycheck-clang-args c/c++-clang
   :package-version '(flycheck . "0.22"))
 
+
 (flycheck-def-option-var flycheck-clang-blocks nil c/c++-clang
   "Enable blocks in Clang.
 
@@ -6320,6 +6321,17 @@ When non-nil, enable Microsoft extensions to C/C++ via
   :type 'boolean
   :safe #'booleanp
   :package-version '(flycheck . "0.16"))
+
+
+(flycheck-def-option-var flycheck-clang-force-c++-mode nil c/c++-clang
+  "Force c++ evaluation. Used for .h files that switch to c-mode
+
+When non-nil,
+`-x c++'."
+  :type 'boolean
+  :safe #'booleanp
+  :package-version '(flycheck . "0.16"))
+
 
 (flycheck-def-option-var flycheck-clang-no-exceptions nil c/c++-clang
   "Whether to disable exceptions in Clang.
@@ -6431,9 +6443,11 @@ See URL `http://clang.llvm.org/'."
             (option-list "-I" flycheck-clang-include-path)
             (eval flycheck-clang-args)
             "-x" (eval
-                  (pcase major-mode
-                    (`c++-mode "c++")
-                    (`c-mode "c")))
+                  (if flycheck-clang-force-c++-mode
+                      "c++"
+                    (pcase major-mode
+                      (`c++-mode "c++")
+                      (`c-mode "c"))))
             ;; Read from standard input
             "-")
   :standard-input t
