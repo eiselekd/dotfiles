@@ -185,7 +185,7 @@
   ;;   ;;(ov/printranges all)
   ;;   )
   ;; ;;(outline-show-all)
-  ;; (global-set-key (kbd "<f9>")  'c++-mode/toggle-c++-mode)
+  ;; (global-set-key (kbd "M-<f9>")  'c++-mode/toggle-c++-mode)
 ;; )
 
 (defun c++-mode/toggle-c++-mode ()
@@ -199,7 +199,7 @@
 
     ;;(ov/printranges all)
     )
-  (global-set-key (kbd "M-<f9>")  'c++-mode/toggle-org)
+  (global-set-key (kbd "C-<f9>")  'c++-mode/toggle-org)
   )
 
 
@@ -208,12 +208,12 @@
   (setq org-startup-folded nil)
   (org-mode)
   ;;(outline-show-all)
-  (global-set-key (kbd "M-<f9>")  'c-mode/toggle-c-mode)
+  (global-set-key (kbd "C-<f9>")  'c-mode/toggle-c-mode)
   )
 (defun c-mode/toggle-c-mode ()
   (interactive)
   (c-mode)
-  (global-set-key (kbd "M-<f9>")  'c-mode/toggle-org)
+  (global-set-key (kbd "C-<f9>")  'c-mode/toggle-org)
   )
 
 
@@ -380,7 +380,7 @@
 				       (orgstruct-mode -1)
 				       (call-interactively 'hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
-		   (global-set-key (kbd "<f9>")  'c++-mode/toggle-org)
+		   (global-set-key (kbd "C-<f9>")  'c++-mode/toggle-org)
 		   ;;(global-set-key (kbd "S-<f9>") 'sync-buffer-overlays)
 		   (global-set-key (kbd "S-<f9>") 'show-chunks)
 
@@ -408,7 +408,7 @@
 	      ;;(global-set-key (kbd "M-h")  'hs-org/minor-mode)
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
 	      (global-set-key (kbd "M-M")  'helm-man-women)
-	      (global-set-key (kbd "<f9>")  'c-mode/toggle-org)
+	      (global-set-key (kbd "C-<f9>")  'c-mode/toggle-org)
 
 	      (modes/orgstruct-commen)
 	      (c-mode-addfuncs)
