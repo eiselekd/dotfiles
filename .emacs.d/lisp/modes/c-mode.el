@@ -199,7 +199,7 @@
 
     ;;(ov/printranges all)
     )
-  (global-set-key (kbd "<f9>")  'c++-mode/toggle-org)
+  (global-set-key (kbd "M-<f9>")  'c++-mode/toggle-org)
   )
 
 
@@ -208,12 +208,12 @@
   (setq org-startup-folded nil)
   (org-mode)
   ;;(outline-show-all)
-  (global-set-key (kbd "<f9>")  'c-mode/toggle-c-mode)
+  (global-set-key (kbd "M-<f9>")  'c-mode/toggle-c-mode)
   )
 (defun c-mode/toggle-c-mode ()
   (interactive)
   (c-mode)
-  (global-set-key (kbd "<f9>")  'c-mode/toggle-org)
+  (global-set-key (kbd "M-<f9>")  'c-mode/toggle-org)
   )
 
 

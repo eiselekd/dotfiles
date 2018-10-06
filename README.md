@@ -16,7 +16,7 @@ Keybindings:
  * ESC c : flycheck
    * ESC C : flycheck with configure
    * ESC M-c : verbose flycheck mode (ESC ESC c)
-   * ESC M-C : verbose flycheck select checker interactively 
+   * ESC M-C : verbose flycheck select checker interactively
    * F5/F6 : next/prev-error
  * ESC e : eshell
  * ESC E : ansi-term
@@ -61,13 +61,13 @@ Keybindings:
    * ESC : : helm dash query (sqlite3 needed, use helm-dash-update-docset)
    * ESC h : toggle hs-org/minor-mode (toggle blocks and ifdef blocks, disabled default)
    * ESC H : toggle orgstruct-mode (with '* #' org in comment)
-   * F9    : switch between org-mode and c-mode
+   * M-F9  : switch between org-mode and c-mode
    * M-G   : magit hist
    * M-i   : start irony mode
    * M-M   : helm query man db
    * M-SPC : disable remove space on write
    * M-( + M-) : toggle block hide/show
-   * F9    : mix org and c++ mode
+   * M-F9  : mix org and c++ mode
  * haskell-mode:
    * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
  * ESC q : grep in current dir ([1])
