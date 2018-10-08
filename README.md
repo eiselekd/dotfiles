@@ -12,9 +12,9 @@ Emacs config. Install by replacing ~/.emacs.d with
 Keybindings:
 
  * ESC g/G : magit [2] (G: commit --all)
- * ESC p : proced
- * ESC c : flycheck
-   * ESC C : flycheck with configure
+ * ESC p   : proced
+ * ESC c   : flycheck
+   * ESC C   : flycheck with configure
    * ESC M-c : verbose flycheck mode (ESC ESC c)
    * ESC M-C : verbose flycheck select checker interactively
    * F5/F6 : next/prev-error
