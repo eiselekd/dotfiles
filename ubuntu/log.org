@@ -15,6 +15,10 @@ function disable_trackpad()
   fi
 }
 
+SDcard reader:
+- enable in BIOS 
+- enable CONFIG_MISC_RTSX_PCI, CONFIG_MMC_REALTEK_PCI
+
 
 ** X60s
 
