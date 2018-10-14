@@ -15,7 +15,7 @@ function disable_trackpad()
   fi
 }
 
-SDcard reader:
+SDcard reader: rtsx_pci_sdmmc
 - enable in BIOS 
 - enable CONFIG_MISC_RTSX_PCI, CONFIG_MMC_REALTEK_PCI
 
