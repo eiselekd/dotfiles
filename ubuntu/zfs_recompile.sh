@@ -81,6 +81,7 @@ function dozfs
     # todo: ubuntu style lib/exe-dir
     #./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
 
+    # build with user-space: -with-config=user 
     # build with kernel variant
 
     ./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux --with-linux=$d/linux \
