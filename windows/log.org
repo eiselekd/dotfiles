@@ -201,4 +201,9 @@ mount.ntfs-3g /dev/nbd0p1 /mnt/usb0
 
 bcdedit /deletevalue safeboot
 
+BCD decode via hivex: apt-get install libwin-hivex-perl
+
 [1] https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn653287(v=vs.85)
+[2] https://rwmj.wordpress.com/2010/04/03/use-hivex-to-unpack-a-windows-boot-configuration-data-bcd-hive/
+[3] http://www.geoffchappell.com/notes/windows/boot/bcd/index.htm
+[4] https://rwmj.wordpress.com/2010/04/03/use-hivex-to-unpack-a-windows-boot-configuration-data-bcd-hive/
