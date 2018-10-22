@@ -191,3 +191,14 @@ Thanks
 Alex
 
 [0] https://github.com/Matoking/NVIDIA-vBIOS-VFIO-Patcher
+
+* BCD 
+
+qemu-nbd -c /dev/nbd0 <img.vdi>
+qemu-nbd -d /dev/nbd0
+
+mount.ntfs-3g /dev/nbd0p1 /mnt/usb0
+
+bcdedit /deletevalue safeboot
+
+[1] https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn653287(v=vs.85)
