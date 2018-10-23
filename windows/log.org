@@ -194,6 +194,7 @@ Alex
 
 * BCD 
 
+sudo modprobe nbd max_part=8
 qemu-nbd -c /dev/nbd0 <img.vdi>
 qemu-nbd -d /dev/nbd0
 
