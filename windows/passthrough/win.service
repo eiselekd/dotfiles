@@ -1,0 +1,13 @@
+[Unit]
+Description=Start windows passthrough
+After=libvirtd.service
+
+[Service]
+Type=forking
+User=root
+ExecStart=/mnt/data-n0/vms-win/start.sh
+Restart=no
+PIDFile=/mnt/data-n0/vms-win/start.pid
+
+[Install]
+WantedBy=default.target
