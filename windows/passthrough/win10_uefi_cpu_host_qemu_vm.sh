@@ -114,6 +114,8 @@ fi
 # Redirect QEMU's console input and output.
 if [ "$monitor" == "1" ]; then
     OPTS="$OPTS -monitor stdio"
+else
+    OPTS="$OPTS -monitor unix:/tmp/win.monitor,server,nowait "
 fi
 
 
