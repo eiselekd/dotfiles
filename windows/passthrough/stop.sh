@@ -1,2 +1,4 @@
 #!/bin/sh
-echo "system_powerdown" | socat - UNIX_CONNECT:/tmp/win.monitor
+if [ -e /tmp/win.monitor ]; then
+    echo "system_powerdown" | socat - UNIX-CONNECT:/tmp/win.monitor
+fi

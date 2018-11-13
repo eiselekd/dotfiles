@@ -6,6 +6,7 @@ After=libvirtd.service
 Type=forking
 User=root
 ExecStart=/mnt/data-n0/vms-win/start.sh
+ExecStop=/mnt/data-n0/vms-win/stop.sh
 Restart=no
 PIDFile=/mnt/data-n0/vms-win/start.pid
 
