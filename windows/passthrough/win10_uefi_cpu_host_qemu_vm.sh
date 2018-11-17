@@ -28,7 +28,7 @@ cp ${b}/uefi/usr/share/edk2.git/ovmf-x64/OVMF_VARS-pure-efi.fd .
 OPTS=""
 # Basic CPU settings.
 OPTS="$OPTS -cpu host,kvm=off${nvidiavendor}"
-OPTS="$OPTS -smp 4,sockets=1,cores=4,threads=1"
+OPTS="$OPTS -smp 8,sockets=1,cores=8,threads=1"
 # Enable KVM full virtualization support.
 OPTS="$OPTS -enable-kvm"
 # Assign memory to the vm.

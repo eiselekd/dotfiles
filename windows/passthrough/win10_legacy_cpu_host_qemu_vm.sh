@@ -15,7 +15,7 @@ while getopts "bpQUonV" opt; do
       U) uefi=0 ;;
       n) net=1 ;;
       o) ovmf=1 ;;
-      V) nvidia=1; nvidiavendor=",hv_vendor_id=amd" ;;
+      V) nvidia=1; nvidiavendor=",hv_vapic,hv_time,hv_vendor_id=whatever" ;;
   esac
 done
 
@@ -33,7 +33,8 @@ OPTS="$OPTS -m 4000"
 if [ "$passthrough" == "1" ]; then
     if [ "$nvidia" == "1" ]; then
 	echo "passthrough nvidia legacy"
-	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on,romfile=${b}/bioses/nvidia_patched.rom"
+	# nvidia_patched.rom romfile=${b}/bioses/nvidia.rom,,x-vga=on
+	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on"
 	OPTS="$OPTS -device vfio-pci,host=01:00.1"
     else
 	#,multifunction=on,romfile=/mnt/nvidia_efi.rom" ,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom
