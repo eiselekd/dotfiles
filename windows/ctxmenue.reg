@@ -1,0 +1,7 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\shell\ArchiveTarGz]
+@=" ----- Archive tar.gz ----- "
+
+[HKEY_CLASSES_ROOT\Directory\shell\ArchiveTarGz\command]
+@="\"C:\\cygwin64\\bin\\mintty.exe\" \"-i\" \"/Cygwin-Terminal.ico\" \"/bin/bash\" \"--login\" \"-i\" \"-c\" \"sh /cygdrive/c/Server/dotfiles/windows/ctxmenue.sh '%1'\""
