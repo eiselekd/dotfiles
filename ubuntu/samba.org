@@ -3,6 +3,12 @@ systemctrl enable smbd nmbd
 systemctrl enable smbd nmbd
 
 /etc/samba/smb.conf:
+[global]
+   case sensitive = True
+   default case = lower
+   preserve case = yes
+   short preserve case = yes
+
 
 [data-n0]
    valid users = <user>
@@ -16,3 +22,4 @@ systemctrl enable smbd nmbd
 
 
 mount //ubuntu-server/data-n0 /tmp/test -o user=<user>,uid=<uid>,rw
+
