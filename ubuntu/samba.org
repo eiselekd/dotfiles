@@ -1,0 +1,18 @@
+apt-get install samba
+systemctrl enable smbd nmbd
+systemctrl enable smbd nmbd
+
+/etc/samba/smb.conf:
+
+[data-n0]
+   valid users = <user>
+   path = /mnt/data-n0
+   writable = yes
+
+[data-n1]
+   valid users = <user>
+   path = /mnt/data-n1
+   writable = yes
+
+
+mount //ubuntu-server/data-n0 /tmp/test -o user=<user>,uid=<uid>,rw
