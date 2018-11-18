@@ -43,13 +43,13 @@ OPTS="$OPTS -m 4000"
 if [ "$passthrough" == "1" ]; then
     if [ "$nvidia" == "1" ]; then
 	echo "passthrough nvidia legacy"
-	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on,romfile=${b}/bioses/nvidia_patched.rom,x-vga=on" 
+	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on,romfile=${b}/bioses/nvidia_patched.rom,x-vga=on"
 	OPTS="$OPTS -device vfio-pci,host=01:00.1"
     else
 	#,multifunction=on,romfile=/mnt/nvidia_efi.rom" ,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom
 	#OPTS="$OPTS -device vfio-pci,host=05:00.0,multifunction=on,romfile=${b}/bioses/XFX.HD5450.1024.110612.rom"
 	#,romfile=${b}/bioses/XFX.HD5450.1024.110612_1.rom
-	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on" 
+	OPTS="$OPTS -device vfio-pci,host=01:00.0,multifunction=on"
 	#,romfile=/mnt/data-n0/vms-win/romfile_radeon.bin
 	#,romfile=/mnt/nvidia_efi.rom"
 	OPTS="$OPTS -device vfio-pci,host=01:00.1"
@@ -104,18 +104,52 @@ fi
 echo "Install virtio-input drivers in start-remote-viewer.shand module virtio_input"
 
 if [ "$passthrough" == "1" ]; then
-#    if [ "$usbinput" == "1" ]; then
-#	OPTS="$OPTS -usb"
-#	OPTS="$OPTS -device usb-ehci,id=ehci"
-#	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
-#	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
-#    else
-#	OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
-#	OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
-    #    fi
-    OPTS="$OPTS -device virtio-keyboard-pci -device virtio-mouse-pci"
+    if [ "$usbinput" == "1" ]; then
+	OPTS="$OPTS -usb"
+	OPTS="$OPTS -device usb-ehci,id=ehci"
+	# plexgear keyboard: Holtek Semiconductor, Inc. Keyboard LKS02
+	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x04d9,productid=0x1702 "
+	# llexgear mouse: Pixart Imaging, Inc. Optical Mouse
+	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x093a,productid=0x2521 "
+
+	#OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
+	#OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
+    else
+	#OPTS="$OPTS -device virtio-keyboard-pci,id=kbd0,serial=virtio-keyboard"
+
+	OPTS="$OPTS -device virtio-input-host-pci,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd"
+	OPTS="$OPTS -device virtio-input-host-pci,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse"
+
+	#OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
+	#OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
+    fi
+
+    #OPTS="$OPTS -device virtio-keyboard-pci -device virtio-mouse-pci"
+    #OPTS="$OPTS -device virtio-keyboard-pci,id=input0,bus=pci.0,addr=0x8 -device usb-mouse,id=input1,bus=usb.0,port=1"
+
+    #OPTS="$OPTS -usb "
+    #OPTS="$OPTS -device usb-ehci,id=ehci"
+    #OPTS="$OPTS -device virtio-keyboard-pci,id=input0,bus=pci.0,addr=0x8"
+    #OPTS="$OPTS -device usb-mouse,id=input1,bus=ehci.0,port=1"
+
 else
-    OPTS="$OPTS -device virtio-keyboard-pci -device virtio-mouse-pci"
+
+
+    OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
+    OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
+
+    #OPTS="$OPTS -usb"
+    #OPTS="$OPTS -device usb-ehci,id=ehci"
+    ## plexgear keyboard: Holtek Semiconductor, Inc. Keyboard LKS02
+    #OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x04d9,productid=0x1702 "
+    ## llexgear mouse: Pixart Imaging, Inc. Optical Mouse
+    #OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x093a,productid=0x2521 "
+
+    #OPTS="$OPTS -usb "
+    #OPTS="$OPTS -device usb-ehci,id=ehci"
+    #OPTS="$OPTS -device virtio-keyboard-pci,id=input0,bus=pci.0,addr=0x8"
+    #OPTS="$OPTS -device usb-mouse,id=input1,bus=ehci.0,port=1"
+    #OPTS="$OPTS -device virtio-keyboard-pci -device virtio-mouse-pci"
 fi
 OPTS="$OPTS -k de "
 
@@ -149,6 +183,8 @@ fi
 if [ "$shutdown" == "0" ]; then
     exec sudo qemu-system-x86_64 $OPTS
 else
-    sudo qemu-system-x86_64 $OPTS
+    ( sudo qemu-system-x86_64 $OPTS ) 2>&1 | tee  /mnt/data-n0/qemu.log
+    sudo sync
+    sleep 1
     sudo shutdown now
 fi
