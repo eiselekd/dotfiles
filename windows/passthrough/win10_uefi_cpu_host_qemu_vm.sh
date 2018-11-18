@@ -14,7 +14,7 @@ monitor=1
 shutdown=0
 virtioinput=0
 imgdir=/mnt/data-vm/vms-win
-while getopts "bpQUonVuM" opt; do
+while getopts "bpQUonVuMr" opt; do
   case $opt in
       r) shutdown=1;;
       p) passthrough=1 ;;
@@ -101,20 +101,23 @@ fi
 # https://passthroughpo.st/using-evdev-passthrough-seamless-vm-input/
 
 # USB mouse
-OPTS="$OPTS -k de "
+echo "Install virtio-input drivers in start-remote-viewer.shand module virtio_input"
+
 if [ "$passthrough" == "1" ]; then
-    if [ "$usbinput" == "1" ]; then
-	OPTS="$OPTS -usb"
-	OPTS="$OPTS -device usb-ehci,id=ehci"
-	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
-	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
-    else
-	OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
-	OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
-
-    fi
+#    if [ "$usbinput" == "1" ]; then
+#	OPTS="$OPTS -usb"
+#	OPTS="$OPTS -device usb-ehci,id=ehci"
+#	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
+#	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
+#    else
+#	OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
+#	OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
+    #    fi
+    OPTS="$OPTS -device virtio-keyboard-pci -device virtio-mouse-pci"
+else
+    OPTS="$OPTS -device virtio-keyboard-pci -device virtio-mouse-pci"
 fi
-
+OPTS="$OPTS -k de "
 
 # Redirect QEMU's console input and output.
 if [ "$monitor" == "1" ]; then
