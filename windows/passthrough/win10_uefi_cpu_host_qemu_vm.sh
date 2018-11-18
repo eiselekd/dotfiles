@@ -12,6 +12,8 @@ nvidiavendor=
 usbinput=0
 monitor=1
 shutdown=0
+virtioinput=0
+imgdir=/mnt/data-vm/vms-win
 while getopts "bpQUonVuM" opt; do
   case $opt in
       r) shutdown=1;;
@@ -22,6 +24,7 @@ while getopts "bpQUonVuM" opt; do
       n) net=1 ;;
       o) ovmf=1 ;;
       M) monitor=0 ;;
+      I) virtioinput=1;;
       V) nvidia=1; nvidiavendor=",hv_vapic,hv_time,hv_vendor_id=whatever" ;;
   esac #hv_relaxed,hv_spinlocks=0x1fff,hv_relaxed,
 done
@@ -67,11 +70,11 @@ if [ "$uefi" == "1" ]; then
 fi
 
 # Load our created VM image as a harddrive.
-OPTS="$OPTS -hda ${b}/win10_uefi_cpu_host_qemu_vm.qcow2"
+OPTS="$OPTS -hda ${imgdir}/win10_uefi_cpu_host_qemu_vm.qcow2"
 # Load our OS setup image e.g. ISO file.
 
 #OPTS="$OPTS -cdrom ${b}/windows_10.iso"
-OPTS="$OPTS -cdrom ${b}/virtio-win-0.1.141.iso"
+OPTS="$OPTS -cdrom ${imgdir}/virtio-win-0.1.141.iso"
 
 if [ "$qxl" == "1" ]; then
     # Use the following emulated video device (use none for disabled).
@@ -100,14 +103,12 @@ fi
 # USB mouse
 OPTS="$OPTS -k de "
 if [ "$passthrough" == "1" ]; then
-    if [ "$usbinput" == "0" ]; then
+    if [ "$usbinput" == "1" ]; then
 	OPTS="$OPTS -usb"
 	OPTS="$OPTS -device usb-ehci,id=ehci"
 	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
 	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
     else
-
-
 	OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
 	OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
 

@@ -3,7 +3,7 @@ b=$(dirname `readlink -f $0`)
 
 if cat /proc/cmdline | grep "efifb:off"; then
     cd ${b}
-    bash ${b}/win10_uefi_cpu_host_qemu_vm.sh -M -p -o -n -u -r &
+    bash ${b}/win10_uefi_cpu_host_qemu_vm.sh -M -p -o -n -r &
     echo $! > /tmp/vm-start.pid
 else
     (while true; do sleep 100; done) &
