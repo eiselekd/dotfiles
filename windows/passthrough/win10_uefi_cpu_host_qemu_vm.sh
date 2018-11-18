@@ -95,6 +95,8 @@ fi
 #Bus 003 Device 004: ID 1c4f:0002 SiGma Micro Keyboard TRACER Gamma Ivory
 #Bus 003 Device 002: ID 1a40:0201 Terminus Technology Inc. FE 2.1 7-port Hub
 
+# https://passthroughpo.st/using-evdev-passthrough-seamless-vm-input/
+
 # USB mouse
 OPTS="$OPTS -k de "
 if [ "$passthrough" == "1" ]; then
