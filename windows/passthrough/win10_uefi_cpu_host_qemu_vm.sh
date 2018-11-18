@@ -11,8 +11,10 @@ nvidia=0
 nvidiavendor=
 usbinput=0
 monitor=1
+shutdown=0
 while getopts "bpQUonVuM" opt; do
   case $opt in
+      r) shutdown=1;;
       p) passthrough=1 ;;
       Q) qxl=0 ;;
       U) uefi=0 ;;
@@ -138,4 +140,9 @@ fi
 # USB keyboard
 #OPTS="$OPTS -usbdevice host:1a40:0201"
 
-exec sudo qemu-system-x86_64 $OPTS
+if [ "$shutdown" == "0" ]; then
+    exec sudo qemu-system-x86_64 $OPTS
+else
+    sudo qemu-system-x86_64 $OPTS
+    sudo shutdown now
+fi
