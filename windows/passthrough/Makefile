@@ -21,10 +21,10 @@ win10-uefi:
 	bash win10_uefi_cpu_host_qemu_vm.sh -o $(OPTIONS) 
 
 win10-uefi-p:
-	bash win10_uefi_cpu_host_qemu_vm.sh -p -o -n $(OPTIONS) 
+	bash $(CURDIR)/start.sh
 
 win10-uefi-p-nvidia:
-	bash win10_uefi_cpu_host_qemu_vm.sh -p -o -n -V $(OPTIONS) 
+	bash win10_uefi_cpu_host_qemu_vm.sh -p -o -n -u -V $(OPTIONS) 
 
 
 

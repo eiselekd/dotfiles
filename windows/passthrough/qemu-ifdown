@@ -12,6 +12,6 @@ then
 	then
 		# Remove from br0
 		echo Removing vmtap0 from bridge...
-		brctl delif br0 vmtap0
+		brctl delif br1 vmtap0
 	fi
 fi

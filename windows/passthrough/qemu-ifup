@@ -14,10 +14,10 @@ else
 fi
 
 # Add to br0
-if [ -z "$(brctl show br0 | grep ${iface})" ];
+if [ -z "$(brctl show br1 | grep ${iface})" ];
 then
 	echo Adding ${iface} to bridge...
-	brctl addif br0 ${iface}
+	brctl addif br1 ${iface}
 	sleep 0.5s
 fi
 
