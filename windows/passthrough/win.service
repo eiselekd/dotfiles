@@ -5,10 +5,10 @@ After=libvirtd.service
 [Service]
 Type=forking
 User=root
-ExecStart=/mnt/data-n0/vms-win/start.sh
-ExecStop=/mnt/data-n0/vms-win/stop.sh
+ExecStart=/opt/dotfiles/windows/passthrough/start.sh
+ExecStop=/opt/dotfiles/windows/passthrough/stop.sh
 Restart=no
-PIDFile=/mnt/data-n0/vms-win/start.pid
+PIDFile=/tmp/vm-start.pid
 
 [Install]
 WantedBy=default.target
