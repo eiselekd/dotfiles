@@ -139,6 +139,10 @@ if [ -d ${HOME}/.cabal/bin ]; then
    export PATH=${HOME}/.cabal/bin:${PATH}
 fi
 
+if [ -d ${HOME}/.local/bin ]; then
+   export PATH=${HOME}/.local/bin:${PATH}
+fi
+
 alias prepare_xilinx='source /mnt/data1/btfs0/eda/Xilinx_ISE_14.7/14.7/ISE_DS/settings64.sh'
 alias prepare_modelsim0='sh /opt/modelsim/prepare.sh'
 alias prepare_modelsim='source /opt/modelsim/prepare_user.sh'

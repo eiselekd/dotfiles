@@ -95,6 +95,12 @@ $zfs get -H -o name,value -r used rpool/ROOT
 PATH="/opt/$(uname -r)/usr/bin:/opt/$(uname -r)/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 /usr/share/initramfs-tools/hooks/zfs :  initramfs.diff
 
+change: 
+ /etc/enviroment
+ /lib/systemd/system/zfs-import.target
+ /lib/systemd/system/zfs-import-scan.service
+ /lib/systemd/system/zfs-mount.service
+to /opt/$(uname -r)/sbin/[zfs,rpool]
 
 ** X11
 disable trackpad:
