@@ -386,7 +386,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
        else spawn "/usr/bin/gnome-session-quit  --logout --no-prompt"
     )
 
-  , ((altModMask .|. controlMask, xK_q), io (exitWith ExitSuccess) )
+  -- , ((altModMask .|. controlMask, xK_q), io (exitWith ExitSuccess) )
 
 
   -- , ((modMask .|. shiftMask, xK_q), spawn "/usr/bin/gnome-session-quit  --logout --no-prompt")
