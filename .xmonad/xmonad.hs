@@ -272,11 +272,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Take a selective screenshot using the command specified by mySelectScreenshot.
   , ((modMask .|. shiftMask, xK_p),
-     spawn "sleep 0.5; scrot '/tmp/%Y-%m-%d_$wx$h_scrot.png' -e 'mv $f ~/pic/'")
+     spawn "sleep 0.5; d=`date +\"%H%M%S\"`;scrot \"/tmp/%Y-%m-%d_${d}_\\$wx\\$h_scrot.png\" -e 'mv $f ~/Pictures/'")
 
      -- spawn mySelectScreenshot)
-
-
 
   -- Take a full screenshot using the command specified by myScreenshot.
   , ((modMask .|. controlMask .|. shiftMask, xK_p),
