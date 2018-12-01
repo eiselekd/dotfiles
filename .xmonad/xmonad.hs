@@ -186,7 +186,8 @@ startgpanel = do
      gp <- liftIO $ runProcessWithInput  "pidof" ["gnome-panel"] ""
      if (length gp) > 0
       then unsafeSpawn (traceShow gp $ "killall gnome-panel")
-      else unsafeSpawn (traceShow gp $ "gnome-panel")
+      -- https://askubuntu.com/questions/1097737/gnome-panel-applet-indicator-applet-complete-is-missing-icons/1097759#1097759
+      else unsafeSpawn (traceShow gp $ "systemctl --user start indicator-power.service; systemctl --user start indicator-keyboard.service;systemctl --user start indicator-sound.service;systemctl --user start indicator-datetime.service;systemctl --user start indicator-session.service;systemctl --user start indicator-application.service;systemctl --user start indicator-bluetooth.service;systemctl --user start indicator-messages.service;systemctl --user start indicator-printers.service; sleep 0.5; gnome-panel  " )
 
 startmobar :: X ()
 startmobar = do
