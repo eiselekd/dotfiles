@@ -71,9 +71,23 @@ function dospldeb
 
 function dozfs
 {
+    local v=$2
     cd ${d}/zfs
-    #v=$(cd $d/linux; make kernelversion)-custom
-    v=`uname -r`
+
+    if [ -z "$2" ]; then
+	#v=$(cd $d/linux; make kernelversion)-custom
+	v=`uname -r`
+	#v=4.15.0-39-generic
+	#v=4.18.0-11-generic
+    fi
+    if [ -d /usr/src/linux-headers-${v} ]; then
+	if [ -L /usr/src/linux ]; then
+	    rm /usr/src/linux
+	    ln -sf /usr/src/linux-headers-${v} /usr/src/linux
+	    ls -ls /usr/src/linux
+	fi
+    fi
+    echo "Using kernel version ${v}"
     p="/opt/${v}"
 
     #git reset --hard HEAD
@@ -158,7 +172,7 @@ case "$1" in
 	dospldeb
 	;;
     zfs)
-	dozfs
+	dozfs $2
 	;;
     zfsdeb)
 	dozfsdeb
