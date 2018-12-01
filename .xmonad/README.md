@@ -20,4 +20,7 @@ Keybindings
  * Win-Shift-p   : screenshot using scrot
  * Win-Shift-Alt-[left,right,up,down] : shrink and expand vertical/horizontal 
  * Win-Shift-[left,right,up,down] : move window position
+ * Win-t         : re-add to tiling
+ * Win-mouse[1|2|3] : floating drag
+ 
 
