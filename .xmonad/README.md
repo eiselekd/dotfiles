@@ -4,6 +4,8 @@ Keybindings
  * CTRL-ALT-t    : open terminal / browser
  * CTRL-ALT-left : prev workspace
  * CTRL-ALT-right: prev workspace
+ * CTRL-ALT-q    : logout
+ * CTRL-ALT-g    : toggle gnome-panel
  * CTRL-WIN-left : focus prev monitor
  * CTRL-WIN-right: focus next monitor
  * Win-[Left|Right|Up|Down] : 2d window navigate (non-empty only, switch to empty workspace via win-<num>

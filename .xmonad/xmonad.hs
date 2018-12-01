@@ -185,8 +185,8 @@ startgpanel :: X ()
 startgpanel = do
      gp <- liftIO $ runProcessWithInput  "pidof" ["gnome-panel"] ""
      if (length gp) > 0
-      then spawn (traceShow gp $ "killall gnome-panel")
-      else spawn (traceShow gp $ "gnome-panel")
+      then unsafeSpawn (traceShow gp $ "killall gnome-panel")
+      else unsafeSpawn (traceShow gp $ "gnome-panel")
 
 startmobar :: X ()
 startmobar = do
@@ -251,7 +251,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
    , ((myModMask.|. shiftMask, xK_b), spawn "xdotool windowraise `xdotool search --all --name xmobar`")
 
    -- sendMessage ToggleStruts -- startmobar
-   , ((myModMask, xK_g), startgpanel)
+   , ((modMask .|. shiftMask, xK_g), startgpanel)
+   --, ((myModMask, xK_g), startgpanel)
 
 -- spawn "gnome-panel"
 --   , ((myModMask .|. shiftMask, xK_g), spawn "killall gnome-panel")
@@ -293,7 +294,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. controlMask, xK_k),
      spawn "amixer -q set Master 10%+")
 
-  , ((modMask, xK_g),           moveTo Next HiddenNonEmptyWS)
+  -- , ((modMask, xK_g),           moveTo Next HiddenNonEmptyWS)
 
 
   --------------------------------------------------------------------
