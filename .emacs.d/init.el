@@ -72,10 +72,10 @@
 	(c++-mode . "bsd")
 	(other . "gnu")))
 
-(when (require 'quilt nil t)
-  (progn
-    (message "[*] quilt loaded")
-    ))
+;;(when (require 'quilt nil t)
+;;  (progn
+;;    (message "[*] quilt loaded")
+;;    ))
 
 (if (or (>= emacs-major-version 24)
 	(>= emacs-minor-version 4)) (progn
@@ -106,11 +106,11 @@
 (message "[*] %s retired flycheck" (timestamp_str))
 (require 'iswitchb-mode nil t)
 ;;(require 'projmake-mode nil t)
-(message "[*] %s retired projmake-mode" (timestamp_str))
+;;(message "[*] %s retired projmake-mode" (timestamp_str))
 ;; 2: load apps
 ;;(require 'vcs/git.el)
 ;;(require 'apps/eshell.el)
-(message "[*] %s retired eshell" (timestamp_str))
+;;(message "[*] %s retired eshell" (timestamp_str))
 ;;(require 'apps/proced.el)
 
 (setq org-agenda-files (quote ("~/todo.org" "~/git/org" )))
@@ -167,20 +167,20 @@
 (require 'modes/ruby-mode.el)
 (require 'modes/lua-mode.el)
 (require 'modes/haskell-mode.el)
-(require 'modes/web-mode.el)
-(require 'modes/javascript-mode.el)
+;;(require 'modes/web-mode.el)
+;;(require 'modes/javascript-mode.el)
 (require 'modes/org-mode.el)
-(require 'modes/tex-mode.el)
+;;(require 'modes/tex-mode.el)
 
-(require 'ov)
+;;(require 'ov)
 
-(add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
-(message (format "[*] %s try load fringe" (timestamp_str)))
-(require 'fringe)
+;;(add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
+;;(message (format "[*] %s try load fringe" (timestamp_str)))
+;;(require 'fringe)
 
-(require 'flymake)
-(defun flymake-simple-make-init ()
-  (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
+;;(require 'flymake)
+;;(defun flymake-simple-make-init ()
+;;  (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
 
 (require 'hideshow-org)
 (if
@@ -193,7 +193,7 @@
 
   )
 
-(require 'pp)
+;;(require 'pp)
 
 
 ;;(when (>= emacs-major-version 24)
@@ -247,11 +247,11 @@
 ;;(add-to-list 'package-archives '("e6h" . "http://www.e6h.org/packages/") t)
 ;; (package-initialize) ;; You might already have this line
 
-(condition-case nil
-    (progn
-      (autoload 'wl "wl" "Wanderlust" t))
-  (error
-   (message "Wanderlust not loaded")))
+;; (condition-case nil
+;;     (progn
+;;       (autoload 'wl "wl" "Wanderlust" t))
+;;   (error
+;;    (message "Wanderlust not loaded")))
 
 (require 'windmove)
 
@@ -277,9 +277,9 @@
 
 (require 'back-button nil t)
 
-(require 'remember)
+;;(require 'remember)
 
-(require 'utils/dired.el)
+;;(require 'utils/dired.el)
 
 ;;(org-remember-insinuate)
 
@@ -312,3 +312,4 @@
 ;; try load local dotfiles.lo
 (if (file-exists-p "~/.emacs.config")
 		   (load "~/.emacs.config"))
+

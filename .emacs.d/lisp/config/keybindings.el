@@ -63,6 +63,7 @@
 ;;search
 (global-set-key (kbd "C-c o") 'occur)
 
+
 ;; start magit
 (global-set-key (kbd "M-G")  (lambda ()(interactive)
 			       (progn
