@@ -18,6 +18,7 @@ import XMonad.Hooks.SetWMName
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Spiral
+import XMonad.Layout.Decoration
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.ThreeColumns
@@ -119,9 +120,9 @@ myManageHook = composeAll
 --
 myLayout =  avoidStruts (
     toggleLayouts Full (
-    		  ResizableTall 1 (10/100) (2/3) [] |||
-    		  tabbed shrinkText tabConfig
-		  )
+                  ResizableTall 1 (10/100) (2/3) [] |||
+                  tabbed shrinkText tabConfig
+                  )
     )
 
 
@@ -512,8 +513,8 @@ defaults = gnomeConfig {- defaultConfig -} {
     layoutHook         = avoidStruts $ smartBorders $ myLayout ,
     manageHook         = myManageHook ,
 
-   startupHook        = myStartupHook ,
-
+    startupHook        = startupHook gnomeConfig  >> myStartupHook ,
+   
     handleEventHook    = docksEventHook
 
 }
