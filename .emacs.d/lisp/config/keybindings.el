@@ -85,13 +85,16 @@
 
 
 
-;; start magit
+;; interpose helm
 (global-set-key (kbd "M-Q")  (lambda ()(interactive)
 			       (progn
 				 (prepareHelm)
 				 (let ((current-prefix-arg '(10)))
-				    (call-interactively 'helm-do-grep))))
-		)
+				    (call-interactively 'helm-do-grep)))))
+(global-set-key (kbd "M-.")  (lambda ()(interactive)
+			       (progn
+				 (prepareHelm)
+				 (helm-gtags-dwim))))
 
 ;; start find-tag
 ;(global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))
