@@ -21,14 +21,17 @@
 
 ;; terminal escape hell
 (defadvice terminal-init-xterm (after select-shift-up activate)
+
+  (message (format "[*] term keycode define"))
+
   (define-key function-key-map "\e[[D" [M-up])
   (define-key function-key-map "\e[[B" [M-down])
   (define-key function-key-map "\e[1;9C" [M-right])
 
   (define-key function-key-map "\e[1;2A" [S-up])
+  (define-key function-key-map "\e[1;2B" [S-down])
   (define-key function-key-map "\e[1;2D" [S-left])
   (define-key function-key-map "\e[1;2C" [S-right])
-  (define-key function-key-map "\e[1;2B" [S-down])
 
   ;; define this for mac : alt-shift + up,down,left,right
   (define-key function-key-map "\e[1;4A" [M-S-up])
@@ -82,6 +85,13 @@
 
 
 
+;; start magit
+(global-set-key (kbd "M-Q")  (lambda ()(interactive)
+			       (progn
+				 (prepareHelm)
+				 (let ((current-prefix-arg '(10)))
+				    (call-interactively 'helm-do-grep))))
+		)
 
 ;; start find-tag
 ;(global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))

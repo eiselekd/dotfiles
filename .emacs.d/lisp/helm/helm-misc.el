@@ -1,6 +1,6 @@
 ;;; helm-misc.el --- Various functions for helm -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2016 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2018 Thierry Volpiatto <thierry.volpiatto@gmail.com>
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,6 +23,9 @@
 
 (declare-function display-time-world-display "time.el")
 (defvar display-time-world-list)
+(declare-function LaTeX-math-mode "ext:latex.el")
+(declare-function jabber-chat-with "ext:jabber.el")
+(declare-function jabber-read-account "ext:jabber.el")
 
 
 (defgroup helm-misc nil
@@ -41,13 +44,6 @@
   :group 'helm-misc
   :type '(alist :key-type string :value-type function))
 
-(defcustom helm-mini-default-sources '(helm-source-buffers-list
-                                       helm-source-recentf
-                                       helm-source-buffer-not-found)
-  "Default sources list used in `helm-mini'."
-  :group 'helm-misc
-  :type '(repeat (choice symbol)))
-
 (defface helm-time-zone-current
     '((t (:foreground "green")))
   "Face used to colorize current time in `helm-world-time'."
@@ -61,23 +57,53 @@
 
 
 ;;; Latex completion
+;;
+;; Test
+;; (setq LaTeX-math-menu '("Math"
+;; ["foo" val0 t]
+;; ("bar"
+;; ["baz" val1 t])
+;; ("aze"
+;; ["zer" val2 t])
+;; ("AMS"
+;; ("rec"
+;; ["fer" val3 t])
+;; ("rty"
+;; ["der" val4 t]))
+;; ("ABC"
+;; ("xcv"
+;; ["sdf" val5 t])
+;; ("dfg"
+;; ["fgh" val6 t]))))
+;; (helm-latex-math-candidates)
+;; =>
+;; (("foo" . val0)
+;; ("baz" . val1)
+;; ("zer" . val2)
+;; ("fer" . val3)
+;; ("der" . val4)
+;; ("sdf" . val5)
+;; ("fgh" . val6))
+
 (defvar LaTeX-math-menu)
 (defun helm-latex-math-candidates ()
-  "Collect candidates for latex math completion."
-  (cl-loop for i in (cddr LaTeX-math-menu)
-        for elm = (cl-loop for s in i when (vectorp s)
-                        collect (cons (aref s 0) (aref s 1)))
-        append elm))
+  (cl-labels ((helm-latex--math-collect (L)
+                (cond ((vectorp L)
+                       (list (cons (aref L 0) (aref L 1))))
+                      ((listp L)
+                       (cl-loop for a in L nconc
+                                (helm-latex--math-collect a))))))
+    (helm-latex--math-collect LaTeX-math-menu)))
 
 (defvar helm-source-latex-math
-  '((name . "Latex Math Menu")
-    (init . (lambda ()
-              (with-helm-current-buffer
-                (LaTeX-math-mode 1))))
-    (candidate-number-limit . 9999)
-    (candidates . helm-latex-math-candidates)
-    (action . (lambda (candidate)
-                (call-interactively candidate)))))
+  (helm-build-sync-source "Latex Math Menu"
+    :init (lambda ()
+            (with-helm-current-buffer
+              (LaTeX-math-mode 1)))
+    :candidate-number-limit 9999
+    :candidates 'helm-latex-math-candidates
+    :action (lambda (candidate)
+              (call-interactively candidate))))
 
 
 ;;; Jabber Contacts (jabber.el)
@@ -92,17 +118,20 @@
             (cons (symbol-name item) item)))))
 
 (defvar helm-source-jabber-contacts
-  '((name . "Jabber Contacts")
-    (init . (lambda () (require 'jabber)))
-    (candidates . (lambda () (mapcar 'car (helm-jabber-online-contacts))))
-    (action . (lambda (x)
-                (jabber-chat-with
-                 (jabber-read-account)
-                 (symbol-name
-                  (cdr (assoc x (helm-jabber-online-contacts)))))))))
+  (helm-build-sync-source "Jabber Contacts"
+    :init (lambda () (require 'jabber))
+    :candidates (lambda () (mapcar 'car (helm-jabber-online-contacts)))
+    :action (lambda (x)
+              (jabber-chat-with
+               (jabber-read-account)
+               (symbol-name
+                (cdr (assoc x (helm-jabber-online-contacts))))))))
 
 ;;; World time
 ;;
+(defvar zoneinfo-style-world-list)
+(defvar legacy-style-world-list)
+
 (defun helm-time-zone-transformer (candidates _source)
   (cl-loop for i in candidates
            for (z . p) in display-time-world-list
@@ -117,6 +146,22 @@
 
 (defvar helm-source-time-world
   (helm-build-in-buffer-source "Time World List"
+    :init (lambda ()
+            (require 'time)
+            (unless (and display-time-world-list
+                         (listp display-time-world-list))
+              ;; adapted from `time--display-world-list' from
+              ;; emacs-27 for compatibility as
+              ;; `display-time-world-list' is set by default to t.
+              (setq display-time-world-list
+                    ;; Determine if zoneinfo style timezones are
+                    ;; supported by testing that America/New York and
+                    ;; Europe/London return different timezones.
+                    (let ((nyt (format-time-string "%z" nil "America/New_York"))
+                          (gmt (format-time-string "%z" nil "Europe/London")))
+                      (if (string-equal nyt gmt)
+                          legacy-style-world-list
+                        zoneinfo-style-world-list)))))
     :data (lambda ()
             (with-temp-buffer
               (display-time-world-display display-time-world-list)
@@ -124,50 +169,8 @@
     :action 'helm-timezone-actions
     :filtered-candidate-transformer 'helm-time-zone-transformer))
 
-;;; LaCarte
+;;; Commands
 ;;
-;;
-(declare-function lacarte-get-overall-menu-item-alist "ext:lacarte.el" (&optional MAPS))
-
-(defun helm-lacarte-candidate-transformer (cands)
-  (mapcar (lambda (cand)
-            (let* ((item (car cand))
-                   (match (string-match "[^>] \\((.*)\\)$" item)))
-              (when match
-                (put-text-property (match-beginning 1) (match-end 1)
-                                   'face 'helm-M-x-key item))
-              cand))
-          cands))
-
-(defclass helm-lacarte (helm-source-sync helm-type-command)
-    ((init :initform (lambda () (require 'lacarte)))
-     (candidates :initform 'helm-lacarte-get-candidates)
-     (candidate-transformer :initform 'helm-lacarte-candidate-transformer)
-     (candidate-number-limit :initform 9999)))
-
-(defun helm-lacarte-get-candidates (&optional maps)
-  "Extract candidates for menubar using lacarte.el.
-See http://www.emacswiki.org/cgi-bin/wiki/download/lacarte.el.
-Optional argument MAPS is a list specifying which keymaps to use: it
-can contain the symbols `local', `global', and `minor', mean the
-current local map, current global map, and all current minor maps."
-  (with-helm-current-buffer
-    ;; FIXME: do we still need to remove possible '(nil) candidates.
-    (lacarte-get-overall-menu-item-alist maps)))
-
-;;;###autoload
-(defun helm-browse-menubar ()
-  "Preconfigured helm to the menubar using lacarte.el."
-  (interactive)
-  (require 'lacarte)
-  (helm :sources (mapcar 
-                  (lambda (spec) (helm-make-source (car spec) 'helm-lacarte
-                              :candidates (lambda () (helm-lacarte-get-candidates (cdr spec)))))
-                  '(("Major Mode"  . (local))
-                    ("Minor Modes" . (minor))
-                    ("Global Map"  . (global))))
-        :buffer "*helm lacarte*"))
-
 (defun helm-call-interactively (cmd-or-name)
   "Execute CMD-OR-NAME as Emacs command.
 It is added to `extended-command-history'.
@@ -185,23 +188,19 @@ It is added to `extended-command-history'.
 ;;; Minibuffer History
 ;;
 ;;
-(defvar helm-source-minibuffer-history
-  (helm-build-sync-source "Minibuffer History"
-    :header-name (lambda (name)
-                   (format "%s (%s)" name minibuffer-history-variable))
-    :candidates
-     (lambda ()
-       (let ((history (cl-loop for i in
-                               (symbol-value minibuffer-history-variable)
-                               unless (string= "" i) collect i)))
-         (if (consp (car history))
-             (mapcar 'prin1-to-string history)
-             history)))
-    :migemo t
-    :multiline t
-    :action (lambda (candidate)
-              (delete-minibuffer-contents)
-              (insert candidate))))
+(defvar helm-minibuffer-history-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-map)
+    (define-key map [remap helm-minibuffer-history] 'undefined)
+    map))
+
+(defcustom helm-minibuffer-history-must-match t
+  "Allow inserting non matching elements when nil or 'confirm."
+  :group 'helm-misc
+  :type '(choice
+          (const :tag "Must match" t)
+          (const :tag "Confirm" 'confirm)
+          (const :tag "Always allow" nil)))
 
 ;;; Shell history
 ;;
@@ -213,11 +212,11 @@ It is added to `extended-command-history'.
     (insert candidate)))
 
 (defvar helm-source-comint-input-ring
-  '((name . "Comint history")
-    (candidates . (lambda ()
-                    (with-helm-current-buffer
-                      (ring-elements comint-input-ring))))
-    (action . helm-comint-input-ring-action))
+  (helm-build-sync-source "Comint history"
+    :candidates (lambda ()
+                  (with-helm-current-buffer
+                    (ring-elements comint-input-ring)))
+    :action 'helm-comint-input-ring-action)
   "Source that provide helm completion against `comint-input-ring'.")
 
 
@@ -225,12 +224,12 @@ It is added to `extended-command-history'.
 ;;
 ;;
 (defvar helm-source-ratpoison-commands
-  '((name . "Ratpoison Commands")
-    (init . helm-ratpoison-commands-init)
-    (candidates-in-buffer)
-    (action ("Execute the command" . helm-ratpoison-commands-execute))
-    (display-to-real . helm-ratpoison-commands-display-to-real)
-    (candidate-number-limit)))
+  (helm-build-in-buffer-source "Ratpoison Commands"
+    :init 'helm-ratpoison-commands-init
+    :action (helm-make-actions
+             "Execute the command" 'helm-ratpoison-commands-execute)
+    :display-to-real 'helm-ratpoison-commands-display-to-real
+    :candidate-number-limit 999999))
 
 (defun helm-ratpoison-commands-init ()
   (unless (helm-candidate-buffer)
@@ -258,11 +257,11 @@ It is added to `extended-command-history'.
 ;;
 ;;
 (defvar helm-source-stumpwm-commands
-  '((name . "Stumpwm Commands")
-    (init . helm-stumpwm-commands-init)
-    (candidates-in-buffer)
-    (action ("Execute the command" . helm-stumpwm-commands-execute))
-    (candidate-number-limit)))
+  (helm-build-in-buffer-source "Stumpwm Commands"
+    :init 'helm-stumpwm-commands-init
+    :action (helm-make-actions
+             "Execute the command" 'helm-stumpwm-commands-execute)
+    :candidate-number-limit 999999))
 
 (defun helm-stumpwm-commands-init ()
   (with-current-buffer (helm-candidate-buffer 'global)
@@ -308,9 +307,37 @@ Default action change TZ environment variable locally to emacs."
 (defun helm-minibuffer-history ()
   "Preconfigured `helm' for `minibuffer-history'."
   (interactive)
-  (let ((enable-recursive-minibuffers t))
-    (helm :sources 'helm-source-minibuffer-history
-          :buffer "*helm minibuffer-history*")))
+  (cl-assert (minibuffer-window-active-p (selected-window)) nil
+             "Error: Attempt to use minibuffer history outside a minibuffer")
+  (let* ((enable-recursive-minibuffers t)
+         (query-replace-p (or (eq last-command 'query-replace)
+                              (eq last-command 'query-replace-regexp)))
+         (elm (helm-comp-read "pattern: "
+                              (cl-loop for i in
+                                       (symbol-value minibuffer-history-variable)
+                                       unless (string= "" i) collect i into history
+                                       finally return
+                                       (if (consp (car history))
+                                           (mapcar 'prin1-to-string history)
+                                           history))
+                              :header-name
+                              (lambda (name)
+                                (format "%s (%s)" name minibuffer-history-variable))
+                              :buffer "*helm minibuffer-history*"
+                              :must-match helm-minibuffer-history-must-match
+                              :multiline t
+                              :keymap helm-minibuffer-history-map
+                              :allow-nest t)))
+    ;; Fix issue #1667 with emacs-25+ `query-replace-from-to-separator'.
+    (when (and (boundp 'query-replace-from-to-separator) query-replace-p)
+      (let ((pos (string-match "\0" elm)))
+        (and pos
+             (add-text-properties
+              pos (1+ pos)
+              `(display ,query-replace-from-to-separator separator t)
+              elm))))
+    (delete-minibuffer-contents)
+    (insert elm)))
 
 ;;;###autoload
 (defun helm-comint-input-ring ()
@@ -326,7 +353,7 @@ Default action change TZ environment variable locally to emacs."
 (provide 'helm-misc)
 
 ;; Local Variables:
-;; byte-compile-warnings: (not cl-functions obsolete)
+;; byte-compile-warnings: (not obsolete)
 ;; coding: utf-8
 ;; indent-tabs-mode: nil
 ;; End:

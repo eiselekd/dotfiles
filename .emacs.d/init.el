@@ -129,26 +129,53 @@
 ;;(require 'utils/irc.el)
 (message "[*] %s retired irc" (timestamp_str))
 
-
-(require 'ggtags)
-(if
-  (or
-    (eq system-type 'cygwin)
-    (string-match "Microsoft"  ;; Linux subsystem for Windows
-		  (with-temp-buffer
-		    (shell-command "uname -r" t)
-		    (goto-char (point-max))
-		    (delete-char -1)
-		    (buffer-string))))
-    (require 'ggtags)
+(defun prepareHelm ()
+  (require 'ggtags)
+  (if
+      (or
+       (eq system-type 'cygwin)
+       (string-match "Microsoft"  ;; Linux subsystem for Windows
+		     (with-temp-buffer
+		       (shell-command "uname -r" t)
+		       (goto-char (point-max))
+		       (delete-char -1)
+		       (buffer-string))))
+      (require 'ggtags)
     (require 'utils/openhelm.el)
-)
+
+    
+    (defun my-helm-pipe-grep-match (fun &rest args)
+      (let* ((patterns (split-string helm-pattern))
+	     (helm-grep-default-command
+	      (cl-reduce (lambda (grep pat)
+			   (concat grep " | grep --color=always " pat))
+			 (cdr patterns)
+			 :initial-value (replace-regexp-in-string "%p" (car patterns) helm-grep-default-command))))
+	(apply fun args)))
+    
+    (advice-add 'helm-grep--prepare-cmd-line :around 'my-helm-pipe-grep-match)
+    
+    (defun helm-do-grep (&optional arg)
+      (interactive "P")
+      (helm-do-grep-1 (list default-directory) arg))
+    
+    
+    )
+
+  
+  
+  )
+
+
+
+
+
 (if (or (eq system-type 'freebsd) (eq system-type 'berkeley-unix))
     (progn
       (require 'simple)
       (normal-erase-is-backspace-mode)
-      )
-)
+      ))
+ 
 (message "[*] %s retired openhelm" (timestamp_str))
 
 ;;(require 'utils/hackernews)
@@ -172,11 +199,11 @@
 (require 'modes/org-mode.el)
 ;;(require 'modes/tex-mode.el)
 
-;;(require 'ov)
+(require 'ov)
 
-;;(add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
-;;(message (format "[*] %s try load fringe" (timestamp_str)))
-;;(require 'fringe)
+(add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
+(message (format "[*] %s try load fringe" (timestamp_str)))
+(require 'fringe)
 
 ;;(require 'flymake)
 ;;(defun flymake-simple-make-init ()
@@ -193,7 +220,7 @@
 
   )
 
-;;(require 'pp)
+(require 'pp)
 
 
 ;;(when (>= emacs-major-version 24)
@@ -254,6 +281,10 @@
 ;;    (message "Wanderlust not loaded")))
 
 (require 'windmove)
+(global-set-key (kbd "C-c <left>")  'windmove-left)
+(global-set-key (kbd "C-c <right>") 'windmove-right)
+(global-set-key (kbd "C-c <up>")    'windmove-up)
+(global-set-key (kbd "C-c <down>")  'windmove-down)
 
 ;;(desktop-save-mode 1)
 ;;(when (fboundp 'winner-mode)
@@ -277,9 +308,9 @@
 
 (require 'back-button nil t)
 
-;;(require 'remember)
+(require 'remember)
 
-;;(require 'utils/dired.el)
+(require 'utils/dired.el)
 
 ;;(org-remember-insinuate)
 
