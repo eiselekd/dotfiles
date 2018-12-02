@@ -30,8 +30,8 @@
 
   (define-key function-key-map "\e[1;2A" [S-up])
   (define-key function-key-map "\e[1;2B" [S-down])
-  (define-key function-key-map "\e[1;2D" [S-left])
   (define-key function-key-map "\e[1;2C" [S-right])
+  (define-key function-key-map "\e[1;2D" [S-left])
 
   ;; define this for mac : alt-shift + up,down,left,right
   (define-key function-key-map "\e[1;4A" [M-S-up])
@@ -43,6 +43,7 @@
   (define-key function-key-map "\e[1;2H" [S-home])
   )
 
+  
 ;; mavigate windows with arrow
 ;;(windmove-default-keybindings 'meta)
 (when (fboundp 'windmove-default-keybindings)

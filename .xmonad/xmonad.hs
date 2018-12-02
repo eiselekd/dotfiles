@@ -323,7 +323,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- start rofi.
   , ((modMask .|. shiftMask, xK_Tab),
-     spawn "rofi -show window")
+     spawn "rofi -show-icons -show window")
   
   -- Move focus to the next window.
   , ((modMask, xK_j),
