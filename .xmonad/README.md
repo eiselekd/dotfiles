@@ -23,5 +23,6 @@ Keybindings
  * Win-Shift-[left,right,up,down] : move window position
  * Win-t         : re-add to tiling
  * Win-mouse[1|2|3] : floating drag
+ * Win-Shift-TAB : rofi windows select
  
 
