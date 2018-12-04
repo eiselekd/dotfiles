@@ -476,18 +476,16 @@ myStartupHook = do
 --
 main = do
   xmproc <- spawnPipe "xmobar ~/.xmonad/xmobar.hs"
-  xmonad $ ewmh def $ defaults  {
-        logHook = dynamicLogWithPP $ xmobarPP {
+  xmonad $ defaults { --ewmh def  { -- 
+        logHook = ( dynamicLogWithPP $ xmobarPP {
             ppOutput = hPutStrLn xmproc
           , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
           , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
           , ppSep = "   "
-        } ,
+        } ) <+> ewmhDesktopsLogHook,
         manageHook = manageDocks <+> myManageHook
       , startupHook = startupHook defaults >> setWMName "LG3D"
-  }
-
-
+}
 
 ------------------------------------------------------------------------
 -- Combine it all together
@@ -515,8 +513,8 @@ defaults = gnomeConfig {- defaultConfig -} {
     layoutHook         = avoidStruts $ smartBorders $ myLayout ,
     manageHook         = myManageHook ,
 
-    startupHook        = startupHook gnomeConfig  >> myStartupHook ,
+    startupHook        = startupHook gnomeConfig  >> myStartupHook <+> ewmhDesktopsStartup,
    
-    handleEventHook    = docksEventHook
+    handleEventHook    = docksEventHook <+> ewmhDesktopsEventHook
 
 }
