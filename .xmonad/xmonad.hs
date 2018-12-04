@@ -10,6 +10,7 @@ import System.IO
 import System.Info
 import System.Exit
 import XMonad
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicLog (xmobar)
 import XMonad.Hooks.ManageDocks
@@ -471,10 +472,11 @@ myStartupHook = do
 
 ------------------------------------------------------------------------
 -- Run xmonad with all the defaults we set up.
+-- https://bbs.archlinux.org/viewtopic.php?id=238674
 --
 main = do
   xmproc <- spawnPipe "xmobar ~/.xmonad/xmobar.hs"
-  xmonad $ defaults  {
+  xmonad $ ewmh def $ defaults  {
         logHook = dynamicLogWithPP $ xmobarPP {
             ppOutput = hPutStrLn xmproc
           , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100

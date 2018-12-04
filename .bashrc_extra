@@ -11,7 +11,10 @@ alias ovk='openssl rsa -text -noout -in '
 # Avoid duplicates
 export HISTCONTROL=ignoredups:erasedups
 # When the shell exits, append to the history file instead of overwriting it
-shopt -s histappend
+if which shopt 2&>1 > /dev/null; then
+   shopt -s histappend
+fi
+
 
 # After each command, append to the history file and reread it
 # export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
