@@ -155,3 +155,15 @@ export GOPATH=${HOME}/.gopath
 
 alias nmcli_scan="nmcli device wifi rescan"
 alias nmcli_list="nmcli device wifi list"
+
+if [ ! -z "$ZSH" ]; then
+
+# Dir: current working directory
+
+#setopt prompt_subst
+#PS1='%n@%m $(shrink_path -f)>'
+#prompt_dir() {
+#  prompt_segment blue black "%$(( $COLUMNS - 61 ))<...<%3~%<<"
+#}
+
+fi
