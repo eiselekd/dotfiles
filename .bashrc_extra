@@ -25,6 +25,7 @@ fi
 export LOGDIR=${HOME}/logs
 
 alias em="emacs -nw"
+alias z="zsh"
 
 function record () {
    d=`date +"%Y-%m-%d-%H-%M-%S"`
