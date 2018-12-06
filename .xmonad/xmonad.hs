@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- xmonad config used by Vic Fryzel
 -- Author: Vic Fryzel
 -- http://github.com/vicfryzel/xmonad-config
@@ -30,7 +31,9 @@ import XMonad.Util.EZConfig(additionalKeys)
 import XMonad.Actions.CycleWindows
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Navigation2D
---import XMonad.Actions.Minimize
+#ifdef STACK 
+import XMonad.Actions.Minimize
+#endif
 import XMonad.Layout.Minimize
 import qualified XMonad.Layout.BoringWindows as BW
 
@@ -303,9 +306,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- , ((modMask, xK_g),           moveTo Next HiddenNonEmptyWS)
 
+#ifdef STACK 
   -- minimize/maximize
-  --, ((modMask,               xK_m     ), withFocused minimizeWindow)
-  --, ((modMask .|. shiftMask, xK_m     ), withLastMinimized maximizeWindowAndFocus)
+  , ((modMask,               xK_BackSpace     ), withFocused minimizeWindow)
+  , ((modMask .|. shiftMask, xK_BackSpace     ), withLastMinimized maximizeWindowAndFocus)
+#endif
   
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
