@@ -1,0 +1,12 @@
+# ~/.xmonad/stack.yaml
+resolver: lts-9.6
+packages:
+- xmobar-git
+- xmonad-git
+- xmonad-contrib-git
+extra-deps: []
+flags:
+  xmobar:
+    all_extensions: true
+extra-package-dbs: []
+

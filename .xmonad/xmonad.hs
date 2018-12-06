@@ -30,7 +30,7 @@ import XMonad.Util.EZConfig(additionalKeys)
 import XMonad.Actions.CycleWindows
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Navigation2D
-import XMonad.Actions.Minimize
+--import XMonad.Actions.Minimize
 import XMonad.Layout.Minimize
 import qualified XMonad.Layout.BoringWindows as BW
 
