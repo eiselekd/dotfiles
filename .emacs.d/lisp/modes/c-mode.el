@@ -273,7 +273,8 @@
   )
 
 (defun c-mode-addfuncs ()
-  (ggtags-mode)
+  (message "[+] c-mode-addfuncs")
+  ;;(ggtags-mode)
   (global-set-key (kbd "M-G")  'magit-log-buffer-file)
   (global-set-key (kbd "M-i")  (lambda () (interactive) (c-mode-add-irony)))
 
@@ -286,7 +287,10 @@
       (global-set-key (kbd "M-(")  'hs-toggle-hiding)
       (global-set-key (kbd "M-)")  'hs-toggle-hiding)
       ))
-  (global-set-key (kbd "M-SPC")  (lambda () (interactive) (setq write-file-functions (delete 'delete-trailing-whitespace write-file-functions ))))
+  (global-set-key (kbd "M-SPC")  (lambda () (interactive)
+				   (progn
+				     (message "[+] disable delete trailing whitespaces")
+				     (setq write-file-functions (delete 'delete-trailing-whitespace write-file-functions )))))
 
   )
 

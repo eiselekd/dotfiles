@@ -16,6 +16,7 @@ import XMonad.Hooks.DynamicLog (xmobar)
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.Minimize
 import XMonad.Layout.Fullscreen
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Spiral
@@ -29,10 +30,15 @@ import XMonad.Util.EZConfig(additionalKeys)
 import XMonad.Actions.CycleWindows
 import XMonad.Actions.CycleWS
 import XMonad.Actions.Navigation2D
+import XMonad.Actions.Minimize
+import XMonad.Layout.Minimize
+import qualified XMonad.Layout.BoringWindows as BW
+
 import XMonad.Layout.ToggleLayouts
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.DynamicWorkspaceOrder as WD
 import qualified Data.Map        as M
+import qualified XMonad.Layout.BoringWindows
 import Debug.Trace (traceShow)
 import System.Environment (getEnvironment)
 import Language.Haskell.TH.Syntax (runIO)
@@ -119,12 +125,13 @@ myManageHook = composeAll
 -- The available layouts.  Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-myLayout =  avoidStruts (
+myLayout =  minimize ( avoidStruts (
     toggleLayouts Full (
                   ResizableTall 1 (10/100) (2/3) [] |||
                   tabbed shrinkText tabConfig
                   )
-    )
+    ))
+                     
 
 
 -- spiral (6/7) |||
@@ -296,7 +303,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- , ((modMask, xK_g),           moveTo Next HiddenNonEmptyWS)
 
-
+  -- minimize/maximize
+  --, ((modMask,               xK_m     ), withFocused minimizeWindow)
+  --, ((modMask .|. shiftMask, xK_m     ), withLastMinimized maximizeWindowAndFocus)
+  
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
   --
@@ -519,6 +529,6 @@ defaults = gnomeConfig {- defaultConfig -} {
 
     startupHook        = startupHook gnomeConfig  >> myStartupHook <+> ewmhDesktopsStartup,
    
-    handleEventHook    = docksEventHook <+> ewmhDesktopsEventHook
+    handleEventHook    = docksEventHook <+> ewmhDesktopsEventHook <+> minimizeEventHook
 
 }
