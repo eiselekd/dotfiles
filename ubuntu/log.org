@@ -52,6 +52,11 @@ apt-add-repository universe
 apt update
 apt install --yes debootstrap gdisk zfs-initramfs
 
+*** rsync with dedup:
+echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
+
+[1] https://blog.chaospixel.com/linux/2017/08/zfs-rsync-stuck-txg_sync.html
+
 *** Partition
 
 sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB  -n3:-512M:0 -t3:ef00 -c3:UEFI -n1:0:0 -t1:bf01 -c1:ZFS <dev>
