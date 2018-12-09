@@ -70,6 +70,7 @@ Keybindings:
    * M-F9  : mix org and c++ mode
  * haskell-mode:
    * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
+   * C-c C-l : eval in repl
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:

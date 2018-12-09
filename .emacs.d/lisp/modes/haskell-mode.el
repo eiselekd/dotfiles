@@ -5,6 +5,11 @@
 
 ;;(require 'flycheck-haskell)
 
+(defun haskell-interactive-start ()
+  (progn 
+    (haskell-mode)
+    (haskell-interactive-switch)))
+
 
 (add-hook 'haskell-mode-hook
 	  (lambda ()
@@ -34,7 +39,8 @@
 	      (require 'haskell-commands nil t)
 	      (require 'haskell-doc nil t)
 	      (haskell-doc-mode)
-
+	      (flycheck-mode)
+	      
 	      (define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 	      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
 	      (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)

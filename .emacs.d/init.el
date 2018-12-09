@@ -199,6 +199,8 @@
 (require 'modes/org-mode.el)
 ;;(require 'modes/tex-mode.el)
 
+;;(ido-mode 1)
+
 (require 'ov)
 
 (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
@@ -344,3 +346,5 @@
 (if (file-exists-p "~/.emacs.config")
 		   (load "~/.emacs.config"))
 
+
+(setq inhibit-startup-screen t)
