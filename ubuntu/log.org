@@ -46,12 +46,6 @@ XKBLAYOUT="de"
 
 then: dpkg-reconfigure console-setup
 
-** zfs
-
-apt-add-repository universe
-apt update
-apt install --yes debootstrap gdisk zfs-initramfs
-
 *** rsync with dedup:
 echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
 
@@ -910,4 +904,19 @@ sudo systemctl set-default graphical.target
 
 * locale
 sudo update-locale LANG=en_US.UTF-8 LANGUAGE=en.UTF-8
+
+* zfs
+
+apt-add-repository universe
+apt update
+apt install --yes debootstrap gdisk zfs-initramfs
+
+
+
+usb backup: 
+zpool create -f -o ashift=9  -O atime=off -O dedup=on -O compression=gzip9 -O mountpoint=/usbdata  \ 
+      usbdata ${D}-part1
+      
+** rsync with dedup:
+echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
 
