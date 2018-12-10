@@ -4,6 +4,11 @@
 (add-to-list 'interpreter-mode-alist '("hs" . haskell-mode))
 
 ;;(require 'flycheck-haskell)
+;; cabel update
+;; cabal install ghc-mod
+;; (autoload 'ghc-init "ghc" nil t)
+;; (autoload 'ghc-debug "ghc" nil t)
+;; (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
 (defun haskell-interactive-start ()
   (progn 
@@ -34,6 +39,10 @@
 					; Set interpreter to be "cabal repl"
 	       '(haskell-process-type 'cabal-repl))
 
+	      (require 'company nil t)
+	      (require 'ghc nil t)
+	      (add-to-list 'company-backends 'company-ghc)
+	      
 	      (require 'haskell nil t)
 	      (require 'haskell-interactive-mode nil t )
 	      (require 'haskell-commands nil t)

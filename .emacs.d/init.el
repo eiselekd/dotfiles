@@ -55,6 +55,7 @@
 (setq ad-redefinition-action 'accept) ;;ad-handle-definition: `tramp-read-passwd' got redefined
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
+(add-to-list 'load-path (expand-file-name "lib/ghc-mod" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/haskell-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
