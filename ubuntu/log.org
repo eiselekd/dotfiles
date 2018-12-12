@@ -916,6 +916,12 @@ apt install --yes debootstrap gdisk zfs-initramfs
 usb backup: 
 zpool create -f -o ashift=9  -O atime=off -O dedup=on -O compression=gzip9 -O mountpoint=/usbdata  \
 usbdata ${D}-part1
+
+** backup
+
+mkfifo zfs-pipe
+sudo zfs receive dataset-backup < zfs-pipe  
+sudo zfs send -R dataset-ori | pv | ssh user@server "cat - > zfs-pipe"
       
 ** rsync with dedup:
 echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
