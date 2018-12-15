@@ -1,0 +1,8 @@
+* usb hotplug
+
+info usb
+info usbhost
+
+device_add usb-host,id=myusb,vendorid=0x0781,productid=0xb7b2
+device_del myusb
+
