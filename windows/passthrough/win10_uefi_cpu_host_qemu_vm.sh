@@ -157,7 +157,8 @@ OPTS="$OPTS -k de "
 if [ "$monitor" == "1" ]; then
     OPTS="$OPTS -monitor stdio"
 else
-    OPTS="$OPTS -monitor unix:/tmp/win.monitor,server,nowait "
+    #OPTS="$OPTS -monitor unix:/tmp/win.monitor,server,nowait "
+    OPTS="$OPTS -monitor tcp:127.0.0.1:55555,server,nowait "
 fi
 
 
