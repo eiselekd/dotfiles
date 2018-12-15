@@ -208,3 +208,7 @@ BCD decode via hivex: apt-get install libwin-hivex-perl
 [2] https://rwmj.wordpress.com/2010/04/03/use-hivex-to-unpack-a-windows-boot-configuration-data-bcd-hive/
 [3] http://www.geoffchappell.com/notes/windows/boot/bcd/index.htm
 [4] https://rwmj.wordpress.com/2010/04/03/use-hivex-to-unpack-a-windows-boot-configuration-data-bcd-hive/
+
+* cygwin
+
+alias q="rlwrap socat - tcp:ub:44444"
