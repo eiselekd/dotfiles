@@ -157,8 +157,12 @@ export GOPATH=${HOME}/.gopath
 alias nmcli_scan="nmcli device wifi rescan"
 alias nmcli_list="nmcli device wifi list"
 
+alias q="rlwrap socat - tcp:ub:44444"
+alias qusb="echo info usbhost | nc -N ub 44444"
+
 if [ ! -z "$ZSH" ]; then
 
    ZSH_THEME="fishy"
 
 fi
+

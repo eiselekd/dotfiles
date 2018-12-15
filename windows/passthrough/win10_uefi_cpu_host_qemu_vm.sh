@@ -103,10 +103,11 @@ fi
 # USB mouse
 echo "Install virtio-input drivers in start-remote-viewer.shand module virtio_input"
 
+OPTS="$OPTS -usb"
+OPTS="$OPTS -device usb-ehci,id=ehci"
+
 if [ "$passthrough" == "1" ]; then
     if [ "$usbinput" == "1" ]; then
-	OPTS="$OPTS -usb"
-	OPTS="$OPTS -device usb-ehci,id=ehci"
 	# plexgear keyboard: Holtek Semiconductor, Inc. Keyboard LKS02
 	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x04d9,productid=0x1702 "
 	# llexgear mouse: Pixart Imaging, Inc. Optical Mouse
