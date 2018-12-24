@@ -68,6 +68,7 @@ Keybindings:
    * M-SPC : disable remove space on write
    * M-( + M-) : toggle block hide/show
    * M-F9  : mix org and c++ mode
+ * ESC M-h : haskell interactive mode  
  * haskell-mode:
    * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
    * C-c C-l : eval in repl

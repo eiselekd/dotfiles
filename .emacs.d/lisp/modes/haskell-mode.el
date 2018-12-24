@@ -11,10 +11,12 @@
 ;; (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
 (defun haskell-interactive-start ()
-  (progn 
-    (haskell-mode)
-    (haskell-interactive-switch)))
-
+  (progn
+    (require 'haskell nil t)
+    (require 'haskell-interactive-mode nil t )
+    (require 'haskell-commands nil t)
+    (require 'haskell-doc nil t)
+    (call-interactively 'haskell-interactive-switch)))
 
 (add-hook 'haskell-mode-hook
 	  (lambda ()
@@ -42,14 +44,14 @@
 	      (require 'company nil t)
 	      (require 'ghc nil t)
 	      (add-to-list 'company-backends 'company-ghc)
-	      
+
 	      (require 'haskell nil t)
 	      (require 'haskell-interactive-mode nil t )
 	      (require 'haskell-commands nil t)
 	      (require 'haskell-doc nil t)
 	      (haskell-doc-mode)
 	      (flycheck-mode)
-	      
+
 	      (define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 	      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
 	      (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
@@ -58,7 +60,7 @@
 	      (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
 	      (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
 	      (define-key haskell-mode-map (kbd "M-.") 'haskell-mode-jump-to-def-or-tag)
-	      
+
 	      (define-key haskell-mode-map (kbd "M-;")
 	      	(lambda ()(interactive)
 	      	  (let*
@@ -73,7 +75,7 @@
 	      		  ))
 	      	    (haskell-mode-generate-tags)
 	      	    )))
-	      
+
 	      (when  (require 'haskell-cabal nil t )
 		(progn
 		  (message "[+] Enter haskell-cabal")

@@ -65,8 +65,8 @@
 (add-to-list 'load-path (expand-file-name "lib/org-mode/contrib/lisp" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/latex-preview-pane" *.emacs.d.lisp.dir*  ))
 
-(require 'cc-mode)				      
-(setq c-default-style 
+(require 'cc-mode)
+(setq c-default-style
       '((java-mode . "java")
 	(awk-mode . "awk")
 	(c-mode . "bsd")
@@ -93,7 +93,7 @@
 ;;(require 'cl)
 ;;(require 'cl-macs)
 ;;(require 'magit)
-				      
+
 (require 'config/constants.el)
 (require 'nhexl-mode)
 
@@ -144,7 +144,7 @@
       (require 'ggtags)
     (require 'utils/openhelm.el)
 
-    
+
     (defun my-helm-pipe-grep-match (fun &rest args)
       (let* ((patterns (split-string helm-pattern))
 	     (helm-grep-default-command
@@ -153,18 +153,18 @@
 			 (cdr patterns)
 			 :initial-value (replace-regexp-in-string "%p" (car patterns) helm-grep-default-command))))
 	(apply fun args)))
-    
+
     (advice-add 'helm-grep--prepare-cmd-line :around 'my-helm-pipe-grep-match)
-    
+
     (defun helm-do-grep (&optional arg)
       (interactive "P")
       (helm-do-grep-1 (list default-directory) arg))
-    
-    
+
+
     )
 
-  
-  
+
+
   )
 
 
@@ -176,7 +176,7 @@
       (require 'simple)
       (normal-erase-is-backspace-mode)
       ))
- 
+
 (message "[*] %s retired openhelm" (timestamp_str))
 
 ;;(require 'utils/hackernews)
@@ -195,6 +195,12 @@
 (require 'modes/ruby-mode.el)
 (require 'modes/lua-mode.el)
 (require 'modes/haskell-mode.el)
+
+(global-set-key
+ (kbd "ESC M-h")
+ (lambda ()(interactive) (progn
+			   (haskell-interactive-start))))
+
 ;;(require 'modes/web-mode.el)
 ;;(require 'modes/javascript-mode.el)
 (require 'modes/org-mode.el)
