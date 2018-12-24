@@ -10,6 +10,8 @@
 ;; (autoload 'ghc-debug "ghc" nil t)
 ;; (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
+;; https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
+
 (defun haskell-interactive-start ()
   (progn
     (require 'haskell nil t)
@@ -41,9 +43,13 @@
 					; Set interpreter to be "cabal repl"
 	       '(haskell-process-type 'cabal-repl))
 
+	      ;; cabal install happy
+	      ;; cabal install https://hackage.haskell.org/package/ghc-mod-5.9.0.0/candidate/ghc-mod-5.9.0.0.tar.gz
+
 	      (require 'company nil t)
 	      (require 'ghc nil t)
 	      (add-to-list 'company-backends 'company-ghc)
+	      (ghc-init)
 
 	      (require 'haskell nil t)
 	      (require 'haskell-interactive-mode nil t )
