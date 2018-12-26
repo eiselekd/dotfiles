@@ -375,6 +375,8 @@
 				     	 (call-interactively 'helm-man-woman)))))
 
 		   (modes/orgstruct-commen)
+		   (when (require 'rainbow-delimiters)
+		     (rainbow-delimiters-mode))
 
 		   ;; (hs-org/minor-mode)
 		   (global-set-key (kbd "M-h")
@@ -401,6 +403,9 @@
 	      (add-to-list 'write-file-functions 'delete-trailing-whitespace)
 	      (if (eq system-type 'cygwin) ;; use helm for !=cygwin
 		  (ggtags-mode))
+
+	      (when (require 'rainbow-delimiters)
+		(rainbow-delimiters-mode))
 
 	      ;;(hs-org/minor-mode)
 	      (global-set-key (kbd "M-h")

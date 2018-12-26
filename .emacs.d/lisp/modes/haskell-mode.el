@@ -20,6 +20,8 @@
     (require 'haskell-doc nil t)
     (call-interactively 'haskell-interactive-switch)))
 
+
+
 (add-hook 'haskell-mode-hook
 	  (lambda ()
 	    (progn
@@ -46,7 +48,18 @@
 	      ;; cabal install happy
 	      ;; cabal install https://hackage.haskell.org/package/ghc-mod-5.9.0.0/candidate/ghc-mod-5.9.0.0.tar.gz
 
-	      (require 'company nil t)
+	      (when  (require 'company nil t)
+		(progn
+		  (add-to-list 'company-backends 'company-ghc)
+		  (custom-set-variables '(company-ghc-show-info t))
+		  (company-mode)
+
+		  ))
+    
+
+	      (when (require 'rainbow-delimiters)
+		(rainbow-delimiters-mode))
+	      
 	      (require 'ghc nil t)
 	      (add-to-list 'company-backends 'company-ghc)
 	      (ghc-init)
@@ -72,7 +85,7 @@
 	      	  (let*
 	      	      ((my-cabal-path (expand-file-name "~/.cabal/bin"))
 	      	       (f (format "%s/hasktags" my-cabal-path))
-	      	       (cmd (format "git clone https://github.com/MarcWeber/hasktags.git /tmp/hasktags;cd /tmp/hasktags;cabal build;cp ./dist/build/hasktags/hasktags %s" f))
+	      	       (cmd (format "git clone https://github.com/MarcWeber/hasktags.git /tmp/hasktags;cd /tmp/hasktags;stack solver; stack build;cp ./dist/build/hasktags/hasktags %s" f))
 	      	       )
 	      	    (if (not (or (executable-find "hasktags" ) (file-exists-p f)))
 	      		(progn
