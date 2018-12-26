@@ -1,3 +1,5 @@
+;; https://commercialhaskell.github.io/intero/
+
 
 (autoload 'haskell-mode "haskell-mode" "haskell-mode" t)
 (add-to-list 'auto-mode-alist '("\\.hs\\'" . haskell-mode))
@@ -18,6 +20,7 @@
     (require 'haskell-interactive-mode nil t )
     (require 'haskell-commands nil t)
     (require 'haskell-doc nil t)
+    (require 'intero nil t)
     (call-interactively 'haskell-interactive-switch)))
 
 
@@ -61,15 +64,17 @@
 		(rainbow-delimiters-mode))
 	      
 	      (require 'ghc nil t)
-	      (add-to-list 'company-backends 'company-ghc)
-	      (ghc-init)
+	      ;;(add-to-list 'company-backends 'company-ghc)
+	      ;;(ghc-init)
 
 	      (require 'haskell nil t)
 	      (require 'haskell-interactive-mode nil t )
 	      (require 'haskell-commands nil t)
 	      (require 'haskell-doc nil t)
+	      (require 'intero nil t)
 	      (haskell-doc-mode)
 	      (flycheck-mode)
+	      (intero-mode)
 
 	      (define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 	      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
@@ -107,5 +112,10 @@
 	      )))
 
 
+(defun haskell/eval-haskell ()
+  (progn 
+    (message "[*] F1 in major mode %s" mode)
+    (haskell-process-load-or-reload)
+    ))
 
 (provide 'modes/haskell-mode.el)

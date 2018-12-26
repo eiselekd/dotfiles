@@ -180,7 +180,8 @@
 (global-set-key (kbd "<f1>") (lambda ()(interactive)
 			       (let ((mode major-mode))
 				 (message "[*] F1 in major mode %s" mode)
-				 (cond ((string= mode 'org-mode) (org-agenda))
+				 (cond ((string= mode 'haskell-mode) (haskell/eval-haskell))
+				       ((string= mode 'org-mode) (org-agenda))
 				       ((utils/isgud) (progn
 							(switch-to-buffer "*gud*")
 							(gdb-restore-windows)

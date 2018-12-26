@@ -113,8 +113,8 @@
 ;;(message "[*] %s retired projmake-mode" (timestamp_str))
 ;; 2: load apps
 ;;(require 'vcs/git.el)
-;;(require 'apps/eshell.el)
-;;(message "[*] %s retired eshell" (timestamp_str))
+(require 'apps/eshell.el)
+(message "[*] %s retired eshell" (timestamp_str))
 ;;(require 'apps/proced.el)
 
 (setq org-agenda-files (quote ("~/todo.org" "~/git/org" )))
@@ -379,3 +379,4 @@
 ;;      (set-frame-parameter frame 'background-mode mode)
 ;;      (set-terminal-parameter frame 'background-mode mode))
 ;;    (enable-theme 'solarized)))
+(put 'downcase-region 'disabled nil)
