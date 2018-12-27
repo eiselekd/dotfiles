@@ -72,7 +72,6 @@
 (add-to-list 'load-path (expand-file-name "lib/js/multiple-cursors.el" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
 
-
 (require 'cc-mode)
 (setq c-default-style
       '((java-mode . "java")
@@ -184,6 +183,7 @@
       (require 'simple)
       (normal-erase-is-backspace-mode)
       ))
+
 
 (message "[*] %s retired openhelm" (timestamp_str))
 
@@ -328,6 +328,8 @@
 (require 'remember)
 
 (require 'utils/dired.el)
+(global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
+
 
 ;;(org-remember-insinuate)
 
@@ -357,8 +359,14 @@
 (load                                (expand-file-name "themes/emacs-color-theme-solarized/solarized-theme.el" *.emacs.d.dir*  ))
 
 (custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(frame-background-mode (quote dark))
- )
+ '(package-selected-packages
+   (quote
+    (yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update))))
 
 (load-theme 'solarized t)
 
@@ -366,6 +374,7 @@
 ;;;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;;;; ======================== themes ===============================
 
+(tool-bar-mode 0)
 
 (setq visible-bell 1)
 
@@ -419,3 +428,14 @@
                                  imalison:master-tile-strategy
                                  imalison:wide-tile-strategy
                                  tile-one)))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+(use-package ws-butler
+  :init
+  (add-hook 'prog-mode-hook #'ws-butler-mode))
+

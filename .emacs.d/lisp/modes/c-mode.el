@@ -287,10 +287,11 @@
       (global-set-key (kbd "M-(")  'hs-toggle-hiding)
       (global-set-key (kbd "M-)")  'hs-toggle-hiding)
       ))
-  (global-set-key (kbd "M-SPC")  (lambda () (interactive)
-				   (progn
-				     (message "[+] disable delete trailing whitespaces")
-				     (setq write-file-functions (delete 'delete-trailing-whitespace write-file-functions )))))
+  ;; using ws-butler instead
+  ;; (global-set-key (kbd "M-SPC")  (lambda () (interactive)
+  ;; 				   (progn
+  ;; 				     (message "[+] disable delete trailing whitespaces")
+  ;; 				     (setq write-file-functions (delete 'delete-trailing-whitespace write-file-functions )))))
 
   )
 
@@ -362,7 +363,10 @@
 
 (add-hook 'c++-mode-hook
 	  (lambda ()
-	    (progn (add-to-list 'write-file-functions 'delete-trailing-whitespace)
+	    (progn
+
+	      ;; using wsa-butler instead
+	      ;;(add-to-list 'write-file-functions 'delete-trailing-whitespace)
 		   (if (eq system-type 'cygwin) ;; use helm for !=cygwin
 		       (ggtags-mode))
 		   (global-set-key (kbd "M-(")  'hs-hide-block)
@@ -399,8 +403,8 @@
 (add-hook 'c-mode-hook
 	  (lambda ()
 	    (progn
-
-	      (add-to-list 'write-file-functions 'delete-trailing-whitespace)
+	      ;; using wsa-butler instead
+	      ;;(add-to-list 'write-file-functions 'delete-trailing-whitespace)
 	      (if (eq system-type 'cygwin) ;; use helm for !=cygwin
 		  (ggtags-mode))
 

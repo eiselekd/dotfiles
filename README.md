@@ -66,7 +66,6 @@ Keybindings:
    * M-G   : magit hist
    * M-i   : start irony mode
    * M-M   : helm query man db
-   * M-SPC : disable remove space on write
    * M-( + M-) : toggle block hide/show
    * M-F9  : mix org and c++ mode
  * ESC M-h : haskell interactive mode  
