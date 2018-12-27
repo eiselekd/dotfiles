@@ -211,6 +211,7 @@
 
 ;;(require 'modes/web-mode.el)
 (require 'modes/javascript-mode.el)
+
 (require 'modes/org-mode.el)
 ;;(require 'modes/tex-mode.el)
 
