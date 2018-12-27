@@ -50,7 +50,7 @@
   (windmove-default-keybindings))
 
 ;; start egit
-(global-set-key (kbd "M-e")  'apps/raise-eshell)
+(global-set-key (kbd "M-e")  'shell)
 (global-set-key (kbd "M-E")  (lambda()(interactive)
 			       (ansi-term )))
 ;; start proced
@@ -195,7 +195,8 @@
 (global-set-key (kbd "<f2>") (lambda ()(interactive)
 			       (let ((mode major-mode))
 				 (message "[*] F2 in major mode %s" mode)
-				 (cond ((or (string= mode 'org-mode)
+				 (cond ((string= mode 'haskell-mode) (haskell-process-do-type))
+				       ((or (string= mode 'org-mode)
 					    (string= mode 'org-agenda-mode)) (call-interactively 'bh/org-sparse-tree))
 				       ((utils/isgud) (call-interactively 'gud-step))
 				       (t (progn t))
@@ -205,7 +206,8 @@
 (global-set-key (kbd "<f4>") (lambda ()(interactive)
 			       (let ((mode major-mode))
 				 (message "[*] F4 in major mode %s" mode)
-				 (cond ((string= mode 'org-mode)
+				 (cond ((string= mode 'haskell-mode) (call-interactively 'haskell-hoogle))
+				       ((string= mode 'org-mode)
 					(call-interactively 'org-columns))
 				       ((string= mode 'org-agenda-mode) (call-interactively 'org-agenda-columns))
 				       (t (progn t))

@@ -18,7 +18,7 @@ Keybindings:
    * ESC M-c : verbose flycheck mode (ESC ESC c)
    * ESC M-C : verbose flycheck select checker interactively
    * F5/F6 : next/prev-error
- * ESC e : eshell
+ * ESC e : shell
  * ESC E : ansi-term
  * ESC 1 : workspace w1
  * ESC 2 : workspace w2
@@ -71,7 +71,9 @@ Keybindings:
  * ESC M-h : haskell interactive mode  
  * haskell-mode:
    * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
-   * C-c C-l : eval in repl
+   * F1 | C-c C-l : eval in repl
+   * F2 : typeinfo
+   * F4 : hoogle
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:
