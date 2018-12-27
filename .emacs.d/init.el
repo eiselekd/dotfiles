@@ -64,6 +64,8 @@
 (add-to-list 'load-path (expand-file-name "lib/org-mode/lisp" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/org-mode/contrib/lisp" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/latex-preview-pane" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/hydra" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/use-package" *.emacs.d.lisp.dir*  ))
 
 
 
@@ -380,3 +382,37 @@
 ;;      (set-terminal-parameter frame 'background-mode mode))
 ;;    (enable-theme 'solarized)))
 (put 'downcase-region 'disabled nil)
+
+;; http://ivanmalison.github.io/dotfiles/#tile
+(require 'tile)
+;; https://github.com/abo-abo/hydra
+(require 'hydra)
+(require 'use-package)
+
+(set-default 'truncate-lines t)
+
+(use-package tile
+  :bind ("C-c t" . imalison:hydra-tile/body)
+  :config
+  (progn
+    (defvar imalison:tall-tile-strategy (tile-split-n-tall 3))
+    (defvar imalison:wide-tile-strategy tile-wide)
+    (defvar imalison:master-tile-strategy (tile-argument-buffer-fetcher
+                                           :layout tile-master-left))
+    (require 'hydra)
+    (defhydra imalison:hydra-tile
+      nil
+      "tile"
+      ("t" (tile :strategy imalison:tall-tile-strategy))
+      ("w" (tile :strategy imalison:wide-tile-strategy))
+      ("m" (tile :strategy imalison:master-tile-strategy))
+      ("s" tile-select)
+      ("0" (tile :strategy tile-one))
+      ("n" tile)
+      ("l" winner-undo))
+    (setq tile-cycler
+          (tile-strategies :strategies
+                           (list imalison:tall-tile-strategy
+                                 imalison:master-tile-strategy
+                                 imalison:wide-tile-strategy
+                                 tile-one)))))

@@ -39,6 +39,7 @@
   (interactive)
   (let* ( (dir-name (or (buffer-file-name)
 			default-directory)))
+    (prepareHelm)
     (message "recursive grep in dirname: %s " dir-name)
     (sleep-for 1) 
     (helm-do-grep-1 (list dir-name) t nil '("*"))))

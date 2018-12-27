@@ -123,6 +123,7 @@
 ;; flymake
 ;;(global-set-key (kbd "M-F")  'utils/projmake-start)
 (global-set-key (kbd "M-F")  'flymake-mode)
+
 ;; flycheck
 ;;(if (not (eq system-type 'darwin))
     ;; termninal send \033 f (Meta - f)
@@ -281,6 +282,8 @@
 (global-set-key (kbd "ESC <right>") 'apps/unpop-to-mark-command)
 
 (global-set-key (kbd "M-z") 'repeat)
+
+(global-set-key "\C-x\C-b" 'buffer-menu)
 
 ;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
