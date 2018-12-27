@@ -66,8 +66,11 @@
 (add-to-list 'load-path (expand-file-name "lib/latex-preview-pane" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/hydra" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/use-package" *.emacs.d.lisp.dir*  ))
-
-
+(add-to-list 'load-path (expand-file-name "lib/js/Indium" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/js/js2-mode" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/js/js2-refactor.el" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/js/multiple-cursors.el" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
 
 
 (require 'cc-mode)
@@ -207,7 +210,7 @@
 			   (haskell-interactive-start))))
 
 ;;(require 'modes/web-mode.el)
-;;(require 'modes/javascript-mode.el)
+(require 'modes/javascript-mode.el)
 (require 'modes/org-mode.el)
 ;;(require 'modes/tex-mode.el)
 
