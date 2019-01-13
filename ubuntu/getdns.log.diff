@@ -1,6 +1,42 @@
---- getdns-1.4.2/src/general.c	2018-05-11 13:25:22.000000000 +0200
-+++ getdns-1.4.2.changed/src/general.c	2019-01-13 20:03:02.399827954 +0100
-@@ -552,6 +552,14 @@
+diff -Naur getdns-1.4.2.ori/src/general.c getdns-1.4.2.changed/src/general.c
+--- getdns-1.4.2.ori/src/general.c	2019-01-13 23:25:53.436221134 +0100
++++ getdns-1.4.2.changed/src/general.c	2019-01-13 22:40:01.281634018 +0100
+@@ -55,11 +55,16 @@
+ #include "mdns.h"
+ #include "debug.h"
+ #include "anchor.h"
++#include <syslog.h>
+ 
+ void _getdns_call_user_callback(getdns_dns_req *dnsreq, getdns_dict *response)
+ {
+ 	_getdns_context_clear_outbound_request(dnsreq);
+ 
++	openlog ("stubby", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
++	syslog(LOG_INFO, "<<< finished: '%s' >>>>\n", response ? getdns_pretty_print_dict(response) : "undef");
++	closelog ();
++
+ #if defined(REQ_DEBUG) && REQ_DEBUG
+ 	debug_req(__FUNC__, *dnsreq->netreqs);
+ #endif
+@@ -257,6 +262,8 @@
+ 	getdns_network_req *netreq = (getdns_network_req *) arg;
+ 	getdns_dns_req *dns_req = netreq->owner;
+ 
++	printf("<<< valid >>>\n");
++
+ 	_getdns_netreq_change_state(netreq, NET_REQ_FINISHED);
+ 	/* parse */
+ 	if (getdns_apply_network_result(
+@@ -275,6 +282,8 @@
+ 	getdns_network_req *netreq = (getdns_network_req *) arg;
+ 	getdns_dns_req *dns_req = netreq->owner;
+ 
++	printf("<<<< validated >>>>\n");
++
+ 	_getdns_netreq_change_state(netreq, NET_REQ_FINISHED);
+ 	if (err != 0) {
+ 		_getdns_call_user_callback(dns_req, NULL);
+@@ -552,6 +561,17 @@
  	return GETDNS_RETURN_GOOD;
  }				/* _getdns_validate_extensions */
  
@@ -10,12 +46,15 @@
 +{
 +  openlog ("stubby", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 +  syslog (LOG_INFO, "DNS query name:'%s'", name);
++
++  printf("<<<< %s >>>>\n", name);
++
 +  closelog ();
 +}
  
  static getdns_return_t
  getdns_general_ns(getdns_context *context, getdns_eventloop *loop,
-@@ -568,7 +576,9 @@
+@@ -568,7 +588,9 @@
  
  	if (!context || !name || (!callbackfn && !internal_cb))
  		return GETDNS_RETURN_INVALID_PARAMETER;
@@ -25,4 +64,51 @@
 +
  	if ((r = _getdns_validate_dname(name)))
  		return r;
+ 
+diff -Naur getdns-1.4.2.ori/src/stub.c getdns-1.4.2.changed/src/stub.c
+--- getdns-1.4.2.ori/src/stub.c	2019-01-13 23:26:00.772032833 +0100
++++ getdns-1.4.2.changed/src/stub.c	2019-01-13 23:13:29.815408111 +0100
+@@ -1591,6 +1591,9 @@
+ 	}
+ 	netreq->debug_end_time = _getdns_get_time_as_uintt64();
+ 	_getdns_netreq_change_state(netreq, NET_REQ_FINISHED);
++
++	printf("<<<< validated >>>>\n");
++
+ 	upstream->udp_responses++;
+     upstream->back_off = 1;
+ 	if (upstream->udp_responses == 1 || 
+@@ -2285,6 +2288,8 @@
+ 	return upstream;
+ }
+ 
++#include <syslog.h>
++
+ static int
+ upstream_find_for_netreq(getdns_network_req *netreq)
+ {
+@@ -2315,6 +2320,15 @@
+ 		netreq->keepalive_sent = 0;
+ 
+ 		DEBUG_STUB("%s %-35s: MSG: %p found upstream %p with transport %d, fd: %d\n", STUB_DEBUG_SCHEDULE, __FUNC__, (void*)netreq, (void *)upstream, (int)netreq->transports[i], fd);
++
++		//printf("%s %-35s: MSG: %p found upstream %p with transport %d, fd: %d\n", STUB_DEBUG_SCHEDULE, __FUNC__, (void*)netreq, (void *)upstream, (int)netreq->transports[i], fd);
++
++		printf("<<< %s\n", upstream->tls_auth_name);
++
++		openlog ("stubby", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
++		syslog(LOG_INFO, "Using DNS server '%s'\n", upstream->tls_auth_name ? upstream->tls_auth_name : "<undef>");
++		closelog ();
++
+ 		return fd;
+ 	}
+ 	/* Handle better, will give generic error*/
+@@ -2444,6 +2458,8 @@
+ 	getdns_dns_req *dnsreq;
+ 	getdns_context *context;
+ 
++	printf("-----\n");
++
+ 	DEBUG_STUB("%s %-35s: MSG: %p TYPE: %d\n", STUB_DEBUG_ENTRY, __FUNC__,
+ 	           (void*)netreq, netreq->request_type);
  
