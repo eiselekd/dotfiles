@@ -926,3 +926,14 @@ sudo zfs send -R dataset-ori | pv | ssh user@server "cat - > zfs-pipe"
 ** rsync with dedup:
 echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
 
+
+* DNS tls
+ - stubby port 53000
+ - dnsmasq with dnsmasq.conf
+server=127.0.0.1#53000
+listen-address=127.0.0.1
+interface=lo
+bind-interfaces
+ - disable systemd-resolvd
+
+[1] : https://stafwag.github.io/blog/blog/2018/09/09/dns-privacy-with-stubby-part1-gnulinux/

@@ -1,0 +1,28 @@
+--- getdns-1.4.2/src/general.c	2018-05-11 13:25:22.000000000 +0200
++++ getdns-1.4.2.changed/src/general.c	2019-01-13 20:03:02.399827954 +0100
+@@ -552,6 +552,14 @@
+ 	return GETDNS_RETURN_GOOD;
+ }				/* _getdns_validate_extensions */
+ 
++#include <syslog.h>
++void
++outputsyslog (const char *name)
++{
++  openlog ("stubby", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
++  syslog (LOG_INFO, "DNS query name:'%s'", name);
++  closelog ();
++}
+ 
+ static getdns_return_t
+ getdns_general_ns(getdns_context *context, getdns_eventloop *loop,
+@@ -568,7 +576,9 @@
+ 
+ 	if (!context || !name || (!callbackfn && !internal_cb))
+ 		return GETDNS_RETURN_INVALID_PARAMETER;
+-	
++
++	outputsyslog(name);
++
+ 	if ((r = _getdns_validate_dname(name)))
+ 		return r;
+ 
