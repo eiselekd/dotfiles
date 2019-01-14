@@ -935,5 +935,11 @@ listen-address=127.0.0.1
 interface=lo
 bind-interfaces
  - disable systemd-resolvd
+ - Network Manager: /etc/NetworkManager/NetworkManager.conf
+[main]
+...
+dns=dnsmasq
+...
+
 
 [1] : https://stafwag.github.io/blog/blog/2018/09/09/dns-privacy-with-stubby-part1-gnulinux/
