@@ -104,6 +104,9 @@
 (require 'config/constants.el)
 (require 'nhexl-mode)
 
+(require 'powerline)
+(powerline-default-theme)
+
 (require 'ansi-color)
 (defun display-ansi-colors ()
   (interactive)
