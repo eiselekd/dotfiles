@@ -285,6 +285,14 @@
 
 (global-set-key "\C-x\C-b" 'buffer-menu)
 
+(global-set-key (kbd "C--")
+		(lambda ()(interactive)
+		  (text-scale-adjust -1)))
+
+(global-set-key (kbd "C-+")
+		(lambda ()(interactive)
+		  (text-scale-adjust 1)))
+
 ;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
 ;;(global-set-key [M-up]  'scroll-up)
