@@ -93,6 +93,11 @@ Misc:
  * ESC i : start irc
  * ESC j : goto-line
 
+Alsa:
+ * Win Ctrl-j, Win Ctrl-k : Audio increate vol, decreate vol.
+ * Win Ctrl-m             : Audio toggle mute (Master, Speaker, Headphone)
+  
+
 Defaults:
 
  * M > : End of buffer
