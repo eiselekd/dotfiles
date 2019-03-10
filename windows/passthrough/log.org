@@ -12,3 +12,12 @@ device_add usb-host,id=uno,vendorid=0x2341,productid=0x0043
 
 device_del ice
 device_del uno
+
+* vdi
+
+sudo modprobe nbd max_part=16
+sudo qemu-nbd -c /dev/nbd0 drive.vdi
+sudo mount /dev/nbd0p1 /mnt
+sudo qemu-nbd -d /dev/nbd0
+
+
