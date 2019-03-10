@@ -166,3 +166,4 @@ if [ ! -z "$ZSH" ]; then
 
 fi
 
+export LC_ALL=C
