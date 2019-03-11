@@ -30,6 +30,9 @@ while getopts "bpQUonVuMr" opt; do
   esac #hv_relaxed,hv_spinlocks=0x1fff,hv_relaxed,
 done
 
+echo "in /etc/modprobe.d/kvm.conf:"
+echo "options kvm ignore_msrs=1"
+
 OPTS=""
 
 OPTS="$OPTS -machine pc-i440fx-cosmic,accel=kvm,usb=off,vmport=off,dump-guest-core=off -cpu Opteron_G5,hv_time,hv_relaxed,hv_vapic,hv_spinlocks=0x1fff "
