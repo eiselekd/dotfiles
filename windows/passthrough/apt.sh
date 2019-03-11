@@ -13,6 +13,9 @@ shutdown=0
 virtioinput=0
 qmp=1
 imgdir=/mnt/data-vm/vms-win
+
+nvidiavendor=",hv_vapic,hv_time,hv_vendor_id=whatever"
+
 while getopts "bpQUonVuMr" opt; do
   case $opt in
       r) shutdown=1;;
@@ -24,22 +27,28 @@ while getopts "bpQUonVuMr" opt; do
       o) ovmf=1 ;;
       M) monitor=0 ;;
       I) virtioinput=1;;
-      V) nvidia=1; nvidiavendor=",hv_vapic,hv_time,hv_vendor_id=whatever" ;;
   esac #hv_relaxed,hv_spinlocks=0x1fff,hv_relaxed,
 done
 
 OPTS=""
-# Basic CPU settings.
-OPTS="$OPTS -cpu host,kvm=off${nvidiavendor}"
-OPTS="$OPTS -smp 2,sockets=1,cores=2,threads=1"
-# Enable KVM full virtualization support.
-OPTS="$OPTS -enable-kvm"
-# Assign memory to the vm.
-OPTS="$OPTS -m 1000"
 
+OPTS="$OPTS -machine pc-i440fx-cosmic,accel=kvm,usb=off,vmport=off,dump-guest-core=off -cpu Opteron_G5,hv_time,hv_relaxed,hv_vapic,hv_spinlocks=0x1fff "
+#OPTS="$OPTS -cpu Westmere,hv_vapic,hv_time,hv_vendor_id=whatever"
+OPTS="$OPTS -smp 2,sockets=1,cores=2,threads=1 "
+# Enable KVM full virtualization support.
+OPTS="$OPTS -enable-kvm "
+# Assign memory to the vm.
+OPTS="$OPTS -m 4096 -realtime mlock=off "
+
+# Basic CPU settings. # ,kvm=off${nvidiavendor}, host
+#kernel_irqchip=on|off
+#OPTS="$OPTS -machine pc-q35-cosmic-hpb "
+#OPTS="$OPTS -no-acpi "
 # Load our created VM image as a harddrive.
 # /home/eiselekd/aptiv-win.vdi
-OPTS="$OPTS -hda /mnt/usb0/vm/win10/Snapshots/{7dace848-fc2d-4080-a69f-0d4614ac34d3}.vdi"
+
+#OPTS="$OPTS -hda /mnt/usb0/vm/win10/Snapshots/{7dace848-fc2d-4080-a69f-0d4614ac34d3}.vdi"
+OPTS="$OPTS -hda /backup/data/vm/win10-aptiv-bck0.img"
 
 # Load our OS setup image e.g. ISO file.
 #OPTS="$OPTS -cdrom ${b}/windows_10.iso"
