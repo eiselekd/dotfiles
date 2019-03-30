@@ -5,7 +5,7 @@ passthrough=0
 qxl=1
 uefi=0
 ovmf=1
-net=0
+net=1
 nvidiavendor=
 usbinput=0
 monitor=1
@@ -35,7 +35,9 @@ echo "options kvm ignore_msrs=1"
 
 OPTS=""
 
-OPTS="$OPTS -machine pc-i440fx-cosmic,accel=kvm,usb=off,vmport=off,dump-guest-core=off -cpu Opteron_G5,hv_time,hv_relaxed,hv_vapic,hv_spinlocks=0x1fff "
+
+
+OPTS="$OPTS -machine pc-i440fx-bionic-hpb,accel=kvm,usb=off,vmport=off,dump-guest-core=off -cpu Opteron_G5,hv_time,hv_relaxed,hv_vapic,hv_spinlocks=0x1fff "
 #OPTS="$OPTS -cpu Westmere,hv_vapic,hv_time,hv_vendor_id=whatever"
 OPTS="$OPTS -smp 2,sockets=1,cores=2,threads=1 "
 # Enable KVM full virtualization support.
@@ -91,8 +93,6 @@ else
     OPTS="$OPTS -monitor tcp:127.0.0.1:55555,server,nowait "
 fi
 
-if [ "$qmp" == "1" ]; then
-    OPTS="$OPTS -qmp tcp:localhost:4444,server,nowait "
-fi
+OPTS="$OPTS -qmp tcp:localhost:4444,server,nowait "
 
-exec sudo qemu-system-x86_64 $OPTS
+exec sudo /home/eiselekd/git/cavecarver/qemu-2.11+dfsg/qemu-build/x86_64-softmmu/qemu-system-x86_64 $OPTS

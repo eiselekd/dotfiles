@@ -71,6 +71,7 @@ fi
 
 # Load our created VM image as a harddrive.
 OPTS="$OPTS -hda ${imgdir}/win10_uefi_cpu_host_qemu_vm.qcow2"
+OPTS="$OPTS -hdb ${imgdir}/win10_data.qcow2"
 # Load our OS setup image e.g. ISO file.
 
 #OPTS="$OPTS -cdrom ${b}/windows_10.iso"
