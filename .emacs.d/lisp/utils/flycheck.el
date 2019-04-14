@@ -205,10 +205,10 @@
   (message (format "[*] FLYCHECK_GENERIC_BUILD: %s" (getenv "FLYCHECK_GENERIC_BUILD")))
   (message (format "[*] FLYCHECK_GENERIC_CMD: %s" (getenv "FLYCHECK_GENERIC_CMD")))
   (message (format "[*] FLYCHECK_GENERIC_ADDSUFFIX: %s" (getenv "FLYCHECK_GENERIC_ADDSUFFIX")))
-  (if flycheck-linux-makefile
-      (progn
-	(message "[*] enable linux makefile checker")
-	(flycheck-select-checker 'utils/flycheck-linux-makefile-checker)))
+  ;;(if flycheck-linux-makefile
+  ;;    (progn
+ ;;	(message "[*] enable linux makefile checker")
+;;	(flycheck-select-checker 'utils/flycheck-linux-makefile-checker)))
   (if (utils/flycheck-generic-makefile-src-root)
       (progn
 	(message "[*] enable generic makefile")
