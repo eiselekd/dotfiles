@@ -129,6 +129,7 @@ fi
 if [ ! -z "${DISPLAY}" ]; then
    setxkbmap de
    disable_trackpad
+   # xloadimage -onroot -fullscreen /home/eiselekd/Pictures/birch-bark-wallpaper-HD1.jpg
 fi
 
 if dmesg | grep X60s >/dev/null; then

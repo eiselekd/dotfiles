@@ -943,3 +943,8 @@ dns=dnsmasq
 
 
 [1] : https://stafwag.github.io/blog/blog/2018/09/09/dns-privacy-with-stubby-part1-gnulinux/
+
+* background
+.xsessionrc:
+#!/bin/sh
+( sleep 1; xloadimage -onroot -fullscreen /home/eiselekd/Pictures/birch-bark-wallpaper-HD1.jpg ) &
