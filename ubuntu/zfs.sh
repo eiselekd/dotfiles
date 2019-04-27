@@ -11,8 +11,15 @@ echo "############### ifname:  ${ifname} : change?  ###############"
 echo "############### hostname:${hname}  : change?  ###############"
 
 echo "##### need to partition with sgdisk ######"
-# sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB  -n3:-512M:0 -t3:ef00 -c3:UEFI -n1:0:0 -t1:bf01 -c1:ZFS <dev>
-# sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB -n1:0:0 -t1:bf01 -c1:ZFS /dev/disk/by-id/nvme-eui.0000000001000000e4d25c4ddd934d01
+# nodo: sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB  -n3:-512M:0 -t3:ef00 -c3:UEFI -n1:0:0 -t1:bf01 -c1:ZFS <dev>
+# nodo: sgdisk -Z -n9:-8M:0 -t9:bf07 -c9:Reserved -n2:-8M:0 -t2:ef02 -c2:GRUB -n1:0:0 -t1:bf01 -c1:ZFS /dev/disk/by-id/nvme-eui.0000000001000000e4d25c4ddd934d01
+
+# sgdisk --zap-all ${D}
+# sgdisk -a1 -n1:24K:+1000K -t1:EF02
+# sgdisk     -n2:1M:+512M   -t2:EF00 ${D}
+# sgdisk     -n3:0:+512M    -t3:BF01 ${D}
+# sgdisk     -n4:0:0        -t4:BF01 ${D}
+
 
 apt-add-repository universe
 apt update
@@ -20,11 +27,28 @@ apt install --yes debootstrap gdisk zfs-initramfs git emacs
 
 rm -rf /mnt/*
 
+zpool create -o ashift=12 -d \
+      -o feature@async_destroy=enabled \
+      -o feature@bookmarks=enabled \
+      -o feature@embedded_data=enabled \
+      -o feature@empty_bpobj=enabled \
+      -o feature@enabled_txg=enabled \
+      -o feature@extensible_dataset=enabled \
+      -o feature@filesystem_limits=enabled \
+      -o feature@hole_birth=enabled \
+      -o feature@large_blocks=enabled \
+      -o feature@lz4_compress=enabled \
+      -o feature@spacemap_histogram=enabled \
+      -o feature@userobj_accounting=enabled \
+      -O acltype=posixacl -O canmount=off -O compression=lz4 -O devices=off \
+      -O normalization=formD -O relatime=on -O xattr=sa \
+      -O mountpoint=/ -R /mnt \
+      bpool ${D}-part3
+
 zpool create -f -o ashift=12 \
       -O atime=off -O canmount=off -O compression=lz4 -O normalization=formD \
       -O mountpoint=/ -R /mnt \
-      rpool ${D}-part1
-
+      rpool ${D}-part4
 
 zfs create -o canmount=off -o mountpoint=none rpool/ROOT
 zfs create -o canmount=noauto -o mountpoint=/ rpool/ROOT/ubuntu
