@@ -97,12 +97,17 @@ utf-8."
                  (const utf-8)
                  (const nil)))
 
-(defcustom powerline-utf-8-separator-left #xe0b0
+;; printf '\xe0\xb0'
+;; #xe0b0
+;; #xe296ba
+;; #x7c
+(defcustom powerline-utf-8-separator-left #x7c
   "The unicode character number for the left facing separator"
   :group 'powerline
   :type  '(choice integer (const nil)))
 
-(defcustom powerline-utf-8-separator-right #xe0b2
+;; #xe0b2
+(defcustom powerline-utf-8-separator-right #x7c
   "The unicode character number for the right facing separator"
   :group 'powerline
   :type  '(choice integer (const nil)))

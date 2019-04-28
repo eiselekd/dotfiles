@@ -109,11 +109,16 @@
       (defun display-ansi-colors ()
 	(interactive)
 	(ansi-color-apply-on-region (point-min) (point-max)))
+
       (if window-system
-	  (progn
-	    (require 'powerline) ;; status line
-	    (powerline-default-theme)
-	    (setq powerline-default-separator 'arrow)))
+      	  (progn
+      	    (require 'powerline) ;; status line
+      	    (powerline-default-theme)
+      	    (setq powerline-default-separator 'arrow)))
+
+      ;;(require 'powerline) ;; status line
+      ;;(powerline-default-theme)
+      ;;(setq powerline-default-separator 'utf-8)
 
       ;;"Get the current default separator. Always returns utf-8 in non-gui mode."
 
@@ -126,7 +131,6 @@
       (require 'dash)
 
       ;;(-filter (lambda (p) (member (process-name p) '("haskell"))) (process-list))
-
       (defun noquery-process ()
        	(mapcar
        	 (lambda (p) (set-process-query-on-exit-flag p nil))
