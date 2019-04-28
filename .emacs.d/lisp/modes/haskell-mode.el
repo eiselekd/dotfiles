@@ -42,6 +42,7 @@
 	      (custom-set-variables
 					; Set up hasktags (part 2)
 	       '(haskell-tags-on-save t)
+	       '(haskell-process-log t)
 					; Set up interactive mode (part 2)
 	       '(haskell-process-auto-import-loaded-modules t)
 	       '(haskell-process-log t)
@@ -72,15 +73,6 @@
 
 	      (message "[+] add haskell mode")
 	      (require 'haskell nil t)
-	      (require 'haskell-interactive-mode nil t )
-	      (require 'haskell-commands nil t)
-	      (require 'haskell-doc nil t)
-	      (require 'intero nil t)
-	      (haskell-doc-mode)
-	      (flycheck-mode)
-	      (message "[+] start intero mode")
-	      (intero-mode)
-	      (message "[+] intero mode done")
 
 	      (define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 	      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
@@ -90,6 +82,20 @@
 	      (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
 	      (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
 	      (define-key haskell-mode-map (kbd "M-.") 'haskell-mode-jump-to-def-or-tag)
+
+	      (define-key haskell-mode-map (kbd "ESC i")
+		(lambda ()(interactive)
+		  (progn
+		    (message "[+] start intero mode")
+		    (intero-mode)
+		    (message "[+] intero mode done"))))
+
+	      (require 'haskell-interactive-mode nil t )
+	      (require 'haskell-commands nil t)
+	      (require 'haskell-doc nil t)
+	      (require 'intero nil t)
+	      (haskell-doc-mode)
+	      (flycheck-mode)
 
 	      (define-key haskell-mode-map (kbd "M-;")
 	      	(lambda ()(interactive)
@@ -105,6 +111,7 @@
 	      		  ))
 	      	    (haskell-mode-generate-tags)
 	      	    )))
+
 
 	      (when  (require 'haskell-cabal nil t )
 		(progn
