@@ -136,7 +136,7 @@
 (require 'utils/openfile.el)
 (require 'utils/flycheck.el)
 
-;;(require 'haskell-mode)
+(require 'haskell-mode)
 ;;(require 'utils/irc.el)
 (message "[*] %s retired irc" (timestamp_str))
 
