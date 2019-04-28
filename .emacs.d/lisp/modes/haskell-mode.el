@@ -23,7 +23,9 @@
     (require 'intero nil t)
     (call-interactively 'haskell-interactive-switch)))
 
-
+(add-hook 'haskell-post-run-hook
+	  (lambda () (set-process-query-on-exit-flag
+		      (get-ess-process ess-current-process-name) nil)) nil)
 
 (add-hook 'haskell-mode-hook
 	  (lambda ()

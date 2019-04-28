@@ -122,6 +122,36 @@
       (message "[*] %s retired flycheck" (timestamp_str))
       (require 'iswitchb-mode nil t)
 
+      (require 'cl-lib)
+      (require 'dash)
+
+      ;;(-filter (lambda (p) (member (process-name p) '("haskell"))) (process-list))
+
+      (defun noquery-process ()
+       	(mapcar
+       	 (lambda (p) (set-process-query-on-exit-flag p nil))
+       	 (-filter (lambda (p) (member (process-name p) '("haskell"))) (process-list))))
+      (defun his-tracing-function (orig-fun &rest args)
+	(noquery-process)
+	(message "[+] about to call save-buffers-kill-terminal")
+	(let ((res (apply orig-fun args)))
+	  (message "[+] save-buffers-kill-terminal exit")
+	  res))
+      (advice-add 'save-buffers-kill-terminal :around #'his-tracing-function)
+
+      ;;(defadvice  (
+
+
+
+      ;; (defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
+      ;; 	"Prevent annoying \"Active processes exist\" query when you quit Emacs."
+      ;; 	(cl-letf (((symbol-function #'process-list)
+      ;; 		   (lambda ()
+      ;; 		     ()
+      ;; 		     (-filter (lambda (p) (not (member (process-name p) '("haskell")))) (process-list))
+      ;; 		     )))
+      ;; 	  ad-do-it))
+
       ;;(require 'projmake-mode nil t)
       ;;(message "[*] %s retired projmake-mode" (timestamp_str))
       ;; 2: load apps
