@@ -4,7 +4,7 @@
 ;; cedet-1-1: emacs -q --no-site-file -l cedet-build.el -f cedet-build
 ;; note: cedet install: move object-class-fast in eieio.el to top
 ;; dbg: C-u M-x eval-defun
-;; use lexical-binding: t
+;; use lexical-bindutfing: t
 ;; toggle-debug-on-error
 (setq ns-right-alternate-modifier nil)
 
@@ -86,114 +86,215 @@
 ;;    ))
 
 (if (or (>= emacs-major-version 24)
-	(>= emacs-minor-version 4)) (progn
-
-;;(set-face-attribute 'default nil :height 100)
-
-;;  )
-
-;; magit: /usr/bin/emacsclient.emacs24
-;; (with-editor-debug)
-;; (setq with-editor-emacsclient-executable "/usr/bin/emacsclient.emacs24")
-;; M-x find-library cl-lib
-;;(require 'cl-lib)
-;;(require 'cl)
-;;(require 'cl-macs)
-;;(require 'magit)
-
-(require 'config/constants.el)
-(require 'nhexl-mode)
-
-(require 'powerline)
-(powerline-default-theme)
-
-(require 'ansi-color)
-(defun display-ansi-colors ()
-  (interactive)
-  (ansi-color-apply-on-region (point-min) (point-max)))
-
-(require 'cl)
-(require 'flycheck nil t) ;; -mode
-(message "[*] %s retired flycheck" (timestamp_str))
-(require 'iswitchb-mode nil t)
-;;(require 'projmake-mode nil t)
-;;(message "[*] %s retired projmake-mode" (timestamp_str))
-;; 2: load apps
-;;(require 'vcs/git.el)
-;;(require 'apps/eshell.el)
-;;(message "[*] %s retired eshell" (timestamp_str))
-;;(require 'apps/proced.el)
-
-(setq org-agenda-files (quote ("~/todo.org" "~/git/org" )))
-(require 'apps/org.el)
-
-(message "[*] %s retired org" (timestamp_str))
-(require 'ux/popups.el)
-(require 'ux/mark.el)
-(require 'utils/compile.el)
-(message "[*] %s retired compile" (timestamp_str))
-;;(require 'utils/ctags.el)
-(require 'utils/openfile.el)
-(require 'utils/flycheck.el)
-
-(require 'haskell-mode)
-;;(require 'utils/irc.el)
-(message "[*] %s retired irc" (timestamp_str))
-
-(defun prepareHelm ()
-  (require 'ggtags)
-  (if
-      (or
-       (eq system-type 'cygwin)
-       (string-match "Microsoft"  ;; Linux subsystem for Windows
-		     (with-temp-buffer
-		       (shell-command "uname -r" t)
-		       (goto-char (point-max))
-		       (delete-char -1)
-		       (buffer-string))))
-      (require 'ggtags)
-    (require 'utils/openhelm.el)
-
-
-    (defun my-helm-pipe-grep-match (fun &rest args)
-      (let* ((patterns (split-string helm-pattern))
-	     (helm-grep-default-command
-	      (cl-reduce (lambda (grep pat)
-			   (concat grep " | grep --color=always " pat))
-			 (cdr patterns)
-			 :initial-value (replace-regexp-in-string "%p" (car patterns) helm-grep-default-command))))
-	(apply fun args)))
-
-    (advice-add 'helm-grep--prepare-cmd-line :around 'my-helm-pipe-grep-match)
-
-    (defun helm-do-grep (&optional arg)
-      (interactive "P")
-      (helm-do-grep-1 (list default-directory) arg))
-
-
-    )
-
-
-
-  )
-
-
-
-
-
-(if (or (eq system-type 'freebsd) (eq system-type 'berkeley-unix))
+	(>= emacs-minor-version 4))
     (progn
-      (require 'simple)
-      (normal-erase-is-backspace-mode)
+
+      ;;(set-face-attribute 'default nil :height 100)
+
+      ;;  )
+
+      ;; magit: /usr/bin/emacsclient.emacs24
+      ;; (with-editor-debug)
+      ;; (setq with-editor-emacsclient-executable "/usr/bin/emacsclient.emacs24")
+      ;; M-x find-library cl-lib
+      ;;(require 'cl-lib)
+      ;;(require 'cl)
+      ;;(require 'cl-macs)
+      ;;(require 'magit)
+
+      (require 'config/constants.el)
+      (require 'nhexl-mode)
+
+      (require 'ansi-color)
+      (defun display-ansi-colors ()
+	(interactive)
+	(ansi-color-apply-on-region (point-min) (point-max)))
+      (if window-system
+	  (progn
+	    (require 'powerline) ;; status line
+	    (powerline-default-theme)
+	    (setq powerline-default-separator 'arrow)))
+
+      ;;"Get the current default separator. Always returns utf-8 in non-gui mode."
+
+      (require 'cl)
+      (require 'flycheck nil t) ;; -mode
+      (message "[*] %s retired flycheck" (timestamp_str))
+      (require 'iswitchb-mode nil t)
+
+      ;;(require 'projmake-mode nil t)
+      ;;(message "[*] %s retired projmake-mode" (timestamp_str))
+      ;; 2: load apps
+      ;;(require 'vcs/git.el)
+      ;;(require 'apps/eshell.el)
+      ;;(message "[*] %s retired eshell" (timestamp_str))
+      ;;(require 'apps/proced.el)
+
+      (setq org-agenda-files (quote ("~/todo.org" "~/git/org" )))
+      (require 'apps/org.el)
+
+      (message "[*] %s retired org" (timestamp_str))
+      (require 'ux/popups.el)
+      (require 'ux/mark.el)
+      (require 'utils/compile.el)
+      (message "[*] %s retired compile" (timestamp_str))
+      ;;(require 'utils/ctags.el)
+      (require 'utils/openfile.el)
+      (require 'utils/flycheck.el)
+
+      (require 'haskell-mode)
+      ;;(require 'utils/irc.el)
+      ;;(message "[*] %s retired irc" (timestamp_str))
+
+      (defun prepareHelm ()
+	(require 'ggtags)
+	(if
+	    (or
+	     (eq system-type 'cygwin)
+	     (string-match
+	      "Microsoft"  ;; Linux subsystem for Windows
+	      (with-temp-buffer
+		(shell-command "uname -r" t)
+		(goto-char (point-max))
+		(delete-char -1)
+		(buffer-string))))
+	    (require 'ggtags)
+	  (require 'utils/openhelm.el)
+	  (defun my-helm-pipe-grep-match (fun &rest args)
+	    (let* ((patterns (split-string helm-pattern))
+		   (helm-grep-default-command
+		    (cl-reduce (lambda (grep pat)
+				 (concat grep " | grep --color=always " pat))
+			       (cdr patterns)
+			       :initial-value (replace-regexp-in-string "%p" (car patterns) helm-grep-default-command))))
+	      (apply fun args)))
+	  (advice-add 'helm-grep--prepare-cmd-line :around 'my-helm-pipe-grep-match)
+	  (defun helm-do-grep (&optional arg)
+	    (interactive "P")
+	    (helm-do-grep-1 (list default-directory) arg))))
+
+      (if (or (eq system-type 'freebsd) (eq system-type 'berkeley-unix))
+	  (progn
+	    (require 'simple)
+	    (normal-erase-is-backspace-mode)
+	    ))
+
+      (message "[*] %s retired openhelm" (timestamp_str))
+
+      ;;(require 'utils/hackernews)
+      ;;(require 'utils/helm-hackernews)
+      (require 'utils/debug.el)
+      (require 'flymake-cursor)
+      (require 'ov)
+
+      (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
+      (message (format "[*] %s try load fringe" (timestamp_str)))
+      (require 'fringe)
+
+      ;;(require 'flymake)
+      ;;(defun flymake-simple-make-init ()
+      ;;  (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
+
+
+
+      ;;(when (>= emacs-major-version 24)
+      ;;  (require 'package)
+      ;;  (package-initialize)
+      ;;  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+      ;;  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+      ;;  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+      ;;  (package-install 'slime)
+
+      ;;(add-to-list 'package-archives                 '("e6h" . "http://www.e6h.org/packages/") t)
+      ;;    (package-initialize) ;; You might already have this line
+      ;;(add-to-list 'package-archives           '("marmalade" . "http://marmalade-repo.org/packages/"))
+      ;;(package-initialize)
+      ;;(when (not package-archive-contents)  (package-refresh-contents))
+      ;; (package-install 'flycheck)
+      ;; (package-install 'back-button)
+      ;; (package-install 'wanderlust)
+      ;; (package-install 'projmake-mode)
+      ;; (package-install 'perspective)
+      ;; (package-install 'helm) -config)
+      ;;  (list-packages)
+      ;;  (require 'mode-compile)
+      ;; (package-install 'wanderlust)
+      ;; (package-install 'wl)
+      ;; (package-install 'dash) (require 'dash)
+      ;; (package-install 'magit)
+
+      ;; (require 'magit)
+
+      ;; (list-packages)
+      ;; (require 'mode-compile)
+      ;;  (list-packages)
+      ;;  (require 'mode-compile)
+      ;; (require 'install-elisp)
+      ;; (install-elisp "https://raw.githubusercontent.com/emacsmirror/mode-compile/master/mode-compile.el
+      ;; (install-elisp "http://www.emacswiki.org/emacs/download/flymake-cursor.el")
+      ;; (require 'cl)
+      ;; (require 'sr-speedbar)
+      ;; (require 'projmake-mode)
+      ;;
+      ;; (require 'flymake-chromium)
+      ;;
+      ;;(defun my-mode-hook ()
+      ;; (projmake-mode)
+      ;;    (projmake-search-load-project))
+      ;;")
+      ;; )
+
+      ;;(require 'package) ;; You might already have this line
+      ;;(add-to-list 'package-archives '("e6h" . "http://www.e6h.org/packages/") t)
+      ;; (package-initialize) ;; You might already have this line
+
+      ;; (condition-case nil
+      ;;     (progn
+      ;;       (autoload 'wl "wl" "Wanderlust" t))
+      ;;   (error
+      ;;    (message "Wanderlust not loaded")))
+
+
+      ;;(desktop-save-mode 1)
+      ;;(when (fboundp 'winner-mode)
+      ;;      (winner-mode 1))
+
+      ;; (setq wg-prefix-key (kbd "C-c w"))
+      ;; (setq wg-morph-on nil)
+      ;; (setq wg-query-for-save-on-emacs-exit nil)
+      ;; (require 'workgroups)
+      ;; (workgroups-mode 1)
+      ;; (setq wg-no-confirm t
+      ;;       wg-file "~/.emacs.d/.workgroups"
+      ;;       wg-use-faces nil
+      ;;       wg-switch-on-load nil)
+      ;; (add-hook 'kill-emacs-hook
+      ;; 	  (lambda ()
+      ;; 	     (condition-case nil
+      ;; 		 (wg-save wg-file)
+      ;; 	       (error nil))))
+      ;; (wg-load wg-file)
+
+      (require 'back-button nil t)
+
+      (require 'remember)
+
+
+      ;;(org-remember-insinuate)
+
       ))
 
+(require 'hideshow-org)
+(if (require 'hideif-changed nil t) ;; hide-ifdef-block show-ifdef-block
+    (progn
+      (message "[+] >> hideif-changed loaded")
+      (setq hide-ifdef-shadow nil)
+      )
+  (message "[+] >> hideif-changed failed"))
+(require 'pp)
 
-(message "[*] %s retired openhelm" (timestamp_str))
-
-;;(require 'utils/hackernews)
-;;(require 'utils/helm-hackernews)
-(require 'utils/debug.el)
-(require 'flymake-cursor)
+(require 'utils/dired.el)
+(global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
 
 ;; 3: (re-)define keybindings
 (message (format "[*] %s set keybindings" (timestamp_str)))
@@ -206,138 +307,18 @@
 (require 'modes/ruby-mode.el)
 (require 'modes/lua-mode.el)
 (require 'modes/haskell-mode.el)
-
-(global-set-key
- (kbd "ESC M-h")
- (lambda ()(interactive) (progn
-			   (haskell-interactive-start))))
-
+(global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
 ;;(require 'modes/web-mode.el)
 (require 'modes/javascript-mode.el)
-
 (require 'modes/org-mode.el)
 ;;(require 'modes/tex-mode.el)
-
 ;;(ido-mode 1)
-
-(require 'ov)
-
-(add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
-(message (format "[*] %s try load fringe" (timestamp_str)))
-(require 'fringe)
-
-;;(require 'flymake)
-;;(defun flymake-simple-make-init ()
-;;  (flymake-simple-make-init-impl 'flymake-create-temp-inplace nil nil "Makefile" 'flymake-get-make-cmdline))
-
-(require 'hideshow-org)
-(if
-    (require 'hideif-changed nil t) ;; hide-ifdef-block show-ifdef-block
-    (progn
-      (message "[+] >> hideif-changed loaded")
-      (setq hide-ifdef-shadow nil)
-      )
-  (message "[+] >> hideif-changed failed")
-
-  )
-
-(require 'pp)
-
-
-;;(when (>= emacs-major-version 24)
-;;  (require 'package)
-;;  (package-initialize)
-;;  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-;;  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-;;  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-;;  (package-install 'slime)
-
-;;(add-to-list 'package-archives                 '("e6h" . "http://www.e6h.org/packages/") t)
-;;    (package-initialize) ;; You might already have this line
-;;(add-to-list 'package-archives           '("marmalade" . "http://marmalade-repo.org/packages/"))
-;;(package-initialize)
-;;(when (not package-archive-contents)  (package-refresh-contents))
-;; (package-install 'flycheck)
-;; (package-install 'back-button)
-;; (package-install 'wanderlust)
-;; (package-install 'projmake-mode)
-;; (package-install 'perspective)
-;; (package-install 'helm) -config)
-;;  (list-packages)
-;;  (require 'mode-compile)
-;; (package-install 'wanderlust)
-;; (package-install 'wl)
-;; (package-install 'dash) (require 'dash)
-;; (package-install 'magit)
-
-;; (require 'magit)
-
-;; (list-packages)
-;; (require 'mode-compile)
-;;  (list-packages)
-;;  (require 'mode-compile)
-;; (require 'install-elisp)
-;; (install-elisp "https://raw.githubusercontent.com/emacsmirror/mode-compile/master/mode-compile.el
-;; (install-elisp "http://www.emacswiki.org/emacs/download/flymake-cursor.el")
-;; (require 'cl)
-;; (require 'sr-speedbar)
-;; (require 'projmake-mode)
-;;
-;; (require 'flymake-chromium)
-;;
-;;(defun my-mode-hook ()
-;; (projmake-mode)
-;;    (projmake-search-load-project))
-;;")
-;; )
-
-;;(require 'package) ;; You might already have this line
-;;(add-to-list 'package-archives '("e6h" . "http://www.e6h.org/packages/") t)
-;; (package-initialize) ;; You might already have this line
-
-;; (condition-case nil
-;;     (progn
-;;       (autoload 'wl "wl" "Wanderlust" t))
-;;   (error
-;;    (message "Wanderlust not loaded")))
 
 (require 'windmove)
 (global-set-key (kbd "C-c <left>")  'windmove-left)
 (global-set-key (kbd "C-c <right>") 'windmove-right)
 (global-set-key (kbd "C-c <up>")    'windmove-up)
 (global-set-key (kbd "C-c <down>")  'windmove-down)
-
-;;(desktop-save-mode 1)
-;;(when (fboundp 'winner-mode)
-;;      (winner-mode 1))
-
-;; (setq wg-prefix-key (kbd "C-c w"))
-;; (setq wg-morph-on nil)
-;; (setq wg-query-for-save-on-emacs-exit nil)
-;; (require 'workgroups)
-;; (workgroups-mode 1)
-;; (setq wg-no-confirm t
-;;       wg-file "~/.emacs.d/.workgroups"
-;;       wg-use-faces nil
-;;       wg-switch-on-load nil)
-;; (add-hook 'kill-emacs-hook
-;; 	  (lambda ()
-;; 	     (condition-case nil
-;; 		 (wg-save wg-file)
-;; 	       (error nil))))
-;; (wg-load wg-file)
-
-(require 'back-button nil t)
-
-(require 'remember)
-
-(require 'utils/dired.el)
-(global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
-
-
-;;(org-remember-insinuate)
-
-))
 
 ;;;; ======================== themes ===============================
 ;;;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -384,7 +365,7 @@
 
 ;; try load local dotfiles.lo
 (if (file-exists-p "~/.emacs.config")
-		   (load "~/.emacs.config"))
+    (load "~/.emacs.config"))
 
 
 (setq inhibit-startup-screen t)
