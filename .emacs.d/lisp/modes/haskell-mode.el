@@ -32,6 +32,7 @@
 	      (when  (require 'flycheck-haskell nil t )
 		(message "[+] flycheck-haskellloaded"))
 
+	      (message "[+] setup cabal")
 	      (let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
 		(setenv "PATH" (concat my-cabal-path ":" (getenv "PATH")))
 		(add-to-list 'exec-path my-cabal-path))
@@ -51,6 +52,7 @@
 	      ;; cabal install happy
 	      ;; cabal install https://hackage.haskell.org/package/ghc-mod-5.9.0.0/candidate/ghc-mod-5.9.0.0.tar.gz
 
+	      (message "[+] add company")
 	      (when  (require 'company nil t)
 		(progn
 		  (add-to-list 'company-backends 'company-ghc)
@@ -63,10 +65,12 @@
 	      (when (require 'rainbow-delimiters)
 		(rainbow-delimiters-mode))
 	      
+	      (message "[+] add ghc")
 	      (require 'ghc nil t)
 	      ;;(add-to-list 'company-backends 'company-ghc)
 	      ;;(ghc-init)
 
+	      (message "[+] add haskell mode")
 	      (require 'haskell nil t)
 	      (require 'haskell-interactive-mode nil t )
 	      (require 'haskell-commands nil t)
@@ -74,7 +78,9 @@
 	      (require 'intero nil t)
 	      (haskell-doc-mode)
 	      (flycheck-mode)
+	      (message "[+] start intero mode")
 	      (intero-mode)
+	      (message "[+] intero mode done")
 
 	      (define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
 	      (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)

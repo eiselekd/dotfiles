@@ -72,9 +72,9 @@
 (defcustom intero-package-version
   (cl-case system-type
     ;; Until <https://github.com/haskell/network/issues/313> is fixed:
-    (windows-nt "0.1.35")
-    (cygwin "0.1.35")
-    (t "0.1.35"))
+    (windows-nt "0.1.39")
+    (cygwin "0.1.39")
+    (t "0.1.39"))
   "Package version to auto-install.
 
 This version does not necessarily have to be the latest version
@@ -236,14 +236,22 @@ The buffer's filename (or working directory) is checked against
 `intero-whitelist' and `intero-blacklist'.  If both the whitelist
 and blacklist match, then the whitelist entry wins, and
 `intero-mode' is enabled."
-  (when (and (derived-mode-p 'haskell-mode)
-             (let* ((file (or (buffer-file-name) default-directory))
-                    (blacklisted (intero-directories-contain-file
-                                  file intero-blacklist))
-                    (whitelisted (intero-directories-contain-file
-                                  file intero-whitelist)))
-               (or whitelisted (not blacklisted))))
+  (when (intero-mode-should-start-p)
     (intero-mode 1)))
+
+(defun intero-mode-should-start-p ()
+  "Predicate whether intero should start given user config.
+The buffer's filename (or working directory) is checked against
+`intero-whitelist' and `intero-blacklist'.  If both the whitelist
+and blacklist match, then the whitelist entry wins, and
+`intero-mode' is enabled."
+  (and (derived-mode-p 'haskell-mode)
+       (let* ((file (or (buffer-file-name) default-directory))
+              (blacklisted (intero-directories-contain-file
+                            file intero-blacklist))
+              (whitelisted (intero-directories-contain-file
+                            file intero-whitelist)))
+         (or whitelisted (not blacklisted)))))
 
 ;;;###autoload
 (define-globalized-minor-mode intero-global-mode
@@ -1416,9 +1424,12 @@ stack's default)."
              'face 'font-lock-comment-face))
     (let* ((script-buffer
             (with-current-buffer (find-file-noselect (intero-make-temp-file "intero-script"))
+              ;; Commented out this line due to this bug:
+              ;; https://github.com/chrisdone/intero/issues/569
+              ;; GHC 8.4.3 has some bug causing a panic on GHCi.
+              ;; :set -fdefer-type-errors
               (insert ":set prompt \"\"
 :set -fbyte-code
-:set -fdefer-type-errors
 :set -fdiagnostics-color=never
 :set prompt \"\\4 \"
 ")
@@ -2243,6 +2254,8 @@ Installing intero-%s for GHC %s ...
 We don't know why it failed. Please read the above output and try
 installing manually. If that doesn't work, report this as a
 problem.
+
+Guess: You might need the \"tinfo\" package, e.g. libtinfo-dev.
 
 WHAT TO DO NEXT
 
@@ -3165,10 +3178,11 @@ suggestions are available."
           ;; Add a note if we found a suggestion to make
           (when note
             (setf (flycheck-error-message msg)
-                  (concat text
-                          "\n\n"
-                          (propertize "(Hit `C-c C-r' in the Haskell buffer to apply suggestions)"
-                                      'face 'font-lock-warning-face)))))))
+                  (concat text "\n\n"
+                          (propertize
+                           (substitute-command-keys
+                            "(Hit `\\[intero-apply-suggestions]' in the Haskell buffer to apply suggestions)")
+                           'face 'font-lock-warning-face)))))))
   (setq intero-lighter
         (if (null intero-suggestions)
             " Intero"

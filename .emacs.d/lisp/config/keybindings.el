@@ -56,10 +56,7 @@
 ;; start proced
 (global-set-key (kbd "M-p")  'proced)
 
-;; start proced
-(global-set-key (kbd "M-h")  (lambda ()(interactive) (haskell-interactive-start)))
 
-;; start proced
 (global-set-key (kbd "M-d")  (lambda ()(interactive) (toggle-debug-on-error)))
 ;; start org-agenda
 (global-set-key (kbd "M-a")  'org-agenda)
