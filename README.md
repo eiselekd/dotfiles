@@ -71,7 +71,7 @@ Keybindings:
  * ESC M-h : haskell interactive mode  
  * haskell-mode:
    * F1 | C-c C-l : eval in repl
-   * ESC i: intero mode
+   * ESC i: intero mode (runs stack init)
    * F2 : typeinfo : c-c c-t
    * F4 : hoogle
    * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
