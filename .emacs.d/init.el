@@ -139,10 +139,6 @@
 	  res))
       (advice-add 'save-buffers-kill-terminal :around #'his-tracing-function)
 
-      ;;(defadvice  (
-
-
-
       ;; (defadvice save-buffers-kill-emacs (around no-query-kill-emacs activate)
       ;; 	"Prevent annoying \"Active processes exist\" query when you quit Emacs."
       ;; 	(cl-letf (((symbol-function #'process-list)
