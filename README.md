@@ -107,6 +107,10 @@ Defaults:
  * Ctrl-[+/-] : bigger/smaller font (terminal)
  * Ctrl-l : recenter
  * M : | M-x : Eval command
+ * Frames:
+  * Ctrl-x 5 b : open frame (new x-window) with buffer
+  * Ctrl-x 5 0 : close frame (new x-window)
+  * Ctrl-x 5 o : switch frame (new x-window)
 
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present

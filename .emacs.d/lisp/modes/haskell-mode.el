@@ -94,6 +94,7 @@
 
 	      (require 'haskell-interactive-mode nil t )
 	      (require 'haskell-commands nil t)
+	      (require 'haskell-debug nil t)
 	      (require 'haskell-doc nil t)
 	      (require 'intero nil t)
 	      (haskell-doc-mode)
@@ -132,5 +133,6 @@
     (message "[*] F1 in major mode %s" mode)
     (haskell-process-load-or-reload)
     ))
+
 
 (provide 'modes/haskell-mode.el)

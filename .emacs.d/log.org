@@ -3,3 +3,14 @@
 Export html: escape special chars: _text_ => \under{}text{}\under
 
 
+* helm
+
+http://kitchingroup.cheme.cmu.edu/blog/2015/01/24/Anatomy-of-a-helm-source/
+
+(setq some-helm-source
+      '((name . "HELM at the Emacs")
+        (candidates . (1 2 3 4))
+        (action . (lambda (candidate)
+                    (message-box "%s" candidate)))))
+
+(helm :sources '(some-helm-source))

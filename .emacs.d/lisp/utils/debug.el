@@ -4,6 +4,7 @@
   (progn
     (cond
      ((string-match "\.pl$" (buffer-name)) (call-interactively 'perldb))
+     ((string-match "\.hs$" (buffer-name)) (call-interactively 'haskell-debug))
      (t
       (progn
 	(custom-set-variables '(gud-gdb-command-name "gdb -i=mi"))

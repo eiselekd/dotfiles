@@ -25,6 +25,10 @@
 (require 'haskell-font-lock)
 (require 'haskell-utils)
 
+(require 'helm)
+(require 'helm-utils)
+(require 'helm-grep)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Configuration
 
@@ -119,10 +123,60 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Interactive functions
 
+(defun haskell-debug/show-step (h)
+  (let* ((fname        (plist-get h :path))
+	 (lineno       (plist-get (plist-get h :span) :start-line))
+	 (l            (format "%s:%d:line" fname lineno))
+	 )
+
+	;;(helm-grep-action (format "%s:%d" fname lineno))
+	(save-selected-window
+	  (helm-window-show-buffers (list (find-file-noselect fname)) t)
+	  (helm-goto-line lineno)
+	  (recenter)
+	  )
+	))
+
+
+
 (defun haskell-debug/select ()
   "Select whatever is at point."
   (interactive)
   (cond
+   ((get-text-property (point) 'history)
+    (let ((h (get-text-property (point) 'history)))
+      (haskell-debug/show-step h)))
+
+      ;; (let* ((fname        (plist-get h :path))
+      ;; 	     (lineno       (plist-get (plist-get h :span) :start-line))
+      ;; 	     (l            (format "%s:%d:line" fname lineno))
+      ;; 	     )
+
+      ;; 	;;(helm-grep-action (format "%s:%d" fname lineno))
+      ;; 	(save-selected-window
+      ;; 	  (helm-window-show-buffers (list (find-file-noselect fname)) t)
+      ;; 	  (helm-goto-line lineno)
+      ;; 	  (recenter)
+      ;; 	  )
+
+
+      ;; 	;;(helm-match-line-cleanup-pulse)
+
+
+      ;; 	;;(find-file fname)
+      ;; 	;;(helm-window-show-buffers
+      ;; 	;; (list (find-file-noselect fname) t))
+      ;; 	;;(helm-goto-line lineno))
+
+      ;; 	;;(other-frame  (find-file-other-frame fname))
+      ;; 	;;(t            (find-file fname))
+      ;; 	;;)
+      ;; 	)))
+      ;; ;;(haskell-debug-highlight (plist-get h :path) (plist-get h :span))))
+
+      ;; ;;(haskell-debug-highlight (plist-get h :path) (plist-get h :span))))
+
+
    ((get-text-property (point) 'break)
     (let ((break (get-text-property (point) 'break)))
       (haskell-debug-highlight (plist-get break :path)
@@ -435,6 +489,7 @@
 
 (defun haskell-debug-parse-context (string)
   "Parse the context."
+  (message "[+] show context %s" string)
   (cond
    ((string-match "^--> \\(.+\\)\n  \\(.+\\)" string)
     (let ((name (match-string 1 string))
@@ -466,6 +521,8 @@
             (file-name-nondirectory (plist-get context :path))
             (haskell-debug-muted " (stopped)")
             "\n"))
+  (when context
+    (haskell-debug/show-step context))
   (when haskell-debug-bindings-cache
     (insert "\n")
     (let ((bindings haskell-debug-bindings-cache))
@@ -534,7 +591,7 @@ For example:
 Stopped at /home/foo/project/src/x.hs:6:25-36
 
 "
-  (let ((index (string-match "Stopped at \\([^:]+\\):\\(.+\\)\n?"
+  (let ((index (string-match "Stopped in [^ ]+, \\([^:]+\\):\\(.+\\)\n?"
                              string)))
     (when index
       (list :path (match-string 1 string)
@@ -571,12 +628,10 @@ Stopped at /home/foo/project/src/x.hs:6:25-36
                                (plist-get span :path)
                                (plist-get span :span))))
                   (insert (propertize (format "%4d" i)
-                                      'face 'haskell-debug-trace-number-face)
-                          " "
-                          (haskell-debug-preview-span
-                           (plist-get span :span)
-                           string
-                           t)
+                                      'face 'haskell-debug-trace-number-face
+				      'history span
+				      )
+                          (propertize (concat " " (haskell-debug-preview-span (plist-get span :span) string t)) 'history span)
                           "\n")
                   (setq i (1- i))))))
 
@@ -680,6 +735,9 @@ variances in source span notation."
 
 (defun haskell-debug-highlight (path &optional span)
   "Highlight the file at span."
+  (if span
+      (message "[+] haskell-debug-highlight %s %s" path span)
+      (message "[+] haskell-debug-highlight %s" path))
   (let ((p (make-overlay
             (line-beginning-position)
             (line-end-position))))
@@ -749,8 +807,8 @@ For example:
             :module (match-string 2 string)
             :path (match-string 3 string)
             :span (haskell-debug-parse-span (match-string 4 string)))
-    (error "Unable to parse breakpoint from string: %s"
-           string)))
+    (progn (message "[-] Unable to parse breakpoint from string: %s" string)
+           ())))
 
 (provide 'haskell-debug)
 

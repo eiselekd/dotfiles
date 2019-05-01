@@ -200,25 +200,28 @@
   (make-variable-buffer-local 'flycheck-linux-makefile)
   (setq flycheck-linux-makefile (utils/flycheck-search-linux-makefile))
   (message "[*] try match custom checker:")
-  (message (format "[*] buf-dir: %s" (file-name-directory (buffer-file-name))))
-  (message (format "[*] FLYCHECK_GENERIC_SRC: %s" (getenv "FLYCHECK_GENERIC_SRC")))
-  (message (format "[*] FLYCHECK_GENERIC_BUILD: %s" (getenv "FLYCHECK_GENERIC_BUILD")))
-  (message (format "[*] FLYCHECK_GENERIC_CMD: %s" (getenv "FLYCHECK_GENERIC_CMD")))
-  (message (format "[*] FLYCHECK_GENERIC_ADDSUFFIX: %s" (getenv "FLYCHECK_GENERIC_ADDSUFFIX")))
-  ;;(if flycheck-linux-makefile
-  ;;    (progn
- ;;	(message "[*] enable linux makefile checker")
-;;	(flycheck-select-checker 'utils/flycheck-linux-makefile-checker)))
-  (if (utils/flycheck-generic-makefile-src-root)
-      (progn
-	(message "[*] enable generic makefile")
-	(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
-	))
+  (let (f (buffer-file-name))
+    (if f
+	(progn
+	  (message (format "[*] buf-dir: %s" (file-name-directory f)))
+	  (message (format "[*] FLYCHECK_GENERIC_SRC: %s" (getenv "FLYCHECK_GENERIC_SRC")))
+	  (message (format "[*] FLYCHECK_GENERIC_BUILD: %s" (getenv "FLYCHECK_GENERIC_BUILD")))
+	  (message (format "[*] FLYCHECK_GENERIC_CMD: %s" (getenv "FLYCHECK_GENERIC_CMD")))
+	  (message (format "[*] FLYCHECK_GENERIC_ADDSUFFIX: %s" (getenv "FLYCHECK_GENERIC_ADDSUFFIX")))
+	  ;;(if flycheck-linux-makefile
+	  ;;    (progn
+	  ;;	(message "[*] enable linux makefile checker")
+	  ;;	(flycheck-select-checker 'utils/flycheck-linux-makefile-checker)))
+	  (if (utils/flycheck-generic-makefile-src-root)
+	      (progn
+		(message "[*] enable generic makefile")
+		(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
+		))
   ;;(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
 
-  (utils/flycheck-local-keybind )
-  (setq flycheck-clang-language-standard "c++14")
-  )
+	  (utils/flycheck-local-keybind )
+	  (setq flycheck-clang-language-standard "c++14")
+	  ))))
 
 (defun utils/flymake-mode-hook ()
   "Flycheck mode hook."
