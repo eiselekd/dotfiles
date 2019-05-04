@@ -72,8 +72,6 @@
 (add-to-list 'load-path (expand-file-name "lib/js/multiple-cursors.el" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
 
-
-
 (require 'cc-mode)
 (setq c-default-style
       '((java-mode . "java")
