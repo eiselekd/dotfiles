@@ -394,7 +394,6 @@
 
 (put 'downcase-region 'disabled nil)
 
-(setq active-theme 'dark)
 
 ;; (add-hook
 ;;  'after-make-frame-functions
@@ -412,6 +411,7 @@
     (set-terminal-parameter frame 'background-mode mode)
     (custom-set-variables '( frame-background-mode mode)))
   (enable-theme 'solarized))
+(load-theme 'solarized t)
 
 (defun toggle-dark-light-theme ()
    (interactive)
@@ -420,10 +420,12 @@
      (setq active-theme 'light))
    (set-dark-light-theme active-theme))
 
+(setq active-theme 'light)
+(set-dark-light-theme active-theme)
+
 (global-set-key (kbd "ESC t") (lambda ()(interactive) (
 						       progn (toggle-dark-light-theme))))
 
-(load-theme 'solarized t)
 
 ;; (add-hook
 ;;  'after-make-frame-functions
