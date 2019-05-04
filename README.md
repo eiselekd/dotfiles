@@ -111,7 +111,9 @@ Defaults:
   * Ctrl-x 5 b : open frame (new x-window) with buffer
   * Ctrl-x 5 0 : close frame (new x-window)
   * Ctrl-x 5 o : switch frame (new x-window)
-
+ * Themes
+  * ESC t : Toggle dark/light
+  
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present
 [2] Magit cheetsheet: https://github.com/magit/magit/wiki/Cheatsheet

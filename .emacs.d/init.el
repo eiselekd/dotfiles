@@ -378,18 +378,71 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-ghc-show-info t)
+ '(custom-safe-themes
+   (quote
+    ("fc5ad2db8ba71ce0c0d989de5cf60f8dbe9562b0356901d370b5c3440b316475" default)))
  '(frame-background-mode (quote dark))
+ '(haskell-process-auto-import-loaded-modules t)
+ '(haskell-process-log t)
+ '(haskell-process-suggest-remove-import-lines t)
+ '(haskell-process-type (quote cabal-repl))
+ '(haskell-tags-on-save t)
  '(package-selected-packages
    (quote
     (yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update))))
 
+(put 'downcase-region 'disabled nil)
+
+(setq active-theme 'dark)
+
+;; (add-hook
+;;  'after-make-frame-functions
+;;  (lambda (frame)
+;;    (let ((mode (if (display-graphic-p frame) 'light 'dark)))
+;;      (message (format "[*] mode %s background" mode))
+;;      (set-frame-parameter frame 'background-mode mode)
+;;      (set-terminal-parameter frame 'background-mode mode))
+;;    (enable-theme 'solarized)))
+
+(defun set-dark-light-theme (mode)
+  (message (format "[*] mode %s background" mode))
+  (let ((frame (selected-frame)))
+    (set-frame-parameter frame 'background-mode mode)
+    (set-terminal-parameter frame 'background-mode mode)
+    (custom-set-variables '( frame-background-mode mode)))
+  (enable-theme 'solarized))
+
+(defun toggle-dark-light-theme ()
+   (interactive)
+   (if (eq active-theme 'light)
+       (setq active-theme 'dark)
+     (setq active-theme 'light))
+   (set-dark-light-theme active-theme))
+
+(global-set-key (kbd "ESC t") (lambda ()(interactive) (
+						       progn (toggle-dark-light-theme))))
+
 (load-theme 'solarized t)
 
+;; (add-hook
+;;  'after-make-frame-functions
+;;  (lambda (frame)
+;;    (let ((mode (if (display-graphic-p frame) 'light 'dark)))
+;;      (message (format "[*] mode %s background" mode))
+;;      (set-frame-parameter frame 'background-mode mode)
+;;      (set-terminal-parameter frame 'background-mode mode))
+;;    (enable-theme 'solarized)))
+
+
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+;;(tool-bar-mode 0)
 
 ;;;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;;;; ======================== themes ===============================
 
-(tool-bar-mode 0)
 
 (setq visible-bell 1)
 
@@ -400,15 +453,6 @@
 
 (setq inhibit-startup-screen t)
 
-;; (add-hook
-;;  'after-make-frame-functions
-;;  (lambda (frame)
-;;    (let ((mode (if (display-graphic-p frame) 'light 'dark)))
-;;      (message (format "[*] mode %s background" mode))
-;;      (set-frame-parameter frame 'background-mode mode)
-;;      (set-terminal-parameter frame 'background-mode mode))
-;;    (enable-theme 'solarized)))
-(put 'downcase-region 'disabled nil)
 
 ;; http://ivanmalison.github.io/dotfiles/#tile
 (require 'tile)
