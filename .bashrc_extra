@@ -169,3 +169,6 @@ fi
 
 #export LC_ALL=C
 export LC_ALL=en_US.UTF-8
+
+alias solarized="konsoleprofile colors=Solarized"
+alias solarizedlight="konsoleprofile colors=SolarizedLight"

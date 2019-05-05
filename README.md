@@ -113,7 +113,12 @@ Defaults:
   * Ctrl-x 5 o : switch frame (new x-window)
  * Themes
   * ESC t : Toggle dark/light
-  
+
+KDE konsole keys:
+ * CTRL-Shieft-m : hide/show menubar
+ * use solarized/solarizedlight to switch colorscheme in konsole
+ * disable shift-l/shift-r to disable Konsole TAB switching
+
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present
 [2] Magit cheetsheet: https://github.com/magit/magit/wiki/Cheatsheet
