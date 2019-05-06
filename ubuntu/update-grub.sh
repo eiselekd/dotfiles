@@ -28,3 +28,5 @@ WantedBy=zfs-import.target
 EOF
 
 systemctl enable zfs-import-bpool.service
+
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ubuntu --recheck --no-floppy
