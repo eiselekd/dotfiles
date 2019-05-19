@@ -350,6 +350,10 @@
 (global-set-key (kbd "C-c <up>")    'windmove-up)
 (global-set-key (kbd "C-c <down>")  'windmove-down)
 
+;; hide modeline when only one frame
+(autoload 'hide-mode-line "hide-mode-line" nil t)
+(hide-mode-line)
+
 ;;;; ======================== themes ===============================
 ;;;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
