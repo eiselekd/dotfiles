@@ -420,7 +420,7 @@
      (setq active-theme 'light))
    (set-dark-light-theme active-theme))
 
-(setq active-theme 'light)
+(setq active-theme 'dark)
 (set-dark-light-theme active-theme)
 
 (global-set-key (kbd "ESC t") (lambda ()(interactive) (

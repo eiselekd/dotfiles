@@ -1,0 +1,2 @@
+#!/bin/sh
+( sleep 1; xloadimage -onroot -fullscreen ~/git/dotfiles/ubuntu/forest-2952025_1920.jpg ) &
