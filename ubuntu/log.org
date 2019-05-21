@@ -917,6 +917,9 @@ usb backup:
 zpool create -f -o ashift=9  -O atime=off -O dedup=on -O compression=gzip9 -O mountpoint=/usbdata  \
 usbdata ${D}-part1
 
+[1] https://icesquare.com/wordpress/how-to-improve-zfs-performance/
+[2] http://www.brendangregg.com/blog/2008-07-22/zfs-l2arc.html
+
 ** backup
 
 mkfifo zfs-pipe
