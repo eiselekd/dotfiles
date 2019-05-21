@@ -919,6 +919,8 @@ usbdata ${D}-part1
 
 [1] https://icesquare.com/wordpress/how-to-improve-zfs-performance/
 [2] http://www.brendangregg.com/blog/2008-07-22/zfs-l2arc.html
+x[3] http://open-zfs.org/wiki/Performance_tuning
+
 
 ** backup
 
