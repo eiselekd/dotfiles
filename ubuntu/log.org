@@ -111,6 +111,95 @@ Xephyr :1 -ac -screen 800x600
 run
 DISPLAY=:1 xmonad
 
+** xmonad gnome
+
+[GNOME Session]
+Name=GNOME + XMonad
+RequiredComponents=xmonad;gnome-flashback-init;gnome-flashback;gnome-panel;nautilus-classic;org.gnome.SettingsDaemon.A11ySettings;org.gnome.SettingsDaemon.Clipboard;org.gnome.SettingsDaemon.Color;org.gnome.SettingsDaemon.Datetime;org.gnome.SettingsDaemon.Housekeeping;org.gnome.SettingsDaemon.Keyboard;org.gnome.SettingsDaemon.MediaKeys;org.gnome.SettingsDaemon.Mouse;org.gnome.SettingsDaemon.Power;org.gnome.SettingsDaemon.PrintNotifications;org.gnome.SettingsDaemon.Rfkill;org.gnome.SettingsDaemon.ScreensaverProxy;org.gnome.SettingsDaemon.Sharing;org.gnome.SettingsDaemon.Smartcard;org.gnome.SettingsDaemon.Sound;org.gnome.SettingsDaemon.Wacom;org.gnome.SettingsDaemon.XSettings;
+
+[Desktop Entry]
+Name=GNOME+XMonad
+Comment=This session logs you into GNOME + XMonad
+Exec=gnome-session-xmonad
+TryExec=gnome-session-xmonad
+Icon=
+Type=XSession
+DesktopNames=Unity
+
+#!/bin/sh
+
+if [ -z $XDG_CURRENT_DESKTOP ]; then
+  export XDG_CURRENT_DESKTOP="GNOME-Flashback:GNOME"
+fi
+
+exec gnome-session --session=gnome-xmonad --disable-acceleration-check "$@"
+
+
+           ├─user.slice
+           │ └─user-1000.slice
+           │   ├─user@1000.service
+           │   │ ├─indicator-datetime.service
+           │   │ │ └─30905 /usr/lib/x86_64-linux-gnu/indicator-datetime/indicator-datetime-service
+           │   │ ├─gvfs-goa-volume-monitor.service
+           │   │ │ └─7404 /usr/lib/gvfs/gvfs-goa-volume-monitor
+           │   │ ├─indicator-printers.service
+           │   │ │ └─30971 /usr/lib/x86_64-linux-gnu/indicator-printers/indicator-printers-service
+           │   │ ├─indicator-keyboard.service
+           │   │ │ └─30891 /usr/lib/x86_64-linux-gnu/indicator-keyboard/indicator-keyboard-service --use-gtk
+           │   │ ├─indicator-bluetooth.service
+           │   │ │ └─30939 /usr/lib/x86_64-linux-gnu/indicator-bluetooth/indicator-bluetooth-service
+           │   │ ├─evolution-calendar-factory.service
+           │   │ │ └─7448 /usr/lib/evolution/evolution-calendar-factory
+           │   │ ├─pulseaudio.service
+           │   │ │ └─7230 /usr/bin/pulseaudio --daemonize=no
+           │   │ ├─indicator-session.service
+           │   │ │ └─30912 /usr/lib/x86_64-linux-gnu/indicator-session/indicator-session-service
+           │   │ ├─gvfs-daemon.service
+           │   │ │ ├─ 7194 /usr/lib/gvfs/gvfsd
+           │   │ │ ├─ 7199 /usr/lib/gvfs/gvfsd-fuse /run/user/1000/gvfs -f -o big_writes
+           │   │ │ ├─12078 /usr/lib/gvfs/gvfsd-trash --spawner :1.21 /org/gtk/gvfs/exec_spaw/0
+           │   │ │ ├─12108 /usr/lib/gvfs/gvfsd-network --spawner :1.21 /org/gtk/gvfs/exec_spaw/2
+           │   │ │ └─12132 /usr/lib/gvfs/gvfsd-dnssd --spawner :1.21 /org/gtk/gvfs/exec_spaw/5
+           │   │ ├─evolution-source-registry.service
+           │   │ │ └─7411 /usr/lib/evolution/evolution-source-registry
+           │   │ ├─gvfs-udisks2-volume-monitor.service
+           │   │ │ └─7368 /usr/lib/gvfs/gvfs-udisks2-volume-monitor
+           │   │ ├─init.scope
+           │   │ │ ├─6747 /lib/systemd/systemd --user
+           │   │ │ └─6755 (sd-pam)
+           │   │ ├─gvfs-gphoto2-volume-monitor.service
+           │   │ │ └─7426 /usr/lib/gvfs/gvfs-gphoto2-volume-monitor
+           │   │ ├─indicator-power.service
+           │   │ │ └─30889 /usr/lib/x86_64-linux-gnu/indicator-power/indicator-power-service
+           │   │ ├─at-spi-dbus-bus.service
+           │   │ │ ├─7181 /usr/lib/at-spi2-core/at-spi-bus-launcher
+           │   │ │ ├─7186 /usr/bin/dbus-daemon --config-file=/usr/share/defaults/at-spi2/accessibility.conf --nofork --print-address 3
+           │   │ │ └─7188 /usr/lib/at-spi2-core/at-spi2-registryd --use-gnome-session
+           │   │ ├─gvfs-metadata.service
+           │   │ │ └─19374 /usr/lib/gvfs/gvfsd-metadata
+           │   │ ├─dbus.service
+           │   │ │ ├─6818 /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+           │   │ │ ├─7178 /usr/bin/gnome-screensaver --no-daemon
+           │   │ │ ├─7240 /usr/lib/dconf/dconf-service
+           │   │ │ ├─7259 /usr/bin/ibus-daemon --replace --panel disable --xim
+           │   │ │ ├─7263 /usr/lib/ibus/ibus-dconf
+           │   │ │ ├─7264 /usr/lib/ibus/ibus-extension-gtk3
+           │   │ │ ├─7269 /usr/lib/ibus/ibus-x11 --kill-daemon
+           │   │ │ ├─7273 /usr/lib/ibus/ibus-portal
+           │   │ │ ├─7287 /usr/lib/ibus/ibus-engine-simple
+           │   │ │ ├─7408 /usr/lib/gnome-online-accounts/goa-daemon
+           │   │ │ └─7424 /usr/lib/gnome-online-accounts/goa-identity-service
+           │   │ ├─evolution-addressbook-factory.service
+           │   │ │ └─7466 /usr/lib/evolution/evolution-addressbook-factory
+           │   │ ├─gvfs-mtp-volume-monitor.service
+           │   │ │ └─7436 /usr/lib/gvfs/gvfs-mtp-volume-monitor
+           │   │ ├─indicator-sound.service
+           │   │ │ └─30900 /usr/lib/x86_64-linux-gnu/indicator-sound/indicator-sound-service
+           │   │ └─gvfs-afc-volume-monitor.service
+           │   │   └─7440 /usr/lib/gvfs/gvfs-afc-volume-monitor
+
+
+
 ** acpi
 acpi -b : battery life
 
