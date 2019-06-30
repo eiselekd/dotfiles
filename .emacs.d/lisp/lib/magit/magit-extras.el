@@ -1,6 +1,6 @@
 ;;; magit-extras.el --- additional functionality for Magit  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2008-2018  The Magit Project Contributors
+;; Copyright (C) 2008-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -24,9 +24,15 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'subr-x))
+
 (require 'magit)
 
 (declare-function dired-read-shell-command "dired-aux" (prompt arg files))
+
+(defvar ido-exit)
+(defvar ido-fallback)
 
 (defgroup magit-extras nil
   "Additional functionality for Magit."
@@ -102,6 +108,10 @@ blame to center around the line point is on."
 (defun ido-enter-magit-status ()
   "Drop into `magit-status' from file switching.
 
+This command does not work in Emacs 26.1.
+See https://github.com/magit/magit/issues/3634
+and https://debbugs.gnu.org/cgi/bugreport.cgi?bug=31707.
+
 To make this command available use something like:
 
   (add-hook \\='ido-setup-hook
@@ -116,8 +126,9 @@ like pretty much every other keymap:
   (define-key ido-common-completion-map
     (kbd \"C-x g\") \\='ido-enter-magit-status)"
   (interactive)
-  (with-no-warnings ; FIXME these are internal variables
-    (setq ido-exit 'fallback fallback 'magit-status))
+  (setq ido-exit 'fallback)
+  (setq ido-fallback 'magit-status)                ; for Emacs >= 26.2
+  (with-no-warnings (setq fallback 'magit-status)) ; for Emacs 25
   (exit-minibuffer))
 
 ;;;###autoload
@@ -145,12 +156,11 @@ is no file at point, then instead visit `default-directory'."
                    (not (member "--follow" args))
                    (not (cdr files)))
           (push "--follow" args))
-        (magit-mode-setup-internal
-         #'magit-log-mode
-         (list (list (or (magit-get-current-branch) "HEAD"))
-               args
-               (let ((default-directory topdir))
-                 (mapcar #'file-relative-name files)))
+        (magit-log-setup-buffer
+         (list (or (magit-get-current-branch) "HEAD"))
+         args
+         (let ((default-directory topdir))
+           (mapcar #'file-relative-name files))
          magit-log-buffer-file-locked))
     (magit--not-inside-repository-error)))
 
@@ -238,66 +248,6 @@ with two prefix arguments remove ignored files only.
 
 (put 'magit-clean 'disabled t)
 
-;;; Gitignore
-
-;;;###autoload (autoload 'magit-ignore-popup "extras" nil t)
-(magit-define-popup magit-gitignore-popup
-  "Popup console for gitignore commands."
-  :man-page "gitignore"
-  :actions '((?l "ignore locally"  magit-gitignore-locally)
-             (?g "ignore globally" magit-gitignore))
-  :max-action-columns 1)
-
-;;;###autoload
-(defun magit-gitignore (file-or-pattern &optional local)
-  "Instruct Git to ignore FILE-OR-PATTERN.
-With a prefix argument only ignore locally."
-  (interactive (list (magit-gitignore-read-pattern current-prefix-arg)
-                     current-prefix-arg))
-  (let ((gitignore
-         (if local
-             (magit-git-dir (convert-standard-filename "info/exclude"))
-           (expand-file-name ".gitignore" (magit-toplevel)))))
-    (make-directory (file-name-directory gitignore) t)
-    (with-temp-buffer
-      (when (file-exists-p gitignore)
-        (insert-file-contents gitignore))
-      (goto-char (point-max))
-      (unless (bolp)
-        (insert "\n"))
-      (insert (replace-regexp-in-string "\\(\\\\*\\)" "\\1\\1" file-or-pattern))
-      (insert "\n")
-      (write-region nil nil gitignore))
-    (if local
-        (magit-refresh)
-      (magit-run-git "add" ".gitignore"))))
-
-;;;###autoload
-(defun magit-gitignore-locally (file-or-pattern)
-  "Instruct Git to locally ignore FILE-OR-PATTERN."
-  (interactive (list (magit-gitignore-read-pattern t)))
-  (magit-gitignore file-or-pattern t))
-
-(defun magit-gitignore-read-pattern (local)
-  (let* ((default (magit-current-file))
-         (choices
-          (delete-dups
-           (--mapcat
-            (cons (concat "/" it)
-                  (when-let ((ext (file-name-extension it)))
-                    (list (concat "/" (file-name-directory "foo") "*." ext)
-                          (concat "*." ext))))
-            (magit-untracked-files)))))
-    (when default
-      (setq default (concat "/" default))
-      (unless (member default choices)
-        (setq default (concat "*." (file-name-extension default)))
-        (unless (member default choices)
-          (setq default nil))))
-    (magit-completing-read (concat "File or pattern to ignore"
-                                   (and local " locally"))
-                           choices nil nil nil nil default)))
-
 ;;; ChangeLog
 
 ;;;###autoload
@@ -308,15 +258,9 @@ it acts on the current hunk in a Magit buffer instead of on
 a position in a file-visiting buffer."
   (interactive (list current-prefix-arg
                      (prompt-for-change-log-name)))
-  (let (buf pos)
-    (save-window-excursion
-      (call-interactively #'magit-diff-visit-file)
-      (setq buf (current-buffer))
-      (setq pos (point)))
-    (save-excursion
-      (with-current-buffer buf
-        (goto-char pos)
-        (add-change-log-entry whoami file-name other-window)))))
+  (pcase-let ((`(,buf ,pos) (magit-diff-visit-file--noselect)))
+    (magit--with-temp-position buf pos
+      (add-change-log-entry whoami file-name other-window))))
 
 ;;;###autoload
 (defun magit-add-change-log-entry-other-window (&optional whoami file-name)
@@ -372,7 +316,8 @@ points at it) otherwise."
 
 (put 'magit-edit-line-commit 'disabled t)
 
-(defun magit-diff-edit-hunk-commit ()
+;;;###autoload
+(defun magit-diff-edit-hunk-commit (file)
   "From a hunk, edit the respective commit and visit the file.
 
 First visit the file being modified by the hunk at the correct
@@ -389,13 +334,11 @@ to be visited.
 Neither the blob nor the file buffer are killed when finishing
 the rebase.  If that is undesirable, then it might be better to
 use `magit-rebase-edit-command' instead of this command."
-  (interactive)
+  (interactive (list (magit-file-at-point t t)))
   (let ((magit-diff-visit-previous-blob nil))
-    (magit-diff-visit-file (--if-let (magit-file-at-point)
-                               (expand-file-name it)
-                             (user-error "No file at point"))
-                           nil 'switch-to-buffer))
-  (magit-edit-line-commit))
+    (with-current-buffer
+        (magit-diff-visit-file--internal file nil #'pop-to-buffer-same-window)
+      (magit-edit-line-commit))))
 
 (put 'magit-diff-edit-hunk-commit 'disabled t)
 
@@ -520,6 +463,7 @@ that)."
                (choice (regexp :tag "Find index regexp")
                        (const :tag "Don't number entries" nil))))
 
+;;;###autoload
 (defun magit-pop-revision-stack (rev toplevel)
   "Insert a representation of a revision into the current buffer.
 
@@ -614,10 +558,21 @@ argument is used, then save the revision at its tip to the
 
 When the region is active, then save that to the `kill-ring',
 like `kill-ring-save' would, instead of behaving as described
-above."
+above.  If a prefix argument is used and the region is within a
+hunk, strip the outer diff marker column."
   (interactive)
-  (if (use-region-p)
-      (copy-region-as-kill nil nil 'region)
+  (cond
+   ((and current-prefix-arg
+         (magit-section-internal-region-p)
+         (magit-section-match 'hunk))
+    (deactivate-mark)
+    (kill-new (replace-regexp-in-string
+               "^[ \\+\\-]" ""
+               (buffer-substring-no-properties
+                (region-beginning) (region-end)))))
+   ((use-region-p)
+    (copy-region-as-kill nil nil 'region))
+   (t
     (when-let ((section (magit-current-section))
                (value (oref section value)))
       (magit-section-case
@@ -635,7 +590,7 @@ above."
            (push (list value default-directory) magit-revision-stack)
            (kill-new (message "%s" (or (and current-prefix-arg ref)
                                        value)))))
-        (t (kill-new (message "%s" value)))))))
+        (t (kill-new (message "%s" value))))))))
 
 ;;;###autoload
 (defun magit-copy-buffer-revision ()
@@ -662,22 +617,15 @@ above."
   (interactive)
   (if (use-region-p)
       (copy-region-as-kill nil nil 'region)
-    (when-let ((rev (cond ((memq major-mode '(magit-cherry-mode
-                                              magit-log-select-mode
-                                              magit-reflog-mode
-                                              magit-refs-mode
-                                              magit-revision-mode
-                                              magit-stash-mode
-                                              magit-stashes-mode))
-                           (car magit-refresh-args))
-                          ((memq major-mode '(magit-diff-mode
-                                              magit-log-mode))
-                           (let ((r (caar magit-refresh-args)))
-                             (if (string-match "\\.\\.\\.?\\(.+\\)" r)
-                                 (match-string 1 r)
-                               r)))
-                          ((eq major-mode 'magit-status-mode) "HEAD"))))
-      (when (magit-rev-verify-commit rev)
+    (when-let ((rev (or magit-buffer-revision
+                        (cl-case major-mode
+                          (magit-diff-mode
+                           (if (string-match "\\.\\.\\.?\\(.+\\)"
+                                             magit-buffer-range)
+                               (match-string 1 magit-buffer-range)
+                             magit-buffer-range))
+                          (magit-status-mode "HEAD")))))
+      (when (magit-commit-p rev)
         (setq rev (magit-rev-parse rev))
         (push (list rev default-directory) magit-revision-stack)
         (kill-new (message "%s" rev))))))
@@ -696,5 +644,6 @@ patch application, a cherry-pick, a revert, or a bisect."
         ((magit-sequencer-in-progress-p) (magit-sequencer-abort))
         ((magit-bisect-in-progress-p)    (magit-bisect-reset))))
 
+;;; _
 (provide 'magit-extras)
 ;;; magit-extras.el ends here

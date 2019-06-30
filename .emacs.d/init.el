@@ -57,6 +57,7 @@
 
 (add-to-list 'load-path (expand-file-name "lib/ghc-mod" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/transient" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/haskell-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "dired-hacks" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/irony-mode" *.emacs.d.lisp.dir*  ))

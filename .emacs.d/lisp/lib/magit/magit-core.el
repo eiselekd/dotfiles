@@ -1,6 +1,6 @@
 ;;; magit-core.el --- core functionality  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2010-2018  The Magit Project Contributors
+;; Copyright (C) 2010-2019  The Magit Project Contributors
 ;;
 ;; You should have received a copy of the AUTHORS.md file which
 ;; lists all contributors.  If not, see http://magit.vc/authors.
@@ -30,14 +30,22 @@
 
 ;;; Code:
 
-(require 'magit-popup)
 (require 'magit-utils)
 (require 'magit-section)
 (require 'magit-git)
 (require 'magit-mode)
 (require 'magit-margin)
 (require 'magit-process)
+(require 'magit-transient)
 (require 'magit-autorevert)
+
+(when (magit--libgit-available-p)
+  (condition-case err
+      (require 'magit-libgit)
+    (error
+     (setq magit-inhibit-libgit 'error)
+     (message "Error while loading `magit-libgit': %S" err)
+     (message "That is not fatal.  The `libegit2' module just won't be used."))))
 
 (defgroup magit nil
   "Controlling Git from Emacs."
@@ -103,8 +111,6 @@ are enabled by default by the popup `magit-NAME-popup'."
   "Extensions to Magit."
   :group 'magit)
 
-(custom-add-to-group 'magit-modes   'magit-popup       'custom-group)
-(custom-add-to-group 'magit-faces   'magit-popup-faces 'custom-group)
 (custom-add-to-group 'magit-modes   'git-commit        'custom-group)
 (custom-add-to-group 'magit-faces   'git-commit-faces  'custom-group)
 (custom-add-to-group 'magit-modes   'git-rebase        'custom-group)
@@ -128,5 +134,6 @@ are enabled by default by the popup `magit-NAME-popup'."
 (custom-add-to-group 'magit-related 'smerge-refine-ignore-whitespace 'custom-variable)
 (custom-add-to-group 'magit-related 'vc-follow-symlinks 'custom-variable)
 
+;;; _
 (provide 'magit-core)
 ;;; magit-core.el ends here
