@@ -119,6 +119,24 @@ KDE konsole keys:
  * use solarized/solarizedlight to switch colorscheme in konsole
  * disable shift-l/shift-r to disable Konsole TAB switching
 
+Magit cheatsheet:
+ * f a : fetch all
+ * b s : branch spinoff, move open changes to new branch
+ * b c : branch create
+ * r i : rebase interactive
+ * r s : rebase lower part onto destination
+ * Merge conflicts:
+   * e : on _unmerged_ files opens ediff, second emacs window shows ediff ctrl:
+     * |   : column view
+     * a/b : select left/right
+     * n/p : navigate diff sections
+     * q   : finish
+ * Ediff 3 colum view:
+   * xy : i.e. press ab to move current hunk from a to b, ac to move current hunk from a to c
+   * rx : i.e. press ra to restore current hunk in column a
+   
+ * y   : branch viewer (k delet branch)
+
 [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
 has to be present
 [2] Magit cheetsheet: https://github.com/magit/magit/wiki/Cheatsheet
@@ -127,3 +145,6 @@ Org-mode timeentry:
 [3] http://orgmode.org/manual/The-date_002ftime-prompt.html#The-date_002ftime-prompt
 [4] http://orgmode.org/manual/Effort-estimates.html#Effort-estimates, https://writequit.org/denver-emacs/presentations/2017-04-11-time-clocking-with-org.html
 [5] http://doc.norang.ca/org-mode.html#ReviewingEstimates
+
+Magit:
+[6] https://endlessparentheses.com/it-s-magit-and-you-re-the-magician.html
