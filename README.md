@@ -124,6 +124,7 @@ Magit cheatsheet:
  * b s : branch spinoff, move open changes to new branch
  * b c : branch create
  * r i : rebase interactive
+ * r m : rebase-edit selected commit only (point in l l logview)
  * r s : rebase lower part onto destination
  * Merge conflicts:
    * e : on _unmerged_ files opens ediff, second emacs window shows ediff ctrl:
