@@ -126,6 +126,9 @@ Magit cheatsheet:
  * r i : rebase interactive
  * r m : rebase-edit selected commit only (point in l l logview)
  * r s : rebase lower part onto destination
+ * l a : list all branches
+   * Select a patch and:
+     * A A : cherrypick to current branch, use b b to switch current branch
  * Merge conflicts:
    * e : on _unmerged_ files opens ediff, second emacs window shows ediff ctrl:
      * |   : column view
