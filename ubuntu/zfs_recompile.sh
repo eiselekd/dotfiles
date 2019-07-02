@@ -29,6 +29,17 @@ function dogit
     done
 }
 
+function dogitzfs
+{
+    for d in zfs ; do
+	if [ ! -d $d ]; then
+	    git clone https://github.com/zfsonlinux/$d; (cd $d; git checkout master;)
+	fi
+	(cd $d; git reset --hard HEAD)
+	(cd $d; git pull --rebase)
+    done
+}
+
 function prepconfig
 {
     cf=config-`uname -r`
@@ -115,6 +126,45 @@ function dozfs
     #LC_TIME=C V=1 make deb;
 }
 
+function dozfsonly
+{
+    local v=""
+    cd ${d}/zfs
+
+    if [ -z "$v" ]; then
+	#v=$(cd $d/linux; make kernelversion)-custom
+	v=`uname -r`
+	#v=4.15.0-39-generic
+	#v=4.18.0-11-generic
+    fi
+    echo "Using kernel version ${v}"
+    p="/opt/${v}"
+
+    #git reset --hard HEAD
+    #git pull --rebase
+    sh autogen.sh
+    # todo: ubuntu style lib/exe-dir
+    #./configure --with-spl=$d/spl --with-spl-obj=$d/spl --with-linux=$d/linux --with-linux-obj=$d/linux || exit 1
+
+    # build with user-space: -with-config=user
+    # build with kernel variant
+
+    ./configure \
+		--build=x86_64-linux-gnu --prefix=${p}/usr --includedir=\${prefix}/include --mandir=\${prefix}/share/man --infodir=\${prefix}/share/info --sysconfdir=${p}/etc --localstatedir=/var --libdir=\${prefix}/lib/x86_64-linux-gnu --libexecdir=\${prefix}/lib/x86_64-linux-gnu  --bindir=${p}/usr/bin --sbindir=${p}/sbin --libdir=${p}/lib --with-udevdir=${p}/lib/udev --with-systemdunitdir=${p}/lib/systemd/system --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdpresetdir=${p}/lib/systemd/system-preset --with-systemdgeneratordir=${p}/usr/lib/systemd/system-generators --with-systemdmodulesloaddir=${p}//usr/lib/modules-load.d --with-mounthelperdir=${p}/sbin --with-dracutdir=${p}/usr/lib/dracut/modules.d/02zfsexpandknowledge \
+
+    V=1 LD_RUN_PATH=${p}/lib make;
+    v=1 LD_RUN_PATH=${p}/lib make INSTALL_MOD_PATH=${p} DEFAULT_INITCONF_DIR=${p}/etc/default install;
+
+
+    sudo mkdir -p /lib/modules/${v}/kernel/zfs
+    sudo cp -r /opt/${v}/lib/modules/${v}/extra/* /lib/modules/${v}/kernel/zfs
+    sudo depmod -a ${v}
+
+    #make INSTALL_MOD_PATH=${p} -C modules modules
+    #make DESTDIR=${p} -C modules
+    #LC_TIME=C V=1 make deb;
+}
+
 function dozfsdeb
 {
     cd ${d}/zfs
@@ -156,6 +206,9 @@ case "$1" in
     git)
 	dogit
 	;;
+    gitzfs)
+	dogitzfs
+	;;
     prepconfig)
 	prepconfig
 	;;
@@ -170,6 +223,9 @@ case "$1" in
 	;;
     spldeb)
 	dospldeb
+	;;
+    zfsonly)
+	dozfsonly
 	;;
     zfs)
 	dozfs $2
