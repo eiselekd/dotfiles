@@ -27,6 +27,10 @@
 	      (setq org-taskjuggler-default-project-duration 16256)
 	      (message "[+] org-plantuml: '%s'" org-plantuml-jar-path)
 
+	      ;; dont show "created" footer:
+	      (setq org-html-postamble nil)
+	      (setq org-html-validation-link nil)
+
 	      (setq org-taskjuggler-default-resource-def "
 shifts home
 
