@@ -141,14 +141,15 @@ Magit cheatsheet:
    
  * y   : branch viewer (k delet branch)
 
-[1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
-has to be present
-[2] Magit cheetsheet: https://github.com/magit/magit/wiki/Cheatsheet
+Links:
+
+ * [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
+  has to be present
+ * [2] Magit cheetsheet: https://github.com/magit/magit/wiki/Cheatsheet
+ * [3] https://github.com/magit/magit/wiki/Cheatsheet
+ * [4] https://endlessparentheses.com/it-s-magit-and-you-re-the-magician.html
 
 Org-mode timeentry:
-[3] http://orgmode.org/manual/The-date_002ftime-prompt.html#The-date_002ftime-prompt
-[4] http://orgmode.org/manual/Effort-estimates.html#Effort-estimates, https://writequit.org/denver-emacs/presentations/2017-04-11-time-clocking-with-org.html
-[5] http://doc.norang.ca/org-mode.html#ReviewingEstimates
-
-Magit:
-[6] https://endlessparentheses.com/it-s-magit-and-you-re-the-magician.html
+ * [1] http://orgmode.org/manual/The-date_002ftime-prompt.html#The-date_002ftime-prompt
+ * [2] http://orgmode.org/manual/Effort-estimates.html#Effort-estimates, https://writequit.org/denver-emacs/presentations/2017-04-11-time-clocking-with-org.html
+ * [3] http://doc.norang.ca/org-mode.html#ReviewingEstimates
