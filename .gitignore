@@ -13,3 +13,12 @@
 .emacs.d/recentf
 .emacs.d/tramp
 .xmonad/xmonad.state
+GTAGS
+GRTAGS
+GPATH
+*/.stack-work/*
+.xmonad/xmobar-git/
+.xmonad/xmonad-contrib-git/
+.xmonad/xmonad-git/
+.xmonad/build
+.xmonad/build.bck
