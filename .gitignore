@@ -22,3 +22,4 @@ GPATH
 .xmonad/xmonad-git/
 .xmonad/build
 .xmonad/build.bck
+.emacs.d/transient
