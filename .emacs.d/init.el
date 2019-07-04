@@ -73,6 +73,15 @@
 (add-to-list 'load-path (expand-file-name "lib/js/multiple-cursors.el" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
 
+;; printf "\xe2\x80\xa6"
+;; UTF-8 support
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+
+(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
 (require 'cc-mode)
 (setq c-default-style
       '((java-mode . "java")

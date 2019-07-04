@@ -28,7 +28,7 @@
 (defun utils/magit-status ()
   (progn
     (when (require 'magit nil t)
-      (setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)
+      ;;(setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)
       (magit-status))))
 
 (provide 'utils/magit-util.el)
