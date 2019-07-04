@@ -177,6 +177,7 @@ function _update_ps1() {
     PS1=$(powerline-shell $?)
 }
 
+# https://github.com/b-ryan/powerline-shell.git : python setup.py install --user
 if which powerline-shell; then
 
    if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
