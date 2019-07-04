@@ -190,7 +190,7 @@
 							))
 				       (t (progn
 					    (when (require 'magit nil t)
-					      (magit-status)))) ;;(org-agenda)
+					      (magit-status))))  ;;(org-agenda)
 				       )
 				 )))
 
