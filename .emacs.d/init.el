@@ -445,8 +445,18 @@
 (setq active-theme 'dark)
 (set-dark-light-theme active-theme)
 
-(global-set-key (kbd "ESC t") (lambda ()(interactive) (
-						       progn (toggle-dark-light-theme))))
+(global-set-key
+ (kbd "ESC t")
+ (lambda ()(interactive)
+   (progn (toggle-dark-light-theme))))
+
+(global-set-key
+ (kbd "ESC T")
+ (lambda ()(interactive)
+   (progn
+     (hide-mode-line)
+     ( force-mode-line-update))))
+
 
 
 ;; (add-hook
