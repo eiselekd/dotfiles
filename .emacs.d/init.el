@@ -120,11 +120,12 @@
 	(interactive)
 	(ansi-color-apply-on-region (point-min) (point-max)))
 
-      (if window-system
+      ;;(if window-system
       	  (progn
       	    (require 'powerline) ;; status line
       	    (powerline-default-theme)
-      	    (setq powerline-default-separator 'arrow)))
+      	    (setq powerline-default-separator 'arrow))
+	;;)
 
       ;;(require 'powerline) ;; status line
       ;;(powerline-default-theme)
