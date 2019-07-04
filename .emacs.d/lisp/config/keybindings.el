@@ -189,7 +189,8 @@
 							(gud-refresh)
 							))
 				       (t (progn
-					    (magit-status))) ;;(org-agenda)
+					    (when (require 'magit nil t)
+					      (magit-status)))) ;;(org-agenda)
 				       )
 				 )))
 
