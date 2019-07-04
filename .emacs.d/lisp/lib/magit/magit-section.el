@@ -160,6 +160,8 @@ entries of this alist."
                                     (const show)
                                     function)))
 
+
+;; char-displayable-p
 (defcustom magit-section-visibility-indicator
   (if (window-system)
       '(magit-fringe-bitmap> . magit-fringe-bitmapv)

@@ -82,10 +82,8 @@
 			       (progn
 				 ;;(setq with-editor-file-name-history-exclude 1)
 				 (with-executable 'git
-				   (when (require 'magit nil t)
-				     (magit-status))))))
-
-
+				   (when (require 'utils/magit-util.el nil t)
+				     (utils/magit-status))))))  ;;(org-agenda)
 
 ;; interpose helm
 (global-set-key (kbd "M-Q")  (lambda ()(interactive)
@@ -189,8 +187,8 @@
 							(gud-refresh)
 							))
 				       (t (progn
-					    (when (require 'magit nil t)
-					      (magit-status))))  ;;(org-agenda)
+					    (when (require 'utils/magit-util.el nil t)
+					      (utils/magit-status))))  ;;(org-agenda)
 				       )
 				 )))
 
