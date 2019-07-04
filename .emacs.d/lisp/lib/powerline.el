@@ -97,17 +97,12 @@ utf-8."
                  (const utf-8)
                  (const nil)))
 
-;; printf '\xe0\xb0'
-;; #xe0b0
-;; #xe296ba
-;; #x7c
-(defcustom powerline-utf-8-separator-left #x7c
+(defcustom powerline-utf-8-separator-left #xe0b0
   "The unicode character number for the left facing separator"
   :group 'powerline
   :type  '(choice integer (const nil)))
 
-;; #xe0b2
-(defcustom powerline-utf-8-separator-right #x7c
+(defcustom powerline-utf-8-separator-right #xe0b2
   "The unicode character number for the right facing separator"
   :group 'powerline
   :type  '(choice integer (const nil)))
@@ -580,12 +575,7 @@ static char * %s[] = {
   "Call `powerline-set-selected-window'."
   (powerline-set-selected-window))
 
-(defadvice select-window (around powerline-select-window activate)
-  "Call `powerline-set-selected-window' when NORECORD is nil."
-  (prog1
-      ad-do-it
-    (unless norecord
-      (powerline-set-selected-window))))
+(add-hook 'buffer-list-update-hook #'powerline-set-selected-window)
 
 ;;;###autoload (autoload 'powerline-selected-window-active "powerline")
 (defun powerline-selected-window-active ()
