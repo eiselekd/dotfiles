@@ -189,7 +189,7 @@
 							(gud-refresh)
 							))
 				       (t (progn
-					    (org-agenda)))
+					    (magit-status))) ;;(org-agenda)
 				       )
 				 )))
 
