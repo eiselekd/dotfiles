@@ -112,7 +112,7 @@ Defaults:
   * Ctrl-x 5 0 : close frame (new x-window)
   * Ctrl-x 5 o : switch frame (new x-window)
  * Themes
-  * ESC t : Toggle dark/light
+  * ESC t : Toggle dark/light solarized
 
 KDE konsole keys:
  * CTRL-Shieft-m : hide/show menubar

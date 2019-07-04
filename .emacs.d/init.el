@@ -387,7 +387,7 @@
  '(custom-safe-themes
    (quote
     ("fc5ad2db8ba71ce0c0d989de5cf60f8dbe9562b0356901d370b5c3440b316475" default)))
- '(frame-background-mode (quote dark))
+ '(frame-background-mode mode)
  '(haskell-process-auto-import-loaded-modules t)
  '(haskell-process-log t)
  '(haskell-process-suggest-remove-import-lines t)
@@ -395,7 +395,7 @@
  '(haskell-tags-on-save t)
  '(package-selected-packages
    (quote
-    (yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update))))
+    (dash yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update))))
 
 (put 'downcase-region 'disabled nil)
 
@@ -416,7 +416,14 @@
     (set-terminal-parameter frame 'background-mode mode)
     (custom-set-variables '( frame-background-mode mode)))
   (enable-theme 'solarized))
-(load-theme 'solarized t)
+
+;;(add-to-list 'custom-theme-load-path (expand-file-name "themes/solarized-emacs" *.emacs.d.dir*  ))
+;;(add-to-list 'load-path              (expand-file-name "themes/solarized-emacs" *.emacs.d.dir*  ))
+;;       (add-to-list 'custom-theme-load-path (expand-file-name "themes/emacs-color-theme-solarized" *.emacs.d.dir*  ))
+;;       (load                                (expand-file-name "themes/emacs-color-theme-solarized/solarized-theme.el" *.emacs.d.dir*  ))
+
+;;(load-theme 'solarized t)
+;;(load-theme 'solarized-dark t)
 
 (defun toggle-dark-light-theme ()
    (interactive)
