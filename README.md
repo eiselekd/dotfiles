@@ -113,6 +113,7 @@ Defaults:
   * Ctrl-x 5 o : switch frame (new x-window)
  * Themes
   * ESC t : Toggle dark/light solarized
+  * ESC T : Toggle hide-node-line (hide modeline in single frame)
 
 KDE konsole keys:
  * CTRL-Shieft-m : hide/show menubar
