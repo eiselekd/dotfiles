@@ -68,6 +68,7 @@ Keybindings:
    * M-M   : helm query man db
    * M-( + M-) : toggle block hide/show
    * M-F9  : mix org and c++ mode
+   * ESC N : cling interpreter and .cling.cpp load
  * ESC M-h : haskell interactive mode  
  * haskell-mode:
    * F1 | C-c C-l : eval in repl
