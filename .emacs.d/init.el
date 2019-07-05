@@ -348,6 +348,7 @@
 (require 'modes/ruby-mode.el)
 (require 'modes/lua-mode.el)
 (require 'modes/haskell-mode.el)
+(require 'modes/rust-mode.el)
 (global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
 ;;(require 'modes/web-mode.el)
 (require 'modes/javascript-mode.el)
