@@ -136,9 +136,19 @@
 ;;
 (global-set-key (kbd "M-N")  (lambda ()(interactive)
 			       (progn
+				 (when (require 'utils/cling-term.el nil t)
+				   (progn
+				     (cling-term "cling" "cling")
+
+				     )))))
+
+(global-set-key (kbd "ESC M-N")  (lambda ()(interactive)
+			       (progn
 				 (when (require 'utils/cling.el nil t)
 				   (progn
-				     (utils/run-cling))))))
+				     (utils/run-cling)
+
+				     )))))
 
 (global-set-key (kbd "M-n")  (lambda ()(interactive)
 			       (progn

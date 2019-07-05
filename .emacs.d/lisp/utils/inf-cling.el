@@ -6,15 +6,6 @@
 (defvar cling-cli-arguments '("-std=c++17")
   "Commandline arguments to pass to `cling'")
 
-(defun utils/cling-has-clingconfig ()
-  (locate-dominating-file (eval default-directory) ".cling.cpp"))
-
-(defun utils/cling-get-dir ()
-  (let* ((source-dir (eval default-directory)) ;;(file-name-directory (buffer-file-name)))
-	 (cling-config-dir (locate-dominating-file source-dir ".cling.cpp")))
-    (message "search for cling.txt in %s: %s" source-dir cling-config-dir )
-    (if cling-config-dir cling-config-dir source-dir )))
-
 (defun run-cling ()
   "Run an inferior instance of `cling-cli' inside Emacs."
   (interactive)
@@ -28,17 +19,11 @@
          (get-buffer-create (or buffer "*Cling*"))
        (current-buffer)))
     ;; create the comint process if there is no buffer.
-    (let ((default-directory (utils/cling-get-dir)))
-      (unless buffer
-	(apply 'make-comint-in-buffer "Cling" buffer
-               cling-program nil cling-cli-arguments)
-	;;(c-mode)
-	))
-    (if (utils/cling-has-clingconfig)
-	(cling-send-string (format ".L .cling.cpp")))
-    )
-
-  )
+    (unless buffer
+      (apply 'make-comint-in-buffer "Cling" buffer
+             cling-program nil cling-cli-arguments)
+      ;;(c-mode)
+      )))
 
 (defun cling (&optional flags)
   "Move to the buffer containing Cling, or create one if it does not exist. Defaults to C++11"
@@ -120,15 +105,13 @@ When inferior-cling-mode is enabled, we rebind keys to facilitate working with c
 (defun utils/run-cling ()
   (let ((mode major-mode)
 	(fn (buffer-file-name)))
+    (setq comint-process-echoes 't)
     (run-cling)
+    (cond
+     ((or (string= mode 'c-mode)
+	  (string= mode 'c++-mode)) (utils/run-cling-load fn)))
 
-    ;;(cond
-    ;; ((or (string= mode 'c-mode)
-    ;; (string= mode 'c++-mode)) (utils/run-cling-load fn)))
-    ;;
-    ;;)
-  ))
+    )
+  )
 
-
-
-(provide 'utils/cling.el)
+(provide 'utils/inf-cling.el)
