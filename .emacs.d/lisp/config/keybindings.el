@@ -134,6 +134,12 @@
 ;;				 (require 'utils/flycheck.el)
 ;;				 'flycheck-mode)))
 ;;
+(global-set-key (kbd "M-N")  (lambda ()(interactive)
+			       (progn
+				 (when (require 'utils/cling.el nil t)
+				   (progn
+				     (utils/run-cling))))))
+
 (global-set-key (kbd "M-n")  (lambda ()(interactive)
 			       (progn
 				 (eww "https://news.ycombinator.com/")
