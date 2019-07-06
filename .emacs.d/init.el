@@ -369,6 +369,10 @@
 (autoload 'hide-mode-line "hide-mode-line" nil t)
 (hide-mode-line)
 
+;; ctrl-x ctrl-b
+(require 'utils/buffer.el)
+
+
 ;;;; ======================== themes ===============================
 ;;;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 

@@ -57,7 +57,7 @@ Keybindings:
        * use: S-arrow, "<", ">"
  * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
-   * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags
+   * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags (ESC ? : xrefs)
    * ESC , : pop markbuffer ([1])
    * ESC : : helm dash query (sqlite3 needed, use helm-dash-update-docset)
    * ESC h : toggle hs-org/minor-mode (toggle blocks and ifdef blocks, disabled default)
@@ -115,6 +115,12 @@ Defaults:
  * Themes
   * ESC t : Toggle dark/light solarized
   * ESC T : Toggle hide-node-line (hide modeline in single frame)
+ * VC mode
+  * Ctrl-x v g : git blame
+ * Debug
+  * Ctrl-h v : show variable value
+  * Ctrl-h b : show current keymap
+  * Ctrl-h k : show keybinding
 
 KDE konsole keys:
  * CTRL-Shieft-m : hide/show menubar
