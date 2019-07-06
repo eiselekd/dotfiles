@@ -1,4 +1,5 @@
 ;;---------------------------------------------
+;; http://home.thep.lu.se/~karlf/emacs.html#sec-1-2-6
 ;; pressing S saves all unsaved buffers, try hitting SPC at [Org]-label.
 ;; See what happens
 ;; RET folds a filter (like folders and hierarchies)
