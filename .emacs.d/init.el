@@ -371,6 +371,7 @@
 
 ;; ctrl-x ctrl-b
 (require 'utils/buffer.el)
+(require 'utils/occur.el)
 
 
 ;;;; ======================== themes ===============================

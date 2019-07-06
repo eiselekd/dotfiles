@@ -107,7 +107,7 @@
 ;; goto workspace 2
 (global-set-key (kbd "M-2")  (lambda ()(interactive)(wg-switch-to-workgroup (wg-get-workgroup 'name "w2"))))
 
-(global-set-key (kbd "M-s")
+(global-set-key (kbd "M-q")
 		(lambda ()(interactive)
 		  (progn
 		    (when (require 'quilt nil t)

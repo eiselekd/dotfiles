@@ -84,6 +84,8 @@ Keybindings:
   * C-fh  : recursive grep on dir under cursor
   * C-fg  : find-gre-dired
   * C-fn  : find-gre-name
+ * Occur
+  * ESC s : Occure inside buffers (CTRL-o to open location occur window)
 
 HELM:
  * C-x b : helm buffer select
