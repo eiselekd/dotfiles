@@ -473,14 +473,27 @@ static char * %s[] = {
                 'local-map (make-mode-line-mouse-map
                             'mouse-1 'mode-line-widen))))
 
+
+(require 'vc-git)
+
 ;;;###autoload (autoload 'powerline-vc "powerline")
 (defpowerline powerline-vc
-  (when (and (buffer-file-name (current-buffer)) vc-mode)
+  (cond
+   ((and (symbolp 'major-mode) (string-equal major-mode 'dired-mode)
+	 (vc-git-root default-directory))
+    (progn
+      (vc-mode-line default-directory 'Git)
+      (format " %s%s"
+	      (char-to-string #xe0a0)
+	      (format-mode-line '(vc-mode vc-mode)))))
+   ((and (buffer-file-name (current-buffer)) vc-mode)
     (if (and window-system (not powerline-gui-use-vcs-glyph))
         (format-mode-line '(vc-mode vc-mode))
       (format " %s%s"
               (char-to-string #xe0a0)
-              (format-mode-line '(vc-mode vc-mode))))))
+              (format-mode-line '(vc-mode vc-mode))))
+    )
+   ))
 
 ;;;###autoload (autoload 'powerline-encoding "powerline")
 (defpowerline powerline-encoding
