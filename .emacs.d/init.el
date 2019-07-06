@@ -542,3 +542,6 @@
   (add-hook 'prog-mode-hook #'ws-butler-mode))
 
 ;; (setq helm-debug 't)
+
+(find-file default-directory)
+;; (dired-mode)
