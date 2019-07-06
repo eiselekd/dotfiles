@@ -382,6 +382,9 @@
 		   (when (require 'rainbow-delimiters)
 		     (rainbow-delimiters-mode))
 
+		   (when (require 'which-func)
+		     (which-func-mode 1))
+
 		   ;; (hs-org/minor-mode)
 		   (global-set-key (kbd "M-h")
 				   (lambda () (interactive)
@@ -410,6 +413,8 @@
 
 	      (when (require 'rainbow-delimiters)
 		(rainbow-delimiters-mode))
+	      (when (require 'which-func)
+		(which-func-mode 1))
 
 	      ;;(hs-org/minor-mode)
 	      (global-set-key (kbd "M-h")

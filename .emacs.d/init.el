@@ -351,6 +351,7 @@
 (require 'modes/haskell-mode.el)
 (require 'modes/cling-mode.el)
 (require 'modes/rust-mode.el)
+(require 'modes/elisp-mode.el)
 (global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
 ;;(require 'modes/web-mode.el)
 (require 'modes/javascript-mode.el)
@@ -445,7 +446,7 @@
      (setq active-theme 'light))
    (set-dark-light-theme active-theme))
 
-(setq active-theme 'dark)
+(setq active-theme 'light)
 (set-dark-light-theme active-theme)
 
 (global-set-key
