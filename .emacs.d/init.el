@@ -183,6 +183,7 @@
       ;;(require 'utils/ctags.el)
       (require 'utils/openfile.el)
       (require 'utils/flycheck.el)
+      (require 'utils/spell.el)
 
       (require 'haskell-mode)
       ;;(require 'utils/irc.el)

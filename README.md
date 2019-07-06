@@ -123,6 +123,8 @@ Defaults:
   * Ctrl-h v : show variable value
   * Ctrl-h b : show current keymap
   * Ctrl-h k : show keybinding
+ * Spell
+  * ESC i : ispell cycle language
 
 KDE konsole keys:
  * CTRL-Shieft-m : hide/show menubar

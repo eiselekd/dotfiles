@@ -1,5 +1,6 @@
 * Setup
 
+
 ** T460s
 
 Intel NVme ssd: bios version 1.22 and uefi boot
@@ -665,7 +666,10 @@ pu baudrate         115200
 pu rtscts           No
 pu xonxoff          Yes
 
+
 * networking
+
+
 ** Virtualbox
 *** create bridge
 # https://www.virtualbox.org/wiki/Advanced_Networking_Linux

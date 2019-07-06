@@ -62,6 +62,10 @@
 (global-set-key (kbd "M-a")  'org-agenda)
 ;; start erc
 (global-set-key (kbd "M-I") 'utils/irc-djcb-erc-start-or-switch) ;; ERC
+
+;; ispell cycle
+(global-set-key (kbd "M-i") 'cycle-ispell-languages) ;; ERC
+
 ;; start org-agenda
 (global-set-key (kbd "M-j")  'goto-line)
 
@@ -263,6 +267,7 @@
 				       (t (progn t))
 				       )
 				 )))
+
 
 
 (utils/compile-keybind)

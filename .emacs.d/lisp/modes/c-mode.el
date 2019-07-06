@@ -381,9 +381,11 @@
 		   (modes/orgstruct-commen)
 		   (when (require 'rainbow-delimiters)
 		     (rainbow-delimiters-mode))
-
+		   (when (require 'flyspell)
+		     (flyspell-prog-mode))
 		   (when (require 'which-func)
 		     (which-func-mode 1))
+		   (show-paren-mode)
 
 		   ;; (hs-org/minor-mode)
 		   (global-set-key (kbd "M-h")
@@ -411,11 +413,14 @@
 	      (if (eq system-type 'cygwin) ;; use helm for !=cygwin
 		  (ggtags-mode))
 
+	      (when (require 'flyspell)
+		(flyspell-prog-mode))
 	      (when (require 'rainbow-delimiters)
 		(rainbow-delimiters-mode))
 	      (when (require 'which-func)
 		(which-func-mode 1))
 
+	      (show-paren-mode)
 	      ;;(hs-org/minor-mode)
 	      (global-set-key (kbd "M-h")
 			      (lambda () (interactive)

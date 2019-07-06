@@ -10,6 +10,9 @@
 
 	      (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 
+	      ;; enable flyspell
+	      (flyspell-mode)
+
 	      ;; active Org-babel languages
 	      (org-babel-do-load-languages
 	       'org-babel-load-languages
