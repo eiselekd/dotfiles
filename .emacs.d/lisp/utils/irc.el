@@ -9,7 +9,11 @@
       ;; (erc "irc.phasenet.co.uk" erc-port erc-nick erc-user-full-name t)
       ;; (erc "irc.slashnet.org" erc-port erc-nick erc-user-full-name t)
       (message "[+] server: %s:%d nick:%s name:%s"  "irc.freenode.net" erc-port erc-nick erc-user-full-name)
-      (erc :server "irc.freenode.net" :port erc-port :nick erc-nick :password erc-password :full-name erc-user-full-name ))))
+      (require 'tls)
+      (erc-tls :server "irc.freenode.net" :port erc-port :nick erc-nick :password erc-password :full-name erc-user-full-name )
+      (erc :server "irc.freenode.net" :port erc-port :nick erc-nick :password erc-password :full-name erc-user-full-name )
+      ;;(setq erc-autojoin-channels-alist '(("freenode.net" "#haskell")
+    )))
 
 (add-hook 'erc-mode-hook (lambda () (setq truncate-partial-width-windows nil)))
 

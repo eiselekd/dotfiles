@@ -61,7 +61,10 @@
 ;; start org-agenda
 (global-set-key (kbd "M-a")  'org-agenda)
 ;; start erc
-(global-set-key (kbd "M-I") 'utils/irc-djcb-erc-start-or-switch) ;; ERC
+(global-set-key (kbd "M-I") (lambda ()(interactive)
+			      (progn
+				(when (require 'utils/irc.el)
+				  (utils/irc-djcb-erc-start-or-switch))))) ;; ERC
 
 ;; ispell cycle
 (global-set-key (kbd "M-i") 'cycle-ispell-languages) ;; ERC
@@ -229,6 +232,10 @@
 				       )
 				 )))
 
+(global-set-key (kbd "<f3>") (lambda ()(interactive)
+			       (dired default-directory)
+			       ))
+
 (global-set-key (kbd "<f4>") (lambda ()(interactive)
 			       (let ((mode major-mode))
 				 (message "[*] F4 in major mode %s" mode)
@@ -322,8 +329,8 @@
 
 ;;(global-set-key (kbd "C-DEL>") 'backward-kill-word)
 
-;;(global-set-key [M-up]  'scroll-up)
-;;(global-set-key [M-down]  'scroll-down)
+(global-set-key [M-up]  'scroll-up)
+(global-set-key [M-down]  'scroll-down)
 ;; mark and clipboard:
 ;;(global-set-key (kbd "C-SPC") 'set-mark-command)
 ;;(global-set-key (kbd "C-w")   'kill-region)
@@ -356,5 +363,7 @@
 
 (provide 'config/keybindings.el)
 
+(global-set-key "\M-n" "\C-u1\C-v")
+(global-set-key "\M-p" "\C-u1\M-v")
 
 ;; test

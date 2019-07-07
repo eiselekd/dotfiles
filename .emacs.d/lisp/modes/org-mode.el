@@ -54,7 +54,7 @@ workinghours sat - sun 8:00 - 12:00
 
 	      (global-set-key (kbd "<f5>")  'org-narrow-to-subtree)
 	      (global-set-key (kbd "S-<f5>")  'widen)
-	      (global-set-key (kbd "<f3>") 'org-clock-in)
+	      (global-set-key (kbd "M-<f3>") 'org-clock-in)
 	      (global-set-key (kbd "S-<f3>") 'org-clock-out)
 	      (global-set-key (kbd "S-<f9>")  'org-toggle-inline-images)
 

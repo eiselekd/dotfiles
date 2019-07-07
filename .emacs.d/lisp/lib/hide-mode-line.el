@@ -113,6 +113,8 @@
 (make-variable-buffer-local 'hide-mode-line-saved-mode-line-format)
 ; TODO: add a hook of some kind when setting mode-line-format.
 
+(defvar hide-mode-line-multiframe 't)
+
 (defvar hide-mode-line nil)
 ; TODO: add a hook to run hide-mode-line-update when setting hide-mode-line.
 ; [or just use M-x hide-mode-line for now]
@@ -182,7 +184,7 @@ hide-mode-line-in was called."
 
 This uses hide-mode-lines or show-mode-lines."
   (if hide-mode-line
-      (if (there-is-only-one-frame-and-one-window)
+      (if (or hide-mode-line-multiframe (there-is-only-one-frame-and-one-window))
 	  (hide-mode-lines)
 	(show-mode-lines))
     (show-mode-lines)))

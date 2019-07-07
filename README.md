@@ -29,6 +29,7 @@ Keybindings:
  * ESC 7 : find func at cursor using gtags
  * ESC F10 : open menu-bar in console mode
  * ESC ^ : Submenue
+ * F2    : dired default-directory
  * F9    : compile, search for "compile.txt" as make command
  * F10   : gdb, search for "gdb.txt" as gdb init-command script
    * F1 : restore layout
@@ -40,12 +41,13 @@ Keybindings:
  * Xmonad: Win-ALT-Shift up/down/left/right : resize window
  * Win up/down/left/right : jump window
  * M-S up/down/left/right : enlarge/shrink window
+ * C-n|p : scroll without moving cursor
  * Xmonad: Win-Shift up/down/left/right : move window
  * Org-mode:
    * F1 (ESC a, Ctrl-c a) : org-agenda
    * F2 : filter items with :plan: tag
    * F4 : column view (r: recreate, q: quit column view) see [4]
-   * F3/S-F3 : clock-in/clock-out
+   * M-F3/S-F3 : clock-in/clock-out
    * F5/S-F5 : org item narrow/widen
    * F7 : export slides as pdf
    * shift-F7 : export reveal slides
@@ -97,7 +99,11 @@ HELM:
 Misc:
  * ESC d : toggle debug on elisp error
  * ESC z : repeat last command (default:M-x z)(continue z to continue repeat)
- * ESC i : start irc
+ * ESC I : start irc
+   * /LIST : list channels
+   * C-c C-j : join
+   * C-c C-p : part
+   * C-c C-q : quit server
  * ESC j : goto-line
 
 Alsa:

@@ -1,3 +1,11 @@
+;; -*- orgstruct-heading-prefix-regexp: ";;" -*-
+
+;;* Init
+
+;;; Local Variables:
+;;; End:
+
+
 ;; note: META-: :  eval
 ;;       ctrl-e :  eval under cursor
 ;; note: terminal.app old emacs: install "brew", then "brew install emacs"
@@ -74,6 +82,8 @@
 (add-to-list 'load-path (expand-file-name "lib/js/multiple-cursors.el" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
 
+;;* Encoding
+
 ;; printf "\xe2\x80\xa6"
 ;; UTF-8 support
 (prefer-coding-system       'utf-8)
@@ -83,6 +93,7 @@
 
 (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
+;;* Modes
 (require 'cc-mode)
 (setq c-default-style
       '((java-mode . "java")
@@ -96,6 +107,7 @@
 ;;    (message "[*] quilt loaded")
 ;;    ))
 
+;;* Programming
 (if (or (>= emacs-major-version 24)
 	(>= emacs-minor-version 4))
     (progn
@@ -371,7 +383,7 @@
 (require 'utils/buffer.el)
 (require 'utils/occur.el)
 
-
+;;* Themes
 ;;;; ======================== themes ===============================
 
 (add-to-list 'custom-theme-load-path (expand-file-name "themes/" *.emacs.d.dir*  ))
@@ -500,7 +512,7 @@
 ;;;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;;;; ======================== themes ===============================
 
-
+;;* Layout
 (setq visible-bell 1)
 
 ;; try load local dotfiles.lo
@@ -557,7 +569,11 @@
 
 ;; (setq helm-debug 't)
 
+
+;;* Startup screen
 (find-file default-directory)
+
+;;* Powerline
 ;; (dired-mode)
 ;; (tmm-menubar-mouse )
 (progn
