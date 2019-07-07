@@ -132,6 +132,8 @@
 (global-set-key (kbd "M-c")  'flycheck-mode)
 (global-set-key (kbd "M-C")  (lambda ()(interactive) (call-interactively 'utils/projmake-sethere)))
 
+(global-set-key (kbd "ESC ^") (lambda ()(interactive) (progn (minions-minor-modes-menu))))
+
 ;;(lambda ()(interactive)
 ;;			       (progn
 ;;				 (require 'flycheck nil t)

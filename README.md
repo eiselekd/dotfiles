@@ -8,7 +8,6 @@ Emacs config. Install by replacing ~/.emacs.d with
         source ~/git/dotfiles/.bashrc_extra
     fi
 
-
 Keybindings:
 
  * ESC g/G : magit [2] (G: commit --all)
@@ -26,6 +25,7 @@ Keybindings:
  * ESC 6 : find elisp func at cursor
  * ESC 7 : find func at cursor using gtags
  * ESC F10 : open menu-bar in console mode
+ * ESC ^ : Submenue
  * F9    : compile, search for "compile.txt" as make command
  * F10   : gdb, search for "gdb.txt" as gdb init-command script
    * F1 : restore layout
@@ -115,7 +115,7 @@ Defaults:
   * Ctrl-x 5 0 : close frame (new x-window)
   * Ctrl-x 5 o : switch frame (new x-window)
  * Themes
-  * ESC t : Toggle dark/light solarized
+  * ESC t : Cycle themes
   * ESC T : Toggle hide-node-line (hide modeline in single frame)
   * ESC M-t : Toggle xterm-window-mode (click on modeline bar)
  * VC mode

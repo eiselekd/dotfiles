@@ -151,6 +151,11 @@ minor modes in a space conserving menu.")
 (put 'minions-mode-line-modes 'risky-local-variable t)
 (make-variable-buffer-local 'minions-mode-line-modes)
 
+(defun pressme-test ()
+  (interactive)
+  (message "[+] pressme" ))
+;;(vector 'c-mode)
+
 (defun minions-minor-modes-menu ()
   "Pop up a menu with minor mode menus and toggles.
 
@@ -181,6 +186,14 @@ Otherwise the entry can only be used to toggle the mode."
           (define-key map (vector mode) menu)
         (minions--define-toggle map mode)))
     (define-key map [--local] (list 'menu-item "Local Modes"))
+
+    (define-key map (vector 'vc-annotate)
+      (list 'menu-item' "vc-annotate" 'vc-annotate) )
+
+
+;;        (list 'menu-item "Konrad" 'pressme-test))
+;;              :button (cons :toggle "konrad")))
+
     (popup-menu map)))
 
 (defun minions--modes ()

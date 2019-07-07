@@ -464,6 +464,7 @@
   (interactive)
   (setq themes-list (-rotate 1 themes-list))
   ;;(custom-set-variables '( frame-background-mode mode))
+  (message (format "[+] enable theme %s" (car (nth 0 themes-list))))
   (funcall (cdr (nth 0 themes-list))))
 
 (setq active-theme 'light)
@@ -563,6 +564,7 @@
   (require 'powerline) ;; status line
   (powerline-default-theme)
   (setq powerline-default-separator 'arrow))
+
 
 
 ;;(define-key global-map [mode-line mouse-1] 'my-press-me)
