@@ -353,6 +353,7 @@
 ;;(require 'modes/web-mode.el)
 (require 'modes/javascript-mode.el)
 (require 'modes/org-mode.el)
+(require 'modes/l8-mode.el)
 ;;(require 'modes/tex-mode.el)
 ;;(ido-mode 1)
 
