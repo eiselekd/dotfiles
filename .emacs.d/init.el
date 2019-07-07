@@ -399,22 +399,21 @@
 (add-to-list 'custom-theme-load-path (expand-file-name "themes/emacs-color-theme-solarized" *.emacs.d.dir*  ))
 (load                                (expand-file-name "themes/emacs-color-theme-solarized/solarized-theme.el" *.emacs.d.dir*  ))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(company-ghc-show-info t)
- '(custom-safe-themes
-   '("5cce533073e34bfd8ea173887b2566b2b5165309231bdd6088ea92ee76ce114b" "fc5ad2db8ba71ce0c0d989de5cf60f8dbe9562b0356901d370b5c3440b316475" default))
- '(frame-background-mode mode)
- '(haskell-process-auto-import-loaded-modules t)
- '(haskell-process-log t)
- '(haskell-process-suggest-remove-import-lines t)
- '(haskell-process-type 'cabal-repl)
- '(haskell-tags-on-save t)
- '(package-selected-packages
-   '(dash yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update)))
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(company-ghc-show-info t)
+;;  '(custom-safe-themes
+;;    '("5cce533073e34bfd8ea173887b2566b2b5165309231bdd6088ea92ee76ce114b" "fc5ad2db8ba71ce0c0d989de5cf60f8dbe9562b0356901d370b5c3440b316475" default))
+;;  '(haskell-process-auto-import-loaded-modules t)
+;;  '(haskell-process-log t)
+;;  '(haskell-process-suggest-remove-import-lines t)
+;;  '(haskell-process-type 'cabal-repl)
+;;  '(haskell-tags-on-save t)
+;;  '(package-selected-packages
+;;    '(dash yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update)))
 
 (put 'downcase-region 'disabled nil)
 
@@ -433,7 +432,9 @@
   (let ((frame (selected-frame)))
     (set-frame-parameter frame 'background-mode mode)
     (set-terminal-parameter frame 'background-mode mode)
-    (custom-set-variables '( frame-background-mode mode)))
+    ;;(custom-set-variables '( frame-background-mode mode))
+
+    )
   (enable-theme 'solarized))
 
 ;;(add-to-list 'custom-theme-load-path (expand-file-name "themes/solarized-emacs" *.emacs.d.dir*  ))
@@ -451,10 +452,24 @@
      (setq active-theme 'light))
    (set-dark-light-theme active-theme))
 
+(require 'dash)
+(setq themes-list
+      `(
+	("light"     . ,( lambda () (progn (set-dark-light-theme 'light)) ))
+	("dark"      . ,( lambda () (progn (set-dark-light-theme 'dark)) ))
+	("cyberpunk" . ,( lambda () (progn (load-theme 'cyberpunk t) )))
+	))
+
+(defun cycle-theme-sel ()
+  (interactive)
+  (setq themes-list (-rotate 1 themes-list))
+  ;;(custom-set-variables '( frame-background-mode mode))
+  (funcall (cdr (nth 0 themes-list))))
+
 (setq active-theme 'light)
 (set-dark-light-theme active-theme)
 
-(global-set-key (kbd "ESC t") 'toggle-dark-light-theme)
+(global-set-key (kbd "ESC t") 'cycle-theme-sel)
 (global-set-key (kbd "ESC M-t") 'xterm-mouse-mode)
 (global-set-key (kbd "ESC T")
  (lambda ()(interactive)
