@@ -373,6 +373,10 @@
 
 
 ;;;; ======================== themes ===============================
+
+(add-to-list 'custom-theme-load-path (expand-file-name "themes/" *.emacs.d.dir*  ))
+;;(load-theme 'cyberpunk t)
+
 ;;;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 ;; (if
@@ -402,17 +406,15 @@
  ;; If there is more than one, they won't work right.
  '(company-ghc-show-info t)
  '(custom-safe-themes
-   (quote
-    ("fc5ad2db8ba71ce0c0d989de5cf60f8dbe9562b0356901d370b5c3440b316475" default)))
+   '("5cce533073e34bfd8ea173887b2566b2b5165309231bdd6088ea92ee76ce114b" "fc5ad2db8ba71ce0c0d989de5cf60f8dbe9562b0356901d370b5c3440b316475" default))
  '(frame-background-mode mode)
  '(haskell-process-auto-import-loaded-modules t)
  '(haskell-process-log t)
  '(haskell-process-suggest-remove-import-lines t)
- '(haskell-process-type (quote cabal-repl))
+ '(haskell-process-type 'cabal-repl)
  '(haskell-tags-on-save t)
  '(package-selected-packages
-   (quote
-    (dash yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update))))
+   '(dash yasnippet zerodark-theme use-package magit counsel-projectile bash-completion auto-package-update)))
 
 (put 'downcase-region 'disabled nil)
 

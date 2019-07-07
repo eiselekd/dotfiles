@@ -2,8 +2,6 @@
 
 (defvar l8-mode-hook nil)
 
-
-
 (defvar l8-mode-map
   (let ((map (make-keymap)))
     (define-key map "\C-j" 'newline-and-indent)
@@ -22,17 +20,6 @@
 
 (defvar l8-font-lock-keywords l8-font-lock-keywords-1
   "Default highlighting expressions for WPDL mode")
-
-;; (defun l8-mode ()
-;;   "Major mode for editing Workflow Process Description Language files"
-;;   (interactive)
-;;   (kill-all-local-variables)
-;;   (use-local-map l8-mode-map)
-;;   (setq major-mode 'l8-mode)
-;;   (setq mode-name "l8")
-;;   (run-hooks 'l8-mode-hook)
-;;   )
-
 
 (define-derived-mode l8-mode rust-mode "l8"
   "major mode for editing mymath language code."
