@@ -440,6 +440,30 @@ static char * %s[] = {
                            (define-key map [mode-line down-mouse-3] mode-line-mode-menu)
                            map)))
 
+(require 'minions)
+;;;###autoload (autoload 'powerline-minor-modes "powerline")
+(defpowerline powerline-minions
+  (propertize "^"
+              'mouse-face 'mode-line-highlight
+              'help-echo "Minions\nmouse-1: Display minor modes menu"
+	      'local-map minions-mode-line-minor-modes-map
+              ))
+
+(defun my-press-me ()
+  (interactive)
+  (message "I was pressed"))
+
+;; down-mouse-1
+(defvar pressme-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mode-line mouse-1] 'my-press-me)
+    map))
+
+(defpowerline powerline-pressme
+  (propertize "PRESSME"
+              'mouse-face 'mode-line-highlight
+              'keymap pressme-map)) ;;local-map
+
 ;;;###autoload (autoload 'powerline-minor-modes "powerline")
 (defpowerline powerline-minor-modes
   (mapconcat (lambda (mm)

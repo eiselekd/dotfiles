@@ -117,10 +117,11 @@ Defaults:
  * Themes
   * ESC t : Toggle dark/light solarized
   * ESC T : Toggle hide-node-line (hide modeline in single frame)
+  * ESC M-t : Toggle xterm-window-mode (click on modeline bar)
  * VC mode
   * Ctrl-x v g : git blame
  * Debug
-  * Ctrl-h v : show variable value
+  * Ctrl-h v : show variable value and description
   * Ctrl-h b : show current keymap
   * Ctrl-h k : show keybinding
  * Spell

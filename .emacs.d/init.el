@@ -122,10 +122,6 @@
 	(ansi-color-apply-on-region (point-min) (point-max)))
 
       ;;(if window-system
-      	  (progn
-      	    (require 'powerline) ;; status line
-      	    (powerline-default-theme)
-      	    (setq powerline-default-separator 'arrow))
 	;;)
 
       ;;(require 'powerline) ;; status line
@@ -368,7 +364,7 @@
 
 ;; hide modeline when only one frame
 (autoload 'hide-mode-line "hide-mode-line" nil t)
-(hide-mode-line)
+;;(hide-mode-line)
 
 ;; ctrl-x ctrl-b
 (require 'utils/buffer.el)
@@ -455,19 +451,17 @@
 (setq active-theme 'light)
 (set-dark-light-theme active-theme)
 
-(global-set-key
- (kbd "ESC t")
- (lambda ()(interactive)
-   (progn (toggle-dark-light-theme))))
-
-(global-set-key
- (kbd "ESC T")
+(global-set-key (kbd "ESC t") 'toggle-dark-light-theme)
+(global-set-key (kbd "ESC M-t") 'xterm-mouse-mode)
+(global-set-key (kbd "ESC T")
  (lambda ()(interactive)
    (progn
      (hide-mode-line)
+     (xterm-mouse-mode (if (bound-and-true-p hide-mode-line) 0 1))
      ( force-mode-line-update))))
 
-
+;;(xterm-mouse-mode 0)
+;;(xterm-mouse-mode 1)
 
 ;; (add-hook
 ;;  'after-make-frame-functions
@@ -546,3 +540,16 @@
 
 (find-file default-directory)
 ;; (dired-mode)
+;; (tmm-menubar-mouse )
+(progn
+  (require 'powerline) ;; status line
+  (powerline-default-theme)
+  (setq powerline-default-separator 'arrow))
+
+
+;;(define-key global-map [mode-line mouse-1] 'my-press-me)
+;;(xterm-mouse-mode 1)
+;;(setq x-select-enable-clipboard t)
+
+;;(use-package minions
+;;  :config (minions-mode 1))
