@@ -106,6 +106,9 @@
 (global-set-key (kbd "M-5")  'xah-open-file-at-cursor)
 ;; goto function under cursor
 (global-set-key (kbd "M-6")  'find-function-at-point)
+(global-set-key (kbd "M-&")
+		(lambda () (interactive)
+		  (describe-variable (variable-at-point))))
 ;; goto workspace 1
 (global-set-key (kbd "M-1")  (lambda ()(interactive)(wg-switch-to-workgroup (wg-get-workgroup 'name "w1"))))
 ;; goto workspace 2
@@ -132,6 +135,7 @@
 (global-set-key (kbd "M-c")  'flycheck-mode)
 (global-set-key (kbd "M-C")  (lambda ()(interactive) (call-interactively 'utils/projmake-sethere)))
 
+;; minions menue withh appends
 (global-set-key (kbd "ESC ^") (lambda ()(interactive) (progn (minions-minor-modes-menu))))
 
 ;;(lambda ()(interactive)
@@ -299,6 +303,7 @@
 (global-set-key (kbd "M-S-<left>") 'shrink-window-horizontally)
 (global-set-key (kbd "M-S-<right>") 'enlarge-window-horizontally)
 
+(global-set-key (kbd "ESC H") (lambda ()(interactive) (find-file "~/git/dotfiles/README.md")))
 
 (global-set-key (kbd "ESC <left>") 'pop-global-mark)
 (global-set-key (kbd "ESC <right>") 'apps/unpop-to-mark-command)

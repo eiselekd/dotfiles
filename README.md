@@ -10,6 +10,8 @@ Emacs config. Install by replacing ~/.emacs.d with
 
 Keybindings:
 
+ * ESC H : this file
+ 
  * ESC g/G : magit [2] (G: commit --all)
  * ESC p   : proced
  * ESC c   : flycheck
@@ -23,6 +25,7 @@ Keybindings:
  * ESC 2 : workspace w2
  * ESC 5 : open file at cursor
  * ESC 6 : find elisp func at cursor
+ * ESC & : describe veriable under cursor
  * ESC 7 : find func at cursor using gtags
  * ESC F10 : open menu-bar in console mode
  * ESC ^ : Submenue
