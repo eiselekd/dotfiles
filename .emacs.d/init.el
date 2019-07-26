@@ -65,6 +65,8 @@
 
 (add-to-list 'load-path (expand-file-name "lib/ghc-mod" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/tuareg" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/merlin" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/transient" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/haskell-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/cling-mode" *.emacs.d.lisp.dir*  ))
@@ -366,6 +368,7 @@
 (require 'modes/javascript-mode.el)
 (require 'modes/org-mode.el)
 (require 'modes/l8-mode.el)
+(require 'modes/ocaml-mode.el)
 ;;(require 'modes/tex-mode.el)
 ;;(ido-mode 1)
 
@@ -589,3 +592,37 @@
 
 ;;(use-package minions
 ;;  :config (minions-mode 1))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages '(utop merlin tuareg)))
+
+
+
+(require 'cl)
+
+(use-package tuareg
+:config
+(add-hook 'tuareg-mode-hook #'electric-pair-local-mode)
+;; (add-hook 'tuareg-mode-hook 'tuareg-imenu-set-imenu)
+(setq auto-mode-alist
+(append '(("\\.ml[ily]?$" . tuareg-mode)
+("\\.topml$" . tuareg-mode))
+auto-mode-alist)))
+
+;; Merlin configuration
+(use-package merlin
+:config
+(add-hook 'tuareg-mode-hook 'merlin-mode)
+(add-hook 'merlin-mode-hook #'company-mode)
+(setq merlin-error-after-save nil))
+
+;; utop configuration
+
+(use-package utop
+:config
+(autoload 'utop-minor-mode "utop" "Minor mode for utop" t)
+(add-hook 'tuareg-mode-hook 'utop-minor-mode)
+)
