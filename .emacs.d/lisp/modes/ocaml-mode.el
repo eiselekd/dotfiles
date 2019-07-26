@@ -1,29 +1,43 @@
 
-(and (require 'cl)
+(defun modes/ocaml-mode-safe-vars ()
+  (interactive)
+  (progn
+    (message "[+] set safe variables for ocaml")
+    (put 'compilation-read-command 'safe-local-variable #'booleanp)
+    (put 'buffer-file-coding-system 'safe-local-variable (lambda (_) t))
+  ))
 
-     (use-package tuareg
-       :config
-       (add-hook 'tuareg-mode-hook #'electric-pair-local-mode)
-       ;; (add-hook 'tuareg-mode-hook 'tuareg-imenu-set-imenu)
-       (setq auto-mode-alist
-	     (append '(("\\.ml[ily]?$" . tuareg-mode)
-		       ("\\.topml$" . tuareg-mode))
-		     auto-mode-alist)))
+(defun modes/ocaml-mode-start ()
+  (progn
+    (and
+     (require 'cl)
+     (require 'tuareg)
+     (require 'merlin)
+     (require 'utop)
 
-     ;; Merlin configuration
-     (use-package merlin
-       :config
-       (add-hook 'tuareg-mode-hook 'merlin-mode)
-       (add-hook 'merlin-mode-hook #'company-mode)
-       (setq merlin-error-after-save nil))
+     (modes/ocaml-mode-safe-vars)
 
-     ;; utop configuration
+     (add-hook 'tuareg-mode-hook #'electric-pair-local-mode)
+     (add-hook 'tuareg-mode-hook 'merlin-mode)
+     ;;(add-hook 'merlin-mode-hook #'company-mode)
+     (setq merlin-command "ocamlmerlin")
+     (setq merlin-error-after-save nil))
 
-     (use-package utop
-       :config
-       (autoload 'utop-minor-mode "utop" "Minor mode for utop" t)
-       (add-hook 'tuareg-mode-hook 'utop-minor-mode)
-       ))
+    (autoload 'utop-minor-mode "utop" "Minor mode for utop" t)
+    (add-hook 'tuareg-mode-hook 'utop-minor-mode)
 
+    (tuareg-mode)
+
+    (local-set-key (kbd "ESC .") (lambda () (interactive)
+				   (progn
+				     (xref-push-marker-stack)
+				     (call-interactively 'merlin-locate))))
+
+    ))
+
+(setq auto-mode-alist
+      (append '(("\\.ml[ily]?$" . modes/ocaml-mode-start)
+		("\\.topml$" . modes/ocaml-mode-start))
+	      auto-mode-alist))
 
 (provide 'modes/ocaml-mode.el)
