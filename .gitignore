@@ -26,3 +26,4 @@ GPATH
 README.tex
 ubuntu/log.html
 .emacs.d/eshell
+.emacs.d/opam-user-setup.el
