@@ -24,3 +24,5 @@ GPATH
 .xmonad/build.bck
 .emacs.d/transient
 README.tex
+ubuntu/log.html
+.emacs.d/eshell
