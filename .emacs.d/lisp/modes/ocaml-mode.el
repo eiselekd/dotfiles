@@ -33,6 +33,8 @@
 				     (xref-push-marker-stack)
 				     (call-interactively 'merlin-locate))))
 
+    ;;(require 'flycheck-ocaml)
+    (setq merlin-error-after-save 't )
     ))
 
 (setq auto-mode-alist
