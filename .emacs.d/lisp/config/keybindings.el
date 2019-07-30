@@ -215,6 +215,11 @@
 							(gdb-restore-windows)
 							(gud-refresh)
 							))
+				       ((modes/ocamldebug-have-debugbuffer)
+					(progn
+					  (modes/ocamldebug-switchto-debugbuffer)
+							))
+
 				       (t (progn
 					    (when (require 'utils/magit-util.el nil t)
 					      (utils/magit-status))))  ;;(org-agenda)
@@ -250,7 +255,8 @@
 (global-set-key (kbd "<f5>") (lambda ()(interactive)
 			       (let ((mode major-mode))
 			       	 (message "[*] F5 in major mode %s" mode)
-				 (cond ((utils/isgud) (call-interactively 'gud-step))  ;;(utils/isgud)
+				 (cond ((string= mode 'tuareg-mode) (lambda ()(interactive) (ocamldebug-call "step"))
+					(utils/isgud) (call-interactively 'gud-step))  ;;(utils/isgud)
 			       	       (t (progn t))
 			       	       )
 			       	 )))
@@ -258,10 +264,11 @@
 (global-set-key (kbd "<f6>") (lambda ()(interactive)
 			       (let ((mode major-mode))
 				 (message "[*] F6 in major mode %s" mode)
-				 (cond ((utils/isgud) (call-interactively 'gud-next))  ;;(utils/isgud)
-				       (t (progn t))
-				       )
-				 )))
+				 (cond ((string= mode 'tuareg-mode) (lambda ()(interactive) (ocamldebug-call "next"))
+					(utils/isgud) (call-interactively 'gud-next))  ;;(utils/isgud)
+				 (t (progn t))
+				 )
+			       )))
 
 (global-set-key (kbd "<f7>") (lambda ()(interactive)
 			       (let ((mode major-mode))

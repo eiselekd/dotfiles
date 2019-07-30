@@ -5,6 +5,7 @@
     (cond
      ((string-match "\.pl$" (buffer-name)) (call-interactively 'perldb))
      ((string-match "\.hs$" (buffer-name)) (call-interactively 'haskell-debug))
+     ((string-match "\.ml$" (buffer-name)) (call-interactively 'modes/ocaml-start-debug))
      (t
       (progn
 	(custom-set-variables '(gud-gdb-command-name "gdb -i=mi"))

@@ -45,4 +45,32 @@
 		("\\.topml$" . modes/ocaml-mode-start))
 	      auto-mode-alist))
 
+
+(defun modes/ocaml-start-debug ()
+  (interactive)
+  (progn
+    (call-interactively 'ocamldebug)
+    (global-set-key (kbd "<f5>") 'ocamldebug-step)
+    (global-set-key (kbd "<f6>") 'ocamldebug-next)
+    (global-set-key (kbd "<f7>") 'ocamldebug-finish)
+    (global-set-key (kbd "<f12>") 'ocamldebug-break)
+
+    ))
+
+(defun is-ocambdebug-buffer (buffer)
+  (let ((name (buffer-name buffer)))
+    (string-match "^\\*ocamldebug-.*" name)))
+
+(defun modes/ocamldebug-have-debugbuffer ()
+  (let ((val nil))
+    (loop for buffer being the buffers
+          do (and (is-ocambdebug-buffer buffer) (setq val 't)))
+    val))
+
+(defun modes/ocamldebug-switchto-debugbuffer ()
+  (let ((val nil))
+    (loop for buffer being the buffers
+          do (and (is-ocambdebug-buffer buffer) (switch-to-buffer (buffer-name buffer))))
+    val))
+
 (provide 'modes/ocaml-mode.el)
