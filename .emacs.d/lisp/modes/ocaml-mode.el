@@ -35,6 +35,9 @@
 
     ;;(require 'flycheck-ocaml)
     (setq merlin-error-after-save 't )
+
+    (require 'ocamldebug)
+
     ))
 
 (setq auto-mode-alist

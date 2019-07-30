@@ -163,6 +163,12 @@ Magit cheatsheet:
    
  * y   : branch viewer (k delet branch)
 
+Ocaml debug (M-x ocamldebug):
+ * Ctrl-x Ctrl-a:
+   * Ctrl-b : set break
+   * Ctrl-t : backtrace
+   
+
 Links:
 
  * [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
