@@ -171,6 +171,9 @@
 ;; compile errors
 (global-set-key (kbd "<f5>") 'utils/previous-error)
 (global-set-key (kbd "<f6>") 'utils/next-error)
+(global-set-key (kbd "S-<f5>") 'flycheck-previous-error)
+(global-set-key (kbd "S-<f6>") 'flycheck-next-error)
+
 
 (global-set-key (kbd "ESC <f10>") (lambda ()(interactive)
 				    (progn

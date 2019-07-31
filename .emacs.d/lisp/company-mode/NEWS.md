@@ -2,6 +2,151 @@
 
 ## Next
 
+* Snippet/template field interaction is inhibited while completion is active
+  (where by default `TAB` calls `company-complete-common`, clashing with snippet
+  map binding `TAB` to "jump to the next field"). Affects both
+  `company-template` and `yasnippet` (requires changes from 2019-04-21,
+  currently unreleased).
+
+## 2019-04-15 (0.9.10)
+
+* `company-clang`: better compatibility with Clang 8
+  ([#885](https://github.com/company-mode/company-mode/issues/885)).
+* The change in `company-clang` regarding identity #defines is reverted because
+  it affected other completions as well
+  ([#884](https://github.com/company-mode/company-mode/issues/884)).
+* `company-idle-delay` now accepts a function which generates the idle time or
+  nil indicating no idle completion.
+* Add custom variable `company-show-numbers-function` to make numbers of
+  candidates customizable. 
+* When a symbol is already typed in full, calling `M-x company-complete` will
+  now run its post-completion action (e.g. inserting method parameters
+  template). Calling `M-x company-manual-begin` or invoking a backend command
+  directly will show the popup
+  ([#150](https://github.com/company-mode/company-mode/issues/150),
+  [#476](https://github.com/company-mode/company-mode/issues/476)).
+
+## 2018-12-13 (0.9.9)
+
+* Fix for the changes in the previous release.
+* New hook `company-after-completion-hook`.
+* `company-clang` removes identity preprocessor #defines from completions
+  ([#841](https://github.com/company-mode/company-mode/issues/841)).
+
+## 2018-12-08 (0.9.8)
+
+* CAPF backend fixed to use the right `:exit-function`. It can now safely be a
+  closure with lexical context capturing the buffer state at the moment when the
+  completion table was returned
+  ([#845](https://github.com/company-mode/company-mode/pull/845)).
+
+## 2018-11-06 (0.9.7)
+
+* For more sophisticated highlighting in non-prefix completion, a backend may
+  now respond to a `match` request with a list of regions.  See
+  `company-backends`.
+  ([#798](https://github.com/company-mode/company-mode/issues/798),
+  [#762](https://github.com/company-mode/company-mode/issues/762))
+* The `company-capf` backend will pick up on a `:company-match` metadata element
+  on the capf function (similar to `:company-location` or `:company-doc-buffer`)
+  and use it as a response to aforementioned `match` request.
+* `company-cmake` supports completion inside string interpolations
+  ([#714](https://github.com/company-mode/company-mode/pull/714)).
+* Workaround for the conflict between `inferior-python-mode`'s completion code
+  and `company-sort-by-occurrence`.
+* In Emacs 26 and newer, `company-css` is removed from `company-backends`.
+  `company-capf` is used instead.
+* Same for `company-nxml`.
+
+## 2018-02-23 (0.9.6)
+
+* Workaround for Emacs' ([bug#23980](https://debbugs.gnu.org/23980)) triggered
+  in combination with Flyspell.
+
+## 2018-02-18 (0.9.5)
+
+* The most common case of tooltip flickering with asynchronous backends (and
+  disabled built-in cache) is fixed
+  ([#510](https://github.com/company-mode/company-mode/issues/510),
+  [#654](https://github.com/company-mode/company-mode/issues/654)).
+* `company-keywords` added entries for `go-mode`, `swift-mode` and
+  `kotlin-mode`.
+* Native line numbers compatibility fixes.
+* `company-dabbrev` and `company-dabbrev-code` are more responsive when user
+  input is pending
+  ([#720](https://github.com/company-mode/company-mode/pull/720)).
+* New feature `company-tng`. It contains a frontend and some helper code.
+  The frontend triggers insertion of the candidate as soon as it's selected, so
+  you only need to press TAB. Add `(company-tng-configure-default)` to your
+  init script to give it a try
+  ([#706](https://github.com/company-mode/company-mode/issues/706)).
+* New user option `company-tooltip-maximum-width`.
+
+## 2017-07-15 (0.9.4)
+
+* Compatibility with native line numbers display in Emacs 26.
+* `company-files` allows completion after `=`.
+* `company-template` has a new shortcut (`C-d`) for deleting an unmodified
+  template field while cursor is on it.
+
+## 2017-03-29 (0.9.3)
+
+* New user option `company-echo-truncate-lines`.
+* `company-auto-complete` improved compatibility with `electric-pair-mode`.
+* Use of `overriding-terminal-local-map` does not disable completion.
+* `company-clang` and `company-gtags` can work over Tramp.
+* New frontend `company-preview-common-frontend`.
+* `company-clang` calls Clang using a pipe instead of pty.
+* The minimum required version of Emacs is now 24.3.
+
+## 2016-11-14 (0.9.2)
+
+* Miscellaneous fixes and docstring improvements.
+
+## 2016-11-12 (0.9.1)
+
+* `company-indent-or-complete-common` skips trying to indent if
+  `indent-line-function` is `indent-relative` or `indent-relative-maybe`.
+* Better visualization of search matches. New face `company-tooltip-search-selection`.
+* New user option `company-files-exclusions`.
+* `company-next-page` and `company-previous-page` adhere to
+  `company-selection-wrap-around` docstring more closely and only wrap around
+  when the selection is at the start of the end of the list.
+* `company-pseudo-tooltip-unless-just-one-frontend-with-delay` handles custom
+  frontends derived from `company-preview-frontend` better.
+* `company-idle-delay` is automatically adjusted to a non-zero value.
+
+## 2016-06-23 (0.9.0)
+
+* Group of backends can now contain keyword `:separate`, which makes candidates
+  from different backends sorted separately in the combined list.
+* New frontend `company-pseudo-tooltip-unless-just-one-frontend-with-delay`.
+* New transformer `company-sort-prefer-same-case-prefix`.
+* The value of `company-dabbrev-ignore-buffers` can also be a function.
+* `company-files` has been moved to right after `company-capf` in
+  `company-backends`
+  ([#463](https://github.com/company-mode/company-mode/issues/463)).
+* `company-semantic-insert-arguments`: New option. Like in `company-clang`.
+* `company-semantic-begin-after-member-access`: New option. Similar to the one
+  in `company-clang`.
+* `company-capf` accepts `:company-prefix-length` property value.
+* New face `company-tooltip-annotation-selection`, used for the annotation in
+  the selected tooltip line.
+* `company-clang-objc-templatify` has been renamed to
+  `company-template-objc-templatify`.
+* New user option `company-etags-everywhere`.
+* `company-yasnippet` supports `yas-key-syntaxes` better. But we use them in the
+  reverse order, preferring the longest key prefix that matches anything. And we
+  only consider trigger key prefixes that are at least as long as the symbol at
+  point, which effectively means skipping the `"w"` element
+  ([#422](https://github.com/company-mode/company-mode/issues/422)).
+* New user option `company-search-regexp-function`.
+* Completion is not started automatically when a keyboard macro is being
+  recorded ([#374](https://github.com/company-mode/company-mode/issues/374)).
+* New command `company-indent-or-complete-common`.
+* Backend command `doc-buffer` now can also return a cons of buffer and window
+  start position.
+* Backend command `ignore-case` has been documented.
 * `company-template-c-like-templatify` does not replace the default argument
   values with `argN` anymore
   ([#336](https://github.com/company-mode/company-mode/issues/336)). This

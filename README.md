@@ -18,7 +18,7 @@ Keybindings:
    * ESC C   : flycheck with configure
    * ESC M-c : verbose flycheck mode (ESC ESC c)
    * ESC M-C : verbose flycheck select checker interactively
-   * F5/F6 : next/prev-error
+   * (Shift)-F5/F6 : next/prev-error
  * ESC e : shell
  * ESC E : ansi-term
  * ESC 1 : workspace w1
@@ -74,6 +74,8 @@ Keybindings:
    * M-( + M-) : toggle block hide/show
    * M-F9  : mix org and c++ mode
    * ESC N : cling interpreter and .cling.cpp load
+ * rust-mode:
+   * TAB : call completion
  * ESC M-h : haskell interactive mode  
  * haskell-mode:
    * F1 | C-c C-l : eval in repl
