@@ -262,9 +262,9 @@
     (push '(flymode-error-list-mode :stick t) popwin:special-display-config))
 
 
-  (add-hook 'flycheck-mode-hook 'utils/flycheck-mode-hook)
-  (add-hook 'flymake-mode-hook 'utils/flymake-mode-hook)
-  (message "[*] %s Flycheck hook setup" (timestamp_str))
+  ;;(add-hook 'flycheck-mode-hook 'utils/flycheck-mode-hook)
+  ;;(add-hook 'flymake-mode-hook 'utils/flymake-mode-hook)
+  ;;(message "[*] %s Flycheck hook setup" (timestamp_str))
   )
 
 (add-hook 'after-init-hook 'utils/flycheck-init)
@@ -284,7 +284,13 @@
 			   ;;(flycheck-select-checker 'c/c++-clang)
 			   (setq flycheck-clang-language-standard "c++14")
 			   (setq flycheck-gcc-language-standard "c++17")
-			   ))
+
+			   (require 'utils/gtest-checker.el)
+			   (if (utils/flycheck-gtest-makefile)
+			       (progn
+				 (message "[*] enable gtest checker after '%s'" (flycheck-get-checker-for-buffer))
+				 (flycheck-add-next-checker (flycheck-get-checker-for-buffer) '(warning . utils/gtest-checker-makefile-checker) )
+				 ))))
 
 ;;			   (setq flycheck-command-wrapper-function
 ;;				 (lambda (command)

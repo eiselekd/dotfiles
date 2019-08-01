@@ -403,6 +403,15 @@
 
 		   (c-mode-addfuncs)
 		   (normal-c-mode)
+
+		   ;;(require 'utils/gtest-checker.el)
+
+		   ;;(when (require 'gtest-minor)
+		   ;;(gtest-minor-mode))
+
+
+
+
 		   )))
 
 (add-hook 'c-mode-hook
