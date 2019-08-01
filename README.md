@@ -19,6 +19,12 @@ Keybindings:
    * ESC M-c : verbose flycheck mode (ESC ESC c)
    * ESC M-C : verbose flycheck select checker interactively
    * (Shift)-F5/F6 : next/prev-error
+   * define gtest rule in parent Makefile and specify buffer-gtest-rule
+   /*
+    * Local Variables:
+    * buffer-gtest-rule:"gtest2"
+    * End:
+    */
  * ESC e : shell
  * ESC E : ansi-term
  * ESC 1 : workspace w1

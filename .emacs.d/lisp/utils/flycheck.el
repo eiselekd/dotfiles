@@ -285,12 +285,20 @@
 			   (setq flycheck-clang-language-standard "c++14")
 			   (setq flycheck-gcc-language-standard "c++17")
 
+
+			   (message "[+] setup gtest, use 'buffer-gtest-rule' local var")
+			   (put 'buffer-gtest-rule 'safe-local-variable (lambda (_) t))
+			   (make-local-variable 'buffer-gtest-rule)
 			   (require 'utils/gtest-checker.el)
-			   (if (utils/flycheck-gtest-makefile)
-			       (progn
-				 (message "[*] enable gtest checker after '%s'" (flycheck-get-checker-for-buffer))
-				 (flycheck-add-next-checker (flycheck-get-checker-for-buffer) '(warning . utils/gtest-checker-makefile-checker) )
-				 ))))
+			   (add-hook 'hack-local-variables-hook
+				     (lambda ()
+				       (if (and (boundp 'buffer-gtest-rule) (utils/flycheck-gtest-makefile))
+					   (progn
+					     (message "[*] enable gtest checker after '%s' with rule %s" (flycheck-get-checker-for-buffer) (utils/flycheck-gtest-getrule))
+					     (flycheck-add-next-checker (flycheck-get-checker-for-buffer) '(warning . utils/gtest-checker-makefile-checker) )
+					     ))))
+
+))
 
 ;;			   (setq flycheck-command-wrapper-function
 ;;				 (lambda (command)

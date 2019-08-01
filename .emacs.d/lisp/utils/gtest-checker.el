@@ -1,7 +1,14 @@
+(defun utils/flycheck-gtest-getrule ()
+  (if (boundp 'buffer-gtest-rule)
+      buffer-gtest-rule
+    "gtest2"))
+
 ;; search for Makefile in parent that contains "gtest" rule
 (defun utils/flycheck-gtest-makefile ()
   "Search for linux top `Makefile' "
-  (cl-labels
+  (let* ((rule (utils/flycheck-gtest-getrule)))
+    (message "[?] Try match Makefile with %s" (format "%s:" rule))
+    (cl-labels
       ((find-makefile-file-r (path)
 	(let* ((parent (file-name-directory path))
 	       (file (concat parent "Makefile")))
@@ -10,8 +17,10 @@
 	    (progn
 	      (with-temp-buffer
 		(insert-file-contents file)
-		(if (string-match "gtest:" (buffer-string))
-		    (throw 'found-it parent)
+		(if (string-match (format "%s:" rule) (buffer-string))
+		    (progn
+		      (message "[!]Found Makefile %s" parent)
+		      (throw 'found-it parent))
 		  (find-makefile-file-r (directory-file-name parent))
 		  ))))
 	   ((equal path parent) (throw 'found-it nil))
@@ -19,7 +28,7 @@
     (if (buffer-file-name)
         (catch 'found-it
           (find-makefile-file-r (buffer-file-name)))
-      nil)))
+      nil))))
 
 ;; flycheck checker for gtest output:
 ;; calls "make gtest" and parses for Failure
@@ -29,7 +38,7 @@
 (flycheck-define-checker utils/gtest-checker-makefile-checker
   "Generic gtest makefile checker"
   :command
-  ( "make" "-C" (eval (utils/flycheck-gtest-makefile)) "gtest" )
+  ( "make" "-C" (eval (utils/flycheck-gtest-makefile)) (eval (utils/flycheck-gtest-getrule)) )
   :error-patterns
   (
    ;;Capture errors like: file.cpp:10: Failure
