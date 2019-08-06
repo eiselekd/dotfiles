@@ -371,9 +371,10 @@
 
 ;;(require 'back-button)
 
-(provide 'config/keybindings.el)
 
 (global-set-key "\M-n" "\C-u1\C-v")
 (global-set-key "\M-p" "\C-u1\M-v")
 
 ;; test
+
+(provide 'config/keybindings.el)

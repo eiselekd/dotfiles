@@ -15,6 +15,7 @@
 ;; use lexical-bindutfing: t
 ;; toggle-debug-on-error
 (setq ns-right-alternate-modifier nil)
+(setq start-time (current-time))
 
 ;; (add-to-list 'load-path (substitute-in-file-name "$HOME/git/benchmark-init-el"))
 ;; (require 'benchmark-init)
@@ -25,8 +26,9 @@
 (if (version< emacs-version "24.3") (setq user-emacs-directory "~/.emacs.d/"))
 
 (defun timestamp_str ()
-  (let ((n (current-time)))
+  (let ((n (time-subtract (current-time) start-time)))
     (format "%d:%d" (nth 1 n) (nth 2 n))))
+
 
 (defconst *.emacs.d.dir*
   (file-name-directory (or load-file-name buffer-file-name))
@@ -191,12 +193,12 @@
       (message "[*] %s retired compile" (timestamp_str))
       ;;(require 'utils/ctags.el)
       (require 'utils/openfile.el)
+      (message "[*] %s retired utils/openfile" (timestamp_str))
       ;;(require 'flycheck nil t) ;; -mode
       (require 'utils/flycheck-init.el)
+      (message "[*] %s retired flycheck-init" (timestamp_str))
       (require 'utils/spell.el)
-
-      (require 'haskell-mode)
-      (message "[*] %s retired haskell-mode" (timestamp_str))
+      (message "[*] %s retired spell" (timestamp_str))
       ;;(require 'utils/irc.el)
 
       (defun prepareHelm ()
@@ -241,8 +243,8 @@
       (require 'ov)
 
       (add-to-list 'load-path (expand-file-name "fringe" *.emacs.d.dir* ))
-      (message (format "[*] %s try load fringe" (timestamp_str)))
       (require 'fringe)
+      (message (format "[*] %s retire fringe" (timestamp_str)))
 
       ;;(require 'flymake)
       ;;(defun flymake-simple-make-init ()
@@ -329,8 +331,8 @@
       ;; (wg-load wg-file)
 
       (require 'back-button nil t)
-
       (require 'remember)
+      (message "[*] %s retire remember" (timestamp_str))
 
 
       ;;(org-remember-insinuate)
@@ -338,39 +340,55 @@
       ))
 
 (require 'hideshow-org)
+(message "[*] %s retire hide-show" (timestamp_str))
 (if (require 'hideif-changed nil t) ;; hide-ifdef-block show-ifdef-block
     (progn
-      (message "[+] >> hideif-changed loaded")
+      (message "[+] %s hideif-changed loaded" (timestamp_str))
       (setq hide-ifdef-shadow nil)
       )
   (message "[+] >> hideif-changed failed"))
 (require 'pp)
+(message "[*] %s retire pp" (timestamp_str))
 
 (require 'utils/dired.el)
+(message "[*] %s retire dired" (timestamp_str))
 (global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
 
 ;; 3: (re-)define keybindings
 (message (format "[*] %s set keybindings" (timestamp_str)))
 (require 'config/keybindings.el)
+(message "[*] %s retire keybinding" (timestamp_str))
 
 ;;(require 'ux/popups.el.el)
 ;; 4: configure modes
 (message (format "[*] %s config modes" (timestamp_str)))
 (require 'modes/c-mode.el)
+(message "[*] %s retire c-mode" (timestamp_str))
 (require 'modes/ruby-mode.el)
+(message "[*] %s retire ruby-mode" (timestamp_str))
 (require 'modes/lua-mode.el)
+(message "[*] %s retire lua-mode" (timestamp_str))
 (require 'modes/haskell-mode.el)
+(message "[*] %s retire haskell-mode" (timestamp_str))
 (require 'modes/cling-mode.el)
+(message "[*] %s retire cling-mode" (timestamp_str))
 (require 'modes/rust-mode.el)
+(message "[*] %s retire rust-mode" (timestamp_str))
 (require 'modes/elisp-mode.el)
 (global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
+(message "[*] %s retire elisp-mode" (timestamp_str))
 ;;(require 'modes/web-mode.el)
 (require 'modes/javascript-mode.el)
+(message "[*] %s retire javascript-mode" (timestamp_str))
 (require 'modes/org-mode.el)
+(message "[*] %s retire org-mode" (timestamp_str))
 (require 'modes/l8-mode.el)
+(message "[*] %s retire l8-mode" (timestamp_str))
 (require 'modes/ocaml-mode.el)
+(message "[*] %s retire ocaml-mode" (timestamp_str))
 ;;(require 'modes/tex-mode.el)
 ;;(ido-mode 1)
+(message (format "[*] %s retired config modes" (timestamp_str)))
 
 (require 'windmove)
 (global-set-key (kbd "C-c <left>")  'windmove-left)
@@ -443,7 +461,7 @@
 ;;    (enable-theme 'solarized)))
 
 (defun set-dark-light-theme (mode)
-  (message (format "[*] mode %s background" mode))
+  (message (format "[*] mode %s background" (timestamp_str) mode))
   (let ((frame (selected-frame)))
     (set-frame-parameter frame 'background-mode mode)
     (set-terminal-parameter frame 'background-mode mode)
@@ -530,38 +548,39 @@
 
 
 ;; http://ivanmalison.github.io/dotfiles/#tile
-(require 'tile)
+;;(require 'tile)
 ;; https://github.com/abo-abo/hydra
-(require 'hydra)
-(require 'use-package)
+;;(require 'hydra)
+;;(require 'use-package)
 
 (set-default 'truncate-lines t)
 
-(use-package tile
-  :bind ("C-c t" . imalison:hydra-tile/body)
-  :config
-  (progn
-    (defvar imalison:tall-tile-strategy (tile-split-n-tall 3))
-    (defvar imalison:wide-tile-strategy tile-wide)
-    (defvar imalison:master-tile-strategy (tile-argument-buffer-fetcher
-                                           :layout tile-master-left))
-    (require 'hydra)
-    (defhydra imalison:hydra-tile
-      nil
-      "tile"
-      ("t" (tile :strategy imalison:tall-tile-strategy))
-      ("w" (tile :strategy imalison:wide-tile-strategy))
-      ("m" (tile :strategy imalison:master-tile-strategy))
-      ("s" tile-select)
-      ("0" (tile :strategy tile-one))
-      ("n" tile)
-      ("l" winner-undo))
-    (setq tile-cycler
-          (tile-strategies :strategies
-                           (list imalison:tall-tile-strategy
-                                 imalison:master-tile-strategy
-                                 imalison:wide-tile-strategy
-                                 tile-one)))))
+;; (use-package tile
+;;   :bind ("C-c t" . imalison:hydra-tile/body)
+;;   :config
+;;   (progn
+;;     (defvar imalison:tall-tile-strategy (tile-split-n-tall 3))
+;;     (defvar imalison:wide-tile-strategy tile-wide)
+;;     (defvar imalison:master-tile-strategy (tile-argument-buffer-fetcher
+;;                                            :layout tile-master-left))
+;;     (require 'hydra)
+;;     (defhydra imalison:hydra-tile
+;;       nil
+;;       "tile"
+;;       ("t" (tile :strategy imalison:tall-tile-strategy))
+;;       ("w" (tile :strategy imalison:wide-tile-strategy))
+;;       ("m" (tile :strategy imalison:master-tile-strategy))
+;;       ("s" tile-select)
+;;       ("0" (tile :strategy tile-one))
+;;       ("n" tile)
+;;       ("l" winner-undo))
+;;     (setq tile-cycler
+;;           (tile-strategies :strategies
+;;                            (list imalison:tall-tile-strategy
+;;                                  imalison:master-tile-strategy
+;;                                  imalison:wide-tile-strategy
+;;                                  tile-one)))))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -569,9 +588,31 @@
  ;; If there is more than one, they won't work right.
  )
 
-(use-package ws-butler
-  :init
-  (add-hook 'prog-mode-hook #'ws-butler-mode))
+(require 'ws-butler)
+(add-hook 'prog-mode-hook 'ws-butler-mode)
+(message "[*] %s retire wsbutler" (timestamp_str))
+
+;;(global-whitespace-mode)
+;;(setq whitespace-style '(face trailing lines tabs big-indent))
+
+;; (progn
+;;  ;; Make whitespace-mode with very basic background coloring for whitespaces.
+;;   ;; http://ergoemacs.org/emacs/whitespace-mode.html
+;;   (setq whitespace-style (quote (face spaces tabs newline space-mark tab-mark newline-mark )))
+
+;;   ;; Make whitespace-mode and whitespace-newline-mode use “¶” for end of line char and “▷” for tab.
+;;   (setq whitespace-display-mappings
+;;         ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
+;;         '(
+;;           (space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+;;           (newline-mark 10 [182 10]) ; LINE FEED,
+;;           (tab-mark 9 [9655 9] [92 9]) ; tab
+;;           )))
+
+(setq-default show-trailing-whitespace t)
+;;(use-package ws-butler
+;;  :init
+;;  (add-hook 'prog-mode-hook #'ws-butler-mode))
 
 ;; (setq helm-debug 't)
 

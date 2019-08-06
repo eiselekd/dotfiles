@@ -3,7 +3,7 @@
 
 (defun utils/diredhook ()
   (progn 
-    (message "[*] %s require dired-subtree" (timestamp_str))
+    (message "open dired-subtree" (timestamp_str))
     (require 'dired-subtree)
     (when (not (display-graphic-p))
       (setq dired-subtree-use-backgrounds nil))
@@ -23,7 +23,6 @@
     (local-set-key (kbd "<left>") 'dired-subtree-up)
     (local-set-key (kbd "<right>") 'dired-subtree-down)
 
-    
     ))
 
 (defun utils/dired-grep-rec ()

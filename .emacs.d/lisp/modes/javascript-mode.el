@@ -118,12 +118,13 @@
 (defun javascript-mode/indium-prepare-react (&optional force)
   (javascript-mode/indium-prepare javascript-mode/indium-config-react force))
 
+(autoload 'js2-mode "js2-mode" "js2-mode" t)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . js2-mode))
+(add-to-list 'interpreter-mode-alist '("js" . js2-mode))
 
-(require 'use-package)
-(use-package js2-mode
-  :mode "\\.js\\'"
-  :init (add-hook 'js2-mode-hook 'my-javascript-mode-hook)
-  )
+(add-hook 'js2-mode-hook 'my-javascript-mode-hook)
+
 ;;(use-package js2-jsx-mode
 ;;  :mode "\\.jsx\\'"
 ;;  :init (add-hook 'js2-jsx-mode-hook 'my-javascript-mode-hook)
