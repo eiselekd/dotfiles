@@ -186,7 +186,7 @@ function _update_ps1() {
 #fi
 
 function maybestarttmux() {
-   if [ ! -z "${DISPLAY}" ]; then
+   if [ -z "${DISPLAY}" ]; then
     if [ ! -z "${SSH_TTY}" ]; then
      # TMUX
      if which tmux >/dev/null 2>&1; then
