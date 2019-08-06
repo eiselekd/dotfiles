@@ -460,6 +460,7 @@
 ;;(load-theme 'solarized t)
 ;;(load-theme 'solarized-dark t)
 
+
 (defun toggle-dark-light-theme ()
    (interactive)
    (if (eq active-theme 'light)
@@ -482,7 +483,8 @@
   (message (format "[+] enable theme %s" (car (nth 0 themes-list))))
   (funcall (cdr (nth 0 themes-list))))
 
-(setq active-theme 'light)
+;;(setq active-theme 'light)
+(setq active-theme 'dark)
 (set-dark-light-theme active-theme)
 
 (global-set-key (kbd "ESC t") 'cycle-theme-sel)

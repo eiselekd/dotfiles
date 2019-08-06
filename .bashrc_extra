@@ -190,6 +190,8 @@ function _update_ps1() {
 # hiding tmux status line after some time
 # re-enable wit "Ctrl-a X"
 function starthider() {
+  sleep 0.1
+  tmux set -g status on
   sleep 2
   tmux set -g status off
 }
