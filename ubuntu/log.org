@@ -1063,3 +1063,9 @@ xrandr --output eDP-1 --brightness 0.5
 
 https://github.com/b-ryan/powerline-shell.git : python setup.py install --user
 
+* gnus
+
+https://blog.wikichoon.com/2017/05/configuring-offlineimap-dovecot.html
+https://pbrisbin.com/posts/mutt_gmail_offlineimap/
+https://www.djcbsoftware.nl/code/mu/mu4e.html
+
