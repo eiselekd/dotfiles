@@ -95,7 +95,9 @@ nsidof()
     echo $nsid
 }
 
-xset b off
+if [ ! -z "${DISPLAY}" ]; then
+ xset b off
+fi
 
 alias rsynca="rsync -av "
 alias sshp="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "
