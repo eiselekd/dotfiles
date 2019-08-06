@@ -144,13 +144,12 @@
 
       ;;"Get the current default separator. Always returns utf-8 in non-gui mode."
 
-      (require 'cl)
-      (require 'flycheck nil t) ;; -mode
-      (message "[*] %s retired flycheck" (timestamp_str))
+      ;;(require 'cl)
+      ;;(require 'flycheck nil t) ;; -mode
       (require 'iswitchb-mode nil t)
 
-      (require 'cl-lib)
-      (require 'dash)
+      ;;(require 'cl-lib)
+      ;;(require 'dash)
 
       ;;(-filter (lambda (p) (member (process-name p) '("haskell"))) (process-list))
       (defun noquery-process ()
@@ -183,7 +182,7 @@
       ;;(require 'apps/proced.el)
 
       (setq org-agenda-files (quote ("~/todo.org" "~/git/org" )))
-      (require 'apps/org.el)
+      ;;(require 'apps/org.el)
 
       (message "[*] %s retired org" (timestamp_str))
       (require 'ux/popups.el)
@@ -192,12 +191,13 @@
       (message "[*] %s retired compile" (timestamp_str))
       ;;(require 'utils/ctags.el)
       (require 'utils/openfile.el)
-      (require 'utils/flycheck.el)
+      ;;(require 'flycheck nil t) ;; -mode
+      (require 'utils/flycheck-init.el)
       (require 'utils/spell.el)
 
       (require 'haskell-mode)
+      (message "[*] %s retired haskell-mode" (timestamp_str))
       ;;(require 'utils/irc.el)
-      ;;(message "[*] %s retired irc" (timestamp_str))
 
       (defun prepareHelm ()
 	(require 'ggtags)
@@ -516,6 +516,7 @@
 
 ;;;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;;;; ======================== themes ===============================
+(message "[*] %s start loading theme" (timestamp_str))
 
 ;;* Layout
 (setq visible-bell 1)
@@ -607,3 +608,5 @@
 ;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
 ;;(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
 ;; ## end of OPAM user-setup addition for emacs / base ## keep this line
+
+(message "[*] %s init finish" (timestamp_str))
