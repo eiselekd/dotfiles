@@ -1017,6 +1017,12 @@ usbdata ${D}-part1
 usb backup with dedup enabled: raise zfs_arc_min, primarycache=metadata and use zfs recv
 
 
+** zfs zrep backpu
+zrep : setup root login run 'zrep init' to setup and 'zrep sync'
+
+zfs list -t snapshot
+zrep list -v <dataset> : see zrep parameters
+
 ** backup
 
 mkfifo zfs-pipe
@@ -1025,6 +1031,7 @@ sudo zfs send -R dataset-ori | pv | ssh user@server "cat - > zfs-pipe"
       
 ** rsync with dedup:
 echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
+
 
 
 * DNS tls
@@ -1068,4 +1075,6 @@ https://github.com/b-ryan/powerline-shell.git : python setup.py install --user
 https://blog.wikichoon.com/2017/05/configuring-offlineimap-dovecot.html
 https://pbrisbin.com/posts/mutt_gmail_offlineimap/
 https://www.djcbsoftware.nl/code/mu/mu4e.html
+
+
 
