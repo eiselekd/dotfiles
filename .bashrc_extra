@@ -194,13 +194,26 @@ function starthider() {
   tmux set -g status off
 }
 
+function starttmux() {
+  starthider&
+  tmux has-session -t main >& /dev/null
+  if [ $? == 0 ]; then
+    exec tmux attach-session -t main
+  else
+    exec tmux new-session -s main
+ fi
+}
+
 function maybestarttmux() {
    if [ -z "${DISPLAY}" ]; then
     if [ ! -z "${SSH_TTY}" ]; then
      # TMUX
      if which tmux >/dev/null 2>&1; then
        #if not inside a tmux session, and if no session is started, start a new session
-       test -z "$TMUX" && ((starthider&) && tmux attach || tmux new-session) 
+       # dont embrace in () because exit is needed for ssl
+       if [ -z $TMUX ]; then
+         test -z "$TMUX" && starttmux
+       fi
      fi
     fi
    fi
