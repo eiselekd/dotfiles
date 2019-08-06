@@ -191,7 +191,7 @@ function _update_ps1() {
 # re-enable wit "Ctrl-a X"
 function starthider() {
   sleep 2
-  tmux set status off
+  tmux set -g status off
 }
 
 function maybestarttmux() {
