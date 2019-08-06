@@ -226,6 +226,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
      ((altModMask .|. controlMask, xK_Return), startdefaultinws )
 
+   , ((altModMask .|. controlMask, xK_g), unsafeSpawn myBrowser )
+
+
    -- cycle workspaces
    --, ((altModMask .|. controlMask, xK_Left),
    --  prevWS)
