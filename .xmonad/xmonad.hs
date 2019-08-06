@@ -63,7 +63,7 @@ myBrowser :: String
 myBrowser = do
   if os == "freebsd"
     then "chromium"
-    else "if which google-chrome > /dev/null ; then google-chrome; else chromium-browser; fi"
+    else "if which google-chrome > /dev/null ; then google-chrome ; else chromium-browser; fi"
 
 -- The command to lock the screen or show the screensaver.
 myScreensaver = "xwd | convert xwd:- capture_objects.png"
@@ -136,7 +136,7 @@ myLayout =  minimize ( avoidStruts (
                   tabbed shrinkText tabConfig
                   )
     ))
-                     
+
 
 
 -- spiral (6/7) |||
@@ -226,7 +226,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
      ((altModMask .|. controlMask, xK_Return), startdefaultinws )
 
-   , ((altModMask .|. controlMask, xK_g), unsafeSpawn myBrowser )
+   --, ((altModMask .|. controlMask, xK_g), unsafeSpawn myBrowser )
 
 
    -- cycle workspaces
