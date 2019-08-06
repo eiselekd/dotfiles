@@ -11,7 +11,7 @@ Emacs config. Install by replacing ~/.emacs.d with
 Keybindings:
 
  * ESC H : this file
- 
+
  * ESC g/G : magit [2] (G: commit --all)
  * ESC p   : proced
  * ESC c   : flycheck
@@ -82,7 +82,7 @@ Keybindings:
    * ESC N : cling interpreter and .cling.cpp load
  * rust-mode:
    * TAB : call completion
- * ESC M-h : haskell interactive mode  
+ * ESC M-h : haskell interactive mode
  * haskell-mode:
    * F1 | C-c C-l : eval in repl
    * ESC i: intero mode (runs stack init)
@@ -117,7 +117,7 @@ Misc:
 Alsa:
  * Win Ctrl-j, Win Ctrl-k : Audio increate vol, decreate vol.
  * Win Ctrl-m             : Audio toggle mute (Master, Speaker, Headphone)
-  
+
 
 Defaults:
 
@@ -168,14 +168,14 @@ Magit cheatsheet:
  * Ediff 3 colum view:
    * xy : i.e. press ab to move current hunk from a to b, ac to move current hunk from a to c
    * rx : i.e. press ra to restore current hunk in column a
-   
+
  * y   : branch viewer (k delet branch)
 
 Ocaml debug (M-x ocamldebug):
  * Ctrl-x Ctrl-a:
    * Ctrl-b : set break
    * Ctrl-t : backtrace
-   
+
 
 Links:
 
@@ -198,4 +198,3 @@ Org-mode timeentry:
  |: split horizontally
  -: split vertically
  d: detach
- 
