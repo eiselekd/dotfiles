@@ -190,7 +190,7 @@ Org-mode timeentry:
  * [2] http://orgmode.org/manual/Effort-estimates.html#Effort-estimates, https://writequit.org/denver-emacs/presentations/2017-04-11-time-clocking-with-org.html
  * [3] http://doc.norang.ca/org-mode.html#ReviewingEstimates
 
-* TMUX Ctrl-a:
+* TMUX Ctrl-b:
  Alt-Left|Right|Up|Down : navigate tmux panes
  q: show pane-numbers
  X: show/hide status pane
