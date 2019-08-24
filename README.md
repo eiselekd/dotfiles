@@ -47,7 +47,7 @@ Keybindings:
  * Xmonad: Win-ALT-Shift up/down/left/right : resize window
  * Win up/down/left/right : jump window
  * M-S up/down/left/right : enlarge/shrink window
- * C-n|p : scroll without moving cursor
+ * M-n|p (Alt) : scroll without moving cursor
  * Xmonad: Win-Shift up/down/left/right : move window
  * Org-mode:
    * F1 (ESC a, Ctrl-c a) : org-agenda
