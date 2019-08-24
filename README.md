@@ -198,3 +198,4 @@ Org-mode timeentry:
  |: split horizontally
  -: split vertically
  d: detach
+ shift-up : copy-mode
