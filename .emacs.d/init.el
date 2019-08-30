@@ -542,6 +542,9 @@
 ;; try load local dotfiles.lo
 (if (file-exists-p "~/.emacs.config")
     (load "~/.emacs.config"))
+(if (file-exists-p "~/.emacs.dispatch")
+    (load "~/.emacs.dispatch"))
+
 
 
 (setq inhibit-startup-screen t)
