@@ -10,7 +10,12 @@
 ;; debug: "c-h l" : read key buffer
 ;; debug: "c-h k" <key> : keybind
 ;; debug: "c-h c" <key> : keybind
+;; debug: "c-h v" : describe variable
 ;; http://unix.stackexchange.com/questions/79374/are-there-any-linux-terminals-which-can-handle-all-key-combinations/79561#79561
+
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Input-Events.html#Input-Events
+;; https://emacs.stackexchange.com/questions/22611/is-there-a-canonical-way-of-representing-key-combinations-in-elisp-what-is-it
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Translation-Keymaps.html#Translation-Keymaps
 
 ;; ctrl-c ctrl-v ctrl-y
 (cua-mode t)
