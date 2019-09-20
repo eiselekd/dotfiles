@@ -492,22 +492,33 @@ Succeed even if branch already exist
 
 (defun magit-gerrit-create-branch (branch parent))
 
-(magit-define-popup magit-gerrit-popup
-  "Popup console for magit gerrit commands."
-  'magit-gerrit
-  :actions '((?P "Push Commit For Review"                          magit-gerrit-create-review)
-	     (?W "Push Commit For Draft Review"                    magit-gerrit-create-draft)
-	     (?p "Publish Draft Patchset"                          magit-gerrit-publish-draft)
-	     (?k "Delete Draft"                                    magit-gerrit-delete-draft)
-	     (?A "Add Reviewer"                                    magit-gerrit-add-reviewer)
-	     (?V "Verify"                                          magit-gerrit-verify-review)
-	     (?C "Code Review"                                     magit-gerrit-code-review)
-	     (?d "View Patchset Diff"                              magit-gerrit-view-patchset-diff)
-	     (?D "Download Patchset"                               magit-gerrit-download-patchset)
-	     (?S "Submit Review"                                   magit-gerrit-submit-review)
-	     (?B "Abandon Review"                                  magit-gerrit-abandon-review)
-	     (?b "Browse Review"                                   magit-gerrit-browse-review))
-  :options '((?m "Comment"                      "--message "       magit-gerrit-read-comment)))
+
+;;;###autoload (autoload 'magit-gerrit "magit-gerrit" nil t)
+(define-transient-command magit-gerrit ()
+  "Gerrit commands for magit."
+  ["Gerrit"
+   ("P" "Push Commit For Review"                          magit-gerrit-create-review)
+   ("W" "Push Commit For Draft Review"                    magit-gerrit-create-draft)
+   ("p" "Publish Draft Patchset"                          magit-gerrit-publish-draft)
+   ("k" "Delete Draft"                                    magit-gerrit-delete-draft)
+   ("A" "Add Reviewer"                                    magit-gerrit-add-reviewer)
+   ("V" "Verify"                                          magit-gerrit-verify-review)
+   ("C" "Code Review"                                     magit-gerrit-code-review)
+   ("d" "View Patchset Diff"                              magit-gerrit-view-patchset-diff)
+   ("D" "Download Patchset"                               magit-gerrit-download-patchset)
+   ("S" "Submit Review"                                   magit-gerrit-submit-review)
+   ("B" "Abandon Review"                                  magit-gerrit-abandon-review)
+   ("b" "Browse Review"                                   magit-gerrit-browse-review)
+  ]
+)
+
+
+
+
+
+
+
+
 
 ;; Attach Magit Gerrit to Magit's default help popup
 (magit-define-popup-action 'magit-dispatch-popup (string-to-char magit-gerrit-popup-prefix) "Gerrit"

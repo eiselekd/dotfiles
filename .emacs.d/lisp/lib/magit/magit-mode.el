@@ -452,6 +452,7 @@ starts complicating other things, then it will be removed."
     (define-key map "o" 'magit-submodule)
     (define-key map "O" 'magit-subtree)
     (define-key map "q" 'magit-mode-bury-buffer)
+    (define-key map "Q" 'magit-gerrit)
     (define-key map "r" 'magit-rebase)
     (define-key map "R" 'magit-file-rename)
     (define-key map "t" 'magit-tag)
