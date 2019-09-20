@@ -28,8 +28,8 @@
 (defun utils/magit-status ()
   (progn
     (require 'magit-gerrit)
-    (if (symbolp 'set-magit-gerrit-default)
-	(set-magit-gerrit-default))
+    ;;(if (symbolp 'set-magit-gerrit-default)
+    ;;(set-magit-gerrit-default))
 
     ;;(setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)
     (magit-status)))

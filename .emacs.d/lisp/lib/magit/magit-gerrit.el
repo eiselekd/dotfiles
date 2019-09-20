@@ -397,7 +397,7 @@ Succeed even if branch already exist
 		  args)
   (magit-fetch-from-upstream ""))
 
-(defun magit-gerrit-push-review (status commitid)
+(defun magit-gerrit-push-review (status commitid branch)
 
   (let* ((branch (or (magit-get-current-branch)
 		     (error "Don't push a detached head.  That's gross")))
@@ -438,15 +438,28 @@ Succeed even if branch already exist
       (magit-run-git-async "push" "-v" branch-remote
 			   (concat rev ":" branch-pub)))))
 
-(defun magit-gerrit-create-review (commit args)
+(defun magit-gerrit-create-review (commit branch args)
   (interactive (list (magit-commit-at-point)
-                     (magit-gerrit-arguments)))
-  (magit-gerrit-push-review 'publish commit))
+		     (--if-let (magit-get-current-branch)
+			 (list (magit-read-remote-branch (format "Branch %s to" it)
+							 nil nil it 'confirm)
+			       (magit-push-arguments))
+		       (user-error "No branch is checked out"))
+                     (magit-gerrit-arguments)
+
+		     ))
+  (magit-gerrit-push-review 'publish commit branch ))
 
 (defun magit-gerrit-create-draft ()
   (interactive (list (magit-commit-at-point)
-                     (magit-gerrit-arguments)))
-  (magit-gerrit-push-review 'drafts commit))
+		     (--if-let (magit-get-current-branch)
+			 (list (magit-read-remote-branch (format "Branch %s to" it)
+							 nil nil it 'confirm)
+			       (magit-push-arguments))
+		       (user-error "No branch is checked out"))
+                     (magit-gerrit-arguments)
+		     ))
+  (magit-gerrit-push-review 'drafts commit branch ))
 
 (defun magit-gerrit-publish-draft ()
   (interactive)
