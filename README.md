@@ -160,6 +160,7 @@ Magit cheatsheet:
  * l a : list all branches
    * Select a patch and:
      * A A : cherrypick to current branch, use b b to switch current branch
+ * P r : push gerrit refspec (enter target and refspec)
  * Merge conflicts:
    * e : on _unmerged_ files opens ediff, second emacs window shows ediff ctrl:
      * |   : column view
