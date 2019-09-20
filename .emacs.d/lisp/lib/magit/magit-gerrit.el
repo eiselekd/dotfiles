@@ -513,28 +513,8 @@ Succeed even if branch already exist
   ]
 )
 
-
 (defun magit-gerrit-arguments ()
   (transient-args 'magit-gerrit))
-
-
-
-
-
-
-
-;; Attach Magit Gerrit to Magit's default help popup
-(magit-define-popup-action 'magit-dispatch-popup (string-to-char magit-gerrit-popup-prefix) "Gerrit"
-  'magit-gerrit-popup)
-
-(magit-define-popup magit-gerrit-copy-review-popup
-  "Popup console for copy review to clipboard."
-  'magit-gerrit
-  :actions '((?C "url and commit message" magit-gerrit-copy-review-url-commit-message)
-             (?c "url only" magit-gerrit-copy-review-url)))
-
-(magit-define-popup-action 'magit-gerrit-popup ?c "Copy Review"
-  'magit-gerrit-copy-review-popup)
 
 (defvar magit-gerrit-mode-map
   (let ((map (make-sparse-keymap)))
@@ -589,7 +569,6 @@ and port is the default gerrit ssh port."
 (defun magit-gerrit-check-enable ()
   (let ((remote-url (magit-gerrit-get-remote-url)))
     (message "magit-gerrit-check-enable > %s : %s" remote-url magit-gerrit-ssh-creds)
-
     (when (and remote-url
 	       (or magit-gerrit-ssh-creds
 		   (magit-gerrit-detect-ssh-creds remote-url))
