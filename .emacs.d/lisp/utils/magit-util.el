@@ -27,7 +27,7 @@
 (defun utils/magit-status ()
   (progn
     (require 'magit-gerrit)
-    (if (boundp 'set-magit-gerrit-default)
+    (if (fboundp 'set-magit-gerrit-default)
 	(set-magit-gerrit-default))
 
     ;;(setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)

@@ -91,7 +91,7 @@
 (defvar-local magit-gerrit-remote "origin"
   "Default remote name to use for gerrit (e.g. \"origin\", \"gerrit\")")
 
-(defcustom magit-gerrit-popup-prefix (kbd "R")
+(defcustom magit-gerrit-popup-prefix (kbd "Q")
   "Key code to open magit-gerrit popup"
   :group 'magit-gerrit
   :type 'key-sequence)
@@ -588,12 +588,15 @@ and port is the default gerrit ssh port."
 
 (defun magit-gerrit-check-enable ()
   (let ((remote-url (magit-gerrit-get-remote-url)))
+    (message "magit-gerrit-check-enable > %s : %s" remote-url magit-gerrit-ssh-creds)
+
     (when (and remote-url
 	       (or magit-gerrit-ssh-creds
 		   (magit-gerrit-detect-ssh-creds remote-url))
 	       (string-match magit-gerrit-ssh-creds remote-url))
       ;; update keymap with prefix incase it has changed
-      (define-key magit-gerrit-mode-map magit-gerrit-popup-prefix 'magit-gerrit-popup)
+      (message "magit-gerrit-check-enable: enabled")
+      (define-key magit-gerrit-mode-map magit-gerrit-popup-prefix 'magit-gerrit)
       (magit-gerrit-mode t))))
 
 ;; Hack in dir-local variables that might be set for magit gerrit
