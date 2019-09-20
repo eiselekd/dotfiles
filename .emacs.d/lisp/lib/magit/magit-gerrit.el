@@ -397,13 +397,10 @@ Succeed even if branch already exist
 		  args)
   (magit-fetch-from-upstream ""))
 
-(defun magit-gerrit-push-review (status)
+(defun magit-gerrit-push-review (status commitid)
+
   (let* ((branch (or (magit-get-current-branch)
 		     (error "Don't push a detached head.  That's gross")))
-	 (commitid (or (when (eq (magit-section-type (magit-current-section))
-				 'commit)
-			 (magit-section-value (magit-current-section)))
-		       (error "Couldn't find a commit at point")))
 	 (rev (magit-rev-parse (or commitid
 				   (error "Select a commit for review"))))
 
@@ -441,13 +438,15 @@ Succeed even if branch already exist
       (magit-run-git-async "push" "-v" branch-remote
 			   (concat rev ":" branch-pub)))))
 
-(defun magit-gerrit-create-review ()
-  (interactive)
-  (magit-gerrit-push-review 'publish))
+(defun magit-gerrit-create-review (commit args)
+  (interactive (list (magit-commit-at-point)
+                     (magit-gerrit-arguments)))
+  (magit-gerrit-push-review 'publish commit))
 
 (defun magit-gerrit-create-draft ()
-  (interactive)
-  (magit-gerrit-push-review 'drafts))
+  (interactive (list (magit-commit-at-point)
+                     (magit-gerrit-arguments)))
+  (magit-gerrit-push-review 'drafts commit))
 
 (defun magit-gerrit-publish-draft ()
   (interactive)
@@ -513,6 +512,8 @@ Succeed even if branch already exist
 )
 
 
+(defun magit-gerrit-arguments ()
+  (transient-args 'magit-gerrit))
 
 
 
