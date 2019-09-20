@@ -27,8 +27,11 @@
 
 (defun utils/magit-status ()
   (progn
-    (when (require 'magit nil t)
-      ;;(setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)
-      (magit-status))))
+    (require 'magit-gerrit)
+    (if (symbolp 'set-magit-gerrit-default)
+	(set-magit-gerrit-default))
+
+    ;;(setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)
+    (magit-status)))
 
 (provide 'utils/magit-util.el)
