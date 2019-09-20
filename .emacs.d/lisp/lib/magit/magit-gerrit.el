@@ -425,7 +425,6 @@ Succeed even if branch already exist
 				       branch-merge)
 			 (format "refs/%s%s/%s" status (match-string 1 branch-merge) branch))))
 
-
       (when (or (null branch-remote)
 		(string= branch-remote "."))
 	(setq branch-remote magit-gerrit-remote))

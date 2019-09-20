@@ -7,7 +7,6 @@
     (magit-refresh)
     ))
 
-
 (defun utils/magit-auto-commit-files (list)
   (interactive
     (list (list (buffer-file-name (current-buffer)))))
@@ -28,8 +27,8 @@
 (defun utils/magit-status ()
   (progn
     (require 'magit-gerrit)
-    ;;(if (symbolp 'set-magit-gerrit-default)
-    ;;(set-magit-gerrit-default))
+    (if (boundp 'set-magit-gerrit-default)
+	(set-magit-gerrit-default))
 
     ;;(setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)
     (magit-status)))
