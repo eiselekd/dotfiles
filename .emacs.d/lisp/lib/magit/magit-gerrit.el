@@ -121,6 +121,7 @@
 (defun gerrit-review ())
 
 (defun gerrit-ssh-cmd (cmd &rest args)
+  (message "[+] gerrit-ssh-cmd: %s " (apply #'gerrit-command cmd args))
   (apply #'call-process
 	 "ssh" nil nil nil
 	 (split-string (apply #'gerrit-command cmd args))))
@@ -248,7 +249,7 @@ Succeed even if branch already exist
 		 (magit-gerrit-pretty-print-review num subj owner-name isdraft)
 		 'magit-gerrit-jobj
 		 jobj))
-	(unless (magit-section-hidden (magit-current-section))
+	(unless (oref (magit-current-section) hidden)
 	  (magit-gerrit-wash-approvals approvs))
 	(add-text-properties beg (point) (list 'magit-gerrit-jobj jobj)))
       t)))
@@ -397,40 +398,15 @@ Succeed even if branch already exist
 		  args)
   (magit-fetch-from-upstream ""))
 
-(defun magit-gerrit-push-review (status commitid branch)
-  (message "branch: %s" branch)
-  (let* ((branch (or (magit-get-current-branch)
-		     (error "Don't push a detached head.  That's gross")))
-	 (rev (magit-rev-parse (or commitid
-				   (error "Select a commit for review"))))
-	 (branch-remote (and branch (magit-get "branch" branch "remote"))))
-    (let* ((branch-merge (if (or (null branch-remote)
-				 (string= branch-remote "."))
-			     (completing-read
-			      "Remote Branch: "
-			      (let ((rbs (magit-list-remote-branch-names)))
-				(mapcar
-				 #'(lambda (rb)
-				     (and (string-match (rx bos
-							    (one-or-more (not (any "/")))
-							    "/"
-							    (group (one-or-more any))
-							    eos)
-							rb)
-					  (concat "refs/heads/" (match-string 1 rb))))
-				 rbs)))
-			   (and branch (magit-get "branch" branch "merge"))))
-	   (branch-pub (progn
-			 (string-match (rx "refs/heads" (group (one-or-more any)))
-				       branch-merge)
-			 (format "refs/%s%s/%s" status (match-string 1 branch-merge) branch))))
-
-      (when (or (null branch-remote)
-		(string= branch-remote "."))
-	(setq branch-remote magit-gerrit-remote))
-
-      (magit-run-git-async "push" "-v" branch-remote
-			   (concat rev ":" branch-pub)))))
+(defun magit-gerrit-push-review (status commitid &optional branch)
+  (pcase-let
+      ( ( `(,remote . ,target) (magit-split-branch-name branch)) )
+    (magit-split-branch-name target)
+    (message "magit-gerrit-push-review: branch: %s remote:%s target:%s" branch remote target )
+    (let* ((rev (magit-rev-parse (or commitid (error "Select a commit for review"))))
+	   (branch-remote (and branch (magit-get "branch" branch "remote"))))
+      (magit-run-git-async "push" "-v" remote
+			   (concat rev ":" (format "refs/%s/%s" status target))))))
 
 (defun magit-gerrit-create-review (commit branch args)
   (interactive (list (magit-commit-at-point)
@@ -439,7 +415,7 @@ Succeed even if branch already exist
 						   nil nil it 'confirm))
 		     (magit-push-arguments)
 		     ))
-  (magit-gerrit-push-review 'publish commit branch ))
+  (magit-gerrit-push-review 'for commit branch ))
 
 (defun magit-gerrit-create-draft ()
   (interactive (list (magit-commit-at-point)
@@ -518,7 +494,7 @@ Succeed even if branch already exist
 
 (defvar magit-gerrit-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map magit-gerrit-popup-prefix 'magit-gerrit-popup)
+    (define-key map magit-gerrit-popup-prefix 'magit-gerrit)
     map))
 
 (define-minor-mode magit-gerrit-mode "Gerrit support for Magit"
