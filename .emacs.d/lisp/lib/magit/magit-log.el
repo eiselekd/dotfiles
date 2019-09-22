@@ -1624,6 +1624,13 @@ then show the last `magit-log-section-commit-count' commits."
 
       )))
 
+(defun magit-insert-unpushed-recent-if-not ()
+  "Print recent commits if magit-insert-unpushed-to-upstream-or-recent didnt already"
+  (let ((upstream (magit-get-upstream-branch)))
+    (if (not (or (not upstream)
+                 (magit-rev-ancestor-p "HEAD" upstream )))
+        (magit-insert-recent-commits 'recent ))))
+
 (defun magit-insert-unpushed-to-upstream ()
   "Insert commits that haven't been pushed to the upstream yet."
   (when (magit-git-success "rev-parse" "@{upstream}")

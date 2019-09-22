@@ -83,6 +83,7 @@ all."
     magit-insert-stashes
     magit-insert-unpushed-to-pushremote
     magit-insert-unpushed-to-upstream-or-recent
+    magit-insert-unpushed-recent-if-not
     magit-insert-unpulled-from-pushremote
     magit-insert-unpulled-from-upstream
     )
