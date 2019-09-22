@@ -78,6 +78,8 @@
 (eval-when-compile
   (require 'cl-lib))
 
+(defvar magit-gerrit-this-error nil)
+
 ;; Define a defvar-local macro for Emacs < 24.3
 (unless (fboundp 'defvar-local)
   (defmacro defvar-local (var val &optional docstring)
@@ -122,9 +124,13 @@
 
 (defun gerrit-ssh-cmd (cmd &rest args)
   (message "[+] gerrit-ssh-cmd: %s " (apply #'gerrit-command cmd args))
-  (apply #'call-process
-	 "ssh" nil nil nil
-	 (split-string (apply #'gerrit-command cmd args))))
+  (with-temp-buffer
+    (apply #'call-process
+	   "ssh" nil t nil
+	   (split-string (apply #'gerrit-command cmd args)))
+    (setq magit-gerrit-this-error (buffer-string))
+
+    ))
 
 (defun gerrit-review-abandon (prj rev)
   (gerrit-ssh-cmd "review" "--project" prj "--abandon" rev))
@@ -301,7 +307,7 @@ Succeed even if branch already exist
 	    (branch (format "review/%s/%s"
 			    (cdr (assoc 'username (assoc 'owner jobj)))
 			    (cdr (or (assoc 'topic jobj) (assoc 'number jobj))))))
-	(let* ((magit-proc (magit-fetch magit-gerrit-remote ref)))
+	(let* ((magit-proc (magit-fetch-refspec magit-gerrit-remote ref ())))
 	  (message (format "Waiting a git fetch from %s to complete..."
 			   magit-gerrit-remote))
 	  (magit-gerrit-process-wait))
@@ -337,6 +343,7 @@ Succeed even if branch already exist
   (magit-gerrit-copy-review t))
 
 (defun magit-insert-gerrit-reviews ()
+  (message "magit-insert-gerrit-reviews: %s" (gerrit-query (magit-gerrit-get-project)))
   (magit-gerrit-section 'gerrit-reviews
 			"Reviews:" 'magit-gerrit-wash-reviews
 			(gerrit-query (magit-gerrit-get-project))))
@@ -410,9 +417,8 @@ Succeed even if branch already exist
 
 (defun magit-gerrit-create-review (commit branch args)
   (interactive (list (magit-commit-at-point)
-		     (--if-let (magit-get-current-branch)
-			 (magit-read-remote-branch (format "Branch %s" it)
-						   nil nil it 'confirm))
+		     (magit-read-remote-branch "Branch"
+					       nil nil (magit-get-current-branch) 'confirm)
 		     (magit-push-arguments)
 		     ))
   (magit-gerrit-push-review 'for commit branch ))
@@ -497,6 +503,15 @@ Succeed even if branch already exist
     (define-key map magit-gerrit-popup-prefix 'magit-gerrit)
     map))
 
+(defun magit-gerrit-error-status ()
+  (when magit-gerrit-this-error
+    (magit-insert-section (error 'git)
+      (insert (propertize (format "%-10s" "GerritError! ")
+                          'face 'magit-section-heading))
+      (insert (propertize magit-gerrit-this-error 'face 'font-lock-warning-face))
+      (insert ?\n))
+    (setq magit-gerrit-this-error nil)))
+
 (define-minor-mode magit-gerrit-mode "Gerrit support for Magit"
   :lighter " Gerrit" :require 'magit-topgit :keymap 'magit-gerrit-mode-map
   (or (derived-mode-p 'magit-mode)
@@ -510,6 +525,9 @@ Succeed even if branch already exist
     (magit-add-section-hook 'magit-status-sections-hook
 			    'magit-insert-gerrit-reviews
 			    'magit-insert-stashes t t)
+
+
+    (add-to-list 'magit-status-headers-hook 'magit-gerrit-error-status)
     (add-hook 'magit-create-branch-command-hook
 	      'magit-gerrit-create-branch nil t)
     ;(add-hook 'magit-pull-command-hook 'magit-gerrit-pull nil t)
@@ -519,6 +537,9 @@ Succeed even if branch already exist
 	      'magit-gerrit-push nil t))
 
    (t
+
+    (delete 'magit-gerrit-error-status magit-status-headers-hook )
+
     (remove-hook 'magit-after-insert-stashes-hook
 		 'magit-insert-gerrit-reviews t)
     (remove-hook 'magit-create-branch-command-hook

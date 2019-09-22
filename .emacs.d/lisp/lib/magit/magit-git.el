@@ -191,7 +191,7 @@ purpose."
   :group 'magit-process
   :type '(repeat string))
 
-(defvar magit-git-debug nil
+(defvar magit-git-debug nil ;;t ;;
   "Whether to enable additional reporting of git errors.
 
 Magit basically calls git for one of these two reasons: for
