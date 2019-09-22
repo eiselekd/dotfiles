@@ -274,7 +274,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 
 ;;;; Log Sections
 
-(defcustom magit-log-section-commit-count 10
+(defcustom magit-log-section-commit-count 15
   "How many recent commits to show in certain log sections.
 How many recent commits `magit-insert-recent-commits' and
 `magit-insert-unpulled-from-upstream-or-recent' (provided
@@ -1615,10 +1615,13 @@ not yet been pushed into the upstream branch.  If no upstream is
 configured or if the upstream is not behind of the current branch,
 then show the last `magit-log-section-commit-count' commits."
   (let ((upstream (magit-get-upstream-branch)))
+    (message "magit-insert-unpushed-to-upstream-or-recent: upstream %s" upstream)
     (if (or (not upstream)
             (magit-rev-ancestor-p "HEAD" upstream))
         (magit-insert-recent-commits 'unpushed "@{upstream}..")
-      (magit-insert-unpushed-to-upstream))))
+      (magit-insert-unpushed-to-upstream)
+
+      )))
 
 (defun magit-insert-unpushed-to-upstream ()
   "Insert commits that haven't been pushed to the upstream yet."
