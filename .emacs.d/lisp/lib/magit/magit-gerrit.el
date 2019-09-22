@@ -312,7 +312,7 @@ Succeed even if branch already exist
 			    (add-text-properties beg (point) (list 'magit-gerrit-jobj jobj)))
 			  t)))
 
-	  (--sort (< (review-num it) (review-num other)) a)
+	  (--sort (> (review-num it) (review-num other)) a)
 			  )))
 
 (defun magit-gerrit-section (section title washer &rest args)
