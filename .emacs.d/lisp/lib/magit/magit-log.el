@@ -1607,7 +1607,6 @@ Type \\[magit-cherry-pick] to apply the commit at point.
 (magit-define-section-jumper magit-jump-to-unpushed-to-upstream
   "Unpushed to @{upstream}" unpushed "@{upstream}..")
 
-;; https://technosorcery.net/blog/2011/12/using-gits-at-upstream-notation/
 (defun magit-insert-unpushed-to-upstream-or-recent ()
   "Insert section showing unpushed or other recent commits.
 If an upstream is configured for the current branch and it is
@@ -1617,9 +1616,11 @@ configured or if the upstream is not behind of the current branch,
 then show the last `magit-log-section-commit-count' commits."
   (let ((upstream (magit-get-upstream-branch)))
     (if (or (not upstream)
-            (magit-rev-ancestor-p "HEAD" upstream))
-        (magit-insert-recent-commits 'unpushed "@{upstream}..")
-      (magit-insert-unpushed-to-upstream)
+            (magit-rev-ancestor-p  upstream "HEAD" ))
+	(progn (message "magit-insert-unpushed-to-upstream-or-recent: magit-insert-recent-commits: %s : %s" upstream (magit-rev-ancestor-p upstream "HEAD" ))
+               (magit-insert-recent-commits 'unpushed "@{upstream}.."))
+      (progn (message "magit-insert-unpushed-to-upstream-or-recent: magit-insert-unpushed-to-upstream: %s : %s" upstream (magit-rev-ancestor-p upstream "HEAD" ))
+        (magit-insert-unpushed-to-upstream))
 
       )))
 
