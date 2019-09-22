@@ -70,6 +70,8 @@
 ;;
 ;;; Code:
 
+;;(customize-save-variable)
+
 (require 'magit)
 (if (locate-library "magit-popup")
     (require 'magit-popup))
@@ -399,14 +401,39 @@ Succeed even if branch already exist
 			"Reviews:" 'magit-gerrit-wash-reviews
 			(gerrit-query (magit-gerrit-get-project))))
 
+(defcustom magit-gerrit-reviewers '()
+  "List of emails."
+  :package-version '(magit . "2.1.0")
+  :group 'magit-status
+  )
+
+(defun magit-gerrit-write-review (file)
+  (with-temp-file file
+    (insert "(setq magit-gerrit-reviewers '")
+    (prin1 magit-gerrit-reviewers             (current-buffer))
+    (insert ")" )
+	   ))
+
 (defun magit-gerrit-add-reviewer ()
   (interactive)
   "ssh -x -p 29418 user@gerrit gerrit set-reviewers --project toplvlroot/prjname --add email@addr"
 
-  (gerrit-ssh-cmd "set-reviewers"
-		  "--project" (magit-gerrit-get-project)
-		  "--add" (read-string "Reviewer Name/Email: ")
-		  (cdr-safe (assoc 'id (magit-gerrit-review-at-point))))
+  (let ((e (completing-read "Reviewer Name/Email:" magit-gerrit-reviewers nil nil)))
+
+    (if (not (member e magit-gerrit-reviewers))
+	(progn (add-to-list 'magit-gerrit-reviewers e)
+	       (magit-gerrit-write-review "~/.gerrit.reviewers")
+	       ))
+
+
+    (gerrit-ssh-cmd "set-reviewers"
+		    "--project" (magit-gerrit-get-project)
+		    "--add"
+		    e
+
+
+		    ;;(read-string "Reviewer Name/Email: ")
+		    (cdr-safe (assoc 'id (magit-gerrit-review-at-point)))))
   (magit-refresh)
   )
 
@@ -557,9 +584,9 @@ Succeed even if branch already exist
     map))
 
 (defun magit-gerrit-error-status ()
-  (when magit-gerrit-this-error
+  (when (and magit-gerrit-this-error (length magit-gerrit-this-error))
     (magit-insert-section (error 'git)
-      (insert (propertize (format "%-10s" "GerritError! ")
+      (insert (propertize (format "%-10s" "GerritError?: ")
                           'face 'magit-section-heading))
       (insert (propertize magit-gerrit-this-error 'face 'font-lock-warning-face))
       (insert ?\n))
