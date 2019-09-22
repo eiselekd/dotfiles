@@ -236,6 +236,7 @@ Succeed even if branch already exist
 	 (owner-name (cdr-safe (assoc 'name owner)))
 	 (owner-email (cdr-safe (assoc 'email owner)))
 	 (patchsets (cdr-safe (assoc 'currentPatchSet jobj)))
+	 (hash (cdr-safe (assoc 'revision patchsets)))
 	 ;; compare w/t since when false the value is => :json-false
 	 (isdraft (eq (cdr-safe (assoc 'isDraft patchsets)) t))
 	 (approvs (cdr-safe (if (listp patchsets)
@@ -244,7 +245,7 @@ Succeed even if branch already exist
     (if (and beg end)
 	(delete-region beg end))
     (when (and num subj owner-name)
-      (magit-insert-section (section subj)
+      (magit-insert-section (commit hash)
 	(insert (propertize
 		 (magit-gerrit-pretty-print-review num subj owner-name isdraft)
 		 'magit-gerrit-jobj
@@ -385,7 +386,6 @@ Succeed even if branch already exist
 
 (defun magit-gerrit-submit-review (args)
   "Submit a Gerrit Code Review"
-  ;; "ssh -x -p 29418 user@gerrit gerrit review REVISION  -- --project PRJ --submit "
   (interactive (magit-gerrit-popup-args))
   (gerrit-ssh-cmd "review"
 		  (cdr-safe (assoc
@@ -396,7 +396,7 @@ Succeed even if branch already exist
 		  (magit-gerrit-get-project)
 		  "--submit"
 		  args)
-  (magit-fetch-from-upstream ""))
+  (magit-git-fetch (magit-get-current-remote t) nil))
 
 (defun magit-gerrit-push-review (status commitid &optional branch)
   (pcase-let

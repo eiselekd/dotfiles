@@ -508,7 +508,8 @@ call function WASHER with ARGS as its sole argument."
       (save-restriction
         (narrow-to-region beg (point))
         (goto-char beg)
-        (funcall washer args))
+        (funcall washer args)
+	)
       (when (or (= (point) beg)
                 (= (point) (1+ beg)))
         (magit-cancel-section))
