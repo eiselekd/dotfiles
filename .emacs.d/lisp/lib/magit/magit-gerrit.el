@@ -406,7 +406,9 @@ Succeed even if branch already exist
   (gerrit-ssh-cmd "set-reviewers"
 		  "--project" (magit-gerrit-get-project)
 		  "--add" (read-string "Reviewer Name/Email: ")
-		  (cdr-safe (assoc 'id (magit-gerrit-review-at-point)))))
+		  (cdr-safe (assoc 'id (magit-gerrit-review-at-point))))
+  (magit-refresh)
+  )
 
 (defun magit-gerrit-popup-args (&optional something)
   (or (magit-gerrit-arguments) (list "")))
