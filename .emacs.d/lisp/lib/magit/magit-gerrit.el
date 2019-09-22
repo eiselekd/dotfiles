@@ -232,7 +232,22 @@ Succeed even if branch already exist
 (defun magit-gerrit-wash-approvals (approvals)
   (mapc #'magit-gerrit-wash-approval approvals))
 
-(defun magit-gerrit-wash-review ()
+
+(cl-defstruct review
+  jobj
+  num
+  subj
+  owner
+  owner-name
+  owner-email
+  patchsets
+  hash
+  isdraft
+  approvs
+  )
+
+;; parse in json objects
+(defun magit-gerrit-review-unfold ()
   (let* ((beg (point))
 	 (jobj (json-read))
 	 (end (point))
@@ -251,18 +266,54 @@ Succeed even if branch already exist
     (if (and beg end)
 	(delete-region beg end))
     (when (and num subj owner-name)
-      (magit-insert-section (commit hash)
-	(insert (propertize
-		 (magit-gerrit-pretty-print-review num subj owner-name isdraft)
-		 'magit-gerrit-jobj
-		 jobj))
-	(unless (oref (magit-current-section) hidden)
-	  (magit-gerrit-wash-approvals approvs))
-	(add-text-properties beg (point) (list 'magit-gerrit-jobj jobj)))
-      t)))
+      (make-review
+       :jobj              jobj
+       :num               num
+       :subj		  subj
+       :owner		  owner
+       :owner-name	  owner-name
+       :owner-email	  owner-email
+       :patchsets	  patchsets
+       :hash		  hash
+       :isdraft	          isdraft
+       :approvs     	  approvs
+       ))))
 
+;; https://emacs.stackexchange.com/questions/48232/with-slots-with-defstruct-class-instance
+(defmacro struct-with-slots (class-name slots obj &rest body)
+  "Bind slot names SLOTS in an instance OBJ of class CLASS-NAME, and execute BODY."
+  (declare (indent 3))
+  `(cl-symbol-macrolet
+       ,(cl-loop for slot in slots
+                 collect `(,slot (cl-struct-slot-value ',class-name ',slot ,obj)))
+     ,@body))
+
+;; parse in all json objects and sort by number
 (defun magit-gerrit-wash-reviews (&rest args)
-  (magit-wash-sequence #'magit-gerrit-wash-review))
+  (message "magit-gerrit-wash-reviews: %s %s" (point-min) (point-max))
+  (let ((a (-unfold (lambda (a)
+		      (let ((v (and (not (eobp)) (magit-gerrit-review-unfold))))
+			(if v
+			    (cons v nil)
+			  nil))) nil ))
+	)
+    (-map (lambda (e) (struct-with-slots
+			  review
+			  (jobj num subj owner owner-name owner-email patchsets hash isdraft approvs)
+			  e
+			(let ((beg (point)))
+			  (magit-insert-section (commit hash)
+			    (insert (propertize
+				     (magit-gerrit-pretty-print-review num subj owner-name isdraft)
+				     'magit-gerrit-jobj
+				     jobj))
+			    (unless (oref (magit-current-section) hidden)
+			      (magit-gerrit-wash-approvals approvs))
+			    (add-text-properties beg (point) (list 'magit-gerrit-jobj jobj)))
+			  t)))
+
+	  (--sort (< (review-num it) (review-num other)) a)
+			  )))
 
 (defun magit-gerrit-section (section title washer &rest args)
   (let ((magit-git-executable "ssh")
