@@ -293,16 +293,19 @@ Succeed even if branch already exist
 ;; parse in all json objects and sort by number
 (defun magit-gerrit-wash-reviews (&rest args)
   (message "magit-gerrit-wash-reviews: %s %s" (point-min) (point-max))
+  (setq magit-gerrit-respecs '())
   (let ((a (-unfold (lambda (a)
 		      (let ((v (and (not (eobp)) (magit-gerrit-review-unfold))))
 			(if v
 			    (cons v nil)
 			  nil))) nil ))
 	)
-    (-map (lambda (e) (struct-with-slots
+    (-map (lambda (e)
+	    (struct-with-slots
 			  review
 			  (jobj num subj owner owner-name owner-email patchsets hash isdraft approvs)
 			  e
+			  (add-to-list 'magit-gerrit-respecs jobj)
 			(let ((beg (point)))
 			  (magit-insert-section (commit hash)
 			    (insert (propertize
@@ -366,6 +369,19 @@ Succeed even if branch already exist
 	  (magit-gerrit-process-wait))
 	(message (format "Checking out refs %s to %s in %s" ref branch dir))
 	(magit-gerrit-create-branch-force branch "FETCH_HEAD")))))
+
+(defun magit-gerrit-download-all-patchset ()
+  "Download all Gerrit Review Patchset"
+  (interactive)
+  (dolist (jobj magit-gerrit-respecs)
+    (let ((ref (cdr (assoc 'ref (assoc 'currentPatchSet jobj))))
+	  )
+      (let* ((magit-proc (magit-fetch-refspec magit-gerrit-remote ref ())))
+	(message "Downloaded %s" ref)
+	)
+    )
+  ))
+
 
 (defun magit-gerrit-browse-review ()
   "Browse the Gerrit Review with a browser."
@@ -568,7 +584,8 @@ Succeed even if branch already exist
    ("V" "Verify"                                          magit-gerrit-verify-review)
    ("C" "Code Review"                                     magit-gerrit-code-review)
    ("d" "View Patchset Diff"                              magit-gerrit-view-patchset-diff)
-   ("D" "Download Patchset"                               magit-gerrit-download-patchset)
+   ("d" "Download Patchset"                               magit-gerrit-download-patchset)
+   ("D" "Download all Patchsets"                          magit-gerrit-download-all-patchset)
    ("S" "Submit Review"                                   magit-gerrit-submit-review)
    ("B" "Abandon Review"                                  magit-gerrit-abandon-review)
    ("b" "Browse Review"                                   magit-gerrit-browse-review)
@@ -606,6 +623,8 @@ Succeed even if branch already exist
 			    'magit-insert-gerrit-reviews
 			    'magit-insert-stashes t t)
 
+
+    (set (make-local-variable 'magit-gerrit-respecs) '())
 
     (add-to-list 'magit-status-headers-hook 'magit-gerrit-error-status)
     (add-hook 'magit-create-branch-command-hook
