@@ -241,9 +241,11 @@
 				       ((or (string= mode 'org-mode)
 					    (string= mode 'org-agenda-mode)) (call-interactively 'bh/org-sparse-tree))
 				       ((utils/isgud) (call-interactively 'gud-step))
-				       (t (progn t))
-				       )
-				 )))
+				       (t (progn
+					    (when (require 'utils/tty.el nil t)
+					      (tty-dispatch)
+					      )))
+				 ))))
 
 (global-set-key (kbd "<f3>") (lambda ()(interactive)
 			       (dired default-directory)

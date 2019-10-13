@@ -199,6 +199,8 @@
       (message "[*] %s retired flycheck-init" (timestamp_str))
       (require 'utils/spell.el)
       (message "[*] %s retired spell" (timestamp_str))
+      (require 'utils/tty.el)
+      (message "[*] %s retired tty" (timestamp_str))
       ;;(require 'utils/irc.el)
 
       (defun prepareHelm ()
