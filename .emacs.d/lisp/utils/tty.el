@@ -32,6 +32,26 @@
   )
 
 
+(defun z0-commands-test0 (&rest args)
+  (interactive)
+  (when (require 'utils/tty-hiz.el)
+    (tty-pexpect-hiz-cmdsequence 0 '("?" "?"))
+
+  ))
+
+(defun z0-commands-test1 (&rest args)
+  (interactive)
+
+  )
+
+
+(define-transient-command z0-commands ()
+  "Command automation for g0."
+  ["Command automation for g0"
+   [("1" "test0"        z0-commands-test0)]
+   [("2" "test1"        z0-commands-test1)]
+  ]
+  )
 
 (define-transient-command tty-dispatch ()
   "Invoke a Magit command from a list of available commands."
@@ -41,6 +61,7 @@
    [("2" "TTY1"           tty-uart1-show)]
    [("i" "i0"             i0-commands-show)] ;;i0-command-open
    [("g" "g0"             g0-commands-show)] ;;i0-command-open
+   [("z" "z0"             z0-commands)] ;;i0-command-open
 
   ]
   )

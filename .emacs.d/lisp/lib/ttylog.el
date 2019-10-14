@@ -39,7 +39,7 @@
 
 (defun ttyexpect-log (str)
   (message "%s" str)
-  (f-append-text str 'utf-8 "/tmp/tty.log"))
+  (f-append-text (format "%s\n" str) 'utf-8 "/tmp/tty.log"))
 
 (defun ttyexpect-datalog-open (n)
   (puthash n (concat "/data/ttylog/" (replace-regexp-in-string "/" "_" n) "-" (format-time-string "%Y-%m-%d_%H-%M-%S")) ttypexpect-bufname-logname))
@@ -185,23 +185,20 @@
 		       (idx (elt e 1))
 		       )
 		  (setf (nth idx ttypexpect-str) (substring (nth idx ttypexpect-str) stridx))
-		  (ttyexpect-log (format "[+] : Found %s move stridx %d: %s\n" c stridx (ttylog_newline (nth idx ttypexpect-str))))
+		  (ttyexpect-log (format "[+] : Found %s move stridx %d: %s" c stridx (ttylog_newline (nth idx ttypexpect-str))))
 		  (throw 'found c)
 		  )
 	      (progn
-		(ttyexpect-log (format " wait after miss: %s\n" (float-time)))
+		(ttyexpect-log (format " wait after miss: %s" (float-time)))
 		(if (and hastimeout (<= n1 (float-time)))
 		    (progn
-		      (ttyexpect-log (format "[+] : timout\n"))
+		      (ttyexpect-log (format "[+] : timout"))
 		      (throw 'found 'TIMEOUT))
 		  )))
 	    (ttyexpect-log "[.] > ttypexpect-wait")
 	    (condition-wait ttypexpect-condvar)
 	    (ttyexpect-log "[.] < ttypexpect-wait")
-
-
 	    ))
-
 	)
       (ttyexpect-log "[=] while loop exit")
 
@@ -212,6 +209,35 @@
     )
   )
 
+(defun tty-pexpect-sense-console (idx prompt &optional cnt)
+  (ttyexpect-log (format "[.]+> sense-concole %s for '%s' %s times" idx prompt cnt))
+  (if (null cnt)
+      (setf cnt -1))
+  (catch 'ready
+    (while (/= cnt 0)
+      (ttypexpect_send idx "\n")
+      (let ((c (ttypexpect `( ( ,idx ,prompt FOUNDPrompt )  (TIMEOUT) ) 0.5 )))
+	(pcase c
+	  ('TIMEOUT
+	   (progn
+	     (ttyexpect-log (format "   +> timeout not detected, continue"))
+	     ))
+	  ('FOUNDPrompt
+	   (progn
+	     (ttyexpect-log (format "   +> detected"))
+	     (throw 'ready t)))
+	  ))
+      (decf cnt))
+    nil))
+
+(defun tty-pexpect-sense-console-and-execute (idx prompt a &optional cnt)
+  (tty-pexpect-sense-console idx prompt cnt)
+  (ttypexpect_send idx (concat a "\n"))
+  )
+
+(defun tty-pexpect-sense-console-and-execute-list (idx prompt a &optional cnt)
+  (dolist (e a)
+    (tty-pexpect-sense-console-and-execute idx propmt e cnt)))
 
 
 ;;(mapcar '1+ '[2 4 6])
@@ -243,8 +269,9 @@
       ('FOUND 2)
       ('FOUNDAnother 3)
       ))
+  )
 
-    )
+;;(ttyexpect_test0)
 
 (defun ttypexpect-hiz-run ()
   (interactive)
@@ -634,6 +661,10 @@ Magit is documented in info node `(magit)'."
   (hack-dir-local-variables-non-file-buffer)
   )
 
+;;
+;(setq a 10)
+
+;`( ( ,a 'a) )
 
 ;;(current-thread)
 ;;(all-threads)
