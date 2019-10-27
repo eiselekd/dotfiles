@@ -155,12 +155,22 @@
 (defun magit-gerrit-get-project ()
  (let* ((regx (rx (zero-or-one ?:) (zero-or-more (any digit)) ?/
 		  (group (not (any "/")))
-		  (group (one-or-more (not (any "."))))))
+		  (group (one-or-more anything))))
 	(str (or (magit-gerrit-get-remote-url) ""))
 	(sstr (car (last (split-string str "//")))))
+   ;;(message (format ">>%s" regx)) ;; >>:?[[:digit:]]*/\([^/]\)\([^.]+\)
+   ;;ssh://eiselekd@localhost:29418/https___android.googlesource.com_platform_art.git
    (when (string-match regx sstr)
-     (concat (match-string 1 sstr)
-	     (match-string 2 sstr)))))
+     (progn
+       ;;(setq sstr "eiselekd@localhost:29418/a/b/c/https___android.googlesource.com_")
+       (message (format ">> '%s' '%s' '%s'" sstr (match-string 1 sstr) (match-string 2 sstr)))
+       (let* ((p (concat (match-string 1 sstr)
+			 (match-string 2 sstr))))
+	 (if (string-match "\.git$" p)
+	     (setq p (substring p 0 -4))
+	   )
+	 p
+	 )))))
 
 (defun magit-gerrit-string-trunc (str maxlen)
   (if (> (length str) maxlen)
@@ -265,8 +275,12 @@ Succeed even if branch already exist
 	 (approvs (cdr-safe (if (listp patchsets)
 				(assoc 'approvals patchsets)
 			      (assoc 'approvals (aref patchsets 0))))))
+    (message (format "Json: '%s' \n> num:%s sub:%s owner:%s" jobj num subj owner-name))
+
     (if (and beg end)
 	(delete-region beg end))
+    (if (not owner-name)
+	(setq owner-name "unknown"))
     (when (and num subj owner-name)
       (make-review
        :jobj              jobj
@@ -296,11 +310,13 @@ Succeed even if branch already exist
   (setq magit-gerrit-respecs '())
   (let ((a (-unfold (lambda (a)
 		      (let ((v (and (not (eobp)) (magit-gerrit-review-unfold))))
+
 			(if v
 			    (cons v nil)
 			  nil))) nil ))
 	)
     (-map (lambda (e)
+	    (message "[+] insert commit section")
 	    (struct-with-slots
 			  review
 			  (jobj num subj owner owner-name owner-email patchsets hash isdraft approvs)
