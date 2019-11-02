@@ -49,6 +49,9 @@ then: dpkg-reconfigure console-setup
 
 *** rsync with dedup:
 echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
+echo 20073741824 > /sys/module/zfs/parameters/zfs_arc_max
+
+cat /proc/spl/kstat/zfs/arcstats
 
 [1] https://blog.chaospixel.com/linux/2017/08/zfs-rsync-stuck-txg_sync.html
 
@@ -1017,6 +1020,7 @@ usbdata ${D}-part1
 usb backup with dedup enabled: raise zfs_arc_min, primarycache=metadata and use zfs recv
 
 
+
 ** zfs zrep backpu
 zrep : setup root login run 'zrep init' to setup and 'zrep sync'
 
@@ -1031,7 +1035,27 @@ sudo zfs send -R dataset-ori | pv | ssh user@server "cat - > zfs-pipe"
       
 ** rsync with dedup:
 echo 1073741824  > /sys/module/zfs/parameters/zfs_arc_min
+echo 20073741824 > /sys/module/zfs/parameters/zfs_arc_max
 
+http://www.c0t0d0s0.org/archives/7271-ZFS-Dedup-Internals.html
+
+Calculate DDT table: zdb -b <poolname> | grep "bp count"
+multiply  370
+
+# calculate average filesize
+expr $(du -s | cut -f1) / $(find /path/to/dir -type f | wc -l)
+
+pin metadata to ARC via /sys/module/zfs/parameters/zfs_arc_meta_limit
+
+
+** zfs encryption
+sudo zpool set feature@encryption=enabled <pool>
+sudo zfs create -o encryption=aes-256-gcm -o keyformat=passphrase -o compression=gzip-9 <dataset>
+
+
+** measure preformance
+
+zpool iostat -vq aptivdata2 .1
 
 
 * DNS tls
