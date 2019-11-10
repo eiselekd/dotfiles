@@ -407,9 +407,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Quit xmonad.
   , ((modMask .|. shiftMask, xK_q),
-     if os == "freebsd"
-       then io (exitWith ExitSuccess)
-       else spawn "/usr/bin/gnome-session-quit  --logout --no-prompt"
+     --if os == "freebsd"
+       -- then
+                io (exitWith ExitSuccess)
+       --else spawn "/usr/bin/gnome-session-quit  --logout --no-prompt"
     )
 
   -- , ((altModMask .|. controlMask, xK_q), io (exitWith ExitSuccess) )
