@@ -1102,3 +1102,17 @@ https://www.djcbsoftware.nl/code/mu/mu4e.html
 
 
 
+
+* gpg
+
+** Import recipient pubkey:
+gpg --import my_key.gpg
+** Export my pubkey
+gpg --armor --export my@email > pub.my@email.asc
+** list keys
+gpg --fingerprint
+
+** 
+gpg --encrypt --recipient "recipeint@email" --output d.enc d
+gpg --decrypt --output d.tar d.tar.gpg
+ 
