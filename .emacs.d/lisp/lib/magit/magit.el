@@ -254,8 +254,8 @@ and/or `magit-branch-remote-head'."
     ("Y" "Cherries"       magit-cherry)
     ("z" "Stash"          magit-stash)
     ("!" "Run"            magit-run)
-    ("%" "Worktree"       magit-worktree)
-    ("Q" "Gerrit"         magit-gerrit)]]
+    ("Q" "Gerrit"         magit-gerrit)
+    ("%" "Worktree"       magit-worktree)]]
   ["Applying changes"
    :if-derived magit-mode
    [("a" "Apply"          magit-apply)
@@ -583,8 +583,8 @@ For X11 something like ~/.xinitrc should work.\n"
     (require 'magit-extras)
     (require 'git-rebase)
     (require 'magit-imenu)
-    (require 'magit-bookmark)
-    (require 'magit-gerrit)))
+    (require 'magit-gerrit)
+    (require 'magit-bookmark)))
 
 (eval-after-load 'bookmark
   '(require 'magit-bookmark))

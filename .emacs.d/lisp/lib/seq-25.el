@@ -129,15 +129,51 @@ Return SEQUENCE."
   "Return a shallow copy of SEQUENCE."
   (copy-sequence sequence))
 
+
 (cl-defgeneric seq-subseq (sequence start &optional end)
-  "Return the sequence of elements of SEQUENCE from START to END.
-END is inclusive.
+    "Return the sequence of elements of SEQUENCE from START to END.
+END is exclusive.
 
 If END is omitted, it defaults to the length of the sequence.  If
 START or END is negative, it counts from the end.  Signal an
 error if START or END are outside of the sequence (i.e too large
 if positive or too small if negative)."
-  (cl-subseq sequence start end))
+    (declare (gv-setter
+	      (lambda (new)
+		(macroexp-let2 nil new new
+		  `(progn (cl-replace ,seq ,new :start1 ,start :end1 ,end)
+			  ,new)))))
+    (cond
+     ((or (stringp sequence) (vectorp sequence)) (substring sequence start end))
+     ((listp sequence)
+      (let (len
+	    (errtext (format "Bad bounding indices: %s, %s" start end)))
+	(and end (< end 0) (setq end (+ end (setq len (length sequence)))))
+	(if (< start 0) (setq start (+ start (or len (setq len (length sequence))))))
+	(unless (>= start 0)
+	  (error "%s" errtext))
+	(when (> start 0)
+	  (setq sequence (nthcdr (1- start) sequence))
+	  (or sequence (error "%s" errtext))
+	  (setq sequence (cdr sequence)))
+	(if end
+	    (let ((res nil))
+	      (while (and (>= (setq end (1- end)) start) sequence)
+		(push (pop sequence) res))
+	      (or (= (1+ end) start) (error "%s" errtext))
+	      (nreverse res))
+	  (copy-sequence sequence))))
+        (t (error "Unsupported sequence: %s" sequence))))
+
+;; (cl-defgeneric seq-subseq (sequence start &optional end)
+;;   "Return the sequence of elements of SEQUENCE from START to END.
+;; END is inclusive.
+
+;; If END is omitted, it defaults to the length of the sequence.  If
+;; START or END is negative, it counts from the end.  Signal an
+;; error if START or END are outside of the sequence (i.e too large
+;; if positive or too small if negative)."
+;;   (cl-subseq sequence start end))
 
 
 (cl-defgeneric seq-map (function sequence)

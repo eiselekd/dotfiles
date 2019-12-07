@@ -90,7 +90,7 @@
 ;;   C-c C-r  Insert a Reviewed-by header.
 ;;   C-c C-o  Insert a Cc header.
 ;;   C-c C-p  Insert a Reported-by header.
-;;   C-c M-s  Insert a Suggested-by header.
+;;   C-c C-i  Insert a Suggested-by header.
 
 ;; When Git requests a commit message from the user, it does so by
 ;; having her edit a file which initially contains some comments,
@@ -120,7 +120,9 @@
 (require 'server)
 (require 'with-editor)
 
-(eval-when-compile (require 'recentf))
+(eval-when-compile
+  (require 'recentf)
+  (require 'subr-x))
 
 ;;;; Declarations
 
@@ -269,7 +271,8 @@ already using it, then you probably shouldn't start doing so."
 
 (defcustom git-commit-known-pseudo-headers
   '("Signed-off-by" "Acked-by" "Modified-by" "Cc"
-    "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by")
+    "Suggested-by" "Reported-by" "Tested-by" "Reviewed-by"
+    "Co-authored-by")
   "A list of Git pseudo headers to be highlighted."
   :group 'git-commit
   :safe (lambda (val) (and (listp val) (-all-p 'stringp val)))
@@ -411,6 +414,8 @@ This is only used if Magit is available."
      :help "Insert a 'Reported-by' header"]
     ["Suggested" git-commit-suggested t
      :help "Insert a 'Suggested-by' header"]
+    ["Co-authored-by" git-commit-co-authored t
+     :help "Insert a 'Co-authored-by' header"]
     "-"
     ["Save" git-commit-save-message t]
     ["Cancel" with-editor-cancel t]
@@ -469,15 +474,21 @@ This is only used if Magit is available."
 (when (eq system-type 'windows-nt)
   (add-hook 'find-file-not-found-functions #'git-commit-file-not-found))
 
+(defconst git-commit-usage-message "\
+Type \\[with-editor-finish] to finish, \
+\\[with-editor-cancel] to cancel, and \
+\\[git-commit-prev-message] and \\[git-commit-next-message] \
+to recover older messages")
+
 ;;;###autoload
 (defun git-commit-setup ()
-  ;; Pretend that git-commit-mode is a major-mode,
-  ;; so that directory-local settings can be used.
   (when (fboundp 'magit-toplevel)
     ;; `magit-toplevel' is autoloaded and defined in magit-git.el,
     ;; That library declares this functions without loading
     ;; magit-process.el, which defines it.
     (require 'magit-process nil t))
+  ;; Pretend that git-commit-mode is a major-mode,
+  ;; so that directory-local settings can be used.
   (let ((default-directory
           (or (and (not (file-exists-p ".dir-locals.el"))
                    ;; When $GIT_DIR/.dir-locals.el doesn't exist,
@@ -503,7 +514,9 @@ This is only used if Magit is available."
           (git-commit-mode t)
           (with-editor-mode t))
       (normal-mode t)))
+  ;; Show our own message using our hook.
   (setq with-editor-show-usage nil)
+  (setq with-editor-usage-message git-commit-usage-message)
   (unless with-editor-mode
     ;; Maybe already enabled when using `shell-command' or an Emacs shell.
     (with-editor-mode 1))
@@ -566,7 +579,8 @@ Don't use it directly, instead enable `global-git-commit-mode'."
 (put 'git-commit-mode 'permanent-local t)
 
 (defun git-commit-setup-changelog-support ()
-  "Treat ChangeLog entries as paragraphs."
+  "Treat ChangeLog entries as unindented paragraphs."
+  (setq-local fill-indent-according-to-mode t)
   (setq-local paragraph-start (concat paragraph-start "\\|\\*\\|(")))
 
 (defun git-commit-turn-on-auto-fill ()
@@ -661,9 +675,10 @@ With a numeric prefix ARG, go forward ARG comments."
 (defun git-commit-save-message ()
   "Save current message to `log-edit-comment-ring'."
   (interactive)
-  (--when-let (git-commit-buffer-message)
-    (unless (ring-member log-edit-comment-ring it)
-      (ring-insert log-edit-comment-ring it))))
+  (when-let ((message (git-commit-buffer-message)))
+    (when-let ((index (ring-member log-edit-comment-ring message)))
+      (ring-remove log-edit-comment-ring index))
+    (ring-insert log-edit-comment-ring message)))
 
 (defun git-commit-buffer-message ()
   (let ((flush (concat "^" comment-start))
@@ -727,6 +742,11 @@ With a numeric prefix ARG, go forward ARG comments."
   "Insert a header mentioning the person who suggested the change."
   (interactive (git-commit-read-ident))
   (git-commit-insert-header "Suggested-by" name mail))
+
+(defun git-commit-co-authored (name mail)
+  "Insert a header mentioning the person who co-authored the commit."
+  (interactive (git-commit-read-ident))
+  (git-commit-insert-header "Co-authored-by" name mail))
 
 (defun git-commit-self-ident ()
   (list (or (getenv "GIT_AUTHOR_NAME")

@@ -228,7 +228,10 @@ has to be used to view and change branch related variables."
     ("C" "configure..."      magit-branch-configure)
     ("m" "rename"            magit-branch-rename)
     ("x" "reset"             magit-branch-reset)
-    ("k" "delete"            magit-branch-delete)]]
+    ("k" "delete"            magit-branch-delete)]
+   [""
+    (7 "h" "shelve"          magit-branch-shelve)
+    (7 "H" "unshelve"        magit-branch-unshelve)]]
   (interactive (list (magit-get-current-branch)))
   (transient-setup 'magit-branch nil nil :scope branch))
 
@@ -776,7 +779,7 @@ and also rename the respective reflog file."
                   (not (and magit-branch-direct-configure
                             (eq current-transient-command 'magit-branch)))
                   (magit-get-current-branch))
-             (magit--read-remote-scope))))
+             (magit--read-branch-scope))))
   (transient-setup 'magit-branch-configure nil nil :scope branch))
 
 (defun magit--read-branch-scope (&optional obj)

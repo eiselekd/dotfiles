@@ -54,6 +54,8 @@
 (declare-function magit-status-goto-initial-section "magit-status" ())
 ;; For `magit-mode' from `bookmark'
 (defvar bookmark-make-record-function)
+;; For `magit-mode' from third-party `symbol-overlay'
+(defvar symbol-overlay-inhibit-map)
 
 (require 'format-spec)
 (require 'help-mode)
@@ -374,6 +376,19 @@ starts complicating other things, then it will be removed."
   :group 'magit-miscellaneous
   :type 'boolean)
 
+(defcustom magit-disable-line-numbers t
+  "In Magit buffers, whether to disable modes that display line numbers.
+
+Some users who turn on `global-disable-line-numbers-mode' (or
+`global-nlinum-mode' or `global-linum-mode') expect line numbers
+to be displayed everywhere except in Magit buffers.  Other users do
+not expect Magit buffers to be treated differently.  At least in
+theory users in the first group should not use the global mode,
+but that ship has sailed, thus this option."
+  :package-version '(magit . "2.91.0")
+  :group 'magit-miscellaneous
+  :type 'boolean)
+
 ;;; Key Bindings
 
 (defvar magit-mode-map
@@ -452,7 +467,6 @@ starts complicating other things, then it will be removed."
     (define-key map "o" 'magit-submodule)
     (define-key map "O" 'magit-subtree)
     (define-key map "q" 'magit-mode-bury-buffer)
-    (define-key map "Q" 'magit-gerrit)
     (define-key map "r" 'magit-rebase)
     (define-key map "R" 'magit-file-rename)
     (define-key map "t" 'magit-tag)
@@ -519,6 +533,11 @@ Where applicable, section-specific keymaps bind another command
 which visits the thing at point using `browse-url'."
   (interactive)
   (user-error "There is no thing at point that could be browsed"))
+
+(defvar bug-reference-map)
+(with-eval-after-load 'bug-reference
+  (define-key bug-reference-map [remap magit-visit-thing]
+    'bug-reference-push-button))
 
 (easy-menu-define magit-mode-menu magit-mode-map
   "Magit menu"
@@ -588,7 +607,12 @@ Magit is documented in info node `(magit)'."
   (setq truncate-lines t)
   (setq buffer-read-only t)
   (setq-local line-move-visual t) ; see #1771
+  ;; Turn off syntactic font locking, but not by setting
+  ;; `font-lock-defaults' because that would enable font locking, and
+  ;; not all magit plugins may be ready for that (see #3950).
+  (setq-local font-lock-syntactic-face-function #'ignore)
   (setq show-trailing-whitespace nil)
+  (setq-local symbol-overlay-inhibit-map t)
   (setq list-buffers-directory (abbreviate-file-name default-directory))
   (hack-dir-local-variables-non-file-buffer)
   (make-local-variable 'text-property-default-nonsticky)
@@ -598,14 +622,15 @@ Magit is documented in info node `(magit)'."
   (setq-local redisplay-highlight-region-function 'magit-highlight-region)
   (setq-local redisplay-unhighlight-region-function 'magit-unhighlight-region)
   (setq mode-line-process (magit-repository-local-get 'mode-line-process))
-  (when (bound-and-true-p global-linum-mode)
-    (linum-mode -1))
-  (when (and (fboundp 'nlinum-mode)
-             (bound-and-true-p global-nlinum-mode))
-    (nlinum-mode -1))
-  (when (and (fboundp 'display-line-numbers-mode)
-             (bound-and-true-p global-display-line-numbers-mode))
-    (display-line-numbers-mode -1))
+  (when magit-disable-line-numbers
+    (when (bound-and-true-p global-linum-mode)
+      (linum-mode -1))
+    (when (and (fboundp 'nlinum-mode)
+               (bound-and-true-p global-nlinum-mode))
+      (nlinum-mode -1))
+    (when (and (fboundp 'display-line-numbers-mode)
+               (bound-and-true-p global-display-line-numbers-mode))
+      (display-line-numbers-mode -1)))
   (add-hook 'kill-buffer-hook 'magit-preserve-section-visibility-cache)
   (setq-local bookmark-make-record-function 'magit--make-bookmark))
 
@@ -1127,8 +1152,10 @@ Run hooks `magit-pre-refresh-hook' and `magit-post-refresh-hook'."
           (when magit-refresh-verbose
             (message "Refreshing magit..."))
           (magit-run-hook-with-benchmark 'magit-pre-refresh-hook)
-          (when (derived-mode-p 'magit-mode)
-            (magit-refresh-buffer))
+          (cond ((derived-mode-p 'magit-mode)
+                 (magit-refresh-buffer))
+                ((derived-mode-p 'tabulated-list-mode)
+                 (revert-buffer)))
           (--when-let (and magit-refresh-status-buffer
                            (not (derived-mode-p 'magit-status-mode))
                            (magit-get-mode-buffer 'magit-status-mode))
@@ -1313,10 +1340,13 @@ argument (the prefix) non-nil means save all with no questions."
        arg (lambda ()
              (and (not magit-inhibit-refresh-save)
                   buffer-file-name
-                  (file-exists-p (file-name-directory buffer-file-name))
                   ;; Avoid needlessly connecting to unrelated remotes.
                   (equal (file-remote-p buffer-file-name)
                          remote)
+                  ;; For remote files this makes network requests and
+                  ;; therefore has to come after the above to avoid
+                  ;; unnecessarily waiting for unrelated hosts.
+                  (file-exists-p (file-name-directory buffer-file-name))
                   (string-prefix-p topdir (file-truename buffer-file-name))
                   (equal (magit-rev-parse-safe "--show-toplevel")
                          topdir)))))))

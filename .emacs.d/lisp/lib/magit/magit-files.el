@@ -299,7 +299,8 @@ directory, while reading the FILENAME."
     ("c" "Commit"     magit-commit)
     ("e" "Edit line"  magit-edit-line-commit)]
    [("D" "Diff..."    magit-diff)
-    ("d" "Diff"       magit-diff-buffer-file)]
+    ("d" "Diff"       magit-diff-buffer-file)
+    ("g" "Status"     magit-status-here)]
    [("L" "Log..."     magit-log)
     ("l" "Log"        magit-log-buffer-file)
     ("t" "Trace"      magit-log-trace-definition)]
@@ -311,8 +312,8 @@ directory, while reading the FILENAME."
     ("q" "Quit blame" magit-blame-quit)]
    [("p" "Prev blob"  magit-blob-previous)
     ("n" "Next blob"  magit-blob-next)
-    ("g" "Goto blob"  magit-find-file)
-    ("w" "Goto file"  magit-blob-visit-file)]
+    ("v" "Goto blob"  magit-find-file)
+    ("V" "Goto file"  magit-blob-visit-file)]
    [(5 "C-c r" "Rename file"   magit-file-rename)
     (5 "C-c d" "Delete file"   magit-file-delete)
     (5 "C-c u" "Untrack file"  magit-file-untrack)
@@ -346,7 +347,7 @@ Currently this only adds the following key bindings.
 ;; variable but does not cause the mode function to be called, and we
 ;; cannot use `:initialize' to call that explicitly because the option
 ;; is defined before the functions, so we have to do it here.
-(cl-eval-when (load)
+(cl-eval-when (load eval)
   (when global-magit-file-mode
     (global-magit-file-mode 1)))
 
@@ -445,25 +446,25 @@ If FILE isn't tracked in Git, fallback to using `rename-file'."
                                    (and dir (expand-file-name dir)))))
      (list (expand-file-name file (magit-toplevel))
            (expand-file-name newname))))
-  (if (magit-file-tracked-p (magit-convert-filename-for-git file))
-      (let ((oldbuf (get-file-buffer file)))
-        (when (and oldbuf (buffer-modified-p oldbuf))
-          (user-error "Save %s before moving it" file))
-        (when (file-exists-p newname)
-          (user-error "%s already exists" newname))
-        (magit-run-git "mv"
-                       (magit-convert-filename-for-git file)
-                       (magit-convert-filename-for-git newname))
-        (when oldbuf
-          (with-current-buffer oldbuf
-            (let ((buffer-read-only buffer-read-only))
-              (set-visited-file-name newname))
-            (if (fboundp 'vc-refresh-state)
-                (vc-refresh-state)
-              (with-no-warnings
-                (vc-find-file-hook))))))
-    (rename-file file newname current-prefix-arg)
-    (magit-refresh)))
+  (let ((oldbuf (get-file-buffer file)))
+    (when (and oldbuf (buffer-modified-p oldbuf))
+      (user-error "Save %s before moving it" file))
+    (when (file-exists-p newname)
+      (user-error "%s already exists" newname))
+    (if (magit-file-tracked-p (magit-convert-filename-for-git file))
+        (magit-call-git "mv"
+                        (magit-convert-filename-for-git file)
+                        (magit-convert-filename-for-git newname))
+      (rename-file file newname current-prefix-arg))
+    (when oldbuf
+      (with-current-buffer oldbuf
+        (let ((buffer-read-only buffer-read-only))
+          (set-visited-file-name newname nil t))
+        (if (fboundp 'vc-refresh-state)
+            (vc-refresh-state)
+          (with-no-warnings
+            (vc-find-file-hook))))))
+  (magit-refresh))
 
 (defun magit-file-untrack (files &optional force)
   "Untrack the selected FILES or one file read in the minibuffer.

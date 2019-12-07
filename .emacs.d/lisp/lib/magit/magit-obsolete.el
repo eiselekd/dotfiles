@@ -46,6 +46,9 @@
 (define-obsolete-function-alias 'magit-dispatch-popup
   'magit-dispatch "Magit 2.91.0")
 
+(define-obsolete-function-alias 'magit-repolist-column-dirty
+  'magit-repolist-column-flag "Magit 2.91.0")
+
 (defun magit--magit-popup-warning ()
   (display-warning 'magit "\
 Magit no longer uses Magit-Popup.
@@ -78,7 +81,7 @@ Converting-popup-modifications-to-transient-modifications
 To find installed packages that still use `magit-popup' you can
 use e.g. \"M-x rgrep RET magit-popup RET RET ~/.emacs.d/ RET\"."))
 (cl-eval-when (eval load)
-  (unless (require 'magit-popup nil t)
+  (unless (require (quote magit-popup) nil t)
     (defun magit-define-popup-switch (&rest _)
       (magit--magit-popup-warning))
     (defun magit-define-popup-option (&rest _)
