@@ -13,6 +13,7 @@ usbinput=0
 monitor=1
 shutdown=0
 virtioinput=0
+kbd=0
 imgdir=/mnt/data-vm/vms-win
 while getopts "bpQUonVuMr" opt; do
   case $opt in
@@ -25,6 +26,7 @@ while getopts "bpQUonVuMr" opt; do
       o) ovmf=1 ;;
       M) monitor=0 ;;
       I) virtioinput=1;;
+      K) kbd=1;;
       V) nvidia=1; nvidiavendor=",hv_vapic,hv_time,hv_vendor_id=whatever" ;;
   esac #hv_relaxed,hv_spinlocks=0x1fff,hv_relaxed,
 done
@@ -86,6 +88,7 @@ else
     OPTS="$OPTS -vga none -device qxl "
 fi
 
+# use remote-viewer prog to connect with spice://localhost:5900
 OPTS="$OPTS -spice port=5900,addr=127.0.0.1,disable-ticketing "
 
 if [ "${net}" == "1" ]; then
@@ -102,7 +105,7 @@ fi
 # https://passthroughpo.st/using-evdev-passthrough-seamless-vm-input/
 
 # USB mouse
-echo "Install virtio-input drivers in start-remote-viewer.shand module virtio_input"
+echo "Install virtio-input drivers in start-remote-viewer.sh and module virtio_input"
 
 OPTS="$OPTS -usb"
 OPTS="$OPTS -device usb-ehci,id=ehci"
@@ -136,10 +139,12 @@ if [ "$passthrough" == "1" ]; then
 
 else
 
-
-    OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
-    OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
-
+    
+    if [ "$kbd" == "1" ]; then
+	OPTS="$OPTS -object input-linux,id=kbd1,evdev=/dev/input/by-path/platform-i8042-serio-0-event-kbd,grab_all=on,repeat=on "
+	OPTS="$OPTS -object input-linux,id=mouse1,evdev=/dev/input/by-path/platform-i8042-serio-1-event-mouse,grab_all=on,repeat=on "
+    fi
+	
     #OPTS="$OPTS -usb"
     #OPTS="$OPTS -device usb-ehci,id=ehci"
     ## plexgear keyboard: Holtek Semiconductor, Inc. Keyboard LKS02
