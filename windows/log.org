@@ -212,3 +212,15 @@ BCD decode via hivex: apt-get install libwin-hivex-perl
 * cygwin
 
 alias q="rlwrap socat - tcp:ub:44444"
+
+* ryzen passthrough
+
+amd_iommu=on|pt
+
+** /etc/modprobe.d/vfio.conf
+options vfio_iommu_type1 allow_unsafe_interrupts=1 
+
+set regedit 
+Device Parameters/Interrupt Management/MessageSignaledInterruptProperties/MSISupported
+DWORD 0x00000001
+
