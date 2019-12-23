@@ -115,7 +115,10 @@ if [ "$passthrough" == "1" ]; then
 	# plexgear keyboard: Holtek Semiconductor, Inc. Keyboard LKS02
 	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x04d9,productid=0x1702 "
 	# llexgear mouse: Pixart Imaging, Inc. Optical Mouse
-	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x093a,productid=0x2521 "
+	#OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x093a,productid=0x2521 "
+	# logitech mouse
+	OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x046d,productid=0xc077 "
+
 
 	#OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x17ef,productid=0x6019 "
 	#OPTS="$OPTS -device usb-host,bus=usb-bus.0,vendorid=0x1c4f,productid=0x0002 "
