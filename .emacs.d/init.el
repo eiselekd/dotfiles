@@ -660,5 +660,9 @@
 
 ;; replace default mode for .lex
 (cl-remove "\\.lex\\'" auto-mode-alist :test 'equal :key 'car)
-(autoload 'flex-mode "flex-mode" "Autoload flexmod." t)
+(cl-remove "\\.y\\'" auto-mode-alist :test 'equal :key 'car)
+
+(autoload 'flex-mode "flex-mode" "Autoload flexmode." t)
+(autoload 'bison-mode "bison-mode" "Autoload bisonmode." t)
 (add-to-list 'auto-mode-alist '("\\.lex\\'" . flex-mode))
+(add-to-list 'auto-mode-alist '("\\.y\\'" . bison-mode))

@@ -291,9 +291,10 @@
 			  (if
 			      (and (require 's nil t)
 				   (or (s-ends-with? ".lex" (buffer-file-name))
+				       (s-ends-with? ".y" (buffer-file-name))
 				       (s-ends-with? ".l" (buffer-file-name))))
 			      (progn
-				(message "[=] enable lex flycheck")
+				(message "[=] enable lex/yacc flycheck")
 				;;(flycheck-select-checker 'c/c++-clang))
 			    	)
 			    (progn

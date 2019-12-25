@@ -66,7 +66,7 @@
 	  (setf (flycheck-error-filename err) ef)
 	  )))
     errors)
-  :modes (c-mode c++-mode flex-mode)
+  :modes (c-mode c++-mode flex-mode bison-mode)
   )
 
 (add-to-list 'flycheck-checkers 'utils/gtest-checker-makefile-checker)
