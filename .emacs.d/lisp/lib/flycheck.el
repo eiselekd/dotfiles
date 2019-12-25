@@ -86,6 +86,8 @@
 (defvar sh-shell)                       ; For shell script checker predicates
 (defvar ess-language)                   ; For r-lintr predicate
 
+;;(require 'pkg-info)
+
 ;; Tell the byte compiler about autoloaded functions from packages
 (declare-function pkg-info-version-info "pkg-info" (package))
 
@@ -2143,7 +2145,7 @@ to enable disabled checkers.")))
       (fill-region-as-paragraph (point) end)))
 
   (princ "\n\n--------------------\n\n")
-  (princ (format "Flycheck version: %s\n" (flycheck-version)))
+  ;;(princ (format "Flycheck version: %s\n" (flycheck-version)))
   (princ (format "Emacs version:    %s\n" emacs-version))
   (princ (format "System:           %s\n" system-configuration))
   (princ (format "Window system:    %S\n" window-system)))

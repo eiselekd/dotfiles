@@ -646,7 +646,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(utop merlin tuareg)))
+ '(package-selected-packages (quote (utop merlin tuareg)))
+ '(safe-local-variable-values (quote ((whitespace-line-column . 80)))))
 
 
 (setq vc-follow-symlinks 't)
@@ -656,3 +657,8 @@
 ;; ## end of OPAM user-setup addition for emacs / base ## keep this line
 
 (message "[*] %s init finish" (timestamp_str))
+
+;; replace default mode for .lex
+(cl-remove "\\.lex\\'" auto-mode-alist :test 'equal :key 'car)
+(autoload 'flex-mode "flex-mode" "Autoload flexmod." t)
+(add-to-list 'auto-mode-alist '("\\.lex\\'" . flex-mode))
