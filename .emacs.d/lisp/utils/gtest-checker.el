@@ -45,6 +45,14 @@
    (error line-start (file-name) ":" line
           ": Failure" "\n"
 	  (message (one-or-more (not (any "[")))))
+
+    (error line-start (or "<stdin>" (file-name)) ":" line ":" column
+           ": " (or "fatal error" "error") ": " (message) line-end)
+
+   ;; (error line-start
+   ;;        (message "In file included from") " " (or "<stdin>" (file-name))
+   ;;        ":" line ":" column ":" line-end)
+
    )
   :error-filter
   (lambda (errors)

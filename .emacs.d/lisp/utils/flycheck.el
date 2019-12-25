@@ -276,7 +276,7 @@
 			   (require 'utils/gtest-checker.el)
 			   (add-hook 'hack-local-variables-hook
 				     (lambda ()
-				       (message "[*] check for gtest rules %s" )
+				       (message "[*] check for gtest rules " )
 				       (if (and (boundp 'buffer-gtest-rule) (utils/flycheck-gtest-makefile))
 					   (progn
 					     (message "[*] enable gtest checker after '%s' with rule %s" (flycheck-get-checker-for-buffer) (utils/flycheck-gtest-getrule))
@@ -294,7 +294,8 @@
 				       (s-ends-with? ".l" (buffer-file-name))))
 			      (progn
 				(message "[=] enable lex flycheck")
-				)
+				;;(flycheck-select-checker 'c/c++-clang))
+			    	)
 			    (progn
 			      (message "[=] enable c flycheck")
 			      (flycheck-select-checker 'c/c++-clang))
