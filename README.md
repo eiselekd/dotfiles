@@ -5,7 +5,7 @@ Emacs config. Install by replacing ~/.emacs.d with
 "ln -s dotfiles-path/.emacs.d ~/.emacs.d"
 
     if [ -f ~/git/dotfiles/.bashrc_extra ]; then
-        source ~/git/dotfiles/.bashrc_extra
+	source ~/git/dotfiles/.bashrc_extra
     fi
 
 Keybindings:
@@ -32,7 +32,7 @@ Keybindings:
  * ESC 5 : open file at cursor
  * ESC 6 : find elisp func at cursor
  * ESC & : describe veriable under cursor
- * ESC 7 : find func at cursor using gtags
+ * ESC 7 : cleanup whitespace
  * ESC F10 : open menu-bar in console mode
  * ESC ^ : Submenue
  * F2    : dired default-directory
