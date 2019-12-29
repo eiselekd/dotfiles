@@ -280,7 +280,13 @@
 				       (if (and (boundp 'buffer-gtest-rule) (utils/flycheck-gtest-makefile))
 					   (progn
 					     (message "[*] enable gtest checker after '%s' with rule %s" (flycheck-get-checker-for-buffer) (utils/flycheck-gtest-getrule))
-					     ;;(flycheck-add-next-checker (flycheck-get-checker-for-buffer) '(warning . utils/gtest-checker-makefile-checker) )
+
+					     (if
+						 (not (and (require 's nil t)
+							   (or (s-ends-with? ".lex" (buffer-file-name))
+							       (s-ends-with? ".y" (buffer-file-name))
+							       (s-ends-with? ".l" (buffer-file-name)))))
+						 (flycheck-add-next-checker (flycheck-get-checker-for-buffer) '(warning . utils/gtest-checker-makefile-checker) ))
 					     )))))
 
 (add-hook 'c-mode-hook  (lambda ()

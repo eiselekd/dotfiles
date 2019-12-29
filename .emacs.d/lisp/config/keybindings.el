@@ -114,6 +114,7 @@
 (global-set-key (kbd "M-5")  'xah-open-file-at-cursor)
 ;; goto function under cursor
 (global-set-key (kbd "M-6")  'find-function-at-point)
+(global-set-key (kbd "M-7")  'whitespace-cleanup)
 (global-set-key (kbd "M-&")
 		(lambda () (interactive)
 		  (describe-variable (variable-at-point))))
