@@ -305,25 +305,26 @@
 			    	)
 			    (progn
 			      (message "[=] enable c flycheck")
-			      (flycheck-select-checker 'c/c++-clang))
+			      ;;(flycheck-select-checker 'c/c++-clang)
+			      )
 			    )
 			   (setq flycheck-clang-language-standard "c++14")
 			   (setq flycheck-gcc-language-standard "c++17")
 			   (setq flycheck-clang-force-c++-mode 't)
 
-			   (flycheck/test-enable-gtest)
+			   ;;(flycheck/test-enable-gtest)
 
 			   ))
 
 (add-hook 'c++-mode-hook (lambda ()
 			  (message "[=] c++-mode-hook c-mode")
 			   (flycheck-mode)
-			   (flycheck-select-checker 'c/c++-gcc)
+			   ;;(flycheck-select-checker 'c/c++-gcc)
 			   ;;(flycheck-select-checker 'c/c++-clang)
 			   (setq flycheck-clang-language-standard "c++14")
 			   (setq flycheck-gcc-language-standard "c++17")
 
-			   (flycheck/test-enable-gtest)
+			   ;;(flycheck/test-enable-gtest)
 
 
 ))
