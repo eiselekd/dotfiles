@@ -21,7 +21,7 @@
    ;;#   at /home/eiselekd/git/lang/perl/unit.pl line 9.
    (error line-start "#   Failed test '" (message (one-or-more (not (any "'")))) "'\n#   at " (file-name) " line " line "." line-end)
    )
-  :enabled (lambda () (utils/perl-checker-enabled))
+  :enabled (lambda () (utils/perl-checker-enabled)) ;; init in  flycheck.el : perl-mode-hook
   :error-filter
   ;; Add fake message if not present
   (lambda (errors)

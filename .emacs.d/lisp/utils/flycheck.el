@@ -269,11 +269,12 @@
 
 (add-hook 'after-init-hook 'utils/flycheck-init)
 
+;; #####################
+;; perl using Test::More
 (defun utils/perl-checker-enabled ()
   (if (boundp 'checker-enable)
       checker-enable
     nil))
-
 
 (add-hook 'perl-mode-hook
 	  (lambda ()
@@ -287,6 +288,29 @@
 			      )
 			  )))))
 
+
+;; #####################
+;; python using unittest
+(defun utils/python-checker-enabled ()
+  (if (boundp 'checker-enable)
+      checker-enable
+    nil))
+
+(add-hook 'python-mode-hook
+	  (lambda ()
+	    (message "[=] python-mode-hook python-mode")
+	    (flycheck-mode)
+	    (put 'checker-enable 'safe-local-variable (lambda (_) t))
+	    (add-hook 'hack-local-variables-hook
+		      (lambda ()
+			(if (utils/python-checker-enabled)
+			    (when (require 'utils/python-checker.el nil t)
+			      )
+			  )))))
+
+
+;; #####################
+;; c/c++ using gtest
 (defun flycheck/test-enable-gtest ()
 			   (message "[+] setup gtest, use 'buffer-gtest-rule' local var")
 			   (put 'buffer-gtest-rule 'safe-local-variable (lambda (_) t))
@@ -299,12 +323,13 @@
 					   (progn
 					     (message "[*] enable gtest checker after '%s' with rule %s" (flycheck-get-checker-for-buffer) (utils/flycheck-gtest-getrule))
 
-					     (if
-						 (not (and (require 's nil t)
-							   (or (s-ends-with? ".lex" (buffer-file-name))
-							       (s-ends-with? ".y" (buffer-file-name))
-							       (s-ends-with? ".l" (buffer-file-name)))))
-						 (flycheck-add-next-checker (flycheck-get-checker-for-buffer) '(warning . utils/gtest-checker-makefile-checker) ))
+					     ;;(if
+						 ;; (not (and (require 's nil t)
+						 ;; 	   (or (s-ends-with? ".lex" (buffer-file-name))
+						 ;; 	       (s-ends-with? ".y" (buffer-file-name))
+						 ;; 	       (s-ends-with? ".l" (buffer-file-name)))))
+						 ;; (flycheck-add-next-checker (flycheck-get-checker-for-buffer) '(warning . utils/gtest-checker-makefile-checker) ))
+
 					     )))))
 
 (add-hook 'c-mode-hook  (lambda ()

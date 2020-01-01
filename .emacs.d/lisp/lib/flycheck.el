@@ -5087,6 +5087,7 @@ and rely on Emacs' own buffering and chunking."
           ;;
           ;; See https://github.com/flycheck/flycheck/issues/298 for an
           ;; example for such a conflict.
+          (message "[!] %s" command)
           (setq process (apply 'start-process (format "flycheck-%s" checker)
                                nil command))
           (setf (process-sentinel process) #'flycheck-handle-signal)

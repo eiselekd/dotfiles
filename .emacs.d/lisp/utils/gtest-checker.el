@@ -54,6 +54,7 @@
    ;;        ":" line ":" column ":" line-end)
 
    )
+  :enabled (lambda () (utils/flycheck-gtest-makefile))
   :error-filter
   (lambda (errors)
     (let ((errors (flycheck-sanitize-errors errors)))
