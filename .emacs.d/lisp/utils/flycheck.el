@@ -269,6 +269,24 @@
 
 (add-hook 'after-init-hook 'utils/flycheck-init)
 
+(defun utils/perl-checker-enabled ()
+  (if (boundp 'checker-enable)
+      checker-enable
+    nil))
+
+
+(add-hook 'perl-mode-hook
+	  (lambda ()
+	    (message "[=] perl-mode-hook perl-mode")
+	    (flycheck-mode)
+	    (put 'checker-enable 'safe-local-variable (lambda (_) t))
+	    (add-hook 'hack-local-variables-hook
+		      (lambda ()
+			(if (utils/perl-checker-enabled)
+			    (when (require 'utils/perl-checker.el nil t)
+			      )
+			  )))))
+
 (defun flycheck/test-enable-gtest ()
 			   (message "[+] setup gtest, use 'buffer-gtest-rule' local var")
 			   (put 'buffer-gtest-rule 'safe-local-variable (lambda (_) t))
@@ -324,7 +342,7 @@
 			   (setq flycheck-clang-language-standard "c++14")
 			   (setq flycheck-gcc-language-standard "c++17")
 
-			   ;;(flycheck/test-enable-gtest)
+			   (flycheck/test-enable-gtest)
 
 
 ))

@@ -647,7 +647,11 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages (quote (utop merlin tuareg)))
- '(safe-local-variable-values (quote ((whitespace-line-column . 80)))))
+ '(safe-local-variable-values
+   (quote
+    (
+     ;;(buffer-gtest-rule . "gtest-lexer")
+     (whitespace-line-column . 80)))))
 
 
 (setq vc-follow-symlinks 't)
