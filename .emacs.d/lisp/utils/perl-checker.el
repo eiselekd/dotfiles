@@ -30,7 +30,8 @@
       (unless (flycheck-error-message err)
         (setf (flycheck-error-message err) "Error")))
     errors)
-   :modes perl-mode
+  :modes perl-mode
+  :next-checkers (perl)
   )
 
 (add-to-list 'flycheck-checkers 'utils/perl-checker-makefile-checker)

@@ -85,6 +85,7 @@
 (add-to-list 'load-path (expand-file-name "lib/js/js2-refactor.el" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/js/multiple-cursors.el" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/realgud" *.emacs.d.lisp.dir*  ))
 
 ;;* Encoding
 

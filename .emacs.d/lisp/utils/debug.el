@@ -3,7 +3,16 @@
   (interactive)
   (progn
     (cond
-     ((string-match "\.pl$" (buffer-name)) (call-interactively 'perldb))
+     ((string-match "\.pl$" (buffer-name))
+      (progn
+	;; note: need chmod ag-w ~/.perldb
+	;; DB::emacs need to be loadable
+	(when (and
+	       (require 'gud nil t)
+	       (require 'perldb-ui-ex nil t)
+	       )
+	  (call-interactively 'perldb-ui)
+	  )))
      ((string-match "\.hs$" (buffer-name)) (call-interactively 'haskell-debug))
      ((string-match "\.ml$" (buffer-name)) (call-interactively 'modes/ocaml-start-debug))
      (t
@@ -32,8 +41,10 @@
 	(progn
 	  (let* ((f (concat gud-config-dir "gdb.txt")))
 	    (concat " -i=mi --init-command=" f)))
-      (file-name-nondirectory buffer-file-name)
-      )))
+      (if buffer-file-name
+	  (concat " -i=mi " (file-name-nondirectory buffer-file-name))
+	" -i=mi "
+      ))))
 
 ;; http://lists.gnu.org/archive/html/help-gnu-emacs/2003-10/msg00577.html
 (defadvice gdb (before gud-query-cmdline activate)
