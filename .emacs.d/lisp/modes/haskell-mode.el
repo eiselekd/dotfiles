@@ -88,6 +88,11 @@
 	      (define-key haskell-mode-map (kbd "ESC i")
 		(lambda ()(interactive)
 		  (progn
+		    (message "[?] bash: cabal install Cabal cabal-install")
+		    (message "[?] bash: cabal install stack --constraint=\"stack==2.1.1\" --constraint=\"hackage-security == 0.5.3.0}\" --constraint=\"persistent-template== 2.7.0\"")
+		    (message "[?] bash: cabal install stack --constraint=\"stack==2.1.1\"")
+		    (message "[?] bash: curl -sSL https://get.haskellstack.org/ | sh")
+		    (message "[?] bash: stack upgrade")
 		    (message "[+] start intero mode")
 		    (intero-mode)
 		    (message "[+] intero mode done"))))
