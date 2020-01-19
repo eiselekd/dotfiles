@@ -25,6 +25,7 @@ Keybindings:
     * buffer-gtest-rule:"gtest2"
     * End:
     */
+ * ESC W : whitespace-cleanup
  * ESC e : shell
  * ESC E : ansi-term
  * ESC 1 : workspace w1

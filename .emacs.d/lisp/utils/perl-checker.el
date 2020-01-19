@@ -11,7 +11,7 @@
 (flycheck-define-checker utils/perl-checker-makefile-checker
   "Generic perl unittest checker"
   :command
-  ( "perl" source )
+  ( "perl" source-original )
   :error-patterns
   (
    ;;Capture errors like: #   Failed test at unit.pl line 4.

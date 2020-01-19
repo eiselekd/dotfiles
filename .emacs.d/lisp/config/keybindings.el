@@ -77,6 +77,9 @@
 ;; start org-agenda
 (global-set-key (kbd "M-j")  'goto-line)
 
+;; remove trailing whitespaces
+(global-set-key (kbd "M-W")  'whitespace-cleanup)
+
 ;;search
 (global-set-key (kbd "C-c o") 'occur)
 
