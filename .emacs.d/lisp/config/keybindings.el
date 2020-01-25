@@ -108,8 +108,34 @@
 				    (call-interactively 'helm-do-grep)))))
 (global-set-key (kbd "M-.")  (lambda ()(interactive)
 			       (progn
-				 (prepareHelm)
-				 (helm-gtags-dwim))))
+				 (let* ((mode major-mode))
+				   (cond
+				    ((string= mode 'emacs-lisp-mode)
+				     (progn
+				       (xref-push-marker-stack)
+				       (call-interactively 'find-function-at-point)))
+				    ((string= mode 'haskell-mode)
+				     (progn
+				       (let* ((backend (xref-find-backend))
+					      (id (xref-backend-identifier-at-point backend)))
+					 ;;(xref--find-definitions identifier nil))))
+					 ;;(xref-find-definitions)
+
+					 ;; (defadvice xref-find-definitions (before c-tag-file activate)
+					 ;;   "Automatically create tags file."
+					 ;;   (let ((tag-file (concat default-directory "TAGS")))
+					 ;;     (unless (file-exists-p tag-file)
+					 ;;       (shell-command "etags *.[ch] -o TAGS 2>/dev/null"))
+					 ;;     (visit-tags-table tag-file)))
+
+
+					 (call-interactively 'xref-find-definitions ))))
+				    (t (progn
+					(prepareHelm)
+					(helm-gtags-dwim))))))))
+
+
+
 
 ;; start find-tag
 ;(global-set-key (kbd "M-?")  (lambda ()(interactive)(find-tag (thing-at-point 'word))))

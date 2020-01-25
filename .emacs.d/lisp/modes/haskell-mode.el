@@ -49,7 +49,10 @@
 			(progn
 			  (require 'intero nil t)
 			  (intero-mode)
-			  )))))
+			  ))))
+		(progn
+		  (message "[-] intero not found"))
+		)
 
 
 	      (if (and (executable-find "hie")
@@ -63,17 +66,31 @@
 		    ;;(define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
 		    ;;(define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
 
-		    (define-key haskell-mode-map (kbd "M-.") 'lsp-ui-peek-find-definitions)
+		    ;;(define-key haskell-mode-map (kbd "M-.") 'lsp-ui-peek-find-definitions)
 		    (define-key haskell-mode-map (kbd "M-;") 'lsp-ui-peek-find-references)
 		    (define-key haskell-mode-map (kbd "M--") 'lsp-ui-doc-mode)
 
 		    (setq lsp-ui-doc-enable nil)
 		    (setq lsp-prefer-flymake nil)
 		    (lsp))
+		(progn
+		  (message "[-] hie not found:");
+		  (message "[-] git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules")
+		  (message "[-] cd haskell-ide-engine; stack ./install.hs help")
+		  (message "[-] stack ./install.hs hie-8.6.5")
+		  (message "[-] stack ./install.hs data")))
+
+	      ;;(require 'xref)
+	      ;;(require 'etags-select)
+
+	      ;;(xref-etags-mode)
+
+	      ;;(define-key haskell-mode-map (kbd "M-.") 'etags-select-find-tag-at-point)
+
+	      (interactive-haskell-mode)
 
 
-
-	      ))))
+	      )))
 
 ;;(autoload 'haskell-mode "haskell-mode" "haskell-mode" t)
 
