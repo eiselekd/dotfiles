@@ -40,9 +40,22 @@
  	  (lambda ()
  	    (progn
 
+	      (if (and (executable-find "intero")
+		       (executable-find "stack"))
+		  (progn
+		    (message "[+] intero found");
+		    (define-key haskell-mode-map (kbd "ESC i")
+		      (lambda ()(interactive)
+			(progn
+			  (require 'intero nil t)
+			  (intero-mode)
+			  )))))
+
+
 	      (if (and (executable-find "hie")
 		       (executable-find "stack"))
 		  (progn
+		    (message "[+] hie found");
 		    (require 'lsp)
 		    (require 'lsp-haskell)
 		    (require 'lsp-ui nil t)
