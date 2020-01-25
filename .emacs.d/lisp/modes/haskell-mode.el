@@ -5,6 +5,7 @@
 (add-to-list 'auto-mode-alist '("\\.hs\\'" . haskell-mode))
 (add-to-list 'interpreter-mode-alist '("hs" . haskell-mode))
 
+
 ;;(require 'flycheck-haskell)
 ;; cabel update
 ;; cabal install ghc-mod
@@ -14,7 +15,8 @@
 
 ;;
 ;; git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules
-;; cd haskell-ide-engine; stack build
+;; cd haskell-ide-engine; stack ./install.hs help
+;; stack ./install.hs hie
 
 ;; https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
 
@@ -34,6 +36,7 @@
 (add-hook 'haskell-mode-hook
 	  (lambda ()
 	    (progn
+	      (setq lsp-document-sync-method 'full)
 	      (message "[+] Enter haskell-mode")
 	      (when  (require 'flycheck-haskell nil t )
 		(message "[+] flycheck-haskellloaded"))
@@ -106,11 +109,18 @@
 	      (require 'haskell-debug nil t)
 	      (require 'haskell-doc nil t)
 	      (require 'intero nil t)
+
+	      (require 'lsp nil t)
+	      (require 'lsp-haskell nil t)
 	      (require 'lsp-mode nil t)
 	      (require 'lsp-ui nil t)
 
 	      (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-	      (lsp-mode)
+
+	      (lsp)
+	      (direnv-update-environment)
+	      ;;(add-hook 'haskell-mode-hook 'lsp)
+	      ;;(add-hook 'haskell-mode-hook 'direnv-update-environment)
 
 	      (haskell-doc-mode)
 	      (flycheck-mode)
