@@ -63,7 +63,7 @@
 		  (company-mode)
 
 		  ))
-    
+
 
 	      (when (require 'rainbow-delimiters)
 		(rainbow-delimiters-mode))
@@ -102,6 +102,12 @@
 	      (require 'haskell-debug nil t)
 	      (require 'haskell-doc nil t)
 	      (require 'intero nil t)
+	      (require 'lsp-mode nil t)
+	      (require 'lsp-ui nil t)
+
+	      (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+	      (lsp-mode)
+
 	      (haskell-doc-mode)
 	      (flycheck-mode)
 
