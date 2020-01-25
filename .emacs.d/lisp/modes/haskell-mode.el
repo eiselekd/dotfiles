@@ -12,6 +12,10 @@
 ;; (autoload 'ghc-debug "ghc" nil t)
 ;; (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
+;;
+;; git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules
+;; cd haskell-ide-engine; stack build
+
 ;; https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
 
 (defun haskell-interactive-start ()
