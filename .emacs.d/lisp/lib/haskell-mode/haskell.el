@@ -29,7 +29,6 @@
 (require 'haskell-repl)
 (require 'haskell-load)
 (require 'haskell-commands)
-(require 'haskell-sandbox)
 (require 'haskell-modules)
 (require 'haskell-string)
 (require 'haskell-completions)
@@ -45,7 +44,7 @@
     (define-key map (kbd "M-.") 'haskell-mode-jump-to-def-or-tag)
     (define-key map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
     (define-key map (kbd "C-c C-c") 'haskell-process-cabal-build)
-    (define-key map (kbd "C-c v c") 'haskell-cabal-visit-file)
+    (define-key map (kbd "C-c C-v") 'haskell-cabal-visit-file)
     (define-key map (kbd "C-c C-x") 'haskell-process-cabal)
     (define-key map (kbd "C-c C-b") 'haskell-interactive-switch)
     (define-key map (kbd "C-c C-z") 'haskell-interactive-switch)
@@ -339,7 +338,7 @@ If `haskell-process-load-or-reload-prompt' is nil, accept `default'."
 Give optional NEXT-P parameter to override value of
 `xref-prompt-for-identifier' during definition search."
   (interactive "P")
-  (let ((ident (haskell-ident-at-point))
+  (let ((ident (haskell-string-drop-qualifier (haskell-ident-at-point)))
         (tags-file-dir (haskell-cabal--find-tags-dir))
         (tags-revert-without-query t))
     (when (and ident
@@ -426,7 +425,7 @@ Give optional NEXT-P parameter to override value of
                       (if haskell-reload-p
                           "Now running :reload."
                         "Now running :load <buffer-filename>.")))
-    (if  (haskell-process-reload) (haskell-process-load-file))))
+    (if haskell-reload-p (haskell-process-reload) (haskell-process-load-file))))
 
 (make-obsolete 'haskell-process-load-or-reload 'haskell-process-load-file
                "2015-11-14")

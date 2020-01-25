@@ -27,7 +27,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'haskell-compat)
 (require 'haskell-lexeme)
 (require 'font-lock)
 
@@ -93,7 +92,8 @@ be disabled at that position."
   '("case" "class" "data" "default" "deriving" "do"
     "else" "if" "import" "in" "infix" "infixl"
     "infixr" "instance" "let" "module" "mdo" "newtype" "of"
-    "rec" "pattern" "proc" "then" "type" "where" "_")
+    "rec" "pattern" "proc" "signature" "then" "type" "where" "_"
+    "anyclass" "stock" "via")
   "Identifiers treated as reserved keywords in Haskell."
   :group 'haskell-appearance
   :type '(repeat string))
@@ -108,6 +108,7 @@ This is the case if the \".\" is part of a \"forall <tvar> . <type>\"."
                             (line-beginning-position) t)
         (not (or
               (string= " " (string (char-after start)))
+              (null (char-before start))
               (string= " " (string (char-before start))))))))
 
 (defvar haskell-yesod-parse-routes-mode-keywords
@@ -133,6 +134,8 @@ This is the case if the \".\" is part of a \"forall <tvar> . <type>\"."
     ("r" . ess-mode)
     ("rChan" . ess-mode)
     ("sql" . sql-mode)
+    ("json" . json-mode)
+    ("aesonQQ" . json-mode)
     ("parseRoutes" . haskell-yesod-parse-routes-mode))
   "Mapping from quasi quoter token to fontification mode.
 
@@ -701,7 +704,7 @@ on an uppercase identifier."
 (provide 'haskell-font-lock)
 
 ;; Local Variables:
-;; coding: utf-8-unix
+;; coding: utf-8
 ;; tab-width: 8
 ;; End:
 

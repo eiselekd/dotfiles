@@ -72,6 +72,9 @@
 (add-to-list 'load-path (expand-file-name "lib/transient" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/haskell-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/lsp-mode" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/eglot" *.emacs.d.lisp.dir*  ))
+(if (version<= emacs-version "26.3")
+    (add-to-list 'load-path (expand-file-name "lib-26.3" *.emacs.d.lisp.dir*  )))
 (add-to-list 'load-path (expand-file-name "lib/lsp-ui" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/lsp-haskell" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/cling-mode" *.emacs.d.lisp.dir*  ))
@@ -359,6 +362,7 @@
 (require 'utils/dired.el)
 (message "[*] %s retire dired" (timestamp_str))
 (global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
+(global-set-key (kbd "M-m")  'menu-bar-mode)
 
 ;; 3: (re-)define keybindings
 (message (format "[*] %s set keybindings" (timestamp_str)))
@@ -650,12 +654,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (utop merlin tuareg)))
- '(safe-local-variable-values
-   (quote
-    (
-     ;;(buffer-gtest-rule . "gtest-lexer")
-     (whitespace-line-column . 80)))))
+ '(package-selected-packages '(eglot utop merlin tuareg))
+ '(safe-local-variable-values '((whitespace-line-column . 80))))
 
 
 (setq vc-follow-symlinks 't)

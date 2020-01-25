@@ -26,6 +26,7 @@ Keybindings:
     * End:
     */
  * ESC W : whitespace-cleanup
+ * ESC m : menu-bar-mode
  * ESC e : shell
  * ESC E : ansi-term
  * ESC 1 : workspace w1
@@ -90,6 +91,10 @@ Keybindings:
    * F2 : typeinfo : c-c c-t
    * F4 : hoogle
    * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
+   * Haskel and hie:
+     * ESC . : goto definition
+	 ' ESC ; : show references
+	 * ESC - : toggle lsp-ui-doc-mode, doc mode
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:
