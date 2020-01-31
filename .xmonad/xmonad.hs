@@ -62,8 +62,8 @@ myTerminal = do
 myBrowser :: String
 myBrowser = do
   if os == "freebsd"
-    then "chromium"
-    else "if which google-chrome > /dev/null ; then google-chrome ; else chromium-browser; fi"
+    then "firefox"
+    else "if which firefox > /dev/null ; then firefox; else if which google-chrome > /dev/null ; then google-chrome ; else chromium-browser; fi; fi;"
 
 -- The command to lock the screen or show the screensaver.
 myScreensaver = "xwd | convert xwd:- capture_objects.png"
