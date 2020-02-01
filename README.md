@@ -206,4 +206,20 @@ Org-mode timeentry:
  |: split horizontally
  -: split vertically
  d: detach
- shift-up : copy-mode
+
+ Alt-q : detach
+ Alt-Shift-q : kill-server
+ Alt-Ctrl-Shift up|down|left|right: resize pane
+ alt-Shift left|right : navigate windows
+ alt-Shift up|down : navigate session
+ Alt-c : add pane
+
+ C-b , : rename window
+ C-b $ : rename session
+
+ alt-pageup : copy-mode : http://hyperpolyglot.org/multiplexers
+
+ copy-mode:
+   Alt-f|b : navigate words
+   C-w     : copy
+

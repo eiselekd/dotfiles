@@ -189,6 +189,9 @@ function _update_ps1() {
 #   fi
 #fi
 
+# https://github.com/tmux/tmux/issues/786
+# set -ag terminal-overrides ",*:kLFT2@:kLFT4=\e[1;2D:kRIT2@:kRIT4=\e[1;2C"
+
 # hiding tmux status line after some time
 # re-enable wit "Ctrl-a X"
 function starthider() {
@@ -222,3 +225,5 @@ function maybestarttmux() {
     fi
    fi
 }
+
+
