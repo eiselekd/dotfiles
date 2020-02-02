@@ -1,0 +1,229 @@
+#if [ -f ${HOME}/git/dotfiles/.bashrc_extra ]; then
+#    . ${HOME}/git/dotfiles/.bashrc_extra
+#fi
+
+#BASHEXTRADIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#export PATH=$PATH:${BASHEXTRADIR}/.xmonad/
+
+alias ovc='openssl x509 -text -noout -in '
+alias ovk='openssl rsa -text -noout -in '
+
+# Avoid duplicates
+export HISTCONTROL=ignoredups:erasedups
+# When the shell exits, append to the history file instead of overwriting it
+if which shopt 2&>1 > /dev/null; then
+   shopt -s histappend
+fi
+
+
+# After each command, append to the history file and reread it
+# export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+# add /etc/rsyslog.d/bash.conf:
+# local6.*    /var/log/commands.log
+# export PROMPT_COMMAND='RETRN_VAL=$?;logger -p local6.debug "$(whoami) [$$]: $(history 1 | sed "s/^[ ]*[0-9]\+[ ]*//" ) [$RETRN_VAL]"'
+
+export LOGDIR=${HOME}/logs
+
+alias em="emacs -nw"
+alias z="zsh"
+
+function record () {
+   d=`date +"%Y-%m-%d-%H-%M-%S"`
+   if [ ! -d ${LOGDIR} ]; then mkdir -p ${LOGDIR}; fi
+   touch ${LOGDIR}/${d}
+   script  -a ${LOGDIR}/${d}
+   history > ${LOGDIR}/${d}.history
+
+
+   exec 1> >(logger -s -t $(basename $0)) 2>&1
+}
+
+# enable this to log to journalctl -f
+# exec 1> >(logger -s -t $(basename $0)) 2>&1
+# exec > >(logger -p user.info) 2> >(logger -p user.warn)
+
+
+alias ovc="openssl x509 -noout -text -in "
+alias ovk="openssl rsa  -noout -text -in "
+
+alias sshp='ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no '
+alias scpp='scp -o PreferredAuthentications=password -o PubkeyAuthentication=no '
+alias xshare='x11vnc -display :0 -auth .Xauthority'
+
+duh()
+{
+	du -h --max-depth 1 $1 | sort -h | tac
+}
+
+zfsprotect()
+{
+	sudo zfs set readonly=on rpool/ROOT/ubuntu
+}
+
+zfsunprotect()
+{
+	sudo zfs set readonly=off rpool/ROOT/ubuntu
+}
+
+zfsprotstatus()
+{
+	sudo zfs get -H -r readonly rpool
+}
+
+zfssnapshots()
+{
+	sudo zfs list -r -t snapshot rpool/ROOT rpool/home
+}
+
+zfstakesnapshot()
+{
+	sudo zfs list
+	sudo zfs snapshot rpool/home/eiselekd@`date +'%Y-%m-%d'`
+	sudo zfs snapshot rpool/ROOT/ubuntu@`date +'%Y-%m-%d'`
+	sudo zfs snapshot rpool/home/root@`date +'%Y-%m-%d'`
+	sudo zfs list -t snapshot
+}
+
+zfsdiff()
+{
+	sudo bash ${HOME}/git/dotfiles/ubuntu/zfs_do_diff.sh $1 $2 $3
+}
+
+nsidof()
+{
+    nsid=$(ps faux | grep -A 1 "lxc $1" | grep -v grep | grep "init" | awk '{print $2}')
+    echo $nsid
+}
+
+if [ ! -z "${DISPLAY}" ]; then
+ xset b off
+fi
+
+alias rsynca="rsync -av "
+alias sshp="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "
+
+alias segfault="env SEGFAULT_SIGNALS='abrt segv' LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so"
+
+function disable_trackpad()
+{
+  # xinput set-prop 13 "Device Enabled" 0
+  l=`xinput list | grep Synaptics `
+  if [ ! -z "$l" ]; then
+    id=`expr "$l" : '.*id=\([0-9]\+\)'`
+    xinput --disable $id
+  fi
+}
+
+function enable_trackpad()
+{
+  l=`xinput list | grep Synaptics `
+  if [ ! -z "$l" ]; then
+    id=`expr "$l" : '.*id=\([0-9]\+\)'`
+    xinput --enable $id
+  fi
+}
+
+# lsw case: use xming
+if uname -a | grep Microsoft; then
+   export DISPLAY=0:0
+fi
+
+if [ ! -z "${DISPLAY}" ]; then
+   setxkbmap de
+   disable_trackpad
+   # xloadimage -onroot -fullscreen /home/eiselekd/Pictures/birch-bark-wallpaper-HD1.jpg
+fi
+
+if dmesg | grep X60s >/dev/null; then
+xmodmap -e "keycode  166 = Prior NoSymbol Prior"
+xmodmap -e "keycode  167 = Next NoSymbol Next"
+fi
+
+export PATH=${HOME}/bin/bin:${HOME}/bin-emacs/bin:${PATH}
+export PATH=${PATH}:${HOME}/git/dotfiles/bin/git-scripts
+
+if [ -d ${HOME}/.cabal/bin ]; then
+   export PATH=${HOME}/.cabal/bin:${PATH}
+fi
+
+if [ -d ${HOME}/.local/bin ]; then
+   export PATH=${HOME}/.local/bin:${PATH}
+fi
+
+alias prepare_xilinx='source /mnt/data1/btfs0/eda/Xilinx_ISE_14.7/14.7/ISE_DS/settings64.sh'
+alias prepare_modelsim0='sh /opt/modelsim/prepare.sh'
+alias prepare_modelsim='source /opt/modelsim/prepare_user.sh'
+
+export GOPATH=${HOME}/.gopath
+
+
+alias nmcli_scan="nmcli device wifi rescan"
+alias nmcli_list="nmcli device wifi list"
+
+alias q="rlwrap socat - tcp:ub:44444"
+alias qusb="echo info usbhost | nc -N ub 44444"
+
+if [ ! -z "$ZSH" ]; then
+
+   ZSH_THEME="fishy"
+
+fi
+
+#export LC_ALL=C
+export LC_ALL=en_US.UTF-8
+
+alias solarized="konsoleprofile colors=Solarized"
+alias solarizedlight="konsoleprofile colors=SolarizedLight"
+
+solarized
+
+function _update_ps1() {
+    PS1=$(powerline-shell $?)
+}
+
+# https://github.com/b-ryan/powerline-shell.git : python setup.py install --user
+#if which powerline-shell; then
+#
+#   if [[ $TERM != linux && ! $PROMPT_COMMAND =~ _update_ps1 ]]; then
+#       PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+#   fi
+#fi
+
+# https://github.com/tmux/tmux/issues/786
+# set -ag terminal-overrides ",*:kLFT2@:kLFT4=\e[1;2D:kRIT2@:kRIT4=\e[1;2C"
+
+# hiding tmux status line after some time
+# re-enable wit "Ctrl-a X"
+function starthider() {
+  sleep 0.1
+  tmux set -g status on
+  sleep 2
+  tmux set -g status off
+}
+
+function starttmux() {
+  starthider&
+  tmux has-session -t main >& /dev/null
+  if [ $? == 0 ]; then
+    exec tmux attach-session -t main
+  else
+    exec tmux new-session -s main
+ fi
+}
+
+function maybestarttmux() {
+   if [ -z "${DISPLAY}" ]; then
+    if [ ! -z "${SSH_TTY}" ]; then
+     # TMUX
+     if which tmux >/dev/null 2>&1; then
+       #if not inside a tmux session, and if no session is started, start a new session
+       # dont embrace in () because exit is needed for ssl
+       if [ -z $TMUX ]; then
+         test -z "$TMUX" && starttmux
+       fi
+     fi
+    fi
+   fi
+}
+
+

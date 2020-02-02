@@ -1,0 +1,2 @@
+plugins=(git tmuxinator tmux)
+ZSH_THEME="robbyrussell"

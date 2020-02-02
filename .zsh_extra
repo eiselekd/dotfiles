@@ -1,1 +1,1 @@
-.bashrc_extra
+.  $(dirname $0)/.extra
