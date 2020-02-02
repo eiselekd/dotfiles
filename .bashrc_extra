@@ -1,1 +1,1 @@
-.  $(dirname $0)/.extra
+.  $(dirname "${BASH_SOURCE[0]}")/.extra
