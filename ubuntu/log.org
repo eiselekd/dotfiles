@@ -1116,3 +1116,16 @@ gpg --fingerprint
 gpg --encrypt --recipient "recipeint@email" --output d.enc d
 gpg --decrypt --output d.tar d.tar.gpg
  
+https://pgp.surfnet.nl/
+
+** udev rules
+
+
+[1] https://wiki.archlinux.org/index.php/Android_tethering
+
+* router
+
+set default route:
+iptables -t nat -A POSTROUTING -o ifname -j MASQUERADE
+ip route add default via router-ip
+

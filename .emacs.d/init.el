@@ -674,3 +674,5 @@
 (autoload 'bison-mode "bison-mode" "Autoload bisonmode." t)
 (add-to-list 'auto-mode-alist '("\\.lex\\'" . flex-mode))
 (add-to-list 'auto-mode-alist '("\\.y\\'" . bison-mode))
+
+(put 'scroll-left 'disabled nil)
