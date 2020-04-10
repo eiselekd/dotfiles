@@ -208,7 +208,8 @@
       (message "[*] %s retired spell" (timestamp_str))
       (require 'utils/tty.el)
       (message "[*] %s retired tty" (timestamp_str))
-      ;;(require 'utils/irc.el)
+      (require 'utils/irc.el)
+
 
       (defun prepareHelm ()
 	(require 'ggtags)
