@@ -120,6 +120,7 @@ Misc:
    * C-c C-p : part
    * C-c C-q : quit server
  * ESC j : goto-line
+ * ESC P : enable powerline statusbar
 
 Alsa:
  * Win Ctrl-j, Win Ctrl-k : Audio increate vol, decreate vol.

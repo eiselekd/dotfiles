@@ -637,12 +637,8 @@
 ;;* Powerline
 ;; (dired-mode)
 ;; (tmm-menubar-mouse )
-(progn
-  (require 'powerline) ;; status line
-  (powerline-default-theme)
-  (setq powerline-default-separator 'arrow))
 
-
+(require 'utils/powerlineutil.el)
 
 ;;(define-key global-map [mode-line mouse-1] 'my-press-me)
 ;;(xterm-mouse-mode 1)
