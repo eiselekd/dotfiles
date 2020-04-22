@@ -1,16 +1,12 @@
 # ~/.xmonad/stack.yaml
-resolver: lts-13.17
-#resolver: lts-9.6
+resolver: lts-14.20
 packages:
 - xmobar-git
 - xmonad-git
 - xmonad-contrib-git
+extra-deps: 
+- parsec-numbers-0.1.0
 allow-newer: true
-extra-deps:
- - iwlib-0.1.0
- - parsec-numbers-0.1.0
-
-
 flags:
   xmobar:
     all_extensions: true
