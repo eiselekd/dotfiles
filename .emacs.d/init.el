@@ -92,6 +92,7 @@
 (add-to-list 'load-path (expand-file-name "lib/js/multiple-cursors.el" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/realgud" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/raku-mode" *.emacs.d.lisp.dir*  ))
 
 ;;* Encoding
 
@@ -397,9 +398,12 @@
 (message "[*] %s retire l8-mode" (timestamp_str))
 (require 'modes/ocaml-mode.el)
 (message "[*] %s retire ocaml-mode" (timestamp_str))
+(require 'modes/raku-mode.el)
+(message "[*] %s retire raku-mode" (timestamp_str))
 ;;(require 'modes/tex-mode.el)
 ;;(ido-mode 1)
 (message (format "[*] %s retired config modes" (timestamp_str)))
+
 
 (require 'windmove)
 (global-set-key (kbd "C-c <left>")  'windmove-left)
