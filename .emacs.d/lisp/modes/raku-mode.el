@@ -4,6 +4,8 @@
 (defun modes/raku-mode-start ()
   (message "[+] start flycheck raku")
   (flycheck-mode)
+  (put 'checker-enable 'safe-local-variable (lambda (_) t))
+
   (require 'flycheck-raku)
   (require 'utils/raku-checker.el)
   ;;(flycheck-select-checker 'raku)

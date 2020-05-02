@@ -14,12 +14,13 @@
   ( "rakudo" source-original )
   :error-patterns
   (
-   ;;Capture errors like: #   Failed test at unit.pl line 4.
-   (error line-start "#   Failed test at " (file-name) " line " line "." line-end)
+   ;;
+   ;;Capture errors like: # Failed test at tok.pl line 8
+   (error line-start "# Failed test at " (file-name) " line " line line-end)
    ;; not ok 1 - test
    ;;#   Failed test 'test'
    ;;#   at /home/eiselekd/git/lang/perl/unit.pl line 9.
-   (error line-start "#   Failed test '" (message (one-or-more (not (any "'")))) "'\n#   at " (file-name) " line " line "." line-end)
+   (error line-start "# Failed test '" (message (one-or-more (not (any "'")))) "'\n# at " (file-name) " line " line line-end)
    )
   :enabled (lambda () (utils/perl-checker-enabled)) ;; init in  flycheck.el : perl-mode-hook
   :error-filter
