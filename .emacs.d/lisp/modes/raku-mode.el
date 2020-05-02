@@ -5,7 +5,8 @@
   (message "[+] start flycheck raku")
   (flycheck-mode)
   (require 'flycheck-raku)
-  (flycheck-select-checker 'raku)
+  (require 'utils/raku-checker.el)
+  ;;(flycheck-select-checker 'raku)
 
   )
 
