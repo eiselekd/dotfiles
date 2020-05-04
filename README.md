@@ -95,6 +95,12 @@ Keybindings:
      * ESC . : goto definition
 	 ' ESC ; : show references
 	 * ESC - : toggle lsp-ui-doc-mode, doc mode
+ * raku-move:
+   * F1 : raku repl
+     * C-c C-c : Send the current line to the REPL
+     * C-c C-r : Send the selected region to the REPL
+     * C-c C-h : Send the whole buffer to the REPL
+
  * ESC q : grep in current dir ([1])
  * ESC Q : recursive grep from current dir ([1])
  * dired:
