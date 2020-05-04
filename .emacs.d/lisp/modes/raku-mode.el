@@ -12,6 +12,10 @@
 
   )
 
+(defun modes/raku-repl-start ()
+  (run-raku)
+  )
+
 (add-hook 'raku-mode-hook #'modes/raku-mode-start)
 
 (provide 'modes/raku-mode.el)

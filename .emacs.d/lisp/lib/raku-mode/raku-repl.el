@@ -7,7 +7,7 @@
 (require 'comint)
 (require 'raku-font-lock)
 
-(defcustom raku-exec-path "raku"
+(defcustom raku-exec-path "rakudo"
   "Raku executable path."
   :type 'string
   :group 'raku)

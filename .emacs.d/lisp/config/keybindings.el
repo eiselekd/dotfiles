@@ -286,6 +286,7 @@
 			       (let ((mode major-mode))
 				 (message "[*] F1 in major mode %s" mode)
 				 (cond ((string= mode 'haskell-mode) (haskell/eval-haskell))
+				       ((string= mode 'raku-mode) (modes/raku-repl-start))
 				       ((string= mode 'org-mode) (org-agenda))
 				       ((utils/isgud)
 					(cond ((or (utils/gud-perl-buffer)
