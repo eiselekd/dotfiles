@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<AnalyseDoc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="./AnalyseDoc.xsd">
+    <SearchText>bt_hci</SearchText>
+    <SearchText>BluetoothHci::close</SearchText>
+    <SearchText color="yellow" bgColor="purple">btif_disable_bluetooth_evt</SearchText>
+    <SearchText color="yellow" bgColor="purple">BluetoothSocket</SearchText>
+    <SearchText bgColor="pink">bt_stack_manager</SearchText>
+    <SearchText bgColor="liteGreen">unexpected event for</SearchText>
+    <SearchText color="yellow" bgColor="red">&gt;&gt;&gt; com.android.bluetooth &lt;&lt;&lt;</SearchText>
+    <SearchText bgColor="red">BluetoothDiagnostics</SearchText>
+    <SearchText color="yellow" bgColor="red">fault addr --------</SearchText>
+    <SearchText color="yellow" bgColor="red">/system/lib64/libbluetooth.so</SearchText>
+    <SearchText bgColor="liteGreen">SUSPEND_TO_RAM</SearchText>
+    <SearchText bgColor="red">BluetoothDeathRecipient::serviceDied</SearchText>
+    <SearchText color="cyan" bgColor="grey">CAR.POWER</SearchText>
+    <SearchText color="white" bgColor="blue">suspend</SearchText>
+    <SearchText color="blue">BluetoothManagerService</SearchText>
+    <SearchText color="liteGreen" bgColor="grey">BluetoothAdapterService</SearchText>
+    <SearchText color="pink" bgColor="black">BluetoothMediaBrowserService</SearchText>
+    <SearchText color="yellow" bgColor="black">BtifAvStateMachine</SearchText>
+    <SearchText color="liteGreen" bgColor="black">bt_btif_a2dp_sink</SearchText>
+    <SearchText color="orange" bgColor="black">bt_btif</SearchText>
+    <SearchText bgColor="red">getProfilePriority</SearchText>
+    <SearchText color="yellow" bgColor="darkRed">getProfilePriority</SearchText>
+    <SearchText color="pink" bgColor="darkRed">LocalBluetoothProfileManager</SearchText>
+    <SearchText color="darkRed">android.hardware.bluetooth</SearchText>
+    <SearchText color="red" bgColor="black">beginning of crash</SearchText>
+    <SearchText color="deepPurple" bgColor="yellow">bt_vendor</SearchText>
+    <SearchText color="deepPurple" bgColor="yellow">bt_vendor_csr</SearchText>
+    <SearchText color="deepPurple" bgColor="yellow">Stopping hardware config</SearchText>
+    <SearchText color="pink" bgColor="cyan">disable()</SearchText>
+    <SearchText color="pink" bgColor="cyan">enable()</SearchText>
+    <SearchText color="purple" bgColor="veryLiteGrey">AdapterState</SearchText>
+    <SearchText color="liteGreen" bgColor="grey">BluetoothAdapterService</SearchText>
+    <SearchText color="yellow" bgColor="darkGrey">bt_stack</SearchText>
+    <SearchText color="darkRed" bgColor="litePink">ttyS0</SearchText>
+    <SearchText color="white" bgColor="black">0a12</SearchText>
+    <SearchText color="darkRed" bgColor="liteGreen">hci0</SearchText>
+    <SearchText color="darkRed">bt_bta_dm</SearchText>
+    <SearchText color="blue">hci_timeout</SearchText>
+    <SearchText color="pink" bgColor="offWhite">BLE_START_TIMEOUT</SearchText>
+    <SearchText color="pink" bgColor="offWhite">BLE_TURNING_ON</SearchText>
+    <SearchText color="darkRed" bgColor="litePink">hciattach</SearchText>
+    <SearchText color="darkBlue" bgColor="liteGrey">BluetoothManagerService</SearchText>
+    <SearchText color="darkBlue" bgColor="liteGrey">PROFILE_CONNECTION_STATE</SearchText>
+    <SearchText color="darkBlue" bgColor="liteGrey">BluetoothAdapterService</SearchText>
+</AnalyseDoc>

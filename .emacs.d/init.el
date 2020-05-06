@@ -363,7 +363,11 @@
 
 (require 'utils/dired.el)
 (message "[*] %s retire dired" (timestamp_str))
+;;(require 'utils/occur.el)
+(require 'utils/occur-util.el)
+;;(require 'color-occur)
 (global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
+(global-set-key (kbd "M-Ä")  (lambda ()(interactive) (call-interactively 'utils/occur-multi)))
 (global-set-key (kbd "M-m")  'menu-bar-mode)
 
 ;; 3: (re-)define keybindings
@@ -417,7 +421,6 @@
 
 ;; ctrl-x ctrl-b
 (require 'utils/buffer.el)
-(require 'utils/occur.el)
 
 ;;* Themes
 ;;;; ======================== themes ===============================
