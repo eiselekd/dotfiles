@@ -15,7 +15,7 @@
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.p[lm]?6\\'" . raku-mode))
-(add-to-list 'auto-mode-alist '("\\.nqp\\'"     . raku-mode))
+(add-to-list 'auto-mode-alist '("\\.nqp\\'"     . nqp-mode))
 (add-to-list 'auto-mode-alist '("\\.raku\\'"    . raku-mode))
 (add-to-list 'auto-mode-alist '("\\.rakumod\\'" . raku-mode))
 (add-to-list 'auto-mode-alist '("\\.rakutest\\'" . raku-mode))

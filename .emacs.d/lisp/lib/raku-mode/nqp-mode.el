@@ -44,7 +44,7 @@
 (require 'raku-imenu)
 
 ;;;###autoload
-(define-derived-mode raku-mode prog-mode "Raku"
+(define-derived-mode nqp-mode prog-mode "NQP"
   "Major mode for editing Raku code."
   ;; Syntaxification and font locking
   (setq-local syntax-propertize-function #'raku-syntax-propertize)
@@ -66,7 +66,7 @@
               :forward-token #'raku-smie--forward-token
               :backward-token #'raku-smie--backward-token))
 
-(provide 'raku-mode)
+(provide 'nqp-mode)
 
 ;; Local Variables:
 ;; coding: utf-8

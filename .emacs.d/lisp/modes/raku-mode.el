@@ -1,4 +1,5 @@
 ;;(require 'use-package)
+(require 'nqp-mode)
 (require 'raku-mode)
 
 (defun modes/raku-mode-start ()
