@@ -84,6 +84,8 @@ Keybindings:
    * ESC N : cling interpreter and .cling.cpp load
  * rust-mode:
    * TAB : call completion
+ * elisp-mode:
+   * M-; : show function help under point
  * ESC M-h : haskell interactive mode
  * haskell-mode:
    * F1 | C-c C-l : eval in repl
