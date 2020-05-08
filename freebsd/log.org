@@ -90,3 +90,12 @@ set boot_serial="YES"
 set comconsole_speed="115200"
 set console="comconsole,vidconsole"
 boot
+
+** sync rtc time:
+sysctl machdep.disable_rtc_set
+
+* links
+
+https://teklager.se/en/best-free-linux-router-firewall-software-2019/
+
+https://genneko.github.io/playing-with-bsd/system/learning-notes-on-jails/#creating-a-template
