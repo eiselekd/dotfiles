@@ -96,6 +96,8 @@ sysctl machdep.disable_rtc_set
 
 * links
 
+firewall: https://www.freebsd.org/doc/handbook/firewalls-pf.html
 https://teklager.se/en/best-free-linux-router-firewall-software-2019/
-
 https://genneko.github.io/playing-with-bsd/system/learning-notes-on-jails/#creating-a-template
+https://www.digitalocean.com/community/tutorials/how-to-configure-packet-filter-pf-on-freebsd-12-1
+
