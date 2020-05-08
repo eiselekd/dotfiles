@@ -6,7 +6,7 @@
 ;; <SearchText bgColor="red">BluetoothDiagnostics</SearchText>
 ;; <SearchText color="yellow" bgColor="red">fault addr --------</SearchText>
 ;; <SearchText color="yellow" bgColor="red">/system/lib64/libbluetooth.so</SearchText>
-;;    <SearchText bgColor="liteGreen">SUSPEND_TO_RAM</SearchText>
+;; <SearchText bgColor="liteGreen">SUSPEND_TO_RAM</SearchText>
 ;; <SearchText bgColor="red">BluetoothDeathRecipient::serviceDied</SearchText>
 ;; <SearchText color="cyan" bgColor="grey">CAR.POWER</SearchText>
 

@@ -68,3 +68,25 @@ i915kms_load="YES"
  portsnap fetch
  portsnap extract
  cd /usr/ports/....; make install
+
+
+* router-setup
+
+* concole only:
+
+$ cat /boot/loader.conf 
+kern.geom.label.disk_ident.enable="0"
+kern.geom.label.gptid.enable="0"
+opensolaris_load="YES"
+zfs_load="YES"
+boot_multicons="YES"
+boot_serial="YES"
+comconsole_speed="115200"
+console="comconsole,vidconsole"
+
+** boot prompt (manual without loader.conf):
+set boot_multicons="YES"
+set boot_serial="YES"
+set comconsole_speed="115200"
+set console="comconsole,vidconsole"
+boot
