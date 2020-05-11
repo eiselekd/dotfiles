@@ -72,29 +72,49 @@ i915kms_load="YES"
 
 * router-setup
 
-* concole only:
+** concole only:
 
-$ cat /boot/loader.conf 
-kern.geom.label.disk_ident.enable="0"
-kern.geom.label.gptid.enable="0"
-opensolaris_load="YES"
-zfs_load="YES"
+*** add /boot/loader.conf 
 boot_multicons="YES"
 boot_serial="YES"
 comconsole_speed="115200"
 console="comconsole,vidconsole"
 
-** boot prompt (manual without loader.conf):
+*** boot prompt (manual without loader.conf):
 set boot_multicons="YES"
 set boot_serial="YES"
 set comconsole_speed="115200"
 set console="comconsole,vidconsole"
 boot
 
-** sync rtc time:
+*** sync rtc time:
 sysctl machdep.disable_rtc_set
 
-* links
+** freebsd src
+ftp://ftp.freebsd.org/pub/FreeBSD/releases/amd64/12.1-RELEASE/src.txz
+** ifconfig
+
+*** rc.config
+ifconfig_igb0="DHCP"
+
+*** avahi
+
+installer domain via dhcp in installer: localdomain
+
+https://gist.github.com/reidransom/6033227
+
+$pkg install avahi
+
+**** rc.conf
+
+dbus_enable="YES"
+avahi_daemon_enable="YES"
+
+**** /etc/nsswitch.conf
+
+hosts: files dns mdns
+
+** links
 
 firewall: https://www.freebsd.org/doc/handbook/firewalls-pf.html
 https://teklager.se/en/best-free-linux-router-firewall-software-2019/
