@@ -264,7 +264,7 @@ gateway_enable="YES"
 add include $devfsrules_jail
 add path 'bpf*' unhide
 
-*** /etc/pf.config
+*** /etc/pf.conf
 
 ext_if = "igb0"
 int_if = "igb3"
