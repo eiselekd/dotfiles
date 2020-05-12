@@ -1,4 +1,3 @@
-
 * T430s setup FreeBSD 11.0
 
 ** Install Windows Manager
@@ -13,7 +12,7 @@ do
 done
 #+END_SRC
 
-/usr/local/lib/xorg/modules/driver/intel_drv.so => 
+/usr/local/lib/xorg/modules/driver/intel_drv.so =>
 # sudo X -configure
 
  *** /usr/local/etc/X11/xorg.conf.d/20-intel.conf
@@ -74,7 +73,7 @@ i915kms_load="YES"
 
 ** concole only:
 
-*** add /boot/loader.conf 
+*** add /boot/loader.conf
 boot_multicons="YES"
 boot_serial="YES"
 comconsole_speed="115200"
@@ -114,10 +113,181 @@ avahi_daemon_enable="YES"
 
 hosts: files dns mdns
 
+
+** pf
+
+sysrc pf_enable=yes
+sysrc pflog_enable=yes
+
 ** links
 
 firewall: https://www.freebsd.org/doc/handbook/firewalls-pf.html
 https://teklager.se/en/best-free-linux-router-firewall-software-2019/
 https://genneko.github.io/playing-with-bsd/system/learning-notes-on-jails/#creating-a-template
 https://www.digitalocean.com/community/tutorials/how-to-configure-packet-filter-pf-on-freebsd-12-1
+
+** jail
+*** create template:
+zfs create -o mountpoint=/vm zroot/vm
+zfs create zroot/vm/tmpl
+zfs create zroot/vm/tmpl/12.1
+fetch ftp://ftp.freebsd.org/pub/FreeBSD/releases/amd64/12.1-RELEASE/base.txz
+tar -xJvpf base.txz -C /vm/tmpl/12.1
+cp /etc/localtime /vm/tmpl/12.1/etc/
+
+echo << EOF > /vm/tmpl/12.1/etc/rc.conf
+sendmail_enable="NO"
+sendmail_submit_enable="NO"
+sendmail_outbound_enable="NO"
+sendmail_msp_queue_enable="NO"
+syslogd_flags="-ss"
+cron_flags="-J 60"
+EOF
+
+vi /vm/tmpl/12.1/etc/crontab : comment
+#1,31 0-5 * * * root adjkerntz -a
+
+
+echo << EOF > /vm/tmpl/12.1/etc/periodic.conf
+# No output for successful script runs.
+daily_show_success="NO"
+weekly_show_success="NO"
+monthly_show_success="NO"
+security_show_success="NO"
+
+# Output to log files which are rotated by default.
+daily_output="/var/log/daily.log"
+daily_status_security_output="/var/log/daily.log"
+weekly_output="/var/log/weekly.log"
+weekly_status_security_output="/var/log/weekly.log"
+monthly_output="/var/log/monthly.log"
+monthly_status_security_output="/var/log/monthly.log"
+
+# No need for those without sendmail
+daily_clean_hoststat_enable="NO"
+daily_status_mail_rejects_enable="NO"
+daily_status_mailq_enable="NO"
+daily_queuerun_enable="NO"
+
+# Host does those
+daily_status_disks_enable="NO"
+daily_status_zfs_zpool_list_enable="NO"
+daily_status_network_enable="NO"
+daily_status_uptime_enable="NO"
+daily_ntpd_leapfile_enable="NO"
+weekly_locate_enable="NO"
+weekly_whatis_enable="NO"
+security_status_chksetuid_enable="NO"
+security_status_neggrpperm_enable="NO"
+security_status_chkuid0_enable="NO"
+security_status_ipfwdenied_enable="NO"
+security_status_ipfdenied_enable="NO"
+security_status_ipfwlimit_enable="NO"
+security_status_ipf6denied_enable="NO"
+security_status_tcpwrap_enable="NO"
+EOF
+
+sudo mkdir /vm/tmpl/12.1/usr/ports
+sudo mkdir -p /vm/tmpl/12.1/var/ports/{distfiles,packages}
+echo <<EOF >/vm/tmpl/12.1/etc/make.conf
+WRKDIRPREFIX = /var/ports
+DISTDIR = /var/ports/distfiles
+PACKAGES = /var/ports/packages
+EOF
+
+freebsd-update -b /vm/tmpl/12.1 fetch install
+
+echo << EOF >> /vm/tmpl/12.1/root/.cshrc
+# ANSI Color 32 = Green
+set prompt="%{\033[32m%}%B<%n@%m>%b%{\033[0m%}:%~%# "
+EOF
+
+snapshot:
+zfs snapshot zroot/vm/tmpl/12.1@p3
+
+*** create jail
+
+zfs clone zroot/vm/tmpl/12.1@p3 zroot/vm/wg
+
+*** setup jail
+rc.config:
+
+cloned_interfaces="lo1"
+pf_enable="YES"
+pflog_enable="YES"
+jail_enable="YES"
+jail_list="wg"
+
+
+*** /etc/jail.conf
+
+exec.start = "/bin/sh /etc/rc";
+exec.stop = "/bin/sh /etc/rc.shutdown";
+exec.clean;
+mount.devfs;
+
+host.hostname = $name;
+path = "/vm/$name";
+exec.consolelog = "/var/log/jail_${name}_console.log";
+
+wg {
+	$vif = "epair0a";
+	$route = "192.168.250.0/24 192.168.20.2";
+
+	vnet;
+	vnet.interface = $vif;
+	exec.prestart += "route add $route";
+	exec.poststop += "route delete $route";
+
+	# workaround
+	# https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=238326
+	exec.prestop  += "ifconfig $vif -vnet $name";
+
+	allow.chflags;
+	devfs_ruleset = 10;
+}
+
+
+**** /etc/rc.config
+
+cloned_interfaces="lo1 epair0"
+ifconfig_epair0b="inet 192.168.20.1/24"
+
+**** /vm/wg/etc/rc.config
+ifconfig_epair0a="192.168.20.2/24"
+defaultrouter="192.168.20.1"
+gateway_enable="YES"
+
+
+*** /etc/devfs.rules
+[devfsrules_bpfjail=10]
+add include $devfsrules_jail
+add path 'bpf*' unhide
+
+*** /etc/pf.config
+
+ext_if = "igb0"
+int_if = "igb3"
+
+jailnet = "192.168.20.0/24"
+wgnet = "192.168.250.0/24"
+wg_ipv4 = "192.168.20.2"
+wg_port = "51820"
+localnet = $int_if:network
+
+# OPTIONS (set skip, etc.)
+# NORMALIZATION (scrub)
+# QUEUEING
+
+# TRANSLATION
+## NAT
+
+nat on $ext_if inet from { $localnet $jailnet $wgnet } to any -> ($ext_if)
+
+rdr pass log on { $ext_if $int_if } inet proto udp to ($ext_if) port $wg_port -> $wg_ipv4
+
+pass in from { $jailnet $wgnet }
+
+**** rc.config
+ifconfig_igb3="inet 192.168.10.11/24"
 
