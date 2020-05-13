@@ -113,6 +113,29 @@ avahi_daemon_enable="YES"
 
 hosts: files dns mdns
 
+** dhcpd
+
+pkg install isc-dhcp44-server
+
+*** rc.conf:
+dhcpd_enable="YES"
+dhcpd_ifaces="igb3"
+dhcpd_conf="/etc/dhcpd.conf"
+
+*** /etc/dhcpd.conf
+option domain-name "localdomain";
+option domain-name-servers 1.1.1.1;
+option subnet-mask 255.255.255.0;
+
+default-lease-time 600;
+max-lease-time 72400;
+ddns-update-style none;
+
+subnet 192.168.10.0 netmask 255.255.255.0 {
+  range 192.168.10.20 192.168.10.100;
+  option routers 192.168.10.11;
+}
+
 
 ** pf
 
