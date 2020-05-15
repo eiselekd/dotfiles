@@ -142,7 +142,41 @@ subnet 192.168.10.0 netmask 255.255.255.0 {
 sysrc pf_enable=yes
 sysrc pflog_enable=yes
 
-** links
+*** pf.conf
+# MACROS/TABLES
+
+ext_if = "igb0"
+int_if = "igb3"
+
+jailnet = "192.168.20.0/24"
+wgnet = "192.168.250.0/24"
+wg_ipv4 = "192.168.20.2"
+wg_port = "51820"
+localnet = $int_if:network
+
+## NAT
+
+# skip loopback
+set skip on lo0
+
+# nat on int_if->ext_if traffic with gateway enabled
+nat on $ext_if inet from { $localnet $jailnet $wgnet } to any -> ($ext_if)
+
+# block inbound
+block in on $ext_if
+
+# allow ssh(22) dns(53) http(80) ntp(123) https(442)
+pass out proto { tcp udp } to port { 22 53 80 123 443 }
+# allow ping
+pass out inet proto icmp icmp-type { echoreq }
+
+## wg rules
+# rdr pass log on { $ext_if $int_if } inet proto udp to ($ext_if) port $wg_port -> $wg_ipv4
+# pass in from { $jailnet $wgnet }
+
+
+
+*** links
 
 firewall: https://www.freebsd.org/doc/handbook/firewalls-pf.html
 https://teklager.se/en/best-free-linux-router-firewall-software-2019/
@@ -217,6 +251,12 @@ WRKDIRPREFIX = /var/ports
 DISTDIR = /var/ports/distfiles
 PACKAGES = /var/ports/packages
 EOF
+
+echo "nameserver 1.1.1.1" > /etc/resolv.conf
+
+pkg -j wg update
+pkg -j wg upgrade
+pkg -j wg install git-lite vim-console
 
 freebsd-update -b /vm/tmpl/12.1 fetch install
 
