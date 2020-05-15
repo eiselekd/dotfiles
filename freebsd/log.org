@@ -183,7 +183,7 @@ https://teklager.se/en/best-free-linux-router-firewall-software-2019/
 https://genneko.github.io/playing-with-bsd/system/learning-notes-on-jails/#creating-a-template
 https://www.digitalocean.com/community/tutorials/how-to-configure-packet-filter-pf-on-freebsd-12-1
 https://www.openbsd.org/faq/pf/filter.html
-
+http://draft.scyphus.co.jp/freebsd/nat.html
 
 ** jail
 *** create template:
