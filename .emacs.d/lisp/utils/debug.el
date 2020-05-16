@@ -3,7 +3,8 @@
   (interactive)
   (progn
     (cond
-     ((string-match "\.pl$" (buffer-name))
+     ((and (string-match "\.pl$" (buffer-name))
+	   (string-match "perl-mode" major-mode))
       (progn
 	;; note: need chmod ag-w ~/.perldb
 	;; DB::emacs need to be loadable
@@ -61,14 +62,14 @@
 
 (setq gdb-many-windows t)
 
-(defadvice gud-display-line (after gud-display-line-centered activate)
-  "Center the line in the window"
-  (when (and gud-overlay-arrow-position gdb-source-window)
-    (with-selected-window gdb-source-window
-      ; (marker-buffer gud-overlay-arrow-position)
-      (save-restriction
-        (goto-line (ad-get-arg 1))
-        (recenter)))))
+;; (defadvice gud-display-line (after gud-display-line-centered activate)
+;;   "Center the line in the window"
+;;   (when (and gud-overlay-arrow-position gdb-source-window)
+;;     (with-selected-window gdb-source-window
+;;       ; (marker-buffer gud-overlay-arrow-position)
+;;       (save-restriction
+;;         (goto-line (ad-get-arg 1))
+;;         (recenter)))))
 
 
 

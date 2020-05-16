@@ -44,7 +44,7 @@
 (require 'raku-imenu)
 
 ;;;###autoload
-(define-derived-mode nqp-mode prog-mode "NQP"
+(define-derived-mode nqp-mode raku-mode "NQP"
   "Major mode for editing Raku code."
   ;; Syntaxification and font locking
   (setq-local syntax-propertize-function #'raku-syntax-propertize)
