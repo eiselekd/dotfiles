@@ -122,9 +122,11 @@ inserted into the GUD buffer."
 			(group-n 2 (1+ digit))))
                nil t)
 
-      (let ((filename (match-string 1))
-            (line (string-to-number (match-string 2))))
-        (message (format "Found file: %s, line: %d" filename line))
+      (let* ((filename (match-string 1))
+	     (rfilename (gudnqp/searchf filename))
+	     (line (string-to-number (match-string 2))))
+        (message (format "Found file: %s, line: %d, found: '%s'" filename line rfilename))
+
         (setq gud-last-frame (cons filename line)))
       (setq gud-nqpdb/last-prompt-marker (point-marker)))))
 
