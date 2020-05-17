@@ -1,5 +1,6 @@
 (require 'gud)
 (require 'rx)
+(require 'f)
 
 (defcustom nqp-exec-path "nqp-m"
   "Nqp executable path."
@@ -13,6 +14,20 @@
 
 (defvar nqp-buffer-name "NQP prog"
   "Buffer name for slave nqp prog to connect to.")
+
+(defvar gudnqp/dirs '( "~/git/rakudo/nqp" "/tmp/b" )
+  "List of dirs to search for source files." )
+
+(defun gudnqp/searchf (p)
+  (cond
+   ((f-absolute? p)  (f-full p))
+   ((f-exists? p) p)
+   (t (let* ((retvalue nil))
+	(dolist (e dirs retvalue)
+	  (let* ((lp (f-join (f-full e) p)))
+	    (if (f-exists? lp)
+		(setq retvalue lp))))))))
+
 
 ;;;###autoload
 (defun nqpdb (command-line)
@@ -97,13 +112,16 @@ inserted into the GUD buffer."
      (t (goto-char (point-min))))
     ; (message (concat "Looking at " (buffer-substring (point) (point-max))))
     (when (re-search-forward
-           (rx (and line-start
-                    (zero-or-more (eval gud-nqpdb/ansi-escape-re))
-                    "+" (1+ space)
-                    (group-n 1 (1+ (not space)))
-                    (0+ space) "("
-                    (group-n 2 (1+ digit))))
-           nil t)
+
+	(when (re-search-forward
+               (rx (and line-start
+			(1+ space) "0"
+			(1+ space)
+			(group-n 1 (1+ (not space)))
+			(1+ space)
+			(group-n 2 (1+ digit))))
+               nil t)
+
       (let ((filename (match-string 1))
             (line (string-to-number (match-string 2))))
         (message (format "Found file: %s, line: %d" filename line))
