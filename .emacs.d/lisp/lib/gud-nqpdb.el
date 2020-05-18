@@ -7,7 +7,7 @@
   :type 'string
   :group 'raku)
 
-(defcustom nqp-exec-arguments "--debug-port=9999 --debug-suspend"
+(defcustom nqp-exec-arguments "--debug-port=9999 --debug-suspend --optimize=0 "
   "Nqp command line arguments."
   :type 'string
   :group 'raku)
@@ -33,7 +33,7 @@
 The directory containing FILE becomes the initial working directory
 and source-file directory for your debugger."
   (interactive
-   (list (gud-query-cmdline 'moar-remote "9999" )))
+   (list (gud-query-cmdline 'moar-remote-m "9999" )))
 
   (run-nqp)
 
