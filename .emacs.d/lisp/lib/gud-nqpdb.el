@@ -44,8 +44,8 @@ and source-file directory for your debugger."
 
   (set (make-local-variable 'gud-minor-mode) 'nqpdb)
 
-  (gud-def gud-break  "bp %f %l"          "\C-b" "Set breakpoint at current line.")
-  (gud-def gud-remove "clearbp rm %f %l"  "\C-d" "Remove breakpoint at current line")
+  (gud-def gud-break  "breakpoint \"%f\" %l 1 1"          "\C-b" "Set breakpoint at current line.")
+  (gud-def gud-remove "clearbp \"%f\" %l"  "\C-d" "Remove breakpoint at current line")
   (gud-def gud-step   "step into"         "\C-s" "Step one source line with display.")
   (gud-def gud-next   "step over"         "\C-n" "Step one line (skip functions).")
   (gud-def gud-cont   "resume"            "\C-r" "Run until the next breakpoint or an exception is thrown.")
@@ -126,7 +126,10 @@ inserted into the GUD buffer."
 	     (line (string-to-number (match-string 2))))
         (message (format "Found file: %s, line: %d, found: '%s'" filename line rfilename))
 
-        (setq gud-last-frame (cons filename line)))
+        (setq gud-last-frame (cons rfilename line))
+	;;(gud-display-line rfilename line)
+
+	)
       (setq gud-nqpdb/last-prompt-marker (point-marker)))))
 
 (provide 'gud-nqpdb.el)
