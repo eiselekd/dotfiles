@@ -23,13 +23,11 @@
    ((f-absolute? p)  (f-full p))
    ((f-exists? p) p)
    (t (let* ((retvalue nil))
-	(dolist (e dirs retvalue)
+	(dolist (e gudnqp/dirs retvalue)
 	  (let* ((lp (f-join (f-full e) p)))
 	    (if (f-exists? lp)
 		(setq retvalue lp))))))))
 
-
-;;;###autoload
 (defun nqpdb (command-line)
   "Run nqpdb on program FILE in buffer *gud-FILE*.
 The directory containing FILE becomes the initial working directory
@@ -113,14 +111,15 @@ inserted into the GUD buffer."
     ; (message (concat "Looking at " (buffer-substring (point) (point-max))))
     (when (re-search-forward
 
-	(when (re-search-forward
-               (rx (and line-start
-			(1+ space) "0"
-			(1+ space)
-			(group-n 1 (1+ (not space)))
-			(1+ space)
-			(group-n 2 (1+ digit))))
-               nil t)
+           (rx (and line-start
+		    (1+ space) "0"
+		    (1+ space)
+		    (1+ (not space))
+		    (1+ space)
+		    (group-n 1 (1+ (not ":")))
+		    ":"
+		    (group-n 2 (1+ digit))))
+           nil t)
 
       (let* ((filename (match-string 1))
 	     (rfilename (gudnqp/searchf filename))
