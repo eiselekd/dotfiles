@@ -145,35 +145,49 @@ sysrc pflog_enable=yes
 *** pf.conf
 # MACROS/TABLES
 
+# MACROS/TABLES
 ext_if = "igb0"
+mng_if = "igb1"
 int_if = "igb3"
+wlan_if = "wlan0"
 
-jailnet = "192.168.20.0/24"
-wgnet = "192.168.250.0/24"
-wg_ipv4 = "192.168.20.2"
-wg_port = "51820"
+jailnet  = "192.168.20.0/24"
+wgnet    = "192.168.250.0/24"
+wg_ipv4  = "192.168.20.2"
+wg_port  = "51820"
 localnet = $int_if:network
+wlannet  = $wlan_if:network
 
+# OPTIONS (set skip, etc.)
+# NORMALIZATION (scrub)
+# QUEUEING
+# TRANSLATION
 ## NAT
 
-# skip loopback
 set skip on lo0
 
-# nat on int_if->ext_if traffic with gateway enabled
-nat on $ext_if inet from { $localnet $jailnet $wgnet } to any -> ($ext_if)
+#
+nat on $ext_if inet from { $localnet $jailnet $wgnet $wlannet } to any -> ($ext_if)
 
-# block inbound
 block in on $ext_if
+block in quick on $ext_if proto tcp to port ssh
 
-# allow ssh(22) dns(53) http(80) ntp(123) https(442)
-pass out proto { tcp udp } to port { 22 53 80 123 443 }
+#block quick in on $ext_if proto tcp
+#to port 22
+
+#table <fail2ban> persist
+#block quick proto tcp from <fail2ban> to $ext_if port ssh
+
+pass in on $mng_if
+
+# allow ssh(22) whois(43) dns(53) http(80) ntp(123) https(442)
+pass out proto { tcp udp } to port { 22 43 53 80 123 443 }
 # allow ping
 pass out inet proto icmp icmp-type { echoreq }
 
 ## wg rules
-# rdr pass log on { $ext_if $int_if } inet proto udp to ($ext_if) port $wg_port -> $wg_ipv4
-# pass in from { $jailnet $wgnet }
-
+#rdr pass log on { $ext_if $int_if } inet proto udp to ($ext_if) port $wg_port -> $wg_ipv4
+#pass in from { $jailnet $wgnet }
 
 
 *** links
@@ -355,5 +369,3 @@ pass in from { $jailnet $wgnet }
 
 **** rc.config
 ifconfig_igb3="inet 192.168.10.11/24"
-
-
