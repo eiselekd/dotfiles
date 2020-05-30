@@ -369,3 +369,6 @@ pass in from { $jailnet $wgnet }
 
 **** rc.config
 ifconfig_igb3="inet 192.168.10.11/24"
+
+** hostapd
+https://framkant.org/2015/11/wpa2-enterprise-with-hostapd/
