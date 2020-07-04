@@ -185,8 +185,10 @@ Magit cheatsheet:
  * Ediff 3 colum view:
    * xy : i.e. press ab to move current hunk from a to b, ac to move current hunk from a to c
    * rx : i.e. press ra to restore current hunk in column a
-
  * y   : branch viewer (k delet branch)
+  * rebase:
+  * r r : continue rebase
+  * r s : skip and contine rebase
 
 Ocaml debug (M-x ocamldebug):
  * Ctrl-x Ctrl-a:
