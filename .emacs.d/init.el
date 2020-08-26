@@ -680,3 +680,5 @@
 (add-to-list 'auto-mode-alist '("\\.y\\'" . bison-mode))
 
 (put 'scroll-left 'disabled nil)
+
+(setq smerge-command-prefix "\C-cv")

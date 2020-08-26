@@ -185,6 +185,9 @@ Magit cheatsheet:
  * Ediff 3 colum view:
    * xy : i.e. press ab to move current hunk from a to b, ac to move current hunk from a to c
    * rx : i.e. press ra to restore current hunk in column a
+ * SMerge:
+   * Ctrl-c v n/p: navigate
+   * Ctrl-c v ret: use version on cursor 
  * y   : branch viewer (k delet branch)
   * rebase:
   * r r : continue rebase
