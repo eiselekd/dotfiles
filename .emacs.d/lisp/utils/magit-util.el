@@ -27,6 +27,7 @@
 (defun utils/magit-status ()
   (progn
     (require 'magit-gerrit)
+
     (if (fboundp 'set-magit-gerrit-default)
 	(set-magit-gerrit-default))
 
