@@ -231,9 +231,9 @@ Org-mode timeentry:
  C-b , : rename window
  C-b $ : rename session
 
- alt-pageup : copy-mode : http://hyperpolyglot.org/multiplexers
-
+ alt-pageup : scroll/copy-mode : http://hyperpolyglot.org/multiplexers
+              q : quite mode
+ 
  copy-mode:
    Alt-f|b : navigate words
    C-w     : copy
-
