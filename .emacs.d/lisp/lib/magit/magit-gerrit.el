@@ -471,7 +471,7 @@ Succeed even if branch already exist
     (magit-refresh)))
 
 (defun magit-gerrit-push-review (status)
-  (let* ((branch (or (magit-get-current-branch)
+  (let* ((branch (or (magit-read-other-branch-or-commit "Gerit-branch-Push" (magit-get-current-branch))
                      (error "Don't push a detached head.  That's gross")))
          (commitid (or (when (eq (oref (magit-current-section) type)
                                  'commit)
