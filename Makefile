@@ -17,3 +17,7 @@ bashrc:
 	echo 'if [ -f ~/git/dotfiles/.bashrc_extra ]; then' >> ~/.bashrc
 	echo '  . ~/git/dotfiles/.bashrc_extra'             >> ~/.bashrc
 	echo 'fi'                                           >> ~/.bashrc
+
+
+prepare:
+	sudo apt-get install xsel

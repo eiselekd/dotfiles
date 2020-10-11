@@ -415,6 +415,7 @@
 (global-set-key (kbd "C-c <up>")    'windmove-up)
 (global-set-key (kbd "C-c <down>")  'windmove-down)
 
+
 ;; hide modeline when only one frame
 (autoload 'hide-mode-line "hide-mode-line" nil t)
 ;;(hide-mode-line)
@@ -682,3 +683,9 @@
 (put 'scroll-left 'disabled nil)
 
 (setq smerge-command-prefix "\C-cv")
+
+;;(global-set-key (kbd "C-v") 'clipboard-yank)
+
+
+;;(setq x-select-enable-primary 't)
+;;(setq x-select-enable-clpiboard nil)

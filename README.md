@@ -220,11 +220,13 @@ Org-mode timeentry:
  |: split horizontally
  -: split vertically
  d: detach
- logging:
- Ctrl-b alt-c   : clear  pane history
- Ctrl-b shift-p : start logging
- Ctrl-b alt-p   : screen capture logging
- 
+
+ C-b c : new window
+ C-b & :kill window
+ C-b , : rename window
+ C-b $ : rename session
+ C-b :new<CR> :new session
+
  Alt-q : detach
  Alt-Shift-q : kill-server
  Alt-Ctrl-Shift up|down|left|right: resize pane
@@ -232,12 +234,25 @@ Org-mode timeentry:
  alt-Shift up|down : navigate session
  Alt-c : add pane
 
- C-b , : rename window
- C-b $ : rename session
-
  alt-pageup : scroll/copy-mode : http://hyperpolyglot.org/multiplexers
               q : quite mode
  
+ logging:
+  Ctrl-b alt-c   : clear  pane history
+  Ctrl-b shift-p : start logging
+  Ctrl-b alt-p   : screen capture logging
+ resurrect:
+  Ctrl-b Ctrl-s : save env
+  Ctrl-b Ctrl-r : restore env
+ copycat:
+  ctrl-b /      : serach regex
+  ctrl-b Ctrl-u : serach url
+  ctrl-b Ctrl-f : serach file
+  ctrl-b Ctrl-d : serach digit
+   (n/N : sel up/down)
+  
+
  copy-mode:
    Alt-f|b : navigate words
    C-w     : copy
+   y       : yank to clipboard (xsel -b)
