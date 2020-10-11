@@ -149,7 +149,7 @@ Defaults:
   * Ctrl-x 5 o : switch frame (new x-window)
  * Themes
   * ESC t : Cycle themes
-  * ESC T : Toggle hide-node-line (hide modeline in single frame)
+  * ESC T : Toggle hide-node-line (statusbar) (hide modeline in single frame)
   * ESC M-t : Toggle xterm-window-mode (click on modeline bar)
  * VC mode
   * Ctrl-x v g : git blame
@@ -243,7 +243,7 @@ Org-mode timeentry:
  logging:
   Ctrl-b alt-c   : clear  pane history
   Ctrl-b shift-p : start logging
-  Ctrl-b alt-p   : screen capture logging
+  Ctrl-b alt-(shift-)p   : screen capture logging (with hist)
  resurrect:
   Ctrl-b Ctrl-s : save env
   Ctrl-b Ctrl-r : restore env
