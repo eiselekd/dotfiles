@@ -36,6 +36,8 @@
 
 (defun utils/dired-grep-rec-curdir ()
   (interactive)
+  (require 'helm-files)
+  (require 'helm-grep)
   (let* ( (dir-name (or (buffer-file-name)
 			default-directory)))
     (prepareHelm)
