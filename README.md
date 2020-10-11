@@ -222,6 +222,7 @@ Org-mode timeentry:
  |: split horizontally
  -: split vertically
  d: detach
+ z: maximize/restore current pane
 
  C-b c : new window
  C-b & :kill window
@@ -252,9 +253,11 @@ Org-mode timeentry:
   ctrl-b Ctrl-f : serach file
   ctrl-b Ctrl-d : serach digit
    (n/N : sel up/down)
-  
+  yank:
+   ctrl-b y : copy clipboard
+   y/Y : copy mode
 
  copy-mode:
-   Alt-f|b : navigate words
+   Alt-f|b : navigate next/prev words
    C-w     : copy
    y       : yank to clipboard (xsel -b)
