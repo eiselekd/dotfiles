@@ -220,7 +220,11 @@ Org-mode timeentry:
  |: split horizontally
  -: split vertically
  d: detach
-
+ logging:
+ Ctrl-b alt-c   : clear  pane history
+ Ctrl-b shift-p : start logging
+ Ctrl-b alt-p   : screen capture logging
+ 
  Alt-q : detach
  Alt-Shift-q : kill-server
  Alt-Ctrl-Shift up|down|left|right: resize pane
