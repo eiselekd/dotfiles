@@ -14,7 +14,7 @@
     (define-key global-map "\C-fh" 'utils/dired-grep-rec)
     (define-key global-map "\C-fg" 'find-grep-dired)
     (define-key global-map "\C-fn" 'find-name-dired)
-    
+
     ;;(define-key global-map "\C-xf" 'utils/dired-grep-rec-curdir)
     ;;(global-set-key "\C-xf" 'utils/dired-grep-rec-curdir )
 

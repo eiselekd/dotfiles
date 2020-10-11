@@ -16,12 +16,14 @@
 (defun multi-occur-in-this-mode ()
   "Show all lines matching REGEXP in buffers with this major mode."
   (interactive)
-  (multi-occur
-   (get-buffers-matching-mode major-mode)
-   (car (occur-read-primary-args))))
+  (require 'swiper)
+  (swiper-isearch))
+
+;;  (multi-occur
+;;   (get-buffers-matching-mode major-mode)
+;;   (car (occur-read-primary-args))))
 
 ;; global key for `multi-occur-in-this-mode' - you should change this.
 (global-set-key (kbd "M-s") 'multi-occur-in-this-mode)
-(global-set-key (kbd "M-S") ' multi-occur-in-matching-buffers)
 
 (provide 'utils/occur.el)

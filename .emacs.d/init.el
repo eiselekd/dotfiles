@@ -62,6 +62,7 @@
 (add-to-list 'load-path (expand-file-name "apel" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "async" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* )) ;; async for helm
+(add-to-list 'load-path (expand-file-name "lib/swiper" *.emacs.d.lisp.dir* )) ;; async for helm
 (setq ad-redefinition-action 'accept) ;;ad-handle-definition: `tramp-read-passwd' got redefined
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
@@ -363,7 +364,7 @@
 
 (require 'utils/dired.el)
 (message "[*] %s retire dired" (timestamp_str))
-;;(require 'utils/occur.el)
+(require 'utils/occur.el)
 (require 'utils/occur-util.el)
 ;;(require 'color-occur)
 (global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
