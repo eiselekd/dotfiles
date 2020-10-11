@@ -420,7 +420,7 @@
 
 (global-set-key (kbd "M-z") 'repeat)
 
-(global-set-key "\C-x\C-b" 'buffer-menu)
+(global-set-key (kbd "C-x B") 'buffer-menu)
 
 (global-set-key (kbd "C--")
 		(lambda ()(interactive)
