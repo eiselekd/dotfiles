@@ -23,8 +23,7 @@
 (setq cua-auto-tabify-rectangles nil) ;; Don't tabify after rectangle commands
 (transient-mark-mode 1)               ;; No region when it is not highlighted
 ;;(setq cua-keep-region-after-copy nil) ;; Non-standard Windows behaviour
-
-(define-key cua-global-keymap [(control w)] 'cua-copy-region)
+;;(define-key cua-global-keymap [(control w)] 'cua-copy-region)
 
 
 ;; terminal escape hell

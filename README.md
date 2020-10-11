@@ -159,6 +159,8 @@ Defaults:
   * Ctrl-h k : show keybinding
  * Spell
   * ESC i : ispell cycle language
+ * yank
+  * Alt-w : copy 
 
 KDE konsole keys:
  * CTRL-Shieft-m : hide/show menubar

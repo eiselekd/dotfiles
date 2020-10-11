@@ -686,6 +686,5 @@
 
 ;;(global-set-key (kbd "C-v") 'clipboard-yank)
 
-
-;;(setq x-select-enable-primary 't)
-;;(setq x-select-enable-clpiboard nil)
+(setq x-select-enable-primary  nil)
+(setq x-select-enable-clpiboard 't)
