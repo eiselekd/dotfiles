@@ -630,26 +630,35 @@ Succeed even if branch already exist
   (when (called-interactively-p 'any)
     (magit-refresh)))
 
+
+(defun magit-gerrit-url-user (url)
+  (or (url-user url) magit-gerrit-override-user))
+
+
 (defun magit-gerrit-detect-ssh-creds (remote-url)
   "Derive magit-gerrit-ssh-creds from remote-url.
 Assumes remote-url is a gerrit repo if scheme is ssh
 and port is the default gerrit ssh port."
+  (message (format "remote-url: %s" remote-url))
   (let ((url (url-generic-parse-url remote-url)))
     (when (and (string= "ssh" (url-type url))
                (eq 29418 (url-port url)))
       (set (make-local-variable 'magit-gerrit-ssh-creds)
-           (format "%s@%s" (url-user url) (url-host url)))
+           (format "%s@%s" (magit-gerrit-url-user url) (url-host url)))
       (message "Detected magit-gerrit-ssh-creds=%s" magit-gerrit-ssh-creds))))
 
 (defun magit-gerrit-check-enable ()
   (defvar magit-gerrit-dispatch-is-added nil)
   (defvar magit-origin-action nil)
+  (message (format "magit-gerrit-ssh-creds: %s of %s" magit-gerrit-ssh-creds (magit-gerrit-get-remote-url)))
   (let ((remote-url (magit-gerrit-get-remote-url)))
     (when (and remote-url
                (or magit-gerrit-ssh-creds
                    (magit-gerrit-detect-ssh-creds remote-url))
                (string-match magit-gerrit-ssh-creds remote-url))
-      (magit-gerrit-mode t))
+      (progn
+	(message "* Enable magit-gerrit")
+	(magit-gerrit-mode t)))
     (if (not magit-origin-action)
         (setf magit-origin-action
               (lookup-key magit-mode-map magit-gerrit-popup-prefix)))
