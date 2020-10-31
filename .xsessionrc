@@ -1,2 +1,3 @@
 #!/bin/sh
 ( sleep 1; xsetbg ~/git/dotfiles/ubuntu/forest-2952025_1920.jpg ) &
+( sleep 1; nm-applet ) &
