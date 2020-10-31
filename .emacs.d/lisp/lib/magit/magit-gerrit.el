@@ -471,7 +471,8 @@ Succeed even if branch already exist
     (magit-refresh)))
 
 (defun magit-gerrit-push-review (status)
-  (let* ((branch (or (magit-read-other-branch-or-commit "Gerit-branch-Push" (magit-get-current-branch))
+  (message (format "Current branch %s" (magit-get-current-branch)))
+  (let* ((branch (or (magit-read-other-branch-or-commit "Gerit-branch-Push" nil (magit-get-current-branch)) ;;(magit-get-current-branch)
                      (error "Don't push a detached head.  That's gross")))
          (commitid (or (when (eq (oref (magit-current-section) type)
                                  'commit)
@@ -482,6 +483,7 @@ Succeed even if branch already exist
 
          (branch-remote (and branch (magit-get "branch" branch "remote"))))
 
+    (message (format "branch: %s branch-remote: %s" branch branch-remote))
     ;; (message "Args: %s "
     ;;         (concat rev ":" branch-pub))
 
