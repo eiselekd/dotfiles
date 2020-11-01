@@ -691,7 +691,12 @@
 (setq x-select-enable-primary  nil)
 (setq x-select-enable-clpiboard 't)
 
+;;(global-set-key (kbd "C-M-h") (lambda ()(interactive)
+;;				(progn
+;;				  (require 'which-key)
+;;				  (which-key-mode))))
+
 (global-set-key (kbd "C-M-h") (lambda ()(interactive)
 				(progn
-				  (require 'which-key)
-				  (which-key-mode))))
+				  (require 'showkey)
+				  (showkey-log-mode))))

@@ -16,6 +16,9 @@
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Input-Events.html#Input-Events
 ;; https://emacs.stackexchange.com/questions/22611/is-there-a-canonical-way-of-representing-key-combinations-in-elisp-what-is-it
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Translation-Keymaps.html#Translation-Keymaps
+;; https://github.com/halhenke/doctor/blob/master/my%20emacs%20and%20keybinding%20dilemma.org
+;; https://www.masteringemacs.org/article/mastering-key-bindings-emacs
+;; https://tldp.org/HOWTO/pdf/Keyboard-and-Console-HOWTO.pdf
 
 ;; ctrl-c ctrl-v ctrl-y
 (cua-mode t)
