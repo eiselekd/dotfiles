@@ -417,6 +417,7 @@
 (global-set-key (kbd "C-c <down>")  'windmove-down)
 
 
+
 ;; hide modeline when only one frame
 (autoload 'hide-mode-line "hide-mode-line" nil t)
 ;;(hide-mode-line)
@@ -689,3 +690,8 @@
 
 (setq x-select-enable-primary  nil)
 (setq x-select-enable-clpiboard 't)
+
+(global-set-key (kbd "C-M-h") (lambda ()(interactive)
+				(progn
+				  (require 'which-key)
+				  (which-key-mode))))

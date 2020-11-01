@@ -113,8 +113,9 @@ Keybindings:
   * C-fn  : find-gre-name
  * Occur
   * ESC s : Occure inside buffers (CTRL-o to open location occur window)
+ * M-C-h : enable which-mode (show keybindings on press)
 
-HELM:
+HELM: 
  * C-x b : helm buffer select
  * M-X   : helm version of M-x
 
