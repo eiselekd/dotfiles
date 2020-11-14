@@ -634,8 +634,8 @@ Succeed even if branch already exist
 
 
 (defun magit-gerrit-url-user (url)
-  (or (url-user url) magit-gerrit-override-user))
-
+  (or (url-user url)
+      (and (fboundp 'magit-gerrit-override-user)) magit-gerrit-override-user ))
 
 (defun magit-gerrit-detect-ssh-creds (remote-url)
   "Derive magit-gerrit-ssh-creds from remote-url.
