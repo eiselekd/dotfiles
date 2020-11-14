@@ -323,7 +323,7 @@
 				       (t (progn
 					    (when (and
 						   (require 'utils/tty.el nil t)
-						   (require 'ttylog nil t))
+						   (require 'ttylogmode nil t))
 					      (tty-dispatch)
 					      )))
 				 ))))

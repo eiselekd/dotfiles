@@ -11,16 +11,12 @@
 
 (require 'term)
 (require 'transient)
-;;(require 'ttylog-test)
 (require 'magit)
 (require 'magit-section)
 (require 'f)
 (require 'cl-lib)
 (require 'ht)
 (require 'transient)
-
-;; ( gdb-setup-windows )
-;;(magit-init "/tmp" )
 
 (defvar ttyexpect-tick 0.2)
 (defvar ttyexpect-global-stop nil)
@@ -240,80 +236,7 @@
     (tty-pexpect-sense-console-and-execute idx propmt e cnt)))
 
 
-;;(mapcar '1+ '[2 4 6])
 
-
-;;	(with-mutex ttypexpect-mutex
-	  ;;    (condition-wait cv))
-	  ;;(catch 'loop
-
- ;;  (catch 'loop
- ;;    (dolist (item v)
- ;;      (when (ttymatch-locked (elem 0 item) )
- ;;        (throw 'loop (cdr item)))))))
-
-
- ;; (info "(elisp) Examples of Catch")
- ;;  (with-mutex ttypexpect-mutex
-
- ;;    (condition-wait cv))
- ;; )
-
-;;(>= (+ (float-time) 0.0001) (float-time))
-(defun ttyexpect_test0 ()
-  (ttypexpect-rec 0 "Dadaism \n test\n Usermacro x/assignstr")
-  (ttypexpect-rec 0 "Dadaism \n test\n Usermacro x/assignstr\nAnother")
-  (let ((c (ttypexpect [ [0 "Another" FOUNDAnother ] [0 "Usermacro x/assign" FOUND ]  [ TIMEOUT ] ] 10.0 )))
-    (pcase c
-      ('TIMEOUT 1)
-      ('FOUND 2)
-      ('FOUNDAnother 3)
-      ))
-  )
-
-;;(ttyexpect_test0)
-
-(defun ttypexpect-hiz-run ()
-  (interactive)
-  (make-thread
-   (lambda ()
-     (progn
-       (condition-case nil
-	   (progn
-	     (message "%d: ttypexpect-hiz-run" 0)
-	     ;;(ttypexpect_sync 0)
-	     ;;(ttypexpect_wait_for_console 0 "\n" "HiZ>" 1 5)
-	     (ttypexpect_send 0 "\nexit\n?\n")
-	     (let ((c (ttypexpect [ [0 "Usermacro x/assign" FOUND] [TIMEOUT] ] 1.0 )))
-	       (pcase c
-		 ('TIMEOUT (progn (message " > Timeout" )))
-		 ('FOUND (progn (message " > Found Usermacro x/assign" )))
-		 ))
-	     (ttypexpect_wait_for_console 0 "\n" "HiZ>" 1 5))
-	 (error (progn
-		  (message "[-] hiz test fail")
-		  (debug))))
-       ))
-     )
-  ;;(sleep-for 10)
-  )
-
-(defun ttyexpect-detect (idx)
-  (ttypexpect_sync idx)
-  (ttypexpect_send idx "\nexit\n?\n")
-  (catch 'found
-    (progn
-      (let ((c (ttypexpect [ [0 "Usermacro x/assign" FOUND] [TIMEOUT] ] 1.0 )))
-	(pcase c
-	  ('TIMEOUT (progn (message " > Timeout" )))
-	  ('FOUND (progn
-		    (message " > detect hiz on %d" idx)
-		    (throw 'found "hiz")
-		    ))
-	  ))
-      )
-    (puthash found idx ttypexpect-buftype)
-    ))
 
 (defun ttypexpect-idx-to-bufname (idx)
   (if (= idx 0)
@@ -588,78 +511,6 @@
 
   )
 
-
-(defvar ttylog-base-map
-  (let ((map (make-keymap))) ;;
-    (suppress-keymap map t)
-    (define-key map  (kbd "C-i") 'magit-section-toggle)
-    (define-key map  [backtab]   'magit-section-cycle-global)
-    map)
-  "Parent keymap for all keymaps of modes derived from `ttylog-base-mode'.")
-
-
-(defvar ttylog-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map ttylog-base-map)
-    (define-key map "i" 'ttylog-dispatch)
-    (define-key map "g" 'magit-section-toggle)
-    (define-key map "G" 'magit-section-cycle-global)
-    map)
-  "Keymap for `ttylog-mode-map'.")
-
-
-(defun tty-test-setup ()
-  (interactive)
-  (if (eq (current-local-map) ttylog-mode-map)
-      (message "ttylog-mode-map is active")))
-
-;;;###autoload (autoload 'ttylog-dispatch "ttylog" nil t)
-(define-transient-command ttylog-dispatch ()
-  "Invoke a Magit command from a list of available commands."
-  ["tty commands"
-   [("C" "Connect"          tty-uart-connect)
-    ("r" "run hiz test"     ttypexpect-hiz-run)
-    ("t" "test uart input"  tty-test-map)
-    ("v" "test setup"       tty-test-setup)
-    ]
-   ]
-  ["Applying changes"
-   :if-derived magit-mode
-   [("a" "Apply"          magit-apply)]]
-  ["Essential commands"
-   :if-derived ttylog-mode
-   ("<tab>" "toggle section at point"  magit-section-toggle)]
-  )
-
-
-(put 'ttylog-mode 'mode-class 'special)
-
-;;fundamental-mode
-(define-derived-mode ttylog-mode special-mode "ttylog-mode"
-  "Parent major mode from which ttylog major modes inherit.
-Magit is documented in info node `(magit)'."
-  :group 'ttylog-modes
-  (buffer-disable-undo)
-  (setq truncate-lines t)
-  ;;(setq buffer-read-only nil)
-  (setq buffer-read-only t)
-  (setq-local line-move-visual t) ; see #1771
-  (setq show-trailing-whitespace nil)
-  (setq list-buffers-directory (abbreviate-file-name default-directory))
-  (hack-dir-local-variables-non-file-buffer)
-  (make-local-variable 'text-property-default-nonsticky)
-  (push (cons 'keymap t) text-property-default-nonsticky)
-  (setq left-margin-width 2 right-margin-width 0)
-  (when (bound-and-true-p global-linum-mode)
-    (linum-mode -1))
-  (when (and (fboundp 'nlinum-mode)
-             (bound-and-true-p global-nlinum-mode))
-    (nlinum-mode -1))
-  (when (and (fboundp 'display-line-numbers-mode)
-             (bound-and-true-p global-display-line-numbers-mode))
-    (display-line-numbers-mode -1))
-  (hack-dir-local-variables-non-file-buffer)
-  )
 
 ;;
 ;(setq a 10)
