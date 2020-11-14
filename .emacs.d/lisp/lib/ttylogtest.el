@@ -58,4 +58,37 @@
     (puthash found idx ttypexpect-buftype)
     ))
 
+
+(defun tty-pexpect-sense-console (idx prompt &optional cnt)
+  (ttyexpect-log (format "[.]+> sense-concole %s for '%s' %s times" idx prompt cnt))
+  (if (null cnt)
+      (setf cnt -1))
+  (catch 'ready
+    (while (/= cnt 0)
+      (ttypexpect_send idx "\n")
+      (let ((c (ttypexpect `( ( ,idx ,prompt FOUNDPrompt )  (TIMEOUT) ) 0.5 )))
+	(pcase c
+	  ('TIMEOUT
+	   (progn
+	     (ttyexpect-log (format "   +> timeout not detected, continue"))
+	     ))
+	  ('FOUNDPrompt
+	   (progn
+	     (ttyexpect-log (format "   +> detected"))
+	     (throw 'ready t)))
+	  ))
+      (decf cnt))
+    nil))
+
+
+(defun tty-pexpect-sense-console-and-execute (idx prompt a &optional cnt)
+  (tty-pexpect-sense-console idx prompt cnt)
+  (ttypexpect_send idx (concat a "\n"))
+  )
+
+(defun tty-pexpect-sense-console-and-execute-list (idx prompt a &optional cnt)
+  (dolist (e a)
+    (tty-pexpect-sense-console-and-execute idx propmt e cnt)))
+
+
 (provide 'ttylogtest)

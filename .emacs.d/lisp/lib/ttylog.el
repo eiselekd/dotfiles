@@ -2,6 +2,7 @@
 ;; https://emacs.stackexchange.com/questions/22611/is-there-a-canonical-way-of-representing-key-combinations-in-elisp-what-is-it
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Translation-Keymaps.html#Translation-Keymaps
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Backquote-Patterns.html
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Time-Calculations.html
 ;; (serial-term "/dev/ttyUSB0" 115200)
 ;; (ttylog-mode)
 ;; (require 'magit)
@@ -17,121 +18,9 @@
 (require 'cl-lib)
 (require 'ht)
 (require 'transient)
+(require 'ttylogthread)
+(require 'ttylogbuf)
 
-(defvar ttyexpect-tick 0.2)
-(defvar ttyexpect-global-stop nil)
-(defvar ttypexpect-mutex nil)
-(defvar ttypexpect-condvar nil)
-(defvar ttypexpect-str '("" ""))
-(defvar ttyexpect-default-thread (current-thread))
-(setq   ttypexpect-str '("" ""))
-(defvar ttypexpect-bufname-logname nil)
-(setq   ttypexpect-bufname-logname (make-hash-table :test 'equal)) ;;
-(defvar ttypexpect-buftype nil)
-(setq   ttypexpect-buftype (make-hash-table :test 'equal)) ;;
-;;(type-of ttypexpect-bufname-logname)
-
-
-
-(defun ttyexpect-log (str)
-  (message "%s" str)
-  (f-append-text (format "%s\n" str) 'utf-8 "/tmp/tty.log"))
-
-(defun ttyexpect-datalog-open (n)
-  (puthash n (concat "/data/ttylog/" (replace-regexp-in-string "/" "_" n) "-" (format-time-string "%Y-%m-%d_%H-%M-%S")) ttypexpect-bufname-logname))
-
-;; (setq ttypexpect-bufname-logname (make-hash-table :test 'equal))
-;; (puthash "a" 1 ttypexpect-bufname-logname)
-;; (gethash "a" ttypexpect-bufname-logname)
-;; (ttyexpect-datalog-open "/dev/ttyUSB0")
-
-
-(defun ttyexpect-datalog-get (n)
-  (gethash n ttypexpect-bufname-logname))
-;; (ttyexpect-datalog-get "/dev/ttyUSB0")
-
-
-
-;;(setq ttypexpect-mutex   (make-mutex))
-;;(setq ttypexpect-condvar (make-condition-variable ttypexpect-mutex))
-;;(setq ttyexpect-global-stop t)
-
-(defun ttyexpect-tickthread-create ()
-  (ttyexpect-prepare-mutex)
-  (make-thread
-   (lambda ()
-     (progn
-       (message "0: time-emulation ...")
-       (while (not ttyexpect-global-stop)
-	 (sleep-for ttyexpect-tick)
-	 (with-mutex ttypexpect-mutex
-	   ;;(message "0: tick ...")
-       	   (condition-notify ttypexpect-condvar)
-	   ))
-       (message "0: exit time-emulation ...")
-       )
-     ) "tickthread" ))
-
-(defun ttyexpect-tickthread-present ()
-  (let*
-      ((v (seq-filter
-	   (lambda (a)
-	     (progn
-	       (string= "tickthread" (thread-name a)))) (all-threads))))
-    (>= (length v) 1)))
-
-(defun ttyexpect-tickthread-create-test ()
-  (ttyexpect-prepare-mutex)
-  (if (not (ttyexpect-tickthread-present))
-      (ttyexpect-tickthread-create)
-    (message "0: time-emulation already running ...")
-    ))
-;;(ttyexpect-tickthread-create)
-;;(ttyexpect-tickthread-create-test)
-;;(ttyexpect-tickthread-present)
-
-(defun ttyexpect-prepare-mutex ()
-  (if (featurep 'threads)
-      (progn
-	(if (not (string= "mutex" (type-of ttypexpect-mutex)))
-	    (setq ttypexpect-mutex   (make-mutex)))
-	(if (not (string= "condition-variable" (type-of ttypexpect-condvar)))
-	    (setq ttypexpect-condvar (make-condition-variable ttypexpect-mutex)))))
-  )
-
-(defun ttypexpect-map-type (n)
-  (gethash n ttypexpect-buftype))
-
-(defun ttypexpect-str-get (idx)
-  (ttyexpect-log (format "ttypexpect-str-get %s :'%s'" idx (ttylog_newline (elt ttypexpect-str idx ))))
-  (if (stringp idx)
-      (progn
-	(setq idx (ttypexpect-map-type idx))
-	(ttyexpect-log (format "ttypexpect-str-get map to %d" idx ))
-	))
-  (if (null idx)
-      ""
-      (elt ttypexpect-str idx )))
-
-(defun ttypexpect-rec (idx str &optional sync)
-  (with-mutex ttypexpect-mutex
-    (ttyexpect-log (format  "[%d] : => '%s'" idx (ttylog_newline str) ))
-    (setf (nth idx ttypexpect-str) (concat (nth idx ttypexpect-str) str))
-    (if (not (null sync))
-	(setf (nth idx ttypexpect-str) str))
-    (condition-notify ttypexpect-condvar)))
-
-(defun ttypexpect_sync (idx)
-  ttypexpect-rec (idx "" 1))
-
-(defun ttypexpect_wait_for_console (idx  sendstr consoleout iterwait timeout)
-  (message "%d: ttypexpect_wait_for_console: " idx sendstr)
-  )
-
-(defun ttylog_newline (str)
-  (replace-regexp-in-string "[\n\r]" "\\\\n" str))
-
-;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Time-Calculations.html
 (defun ttypexpect (v  &optional timeout ) ;; &optional timeout
   (ttyexpect-log (format "[+]: ttypexpect %s timeout: %s" v timeout))
   (catch 'found
@@ -205,43 +94,6 @@
     )
   )
 
-(defun tty-pexpect-sense-console (idx prompt &optional cnt)
-  (ttyexpect-log (format "[.]+> sense-concole %s for '%s' %s times" idx prompt cnt))
-  (if (null cnt)
-      (setf cnt -1))
-  (catch 'ready
-    (while (/= cnt 0)
-      (ttypexpect_send idx "\n")
-      (let ((c (ttypexpect `( ( ,idx ,prompt FOUNDPrompt )  (TIMEOUT) ) 0.5 )))
-	(pcase c
-	  ('TIMEOUT
-	   (progn
-	     (ttyexpect-log (format "   +> timeout not detected, continue"))
-	     ))
-	  ('FOUNDPrompt
-	   (progn
-	     (ttyexpect-log (format "   +> detected"))
-	     (throw 'ready t)))
-	  ))
-      (decf cnt))
-    nil))
-
-(defun tty-pexpect-sense-console-and-execute (idx prompt a &optional cnt)
-  (tty-pexpect-sense-console idx prompt cnt)
-  (ttypexpect_send idx (concat a "\n"))
-  )
-
-(defun tty-pexpect-sense-console-and-execute-list (idx prompt a &optional cnt)
-  (dolist (e a)
-    (tty-pexpect-sense-console-and-execute idx propmt e cnt)))
-
-
-
-
-(defun ttypexpect-idx-to-bufname (idx)
-  (if (= idx 0)
-      "/dev/ttyUSB0"
-    "/dev/ttyUSB1"))
 
 (defun ttypexpect_send (idx str)
   (let ((bufname (ttypexpect-idx-to-bufname idx)))
@@ -291,21 +143,6 @@
 	'ttylog-font-gold
       'ttylog-font-green)))
 
-(defadvice term-emulate-terminal (before term-emulate-terminal-before (proc str) activate)
-  (progn
-    (let ((pn (process-name proc))
-	  (buffer (process-buffer proc)))
-      (with-current-buffer buffer
-
-	;; todo: register list of chunks instead:
-	(setq ttylog-curline (concat ttylog-curline str))
-	;;(message "%s: '%s'" pn ttylog-curline)
-	(let* ((lstr ttylog-curline)
-	       (b (get-buffer "*ttylog*" )))
-	  (ttylog-rec (buffer-name buffer) str )
-	  (when ttylog-logfile
-	    (f-append-text str 'utf-8 ttylog-logfile))
-	  )))))
 
 (defun addLines (str)
   (magit-insert-section (status)
@@ -374,6 +211,22 @@
 
 ;;(ttylog_bufname_append_to "a" "hello\nlast" )
 ;;(mapcar 'ttylog-ready-line (ht-items ttylog-buflines))
+
+(defadvice term-emulate-terminal (before term-emulate-terminal-before (proc str) activate)
+  (progn
+    (let ((pn (process-name proc))
+	  (buffer (process-buffer proc)))
+      (with-current-buffer buffer
+
+	;; todo: register list of chunks instead:
+	(setq ttylog-curline (concat ttylog-curline str))
+	;;(message "%s: '%s'" pn ttylog-curline)
+	(let* ((lstr ttylog-curline)
+	       (b (get-buffer "*ttylog*" )))
+	  (ttylog-rec (buffer-name buffer) str )
+	  (when ttylog-logfile
+	    (f-append-text str 'utf-8 ttylog-logfile))
+	  )))))
 
 (defun ttylog-rec ( bufname str )
   ;;(message (format "%s:%s" bufname str))
