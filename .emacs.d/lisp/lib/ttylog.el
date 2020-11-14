@@ -11,7 +11,7 @@
 
 (require 'term)
 (require 'transient)
-(require 'ttylog-test)
+;;(require 'ttylog-test)
 (require 'magit)
 (require 'magit-section)
 (require 'f)
@@ -28,11 +28,11 @@
 (defvar ttypexpect-condvar nil)
 (defvar ttypexpect-str '("" ""))
 (defvar ttyexpect-default-thread (current-thread))
-(setq ttypexpect-str '("" ""))
+(setq   ttypexpect-str '("" ""))
 (defvar ttypexpect-bufname-logname nil)
-(setq ttypexpect-bufname-logname (make-hash-table :test 'equal)) ;;
+(setq   ttypexpect-bufname-logname (make-hash-table :test 'equal)) ;;
 (defvar ttypexpect-buftype nil)
-(setq ttypexpect-buftype (make-hash-table :test 'equal)) ;;
+(setq   ttypexpect-buftype (make-hash-table :test 'equal)) ;;
 ;;(type-of ttypexpect-bufname-logname)
 
 

@@ -321,7 +321,9 @@
 					    (string= mode 'org-agenda-mode)) (call-interactively 'bh/org-sparse-tree))
 				       ((utils/isgud) (call-interactively 'gud-step))
 				       (t (progn
-					    (when (require 'utils/tty.el nil t)
+					    (when (and
+						   (require 'utils/tty.el nil t)
+						   (require 'ttylog nil t))
 					      (tty-dispatch)
 					      )))
 				 ))))
