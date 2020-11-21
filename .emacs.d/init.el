@@ -95,6 +95,9 @@
 (add-to-list 'load-path (expand-file-name "lib/js/yasnippet" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/realgud" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/raku-mode" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/polymode" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/poly-markdown" *.emacs.d.lisp.dir* ))
+
 
 ;;* Encoding
 
@@ -703,3 +706,7 @@
 ;;				  (showkey-log-mode))))
 
 ;; (require 'evil)
+
+;; (require 'modes/poly.el)
+(require 'zoom-window)
+(global-set-key (kbd "C-L")  'zoom-window-zoom)

@@ -392,7 +392,7 @@
 				   (lambda () (interactive)
 				     (progn
 				       (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
-				       (orgstruct-mode -1)
+				       ;;(orgstruct-mode -1)
 				       (call-interactively 'hs-org/minor-mode))))
 		   (global-set-key (kbd "M-H")  'orgstruct-mode)
 		   (global-set-key (kbd "C-<f9>")  'c++-mode/toggle-org)
@@ -435,7 +435,7 @@
 			      (lambda () (interactive)
 				(progn
 				  (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
-				  (orgstruct-mode -1)
+				  ;;(orgstruct-mode -1)
 				  (call-interactively 'hs-org/minor-mode))))
 	      ;;(global-set-key (kbd "M-h")  'hs-org/minor-mode)
 	      (global-set-key (kbd "M-H")  'orgstruct-mode)
