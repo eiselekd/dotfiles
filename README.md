@@ -114,7 +114,7 @@ Keybindings:
  * Occur
   * ESC s : Occure inside buffers (CTRL-o to open location occur window)
  * M-C-h : enable which-mode (show keybindings on press)
-
+ 
 HELM: 
  * C-x b : helm buffer select
  * M-X   : helm version of M-x
@@ -130,6 +130,9 @@ Misc:
    * C-c C-q : quit server
  * ESC j : goto-line
  * ESC P : enable powerline statusbar
+ * C-L : Zoom/Unzoom current pane
+ * M(ALT)-n/p : scrol with cursor fixed
+ * M(ALT)-w : yank
 
 Alsa:
  * Win Ctrl-j, Win Ctrl-k : Audio increate vol, decreate vol.
