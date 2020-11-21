@@ -266,7 +266,7 @@
     (apply orig-fun args))))
 
 (defun modes/orgstruct-commen ()
-  (orgstruct-mode)
+  ;;(orgstruct-mode)
   (advice-add 'org-cycle-internal-local :around #'modes/org-cycle-internal-local)
   (advice-add 'outline-show-children    :around #'modes/outline-show-children)
   (advice-add 'outline-hide-sublevels   :around #'modes/outline-hide-sublevels)
