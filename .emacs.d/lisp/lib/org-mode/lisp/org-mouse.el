@@ -1,6 +1,6 @@
 ;;; org-mouse.el --- Better mouse support for Org -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2006-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2006-2020 Free Software Foundation, Inc.
 
 ;; Author: Piotr Zielinski <piotr dot zielinski at gmail dot com>
 ;; Maintainer: Carsten Dominik <carsten at orgmode dot org>
@@ -24,7 +24,7 @@
 ;;
 ;; Org-mouse provides mouse support for org-mode.
 ;;
-;; http://orgmode.org
+;; https://orgmode.org
 ;;
 ;; Org mouse implements the following features:
 ;; * following links with the left mouse button
@@ -386,7 +386,7 @@ DEFAULT is returned if no priority is given in the headline."
   (save-excursion
     (if (org-mouse-re-search-line org-mouse-priority-regexp)
 	(match-string 1)
-      (when default (char-to-string org-default-priority)))))
+      (when default (char-to-string org-priority-default)))))
 
 (defun org-mouse-delete-timestamp ()
   "Deletes the current timestamp as well as the preceding keyword.
@@ -407,7 +407,7 @@ SCHEDULED: or DEADLINE: or ANYTHINGLIKETHIS:"
 	  (> (match-end 0) point))))))
 
 (defun org-mouse-priority-list ()
-  (cl-loop for priority from ?A to org-lowest-priority
+  (cl-loop for priority from ?A to org-priority-lowest
 	   collect (char-to-string priority)))
 
 (defun org-mouse-todo-menu (state)
@@ -422,7 +422,7 @@ SCHEDULED: or DEADLINE: or ANYTHINGLIKETHIS:"
 (defun org-mouse-tag-menu ()		;todo
   "Create the tags menu."
   (append
-   (let ((tags (org-get-tags)))
+   (let ((tags (org-get-tags nil t)))
      (org-mouse-keyword-menu
       (sort (mapcar 'car (org-get-buffer-tags)) 'string-lessp)
       `(lambda (tag)
@@ -434,22 +434,12 @@ SCHEDULED: or DEADLINE: or ANYTHINGLIKETHIS:"
       `(lambda (tag) (member tag (quote ,tags)))
       ))
    '("--"
-     ["Align Tags Here" (org-set-tags nil t) t]
-     ["Align Tags in Buffer" (org-set-tags t t) t]
-     ["Set Tags ..." (org-set-tags) t])))
+     ["Align Tags Here" (org-align-tags) t]
+     ["Align Tags in Buffer" (org-align-tags t) t]
+     ["Set Tags ..." (org-set-tags-command) t])))
 
 (defun org-mouse-set-tags (tags)
-  (save-excursion
-    ;; remove existing tags first
-    (beginning-of-line)
-    (when (org-mouse-re-search-line ":\\(\\([A-Za-z_]+:\\)+\\)")
-      (replace-match ""))
-
-    ;; set new tags if any
-    (when tags
-      (end-of-line)
-      (insert " :" (mapconcat 'identity tags ":") ":")
-      (org-set-tags nil t))))
+  (org-set-tags tags))
 
 (defun org-mouse-insert-checkbox ()
   (interactive)
@@ -498,14 +488,15 @@ SCHEDULED: or DEADLINE: or ANYTHINGLIKETHIS:"
    `("Main Menu"
      ["Show Overview" org-mouse-show-overview t]
      ["Show Headlines" org-mouse-show-headlines t]
-     ["Show All" outline-show-all t]
+     ["Show All" org-show-all t]
      ["Remove Highlights" org-remove-occur-highlights
       :visible org-occur-highlights]
      "--"
      ["Check Deadlines"
       (if (functionp 'org-check-deadlines-and-todos)
 	  (org-check-deadlines-and-todos org-deadline-warning-days)
-	(org-check-deadlines org-deadline-warning-days)) t]
+	(org-check-deadlines org-deadline-warning-days))
+      t]
      ["Check TODOs" org-show-todo-tree t]
      ("Check Tags"
       ,@(org-mouse-keyword-menu
@@ -643,7 +634,7 @@ This means, between the beginning of line and the point."
 	 ,@(org-mouse-list-options-menu (mapcar 'car org-startup-options)
 					'org-mode-restart))))
      ((or (eolp)
-	  (and (looking-at "\\(  \\|\t\\)\\(+:[0-9a-zA-Z_:]+\\)?\\(  \\|\t\\)+$")
+	  (and (looking-at "\\(  \\|\t\\)\\(\\+:[0-9a-zA-Z_:]+\\)?\\(  \\|\t\\)+$")
 	       (looking-back "  \\|\t" (- (point) 2)
 			     (line-beginning-position))))
       (org-mouse-popup-global-menu))
@@ -751,7 +742,8 @@ This means, between the beginning of line and the point."
 			       (?$ "($) Formula Parameters")
 			       (?# "(#) Recalculation: Auto")
 			       (?* "(*) Recalculation: Manual")
-			       (?' "(') Recalculation: None"))) t))))
+			       (?' "(') Recalculation: None")))
+			   t))))
      ((assq :table contextlist)
       (popup-menu
        '(nil

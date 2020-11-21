@@ -1,10 +1,10 @@
 ;;; org-faces.el --- Face definitions -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2020 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -43,6 +43,20 @@
   "Face used to hide leading stars in headlines.
 The foreground color of this face should be equal to the background
 color of the frame."
+  :group 'org-faces)
+
+(defface org-dispatcher-highlight
+  '((default :weight bold)
+    (((class color) (min-colors 88) (background dark))
+     :background "gray20" :foreground "gold1")
+    (((class color) (min-colors 88) (background light))
+     :background "SlateGray1" :foreground "DarkBlue")
+    (((class color) (min-colors 16) (background dark))
+     :foreground "yellow")
+    (((class color) (min-colors 16) (background light))
+     :foreground "blue")
+    (t :inverse-video t))
+  "Face for highlighted keys in the dispatcher."
   :group 'org-faces)
 
 (defface org-level-1 '((t :inherit outline-1))
@@ -243,6 +257,15 @@ is of course immediately visible, but for example a passed deadline is
 of the frame, for example."
   :group 'org-faces)
 
+(defface org-headline-todo	  ;Copied from `font-lock-string-face'
+  '((((class color) (min-colors 16) (background light)) (:foreground "Red4"))
+    (((class color) (min-colors 16) (background dark)) (:foreground "Pink2"))
+    (((class color) (min-colors 8)  (background light)) (:bold t)))
+  "Face used to indicate that a headline is marked as TODO.
+This face is only used if `org-fontify-todo-headline' is set.  If applies
+to the part of the headline after the TODO keyword."
+  :group 'org-faces)
+
 (defface org-headline-done	  ;Copied from `font-lock-string-face'
   '((((class color) (min-colors 16) (background light)) (:foreground "RosyBrown"))
     (((class color) (min-colors 16) (background dark)) (:foreground "LightSalmon"))
@@ -311,7 +334,7 @@ determines if it is a foreground or a background color."
   (if (not value)
       (setq org-tags-special-faces-re nil)
     (setq org-tags-special-faces-re
-	  (concat ":\\(" (mapconcat 'car value "\\|") "\\):"))))
+	  (concat ":" (regexp-opt (mapcar #'car value) t) ":"))))
 
 (defface org-checkbox '((t :inherit bold))
   "Face for checkboxes."
@@ -355,6 +378,12 @@ changes."
   "Face used for tables."
   :group 'org-faces)
 
+(defface org-table-header '((t :inherit org-table
+			       :background "LightGray"
+			       :foreground "Black"))
+  "Face for table header."
+  :group 'org-faces)
+
 (defface org-formula
   '((((class color) (min-colors 88) (background light)) (:foreground "Firebrick"))
     (((class color) (min-colors 88) (background dark)) (:foreground "chocolate1"))
@@ -385,18 +414,28 @@ changes."
   '((((class color) (background light)) (:foreground "midnight blue"))
     (((class color) (background dark)) (:foreground "pale turquoise"))
     (t nil))
-  "Face for document date, author and email; i.e. that which
-follows a #+DATE:, #+AUTHOR: or #+EMAIL: keyword."
+  "Face for document information such as the author and date.
+This applies to the text that follows a #+SUBTITLE:, #+DATE:,
+#+AUTHOR: or #+EMAIL: keyword."
   :group 'org-faces)
 
 (defface org-document-info-keyword '((t :inherit shadow))
-  "Face for #+TITLE:, #+AUTHOR:, #+EMAIL: and #+DATE: keywords."
+  "Face for document information keywords.
+This face applies to the #+TITLE:, #+SUBTITLE:, #+AUTHOR:,
+#+EMAIL: and #+DATE: keywords."
   :group 'org-faces)
 
-(defface org-block '((t :inherit shadow))
-  "Face text in #+begin ... #+end blocks.
-For source-blocks `org-src-block-faces' takes precedence.
-See also `org-fontify-quote-and-verse-blocks'."
+(defface org-block `((t :inherit shadow
+			,@(and (>= emacs-major-version 27) '(:extend t))))
+  "Face used for text inside various blocks.
+
+It is always used for source blocks.  You can refine what face
+should be used depending on the source block language by setting,
+`org-src-block-faces', which takes precedence.
+
+When `org-fontify-quote-and-verse-blocks' is not nil, text inside
+verse and quote blocks are fontified using the `org-verse' and
+`org-quote' faces, which inherit from `org-block'."
   :group 'org-faces
   :version "26.1")
 
@@ -409,16 +448,18 @@ See also `org-fontify-quote-and-verse-blocks'."
   :group 'org-faces)
 
 (defface org-verbatim '((t (:inherit shadow)))
-  "Face for fixed-with text like code snippets"
+  "Face for fixed-with text like code snippets."
   :group 'org-faces
   :version "22.1")
 
 (defface org-quote '((t (:inherit org-block)))
-  "Face for #+BEGIN_QUOTE ... #+END_QUOTE blocks."
+  "Face for #+BEGIN_QUOTE ... #+END_QUOTE blocks.
+Active when `org-fontify-quote-and-verse-blocks' is set."
   :group 'org-faces)
 
 (defface org-verse '((t (:inherit org-block)))
-  "Face for #+BEGIN_VERSE ... #+END_VERSE blocks."
+  "Face for #+BEGIN_VERSE ... #+END_VERSE blocks.
+Active when `org-fontify-quote-and-verse-blocks' is set."
   :group 'org-faces)
 
 (defcustom org-fontify-quote-and-verse-blocks nil
@@ -511,13 +552,18 @@ which days belong to the weekend."
     (((class color) (min-colors 8)  (background light)) (:foreground "red"))
     (((class color) (min-colors 8)  (background dark)) (:foreground "red" :bold t))
     (t (:bold t)))
-  "Face for items scheduled previously, and not yet done."
+  "Face for items scheduled previously, and not yet done.
+See also `org-agenda-deadline-faces'."
   :group 'org-faces)
+
+(defface org-upcoming-distant-deadline '((t :inherit org-default))
+  "Face for items scheduled previously, not done, and have a distant deadline.
+See also `org-agenda-deadline-faces'.")
 
 (defcustom org-agenda-deadline-faces
   '((1.0 . org-warning)
     (0.5 . org-upcoming-deadline)
-    (0.0 . default))
+    (0.0 . org-upcoming-distant-deadline))
   "Faces for showing deadlines in the agenda.
 This is a list of cons cells.  The cdr of each cell is a face to be used,
 and it can also just be like \\='(:foreground \"yellow\").
@@ -553,16 +599,16 @@ month and 365.24 days for a year)."
   "Face for tag(s) in the mode-line when filtering the agenda."
   :group 'org-faces)
 
-(defface org-agenda-filter-regexp '((t :inherit mode-line))
-  "Face for regexp(s) in the mode-line when filtering the agenda."
-  :group 'org-faces)
-
 (defface org-agenda-filter-category '((t :inherit mode-line))
   "Face for categories in the mode-line when filtering the agenda."
   :group 'org-faces)
 
 (defface org-agenda-filter-effort '((t :inherit mode-line))
   "Face for effort in the mode-line when filtering the agenda."
+  :group 'org-faces)
+
+(defface org-agenda-filter-regexp '((t :inherit mode-line))
+  "Face for regexp(s) in the mode-line when filtering the agenda."
   :group 'org-faces)
 
 (defface org-time-grid	   ;Copied from `font-lock-variable-name-face'
@@ -602,8 +648,8 @@ If it is less than 8, the level-1 face gets re-used for level N+1 etc."
 (defcustom org-cycle-level-faces t
   "Non-nil means level styles cycle after level `org-n-level-faces'.
 Then so level org-n-level-faces+1 is styled like level 1.
-If nil, then all levels >=org-n-level-faces are styled like
-level org-n-level-faces"
+If nil, then all levels >= org-n-level-faces are styled like
+level org-n-level-faces."
   :group 'org-appearance
   :group 'org-faces
   :version "24.1"

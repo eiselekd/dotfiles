@@ -1,11 +1,11 @@
 ;;; ob-makefile.el --- Babel Functions for Makefile  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; 	   Thomas S. Dye
 ;; Keywords: literate programming, reproducible research
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -42,7 +42,5 @@ does not support sessions."
   (error "Makefile sessions are nonsensical"))
 
 (provide 'ob-makefile)
-
-
 
 ;;; ob-makefile.el ends here

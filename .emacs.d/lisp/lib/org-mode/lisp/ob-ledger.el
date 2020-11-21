@@ -1,10 +1,10 @@
 ;;; ob-ledger.el --- Babel Functions for Ledger      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
 
 ;; Author: Eric S Fraga
 ;; Keywords: literate programming, reproducible research, accounting
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -64,7 +64,5 @@ called by `org-babel-execute-src-block'."
   (error "Ledger does not support sessions"))
 
 (provide 'ob-ledger)
-
-
 
 ;;; ob-ledger.el ends here

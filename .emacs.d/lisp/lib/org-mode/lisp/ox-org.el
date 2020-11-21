@@ -1,6 +1,6 @@
 ;;; ox-org.el --- Org Back-End for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2013-2020 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou@gmail.com>
 ;; Keywords: org, wp
@@ -96,7 +96,7 @@ setting of `org-html-htmlize-output-type' is `css'."
     (table-cell . org-org-identity)
     (table-row . org-org-identity)
     (target . org-org-identity)
-    (timestamp . org-org-identity)
+    (timestamp . org-org-timestamp)
     (underline . org-org-identity)
     (verbatim . org-org-identity)
     (verse-block . org-org-identity))
@@ -165,11 +165,11 @@ CONTENTS is nil.  INFO is ignored."
 		    '("AUTHOR" "CREATOR" "DATE" "EMAIL" "OPTIONS" "TITLE"))
       (org-element-keyword-interpreter keyword nil))))
 
-(defun org-org-link (link contents _info)
+(defun org-org-link (link contents info)
   "Transcode LINK object back into Org syntax.
 CONTENTS is the description of the link, as a string, or nil.
 INFO is a plist containing current export state."
-  (or (org-export-custom-protocol-maybe link contents 'org)
+  (or (org-export-custom-protocol-maybe link contents 'org info)
       (org-element-link-interpreter link contents)))
 
 (defun org-org-template (contents info)
@@ -205,6 +205,10 @@ as a communication channel."
 	(org-string-nw-p (plist-get info :creator))
 	(format "#+CREATOR: %s\n" (plist-get info :creator)))
    contents))
+
+(defun org-org-timestamp (timestamp _contents _info)
+  "Transcode a TIMESTAMP object to custom format or back into Org syntax."
+  (org-timestamp-translate timestamp))
 
 (defun org-org-section (section contents info)
   "Transcode SECTION element back into Org syntax.
@@ -270,7 +274,7 @@ non-nil."
 ;;;###autoload
 (defun org-org-export-to-org
   (&optional async subtreep visible-only body-only ext-plist)
-  "Export current buffer to an org file.
+  "Export current buffer to an Org file.
 
 If narrowing is active in the current buffer, only export its
 narrowed part.
@@ -303,7 +307,7 @@ Return output file name."
 
 ;;;###autoload
 (defun org-org-publish-to-org (plist filename pub-dir)
-  "Publish an org file to org.
+  "Publish an Org file to Org.
 
 FILENAME is the filename of the Org file to be published.  PLIST
 is the property list for the given project.  PUB-DIR is the
@@ -324,8 +328,7 @@ Return output file name."
 	   newbuf)
       (with-current-buffer work-buffer
         (org-font-lock-ensure)
-        (outline-show-all)
-        (org-show-block-all)
+        (org-show-all)
         (setq newbuf (htmlize-buffer)))
       (with-current-buffer newbuf
 	(when org-org-htmlized-css-url

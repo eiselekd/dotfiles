@@ -1,11 +1,11 @@
 ;;; ob-abc.el --- Org Babel Functions for ABC -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2013-2020 Free Software Foundation, Inc.
 
 ;; Author: William Waites
+;; Maintainer: William Waites
 ;; Keywords: literate programming, music
 ;; Homepage: http://www.tardis.ed.ac.uk/wwaites
-;; Version: 0.01
 
 ;; This file is part of GNU Emacs.
 
@@ -47,7 +47,7 @@
 	     (value (cdr pair)))
 	 (setq body
 	       (replace-regexp-in-string
-		(concat "\$" (regexp-quote name))
+		(concat "\\$" (regexp-quote name))
 		(if (stringp value) value (format "%S" value))
 		body))))
      vars)
@@ -59,7 +59,7 @@
   (message "executing Abc source code block")
   (let* ((cmdline (cdr (assq :cmdline params)))
 	 (out-file (let ((file (cdr (assq :file params))))
-		     (if file (replace-regexp-in-string "\.pdf$" ".ps" file)
+		     (if file (replace-regexp-in-string "\\.pdf$" ".ps" file)
 		       (error "abc code block requires :file header argument"))))
 	 (in-file (org-babel-temp-file "abc-"))
 	 (render (concat "abcm2ps" " " cmdline
@@ -87,4 +87,5 @@
   (error "ABC does not support sessions"))
 
 (provide 'ob-abc)
+
 ;;; ob-abc.el ends here

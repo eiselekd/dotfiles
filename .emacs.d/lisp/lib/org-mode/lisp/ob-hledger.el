@@ -1,10 +1,10 @@
 ;;  ob-hledger.el --- Babel Functions for hledger      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
 
 ;; Author: Simon Michael
 ;; Keywords: literate programming, reproducible research, plain text accounting
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -29,6 +29,8 @@
 ;; If the source block is empty, hledger will use a default journal file,
 ;; probably ~/.hledger.journal (it may not notice your $LEDGER_FILE env var).
 ;; So make ~/.hledger.journal a symbolic link to the real file if necessary.
+
+;; TODO Unit tests are more than welcome, too.
 
 ;;; Code:
 (require 'ob)
@@ -64,7 +66,4 @@ This function is called by `org-babel-execute-src-block'."
 
 (provide 'ob-hledger)
 
-
-
 ;;; ob-hledger.el ends here
-;; TODO Unit tests are more than welcome, too.

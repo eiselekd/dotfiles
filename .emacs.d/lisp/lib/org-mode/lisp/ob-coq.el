@@ -1,10 +1,10 @@
 ;;; ob-coq.el --- Babel Functions for Coq            -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -27,7 +27,7 @@
 ;; session evaluation is supported.  Requires both coq.el and
 ;; coq-inferior.el, both of which are distributed with Coq.
 ;;
-;; http://coq.inria.fr/
+;; https://coq.inria.fr/
 
 ;;; Code:
 (require 'ob)
@@ -76,3 +76,5 @@ create one.  Return the initialized session."
   (get-buffer org-babel-coq-buffer))
 
 (provide 'ob-coq)
+
+;;; ob-coq.el ends here

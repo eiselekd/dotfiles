@@ -1,10 +1,11 @@
 ;;; ob-J.el --- Babel Functions for J                -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2011-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2011-2020 Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel
+;; Maintainer: Joseph Novakovich <josephnovakovich@gmail.com>
 ;; Keywords: literate programming, reproducible research
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -31,8 +32,8 @@
 ;;; Code:
 
 (require 'ob)
+(require 'org-macs)
 
-(declare-function org-trim "org" (s &optional keep-lead))
 (declare-function j-console-ensure-session "ext:j-console" ())
 
 (defcustom org-babel-J-command "jconsole"
@@ -72,10 +73,12 @@ PROCESSED-PARAMS isn't used yet."
 (defun org-babel-execute:J (body params)
   "Execute a block of J code BODY.
 PARAMS are given by org-babel.
-This function is called by `org-babel-execute-src-block'"
+This function is called by `org-babel-execute-src-block'."
   (message "executing J source code block")
   (let* ((processed-params (org-babel-process-params params))
 	 (sessionp (cdr (assq :session params)))
+	 (sit-time (let ((sit (assq :sit params)))
+		     (if sit (cdr sit) .1)))
          (full-body (org-babel-expand-body:J
                      body params processed-params))
 	 (tmp-script-file (org-babel-temp-file "J-src")))
@@ -86,9 +89,9 @@ This function is called by `org-babel-execute-src-block'"
 	   (with-temp-file tmp-script-file
 	     (insert full-body))
 	   (org-babel-eval (format "%s < %s" org-babel-J-command tmp-script-file) ""))
-       (org-babel-J-eval-string full-body)))))
+       (org-babel-J-eval-string full-body sit-time)))))
 
-(defun org-babel-J-eval-string (str)
+(defun org-babel-J-eval-string (str sit-time)
   "Sends STR to the `j-console-cmd' session and executes it."
   (let ((session (j-console-ensure-session)))
     (with-current-buffer (process-buffer session)
@@ -96,7 +99,7 @@ This function is called by `org-babel-execute-src-block'"
       (insert (format "\n%s\n" str))
       (let ((beg (point)))
 	(comint-send-input)
-	(sit-for .1)
+	(sit-for sit-time)
 	(buffer-substring-no-properties
 	 beg (point-max))))))
 

@@ -1,11 +1,11 @@
 ;;; org-entities.el --- Support for Special Entities -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>,
 ;;         Ulf Stegemann <ulf at zeitform dot de>
 ;; Keywords: outlines, calendar, wp
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -226,7 +226,7 @@ packages to be loaded, add these packages to `org-latex-packages-alist'."
      ("beth" "\\beth" t "&beth;" "beth" "beth" "ב")
      ("dalet" "\\daleth" t "&daleth;" "dalet" "dalet" "ד")
 
-     "** Dead languages"
+     "** Icelandic"
      ("ETH" "\\DH{}" nil "&ETH;" "D" "Ð" "Ð")
      ("eth" "\\dh{}" nil "&eth;" "dh" "ð" "ð")
      ("THORN" "\\TH{}" nil "&THORN;" "TH" "Þ" "Þ")
@@ -386,7 +386,7 @@ packages to be loaded, add these packages to `org-latex-packages-alist'."
      ("exists" "\\exists" t "&exist;" "[there exists]" "[there exists]" "∃")
      ("nexist" "\\nexists" t "&exist;" "[there does not exists]" "[there does not  exists]" "∄")
      ("nexists" "\\nexists" t "&exist;" "[there does not exists]" "[there does not  exists]" "∄")
-     ("empty" "\\empty" t "&empty;" "[empty set]" "[empty set]" "∅")
+     ("empty" "\\emptyset" t "&empty;" "[empty set]" "[empty set]" "∅")
      ("emptyset" "\\emptyset" t "&empty;" "[empty set]" "[empty set]" "∅")
      ("isin" "\\in" t "&isin;" "[element of]" "[element of]" "∈")
      ("in" "\\in" t "&isin;" "[element of]" "[element of]" "∈")
@@ -543,11 +543,11 @@ This first checks the user list, then the built-in list."
     (dolist (e org-entities)
       (pcase e
 	(`(,name ,latex ,mathp ,html ,ascii ,latin ,utf8)
-	 (if (equal ascii "|") (setq ascii "\\vert"))
-	 (if (equal latin "|") (setq latin "\\vert"))
-	 (if (equal utf8  "|") (setq utf8  "\\vert"))
-	 (if (equal ascii "=>") (setq ascii "= >"))
-	 (if (equal latin "=>") (setq latin "= >"))
+	 (when (equal ascii "|") (setq ascii "\\vert"))
+	 (when (equal latin "|") (setq latin "\\vert"))
+	 (when (equal utf8  "|") (setq utf8  "\\vert"))
+	 (when (equal ascii "=>") (setq ascii "= >"))
+	 (when (equal latin "=>") (setq latin "= >"))
 	 (insert "|" name
 		 "|" (format "=%s=" latex)
 		 "|" (format (if mathp "$%s$" "$\\mbox{%s}$") latex)

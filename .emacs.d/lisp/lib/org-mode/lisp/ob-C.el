@@ -1,11 +1,11 @@
 ;;; ob-C.el --- Babel Functions for C and Similar Languages -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;;      Thierry Banel
 ;; Keywords: literate programming, reproducible research
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -34,11 +34,9 @@
 
 (require 'cc-mode)
 (require 'ob)
-
+(require 'org-macs)
 
 (declare-function org-entry-get "org" (pom property &optional inherit literal-nil))
-(declare-function org-remove-indentation "org" (code &optional n))
-(declare-function org-trim "org" (s &optional keep-lead))
 
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("C++" . "cpp"))
@@ -184,7 +182,7 @@ or `org-babel-execute:C++' or `org-babel-execute:D'."
 		       cmdline)))
 	    "")))
       (when results
-	(setq results (org-trim (org-remove-indentation results)))
+	(setq results (org-remove-indentation results))
 	(org-babel-reassemble-table
 	 (org-babel-result-cond (cdr (assq :result-params params))
 	   (org-babel-read results t)
@@ -234,7 +232,13 @@ its header arguments."
 	       (list
 		;; includes
 		(mapconcat
-		 (lambda (inc) (format "#include %s" inc))
+		 (lambda (inc)
+		   ;; :includes '(<foo> <bar>) gives us a list of
+		   ;; symbols; convert those to strings.
+		   (when (symbolp inc) (setq inc (symbol-name inc)))
+		   (if (string-prefix-p "<" inc)
+		       (format "#include %s" inc)
+		     (format "#include \"%s\"" inc)))
 		 includes "\n")
 		;; defines
 		(mapconcat
@@ -299,12 +303,12 @@ its header arguments."
 
 (defun org-babel-prep-session:C (_session _params)
   "This function does nothing as C is a compiled language with no
-support for sessions"
+support for sessions."
   (error "C is a compiled language -- no support for sessions"))
 
 (defun org-babel-load-session:C (_session _body _params)
   "This function does nothing as C is a compiled language with no
-support for sessions"
+support for sessions."
   (error "C is a compiled language -- no support for sessions"))
 
 ;; helper functions
@@ -375,8 +379,8 @@ FORMAT can be either a format string or a function which is called with VAL."
 	      (pcase (org-babel-C-val-to-base-type v)
 		(`stringp (setq type 'stringp))
 		(`floatp
-		 (if (or (not type) (eq type 'integerp))
-		     (setq type 'floatp)))
+		 (when (or (not type) (eq type 'integerp))
+		   (setq type 'floatp)))
 		(`integerp
 		 (unless type (setq type 'integerp)))))
 	    val)
@@ -395,9 +399,9 @@ of the same value."
 	(setq val (string-to-char val))))
     (let* ((type-data (org-babel-C-val-to-C-type val))
 	   (type (car type-data))
-	   (formated (org-babel-C-format-val type-data val))
-	   (suffix (car formated))
-	   (data (cdr formated)))
+	   (formatted (org-babel-C-format-val type-data val))
+	   (suffix (car formatted))
+	   (data (cdr formatted)))
       (format "%s %s%s = %s;"
 	      type
 	      var

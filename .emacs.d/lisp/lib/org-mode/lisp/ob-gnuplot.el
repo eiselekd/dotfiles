@@ -1,10 +1,10 @@
 ;;; ob-gnuplot.el --- Babel Functions for Gnuplot    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -35,17 +35,19 @@
 
 ;; - gnuplot :: http://www.gnuplot.info/
 ;;
-;; - gnuplot-mode :: http://cars9.uchicago.edu/~ravel/software/gnuplot-mode.html
+;; - gnuplot-mode :: you can search the web for the latest active one.
 
 ;;; Code:
 (require 'ob)
+(require 'org-macs)
 
-(declare-function org-time-string-to-time "org" (s &optional zone))
-(declare-function org-combine-plists "org" (&rest plists))
+(declare-function org-time-string-to-time "org" (s))
 (declare-function orgtbl-to-generic "org-table" (table params))
 (declare-function gnuplot-mode "ext:gnuplot-mode" ())
 (declare-function gnuplot-send-string-to-gnuplot "ext:gnuplot-mode" (str txt))
 (declare-function gnuplot-send-buffer-to-gnuplot "ext:gnuplot-mode" ())
+
+(defvar org-babel-temporary-directory)
 
 (defvar org-babel-default-header-args:gnuplot
   '((:results . "file") (:exports . "results") (:session . nil))
@@ -92,7 +94,21 @@ code."
 		      (tablep (or (listp first) (symbolp first))))
 		 (if tablep val (mapcar 'list val)))
 	       (org-babel-temp-file "gnuplot-") params)
-	  val))))
+	    (if (and (file-remote-p val)  ;; check if val is a remote file
+		     (file-exists-p val)) ;; call to file-exists-p is slow, maybe remove it
+		(let* ((local-name (concat ;; create a unique filename to avoid multiple downloads
+				org-babel-temporary-directory
+				"/gnuplot/"
+				(file-remote-p val 'host)
+				(file-local-name val))))
+		  (if (and (file-exists-p local-name) ;; only download file if remote is newer
+			   (file-newer-than-file-p local-name val))
+		      local-name
+		    (make-directory (file-name-directory local-name) t)
+		    (copy-file val local-name t)
+		  ))
+	      val
+		)))))
      (org-babel--get-vars params))))
 
 (defun org-babel-expand-body:gnuplot (body params)
@@ -116,6 +132,8 @@ code."
            (timefmt (cdr (assq :timefmt params)))
            (time-ind (or (cdr (assq :timeind params))
                          (when timefmt 1)))
+	   (directory (and (buffer-file-name)
+			   (file-name-directory (buffer-file-name))))
 	   (add-to-body (lambda (text) (setq body (concat text "\n" body)))))
       ;; append header argument settings to body
       (when title (funcall add-to-body (format "set title '%s'" title)))
@@ -161,7 +179,10 @@ code."
 			  (format "\\$%s" (car pair)) (cdr pair) body)))
 	    vars)
       (when prologue (funcall add-to-body prologue))
-      (when epilogue (setq body (concat body "\n" epilogue))))
+      (when epilogue (setq body (concat body "\n" epilogue)))
+      ;; Setting the directory needs to be done first so that
+      ;; subsequent 'output' directive goes to the right place.
+      (when directory (funcall add-to-body (format "cd '%s'" directory))))
     body))
 
 (defun org-babel-execute:gnuplot (body params)
@@ -272,7 +293,5 @@ Pass PARAMS through to `orgtbl-to-generic' when exporting TABLE."
   data-file)
 
 (provide 'ob-gnuplot)
-
-
 
 ;;; ob-gnuplot.el ends here

@@ -1,11 +1,12 @@
 ;;; ob-R.el --- Babel Functions for R                -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;;	Dan Davison
+;; Maintainer: Jeremie Juste
 ;; Keywords: literate programming, reproducible research, R, statistics
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -193,7 +194,8 @@ This function is called by `org-babel-execute-src-block'."
     (org-babel-comint-in-buffer session
       (mapc (lambda (var)
               (end-of-line 1) (insert var) (comint-send-input nil t)
-              (org-babel-comint-wait-for-output session)) var-lines))
+              (org-babel-comint-wait-for-output session))
+	    var-lines))
     session))
 
 (defun org-babel-load-session:R (session body params)
@@ -459,11 +461,11 @@ last statement in BODY, as elisp."
   "R-specific processing of return value.
 Insert hline if column names in output have been requested."
   (if column-names-p
-      (cons (car result) (cons 'hline (cdr result)))
+      (condition-case nil
+	  (cons (car result) (cons 'hline (cdr result)))
+	(error "Could not parse R result"))
     result))
 
 (provide 'ob-R)
-
-
 
 ;;; ob-R.el ends here

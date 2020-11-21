@@ -1,6 +1,6 @@
 ;; ox-man.el --- Man Back-End for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2011-2017 Free Software Foundation, Inc.
+;; Copyright (C) 2011-2020 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou at gmail dot com>
 ;;      Luis R Anaya <papoanaya aroba hot mail punto com>
@@ -39,6 +39,8 @@
 
 (require 'cl-lib)
 (require 'ox)
+
+;;; Function Declarations
 
 (defvar org-export-man-default-packages-alist)
 (defvar org-export-man-packages-alist)
@@ -159,7 +161,7 @@ When nil, no transformation is made."
 ;; Src blocks
 
 (defcustom org-man-source-highlight nil
-  "Use GNU source highlight to embellish source blocks "
+  "Use GNU source highlight to embellish source blocks."
   :group 'org-export-man
   :version "24.4"
   :package-version '(Org . "8.0")
@@ -285,6 +287,10 @@ This function shouldn't be used for floats.  See
         output
       (concat (format "%s\n.br\n" label) output))))
 
+(defun org-man--protect-text (text)
+  "Protect minus and backslash characters in string TEXT."
+  (replace-regexp-in-string "-" "\\-" text nil t))
+
 
 
 ;;; Template
@@ -350,10 +356,9 @@ holding contextual information."
 ;;; Code
 
 (defun org-man-code (code _contents _info)
-  "Transcode a CODE object from Org to Man.
-CONTENTS is nil.  INFO is a plist used as a communication
-channel."
-  (format "\\fC%s\\fP" code))
+  "Transcode a CODE object from Org to Man."
+  (format "\\fC%s\\fP"
+	  (org-man--protect-text (org-element-property :value code))))
 
 
 ;;; Drawer
@@ -421,7 +426,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (org-man--wrap-label
    fixed-width
-   (format "\\fC\n%s\\fP"
+   (format "\\fC\n%s\n\\fP"
            (org-remove-indentation
             (org-element-property :value fixed-width)))))
 
@@ -596,24 +601,24 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 ;;; Link
 
 
-(defun org-man-link (link desc _info)
+(defun org-man-link (link desc info)
   "Transcode a LINK object from Org to Man.
 
 DESC is the description part of the link, or the empty string.
 INFO is a plist holding contextual information.  See
 `org-export-data'."
   (let* ((type (org-element-property :type link))
-         (raw-path (org-element-property :path link))
+	 (raw-path (org-element-property :path link))
          ;; Ensure DESC really exists, or set it to nil.
          (desc (and (not (string= desc "")) desc))
-         (path (cond
-                ((member type '("http" "https" "ftp" "mailto"))
-                 (concat type ":" raw-path))
-                ((string= type "file") (org-export-file-uri raw-path))
-                (t raw-path))))
+         (path (pcase type
+                 ((or "http" "https" "ftp" "mailto")
+                  (concat type ":" raw-path))
+                 ("file" (org-export-file-uri raw-path))
+                 (_ raw-path))))
     (cond
      ;; Link type is handled by a special function.
-     ((org-export-custom-protocol-maybe link desc 'man))
+     ((org-export-custom-protocol-maybe link desc 'man info))
      ;; External link with a description part.
      ((and path desc) (format "%s \\fBat\\fP \\fI%s\\fP" path desc))
      ;; External link without a description part.
@@ -1029,18 +1034,17 @@ holding contextual information."
 
 ;;; Verbatim
 
-(defun org-man-verbatim (_verbatim contents _info)
-  "Transcode a VERBATIM object from Org to Man.
-CONTENTS is nil.  INFO is a plist used as a communication
-channel."
-  (format ".nf\n%s\n.fi" contents))
+(defun org-man-verbatim (verbatim _contents _info)
+  "Transcode a VERBATIM object from Org to Man."
+  (format "\\fI%s\\fP"
+	  (org-man--protect-text (org-element-property :value verbatim))))
 
 
 ;;; Verse Block
 
 (defun org-man-verse-block (_verse-block contents _info)
   "Transcode a VERSE-BLOCK element from Org to Man.
-CONTENTS is verse block contents. INFO is a plist holding
+CONTENTS is verse block contents.  INFO is a plist holding
 contextual information."
   (format ".RS\n.ft I\n%s\n.ft\n.RE" contents))
 
@@ -1133,9 +1137,5 @@ Return PDF file name or an error if it couldn't be produced."
     output))
 
 (provide 'ox-man)
-
-;; Local variables:
-;; generated-autoload-file: "org-loaddefs.el"
-;; End:
 
 ;;; ox-man.el ends here

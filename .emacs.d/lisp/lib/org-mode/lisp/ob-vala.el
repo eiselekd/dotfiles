@@ -1,10 +1,10 @@
 ;;; ob-vala.el --- Babel functions for Vala evaluation -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2017 Free Software Foundation, Inc.
+;; Copyright (C) 2017-2020 Free Software Foundation, Inc.
 
 ;; Author: Christian Garbs <mitch@cgarbs.de>
 ;; Keywords: literate programming, reproducible research
-;; Homepage: http://orgmode.org
+;; Homepage: https://orgmode.org
 
 ;;; License:
 
@@ -26,7 +26,7 @@
 ;;; Commentary:
 
 ;; ob-vala.el provides Babel support for the Vala language
-;; (see http://live.gnome.org/Vala for details)
+;; (see https://live.gnome.org/Vala for details)
 
 ;;; Requirements:
 
@@ -39,8 +39,7 @@
 ;;; Code:
 
 (require 'ob)
-
-(declare-function org-trim "org" (s &optional keep-lead))
+(require 'org-macs)
 
 ;; File extension.
 (add-to-list 'org-babel-tangle-lang-exts '("vala" . "vala"))
