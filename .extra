@@ -102,6 +102,8 @@ fi
 alias rsynca="rsync -av "
 alias sshp="ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "
 
+alias screencapture='xwd | convert xwd:- capture_objects.png'
+
 alias segfault="env SEGFAULT_SIGNALS='abrt segv' LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so"
 
 function disable_trackpad()
