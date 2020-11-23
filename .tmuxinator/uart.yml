@@ -1,0 +1,12 @@
+name: uart
+root: /fast
+
+windows:
+  - small_project:
+      root: /fast
+      layout: 5424,274x69,0,0{135x69,0,0,0,138x69,136,0[138x15,136,0,1,138x53,136,16,2]}
+      panes:
+        - picousb0
+        - picousb1
+        - cd /fast
+
