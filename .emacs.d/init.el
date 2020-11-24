@@ -1,10 +1,10 @@
-;; -*- orgstruct-heading-prefix-regexp: ";;" -*-
 
 ;;* Init
 
 ;;; Local Variables:
 ;;; End:
 
+;; -*- orgstruct-heading-prefix-regexp: ";;" -*-
 
 ;; note: META-: :  eval
 ;;       ctrl-e :  eval under cursor
@@ -409,7 +409,7 @@
 (message "[*] %s retire ocaml-mode" (timestamp_str))
 (require 'modes/raku-mode.el)
 (message "[*] %s retire raku-mode" (timestamp_str))
-;;(require 'modes/tex-mode.el)
+(require 'modes/tex-mode.el)
 ;;(ido-mode 1)
 (message (format "[*] %s retired config modes" (timestamp_str)))
 
@@ -707,6 +707,12 @@
 
 ;; (require 'evil)
 
-;; (require 'modes/poly.el)
+(require 'modes/poly.el)
 (require 'zoom-window)
 (global-set-key (kbd "C-L")  'zoom-window-zoom)
+
+(global-set-key (kbd "M-E")
+		(lambda ()(interactive)
+		  (progn
+		    (require 'evil)
+		    (evil-mode))))
