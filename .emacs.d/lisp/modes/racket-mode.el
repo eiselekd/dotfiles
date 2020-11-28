@@ -3,6 +3,11 @@
 (defun my-racket-mode-hook () "Hooks for Web mode."
        (progn
 	 (message "[+] racket mode")
+
+
+	 (flycheck-mode)
+	 (flycheck-select-checker 'racket)
+
 	 )
        )
 
