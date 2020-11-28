@@ -97,6 +97,7 @@
 (add-to-list 'load-path (expand-file-name "lib/raku-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/polymode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/poly-markdown" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/racket-mode" *.emacs.d.lisp.dir* ))
 
 
 ;;* Encoding
@@ -683,8 +684,10 @@
 
 (autoload 'flex-mode "flex-mode" "Autoload flexmode." t)
 (autoload 'bison-mode "bison-mode" "Autoload bisonmode." t)
+(autoload 'racket-mode "modes/racket-mode" "Autoload racketmode." t)
 (add-to-list 'auto-mode-alist '("\\.lex\\'" . flex-mode))
 (add-to-list 'auto-mode-alist '("\\.y\\'" . bison-mode))
+(add-to-list 'auto-mode-alist '("\\.rkt\\'" . racket-mode))
 
 (put 'scroll-left 'disabled nil)
 
