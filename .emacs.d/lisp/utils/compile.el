@@ -117,7 +117,7 @@
 	   (t (find-file-r (directory-file-name parent))))))) ; Continue
     (find-file-r default-directory)))
 
-(defun project-root ()
+(defun project-root (&optional p)
   (let ((my-tags-file (find-file-upwards "COMPILE_CMD")))
     (when my-tags-file
       (message "Loading tags file: %s" my-tags-file)

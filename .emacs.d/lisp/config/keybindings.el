@@ -60,7 +60,17 @@
   (windmove-default-keybindings))
 
 ;; start egit
-(global-set-key (kbd "M-e")  'shell)
+(global-set-key (kbd "M-e")   (lambda ()(interactive)
+			       (progn
+				 (let* ((mode major-mode))
+				   (cond
+				    ((string= mode 'racket-mode)
+				     (progn
+				       (racket-run)))
+				    (t (shell)
+				       ))))))
+
+
 (global-set-key (kbd "M-E")  (lambda()(interactive)
 			       (ansi-term )))
 ;; start proced
@@ -217,8 +227,9 @@
 
 (global-set-key (kbd "ESC <f10>") (lambda ()(interactive)
 				    (progn
-				      (menu-bar-mode 1)
-				      (menu-bar-open))))
+				      (menu-bar-mode)
+				      (call-interactively 'menu-bar-open)
+				      )))
 
 (defun utils/compile-keybind ()
     (global-set-key (kbd "<f9>") 'utils/compile))

@@ -74,6 +74,7 @@
 (add-to-list 'load-path (expand-file-name "lib/transient" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/haskell-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/lsp-mode" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/lsp-mode/clients" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/eglot" *.emacs.d.lisp.dir*  ))
 (if (version<= emacs-version "26.3")
     (add-to-list 'load-path (expand-file-name "lib-26.3" *.emacs.d.lisp.dir*  )))

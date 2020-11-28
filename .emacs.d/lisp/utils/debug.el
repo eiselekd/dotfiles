@@ -1,3 +1,4 @@
+;; # bound to F10
 (defun utils/debug ()
   "Debug current context."
   (interactive)
@@ -16,6 +17,14 @@
 	  )))
      ((string-match "\.hs$" (buffer-name)) (call-interactively 'haskell-debug))
      ((string-match "\.ml$" (buffer-name)) (call-interactively 'modes/ocaml-start-debug))
+     ((string= major-mode 'racket-mode )
+      (progn
+	(message "[+] racket debug mode")
+	(racket-debug-mode)
+	)
+      )
+
+
      (t
       (progn
 	(custom-set-variables '(gud-gdb-command-name "gdb -i=mi"))
