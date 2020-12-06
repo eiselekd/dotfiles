@@ -1,3 +1,16 @@
+(defun org-mode/toggle-visual ()
+  (interactive)
+ (require 'org-bullets)
+  (if (bound-and-true-p org-bullets-mode)
+      (progn
+	(org-bullets-mode 0)
+	(setq org-hide-emphasis-markers nil))
+    (progn
+      (org-bullets-mode 1)
+      (setq org-hide-emphasis-markers 1)
+      )))
+
+
 (defun ck/org-confirm-babel-evaluate (lang body)
   (not (or (string= lang "latex") (string= lang "plantuml"))))
 
@@ -19,6 +32,9 @@
 	       '(;; other Babel languages
 		 (plantuml . t)
 		 (dot . t)))
+
+	      (org-mode/toggle-visual)
+	      (global-set-key (kbd "M-v") 'org-mode/toggle-visual)
 
 	      (setq org-confirm-babel-evaluate 'ck/org-confirm-babel-evaluate)
 	      (setq org-enforce-todo-dependencies 't)
