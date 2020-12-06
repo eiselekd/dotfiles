@@ -153,7 +153,7 @@ Defaults:
   * Ctrl-x 5 o : switch frame (new x-window)
  * Themes
   * ESC t : Cycle themes
-  * ESC T : Toggle hide-node-line (statusbar) (hide modeline in single frame)
+  * ESC l : Toggle hide-node-line (statusbar) (hide modeline in single frame), no-fringes
   * ESC M-t : Toggle xterm-window-mode (click on modeline bar)
  * VC mode
   * Ctrl-x v g : git blame

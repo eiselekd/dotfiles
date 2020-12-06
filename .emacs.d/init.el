@@ -534,10 +534,13 @@
 
 (global-set-key (kbd "ESC t") 'cycle-theme-sel)
 (global-set-key (kbd "ESC M-t") 'xterm-mouse-mode)
-(global-set-key (kbd "ESC T")
+(global-set-key (kbd "ESC l")
  (lambda ()(interactive)
    (progn
      (hide-mode-line)
+     (if (bound-and-true-p hide-mode-line)
+	 (set-fringe-style (cdr (assoc (downcase "no-fringes") fringe-styles)))
+	 (set-fringe-style (cdr (assoc (downcase "default") fringe-styles))))
      (xterm-mouse-mode (if (bound-and-true-p hide-mode-line) 0 1))
      ( force-mode-line-update))))
 
