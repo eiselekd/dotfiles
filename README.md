@@ -205,8 +205,7 @@ Ocaml debug (M-x ocamldebug):
    * Ctrl-b : set break
    * Ctrl-t : backtrace
 
-
-Links:
+* Links:
 
  * [1] helm is only loaded if ggtags loads. Therefore a fairly recent global (www.gnu.org/software/global/)
   has to be present
@@ -214,55 +213,55 @@ Links:
  * [3] https://github.com/magit/magit/wiki/Cheatsheet
  * [4] https://endlessparentheses.com/it-s-magit-and-you-re-the-magician.html
 
-Org-mode timeentry:
+* Org-mode timeentry:
  * [1] http://orgmode.org/manual/The-date_002ftime-prompt.html#The-date_002ftime-prompt
  * [2] http://orgmode.org/manual/Effort-estimates.html#Effort-estimates, https://writequit.org/denver-emacs/presentations/2017-04-11-time-clocking-with-org.html
  * [3] http://doc.norang.ca/org-mode.html#ReviewingEstimates
 
 * TMUX Ctrl-b:
- Alt-Left|Right|Up|Down : navigate tmux panes
- q: show pane-numbers
- X: show/hide status pane
- x: kill pane
- |: split horizontally
- -: split vertically
- d: detach
- z: maximize/restore current pane
 
- C-b c : new window
- C-b & :kill window
- C-b , : rename window
- C-b $ : rename session
- C-b :new<CR> :new session
+ * Alt-Left|Right|Up|Down : navigate tmux panes
+ * q: show pane-numbers
+ * X: show/hide status pane
+ * x: kill pane
+ * |: split horizontally
+ * -: split vertically
+ * d: detach
+ * z: maximize/restore current pane
 
- Alt-q : detach
- Alt-Shift-q : kill-server
- Alt-Ctrl-Shift up|down|left|right: resize pane
- alt-Shift left|right : navigate windows
- alt-Shift up|down : navigate session
- Alt-c : add pane
+ * C-b c : new window
+ * C-b & :kill window
+ * C-b , : rename window
+ * C-b $ : rename session
+ * C-b :new<CR> :new session
 
- alt-pageup : scroll/copy-mode : http://hyperpolyglot.org/multiplexers
+ * Alt-q : detach
+ * Alt-Shift-q : kill-server
+ * Alt-Ctrl-Shift up|down|left|right: resize pane
+ * alt-Shift left|right : navigate windows
+ * alt-Shift up|down : navigate session
+ * Alt-c : add pane
+
+ * alt-pageup : scroll/copy-mode : http://hyperpolyglot.org/multiplexers
               q : quite mode
  
- logging:
-  Ctrl-b alt-c   : clear  pane history
-  Ctrl-b shift-p : start logging
-  Ctrl-b alt-(shift-)p   : screen capture logging (with hist)
- resurrect:
-  Ctrl-b Ctrl-s : save env
-  Ctrl-b Ctrl-r : restore env
- copycat:
-  ctrl-b /      : serach regex
-  ctrl-b Ctrl-u : serach url
-  ctrl-b Ctrl-f : serach file
-  ctrl-b Ctrl-d : serach digit
-   (n/N : sel up/down)
-  yank:
-   ctrl-b y : copy clipboard
-   y/Y : copy mode
-
- copy-mode:
-   Alt-f|b : navigate next/prev words
-   C-w     : copy
-   y       : yank to clipboard (xsel -b)
+ * logging:
+  * Ctrl-b alt-c   : clear  pane history
+  * Ctrl-b shift-p : start logging
+  * Ctrl-b alt-(shift-)p   : screen capture logging (with hist)
+ * resurrect:
+  * Ctrl-b Ctrl-s : save env
+  * Ctrl-b Ctrl-r : restore env
+ * copycat:
+  * ctrl-b /      : serach regex
+  * ctrl-b Ctrl-u : serach url
+  * ctrl-b Ctrl-f : serach file
+  * ctrl-b Ctrl-d : serach digit
+    (n/N : sel up/down)
+ * yank:
+  * ctrl-b y : copy clipboard
+  * y/Y : copy mode
+ * copy-mode:
+  * Alt-f|b : navigate next/prev words
+  * C-w     : copy
+  * y       : yank to clipboard (xsel -b)
