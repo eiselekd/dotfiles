@@ -9,7 +9,6 @@
 	 (flycheck-mode)
 	 (flycheck-select-checker 'racket)
 	 (message "[+] racket xp mode")
-	 (racket-xp-mode)
 	 ;;(racket-language-server)
 	 (require 'eldoc)
 	 (require 'lsp-racket)
