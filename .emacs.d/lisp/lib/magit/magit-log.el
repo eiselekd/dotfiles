@@ -292,7 +292,7 @@ AUTHOR-WIDTH has to be an integer.  When the name of the author
 
 ;;;; Log Sections
 
-(defcustom magit-log-section-commit-count 500
+(defcustom magit-log-section-commit-count 700
   "How many recent commits to show in certain log sections.
 How many recent commits `magit-insert-recent-commits' and
 `magit-insert-unpulled-from-upstream-or-recent' (provided
