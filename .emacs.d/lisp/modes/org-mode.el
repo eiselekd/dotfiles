@@ -137,7 +137,11 @@ resourcereport resourceGraph \"\" {
 
 		  ))
 
-	      )))
+	      ))
+
+
+	  (setq org-src-fontify-natively t)
+	  )
 
 
 
