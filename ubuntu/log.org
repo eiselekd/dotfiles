@@ -1136,3 +1136,6 @@ https://www.linuxquestions.org/questions/slackware-14/can%27t-connect-from-windo
 wget http://archive.ubuntu.com/ubuntu/pool/main/..
 dpkg -x <n>.deb .
 LD_LIBRARAY_PATH ...
+
+* audio
+pavucontrol
