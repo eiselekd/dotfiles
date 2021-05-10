@@ -741,6 +741,13 @@ This variable is a normal hook.  See Info node `(elisp)Hooks'."
 (defface flycheck-error
   '((((supports :underline (:style wave)))
      :underline (:style wave :color "Red1"))
+
+    (((class color) (min-colors 88) (background light)) :foreground "Red1")
+    (((class color) (min-colors 88) (background dark))  :foreground "Purple")
+    (((class color) (min-colors 16) (background light)) :foreground "Red1")
+    (((class color) (min-colors 16) (background dark))  :foreground "Pink")
+    (((class color) (min-colors 8)) :foreground "Purple")
+
     (t
      :underline t :inherit error))
   "Flycheck face for errors."

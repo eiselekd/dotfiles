@@ -13,6 +13,7 @@
   (list
    `( ,(concat "\\<" (regexp-opt '("if" "then" "else" "part"
 				   "logic" "layout" "std" "vec" "fun"
+				   "connect" "ports"
 				   ) t) "\\>") . font-lock-builtin-face)
    '("\\<\\(TRUE\\|FALSE\\)\\>" . font-lock-constant-face)
    '("\\('\\w*'\\)" . font-lock-variable-name-face))

@@ -18,6 +18,7 @@
     (progn (message "[+] gud-perl6db %s " major-mode)
 	   (require 'gud-perl6db.el))))
 
+  ;;(set-face-attribute 'flycheck-error nil :background "green1")
    ;;(flycheck-select-checker 'raku)
 
   )
