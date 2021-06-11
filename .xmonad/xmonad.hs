@@ -113,6 +113,7 @@ myManageHook = composeAll
     , className =? "Gimp"           --> doFloat
     , resource  =? "gpicview"       --> doFloat
     , className =? "MPlayer"        --> doFloat
+    , title     =? "Microsoft Teams Notification" --> doSideFloat NE
 --  , className =? "VirtualBox"     --> doShift "6:vm"
     , className =? "Xchat"          --> doShift "7:media"
     , className =? "stalonetray"    --> doIgnore

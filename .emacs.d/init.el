@@ -376,6 +376,7 @@
 (global-set-key (kbd "M-f")  'utils/dired-grep-rec-curdir)
 (global-set-key (kbd "M-Ä")  (lambda ()(interactive) (call-interactively 'utils/occur-multi)))
 (global-set-key (kbd "M-m")  'menu-bar-mode)
+(global-set-key (kbd "M-L")  'hl-line-mode)
 
 ;; 3: (re-)define keybindings
 (message (format "[*] %s set keybindings" (timestamp_str)))

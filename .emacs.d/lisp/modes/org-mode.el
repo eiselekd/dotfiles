@@ -86,6 +86,11 @@ workinghours sat - sun 8:00 - 12:00
 		  (message "[+] ox-reveal: '%s'" org-reveal-root)
 		  (global-set-key (kbd "S-<f7>")  'org-reveal-export-to-html)
 		  ))
+	      (when (require 'org-tree-slide nil t)
+		(progn
+		  (message "[+] org-tree-slide")
+		  (global-set-key (kbd "M-<f7>")  'org-tree-slide-mode)
+		  ))
 	      (when (require 'ox-twbs nil t)
 		(progn
 		  (message "[+] ox-twbs")
