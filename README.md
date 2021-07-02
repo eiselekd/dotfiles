@@ -123,7 +123,7 @@ HELM:
 Misc:
  * ESC d : toggle debug on elisp error
  * ESC : : eval elisp
- * ESC z : repeat last command (default:M-x z)(continue z to continue repeat)
+ o* ESC z : repeat last command (default:M-x z)(continue z to continue repeat)
  * ESC I : start irc
    * /LIST : list channels
    * C-c C-j : join
@@ -134,6 +134,9 @@ Misc:
  * C-L : Zoom/Unzoom current pane
  * M(ALT)-n/p : scrol with cursor fixed
  * M(ALT)-w : yank
+
+ * C-x RET l Japanese RET : switch IME. C-\ switch eng/hiragana
+ * C-h L                  : IME help
 
 Alsa:
  * Win Ctrl-j, Win Ctrl-k : Audio increate vol, decreate vol.
