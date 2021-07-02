@@ -91,6 +91,13 @@
 
 ;; start org-agenda
 (global-set-key (kbd "M-j")  'goto-line)
+(global-set-key (kbd "M-J") (lambda ()(interactive)
+			      (progn
+				(set-language-environment 'Japanese)
+				(set-input-method 'japanese)
+				(require 'kanji-mode)
+				(kanji-mode)
+				)))
 
 ;; remove trailing whitespaces
 (global-set-key (kbd "M-W")  'whitespace-cleanup)

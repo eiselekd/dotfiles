@@ -135,7 +135,9 @@ Misc:
  * M(ALT)-n/p : scrol with cursor fixed
  * M(ALT)-w : yank
 
- * C-x RET l Japanese RET : switch IME. C-\ switch eng/hiragana
+ * M-J : japanese input
+ * M-s M-h : input buffer hiragana
+ * C-x RET l Japanese RET : switch IME. C-\ switch eng/hiragana, M-x set-input-method RET japanese-katakana RET
  * C-h L                  : IME help
 
 Alsa:
