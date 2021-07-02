@@ -67,6 +67,7 @@
 (setq ad-redefinition-action 'accept) ;;ad-handle-definition: `tramp-read-passwd' got redefined
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
+(add-to-list 'load-path (expand-file-name "lib/kanji-mode" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/ghc-mod" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/magit-3.1.1" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/magit-gerrit" *.emacs.d.lisp.dir*  ))
@@ -726,3 +727,5 @@
 		  (progn
 		    (require 'evil)
 		    (evil-mode))))
+
+;;(require 'kanji-mode)
