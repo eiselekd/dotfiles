@@ -68,7 +68,9 @@
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
 (add-to-list 'load-path (expand-file-name "lib/ghc-mod" *.emacs.d.lisp.dir* ))
-(add-to-list 'load-path (expand-file-name "lib/magit" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/magit-3.1.1" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/magit-gerrit" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/magit-with-editor" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/tuareg" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/merlin" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/transient" *.emacs.d.lisp.dir*  ))
