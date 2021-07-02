@@ -1,4 +1,8 @@
 
+(defun utils/magit-internet-up (&optional host)
+    (= 0 (call-process "ping" nil nil nil "-c" "1" "-W" "1"
+                       magit-gerrit-remote) ))
+
 (defun utils/magit-commit-all ()
   (progn
     (message "[+] magit commit all" )
@@ -26,12 +30,17 @@
 
 (defun utils/magit-status ()
   (progn
-    (require 'magit-gerrit)
+    (let ((doloat 't))
 
-    (if (fboundp 'set-magit-gerrit-default)
-	(set-magit-gerrit-default))
+      (require 'magit-gerrit)
+
+      (if (fboundp 'set-magit-gerrit-default)
+	  (set-magit-gerrit-default))
+
+
+      ;;utils/magit-internet-up
 
     ;;(setq magit-section-visibility-indicator  '("..." . t)) ;; '("…" . t)
-    (magit-status)))
+      (magit-status))))
 
 (provide 'utils/magit-util.el)
