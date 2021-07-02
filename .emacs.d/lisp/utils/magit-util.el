@@ -1,7 +1,7 @@
 
-(defun utils/magit-internet-up (&optional host)
+(defun utils/magit-internet-up-p ( host)
     (= 0 (call-process "ping" nil nil nil "-c" "1" "-W" "1"
-                       magit-gerrit-remote) ))
+                       host) ))
 
 (defun utils/magit-commit-all ()
   (progn
@@ -30,13 +30,24 @@
 
 (defun utils/magit-status ()
   (progn
-    (let ((doloat 't))
+    (let ((doload 't))
 
-      (require 'magit-gerrit)
 
       (if (fboundp 'set-magit-gerrit-default)
 	  (set-magit-gerrit-default))
 
+      (if (boundp 'magit-gerrit-server)
+	  (progn
+	    (setq doload (utils/magit-internet-up-p magit-gerrit-server))
+	    (message (format "[+] test server %s online: %s" magit-gerrit-server doload))
+	    )
+	(message (format "[+] dont test server %s" magit-gerrit-server))
+
+	)
+
+      (if doload
+	  (require 'magit-gerrit)
+	(require 'magit))
 
       ;;utils/magit-internet-up
 
