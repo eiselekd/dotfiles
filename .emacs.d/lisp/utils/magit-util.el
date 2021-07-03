@@ -32,7 +32,6 @@
   (progn
     (let ((doload 't))
 
-
       (if (fboundp 'set-magit-gerrit-default)
 	  (set-magit-gerrit-default))
 
@@ -41,7 +40,7 @@
 	    (setq doload (utils/magit-internet-up-p magit-gerrit-server))
 	    (message (format "[+] test server %s online: %s" magit-gerrit-server doload))
 	    )
-	(message (format "[+] dont test server %s" magit-gerrit-server))
+	(message (format "[+] dont test server" ))
 
 	)
 
