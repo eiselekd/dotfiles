@@ -718,6 +718,13 @@
 
 ;; (require 'evil)
 
+
+(global-set-key (kbd "M-!")  (lambda ()(interactive)
+			       (progn
+				 (require 'macro-execute)
+				 (custom-command-menue))))
+
+
 (require 'modes/poly.el)
 (require 'zoom-window)
 (global-set-key (kbd "C-L")  'zoom-window-zoom)
