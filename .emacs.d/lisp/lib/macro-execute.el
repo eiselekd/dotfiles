@@ -13,7 +13,7 @@
   "Show available macros."
   :info-manual "(magit)Macros"
   ["Macros"
-   [("0" "~/bin/la-1-2-r8.1-push-manifest.sh" (lambda () (interactive) (magit-macro-list "~/bin/la-1-2-r8.1-push-manifest.sh" default-directory)))
+   [("0" "~/bin/la-1-2-r8.1-push-manifest.sh" (lambda () (interactive) (magit-macro-list (format "~/bin/la-1-2-r8.1-push-manifest.sh %s" default-directory))))
     ("!" "execute original '!'" shell-command)
     ]
    ])
