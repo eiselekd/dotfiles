@@ -136,7 +136,7 @@ if [ ! -z "${DISPLAY}" ]; then
    # xloadimage -onroot -fullscreen /home/eiselekd/Pictures/birch-bark-wallpaper-HD1.jpg
 fi
 
-if dmesg | grep X60s >/dev/null; then
+if dmesg 2> /dev/null | grep X60s >/dev/null; then
 xmodmap -e "keycode  166 = Prior NoSymbol Prior"
 xmodmap -e "keycode  167 = Next NoSymbol Next"
 fi
