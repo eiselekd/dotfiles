@@ -85,7 +85,7 @@ myLauncher = "dmenu_run -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
 --
-myWorkspaces = ["1:term","2:code","3:code"] -- ,"4:code1", "5:web","6:vm","7:media"] ++ map show [8..9]
+myWorkspaces = ["1:term","2:code","3:code","4:web"] -- ,"5:web","6:vm","7:media"] ++ map show [8..9]
 
 
 ------------------------------------------------------------------------
