@@ -76,6 +76,12 @@
 ;; start proced
 (global-set-key (kbd "M-p")  'proced)
 
+;; start hyperbold
+(global-set-key (kbd "M-h") (lambda ()(interactive)
+			      (progn
+				(when (require 'hyperbole)
+				  (message "hyperbold loaded")))))
+
 
 (global-set-key (kbd "M-d")  (lambda ()(interactive) (toggle-debug-on-error)))
 ;; start org-agenda
