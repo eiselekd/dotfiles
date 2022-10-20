@@ -25,6 +25,8 @@ fi
 export LOGDIR=${HOME}/logs
 
 alias em="emacs -nw"
+alias emc="emacsclient -nw --socket-name /tmp/emacs1000/one"
+alias emd="emacs --daemon "one""
 alias z="zsh"
 
 function record () {
