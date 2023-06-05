@@ -204,7 +204,7 @@ function starthider() {
 }
 
 function starttmux() {
-  starthider&
+  #starthider&
   tmux has-session -t main >& /dev/null
   if [ $? == 0 ]; then
     exec tmux attach-session -t main

@@ -45,7 +45,7 @@
 	)
 
       (if doload
-	  (require 'magit-gerrit)
+	  (require 'magit)
 	(require 'magit))
 
       ;;utils/magit-internet-up
