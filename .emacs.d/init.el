@@ -445,13 +445,13 @@
       (require 'modes/elisp-mode.el)
       (message "[*] %s retire elisp-mode" (timestamp_str))
       ;;(require 'modes/web-mode.el)
-      (require 'modes/javascript-mode.el)
-      (message "[*] %s retire javascript-mode" (timestamp_str))
+      ;;(require 'modes/javascript-mode.el)
+      ;;(message "[*] %s retire javascript-mode" (timestamp_str))
       (require 'modes/ocaml-mode.el)
       (message "[*] %s retire ocaml-mode" (timestamp_str))
 
-      (require 'modes/haskell-mode.el)
-      (message "[*] %s retire haskell-mode" (timestamp_str))
+      ;;(require 'modes/haskell-mode.el)
+      ;;(message "[*] %s retire haskell-mode" (timestamp_str))
       (global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
 
 ))
