@@ -132,10 +132,23 @@
 ;;    (message "[*] quilt loaded")
 ;;    ))
 
+(setq ispureos
+      (string-match
+       "pureos"  ;; Linux subsystem for Windows
+       (with-temp-buffer
+	 (shell-command "uname -a" t)
+	 (goto-char (point-max))
+	 (delete-char -1)
+	 (buffer-string))))
+
 ;;* Programming
-(if (or (>= emacs-major-version 24)
-	(>= emacs-minor-version 4))
-    (progn
+(if
+    (and
+     (not ispureos)
+     (or (>= emacs-major-version 24)
+	 (and (= emacs-major-version 24)
+	      (>= emacs-minor-version 4))))
+     (progn
 
       ;;(set-face-attribute 'default nil :height 100)
 
@@ -412,30 +425,42 @@
 ;;(require 'ux/popups.el.el)
 ;; 4: configure modes
 (message (format "[*] %s config modes" (timestamp_str)))
-(require 'modes/c-mode.el)
-(message "[*] %s retire c-mode" (timestamp_str))
-(require 'modes/ruby-mode.el)
-(message "[*] %s retire ruby-mode" (timestamp_str))
-(require 'modes/lua-mode.el)
-(message "[*] %s retire lua-mode" (timestamp_str))
-;;(require 'modes/haskell-mode.el)
-(message "[*] %s retire haskell-mode" (timestamp_str))
-(require 'modes/cling-mode.el)
-(message "[*] %s retire cling-mode" (timestamp_str))
-(require 'modes/rust-mode.el)
-(message "[*] %s retire rust-mode" (timestamp_str))
-(require 'modes/elisp-mode.el)
-(global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
-(message "[*] %s retire elisp-mode" (timestamp_str))
-;;(require 'modes/web-mode.el)
-;;(require 'modes/javascript-mode.el)
-(message "[*] %s retire javascript-mode" (timestamp_str))
-;;(require 'modes/org-mode.el)
-;;(message "[*] %s retire org-mode" (timestamp_str))
+
+(if
+    (not ispureos)
+    (progn
+      (require 'modes/c-mode.el)
+      (message "[*] %s retire c-mode" (timestamp_str))
+      (require 'modes/ruby-mode.el)
+      (message "[*] %s retire ruby-mode" (timestamp_str))
+      (require 'modes/lua-mode.el)
+      (message "[*] %s retire lua-mode" (timestamp_str))
+      (require 'modes/cling-mode.el)
+      (message "[*] %s retire cling-mode" (timestamp_str))
+      (require 'modes/rust-mode.el)
+      (message "[*] %s retire rust-mode" (timestamp_str))
+
+
+
+      (require 'modes/elisp-mode.el)
+      (message "[*] %s retire elisp-mode" (timestamp_str))
+      ;;(require 'modes/web-mode.el)
+      (require 'modes/javascript-mode.el)
+      (message "[*] %s retire javascript-mode" (timestamp_str))
+      (require 'modes/ocaml-mode.el)
+      (message "[*] %s retire ocaml-mode" (timestamp_str))
+
+      (require 'modes/haskell-mode.el)
+      (message "[*] %s retire haskell-mode" (timestamp_str))
+      (global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
+
+))
+
+
+(require 'modes/org-mode.el)
+(message "[*] %s retire org-mode" (timestamp_str))
 (require 'modes/l8-mode.el)
 (message "[*] %s retire l8-mode" (timestamp_str))
-(require 'modes/ocaml-mode.el)
-(message "[*] %s retire ocaml-mode" (timestamp_str))
 (require 'modes/raku-mode.el)
 (message "[*] %s retire raku-mode" (timestamp_str))
 (require 'modes/tex-mode.el)
@@ -650,9 +675,14 @@
  ;; If there is more than one, they won't work right.
  )
 
-(require 'ws-butler)
-(add-hook 'prog-mode-hook 'ws-butler-mode)
-(message "[*] %s retire wsbutler" (timestamp_str))
+(if
+    (not ispureos)
+    (progn
+
+      (require 'ws-butler)
+      (add-hook 'prog-mode-hook 'ws-butler-mode)
+      (message "[*] %s retire wsbutler" (timestamp_str))
+      ))
 
 ;;(global-whitespace-mode)
 ;;(setq whitespace-style '(face trailing lines tabs big-indent))
@@ -687,6 +717,7 @@
 ;; (tmm-menubar-mouse )
 
 (require 'utils/powerlineutil.el)
+(message "[*] %s powerlineutil finish" (timestamp_str))
 
 ;;(define-key global-map [mode-line mouse-1] 'my-press-me)
 ;;(xterm-mouse-mode 1)
@@ -710,7 +741,6 @@
 ;;(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
 ;; ## end of OPAM user-setup addition for emacs / base ## keep this line
 
-(message "[*] %s init finish" (timestamp_str))
 
 ;; replace default mode for .lex
 (cl-remove "\\.lex\\'" auto-mode-alist :test 'equal :key 'car)
@@ -751,8 +781,16 @@
 				 (custom-command-menue))))
 
 
-(require 'modes/poly.el)
-(require 'zoom-window)
+(if
+    (not ispureos)
+    (progn
+      (require 'modes/poly.el)
+      (message "[*] %s poly finish" (timestamp_str))
+      
+      (require 'zoom-window)
+      (message "[*] %s zoom-window finish" (timestamp_str))
+      ))
+
 (global-set-key (kbd "C-L")  'zoom-window-zoom)
 
 ;;(global-set-key (kbd "M-E")
@@ -762,3 +800,5 @@
 ;;		    (evil-mode))))
 
 ;;(require 'kanji-mode)
+
+(message "[*] %s init finish" (timestamp_str))
