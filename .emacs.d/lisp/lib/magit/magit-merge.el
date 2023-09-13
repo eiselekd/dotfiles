@@ -1,17 +1,16 @@
-;;; magit-merge.el --- merge functionality  -*- lexical-binding: t -*-
+;;; magit-merge.el --- Merge functionality  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2010-2019  The Magit Project Contributors
-;;
-;; You should have received a copy of the AUTHORS.md file which
-;; lists all contributors.  If not, see http://magit.vc/authors.
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Magit is free software; you can redistribute it and/or modify it
+;; SPDX-License-Identifier: GPL-3.0-or-later
+
+;; Magit is free software: you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 ;;
 ;; Magit is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -19,16 +18,13 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see http://www.gnu.org/licenses.
+;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;; This library implements merge commands.
 
 ;;; Code:
-
-(eval-when-compile
-  (require 'subr-x))
 
 (require 'magit)
 (require 'magit-diff)
@@ -38,7 +34,7 @@
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-merge "magit" nil t)
-(define-transient-command magit-merge ()
+(transient-define-prefix magit-merge ()
   "Merge branches."
   :man-page "git-merge"
   :incompatible '(("--ff-only" "--no-ff"))
@@ -47,7 +43,10 @@
    ("-f" "Fast-forward only" "--ff-only")
    ("-n" "No fast-forward"   "--no-ff")
    (magit-merge:--strategy)
-   (5 magit-diff:--diff-algorithm :argument "--Xdiff-algorithm=")
+   (5 magit-merge:--strategy-option)
+   (5 "-b" "Ignore changes in amount of whitespace" "-Xignore-space-change")
+   (5 "-w" "Ignore whitespace when comparing lines" "-Xignore-all-space")
+   (5 magit-diff:--diff-algorithm :argument "-Xdiff-algorithm=")
    (5 magit:--gpg-sign)]
   ["Actions"
    :if-not magit-merge-in-progress-p
@@ -58,7 +57,7 @@
    [("p" "Preview merge"          magit-merge-preview)
     ""
     ("s" "Squash merge"           magit-merge-squash)
-    ("i" "Merge into"             magit-merge-into)]]
+    ("i" "Dissolve"               magit-merge-into)]]
   ["Actions"
    :if magit-merge-in-progress-p
    ("m" "Commit merge" magit-commit-create)
@@ -67,16 +66,23 @@
 (defun magit-merge-arguments ()
   (transient-args 'magit-merge))
 
-(define-infix-argument magit-merge:--strategy ()
+(transient-define-argument magit-merge:--strategy ()
   :description "Strategy"
   :class 'transient-option
-  ;; key for merge: "-s"
+  ;; key for merge and rebase: "-s"
   ;; key for cherry-pick and revert: "=s"
-  ;; shortarg for merge: "-s"
+  ;; shortarg for merge and rebase: "-s"
   ;; shortarg for cherry-pick and revert: none
   :key "-s"
   :argument "--strategy="
   :choices '("resolve" "recursive" "octopus" "ours" "subtree"))
+
+(transient-define-argument magit-merge:--strategy-option ()
+  :description "Strategy Option"
+  :class 'transient-option
+  :key "-X"
+  :argument "--strategy-option="
+  :choices '("ours" "theirs" "patience"))
 
 ;;;###autoload
 (defun magit-merge-plain (rev &optional args nocommit)
@@ -130,18 +136,23 @@ provided the respective remote branch already exists, ensuring
 that the respective pull-request (if any) won't get stuck on some
 obsolete version of the commits that are being merged.  Finally
 if `forge-branch-pullreq' was used to create the merged branch,
-branch, then also remove the respective remote branch."
+then also remove the respective remote branch."
   (interactive
    (list (magit-read-other-local-branch
-          (format "Merge `%s' into" (magit-get-current-branch))
+          (format "Merge `%s' into"
+                  (or (magit-get-current-branch)
+                      (magit-rev-parse "HEAD")))
           nil
-          (when-let ((upstream (magit-get-upstream-branch))
+          (and-let* ((upstream (magit-get-upstream-branch))
                      (upstream (cdr (magit-split-branch-name upstream))))
             (and (magit-branch-p upstream) upstream)))
          (magit-merge-arguments)))
-  (let ((current (magit-get-current-branch)))
+  (let ((current (magit-get-current-branch))
+        (head (magit-rev-parse "HEAD")))
     (when (zerop (magit-call-git "checkout" branch))
-      (magit--merge-absorb current args))))
+      (if current
+          (magit--merge-absorb current args)
+        (magit-run-git-with-editor "merge" args head)))))
 
 ;;;###autoload
 (defun magit-merge-absorb (branch &optional args)
@@ -158,9 +169,10 @@ then also remove the respective remote branch."
   (magit--merge-absorb branch args))
 
 (defun magit--merge-absorb (branch args)
-  (when (equal branch "master")
+  (when (equal branch (magit-main-branch))
     (unless (yes-or-no-p
-             "Do you really want to merge `master' into another branch? ")
+             (format "Do you really want to merge `%s' into another branch? "
+                     branch))
       (user-error "Abort")))
   (if-let ((target (magit-get-push-branch branch t)))
       (progn
@@ -180,10 +192,12 @@ then also remove the respective remote branch."
   (if-let ((pr (magit-get "branch" branch "pullRequest")))
       (magit-run-git-async
        "merge" args "-m"
-       (format "Merge branch '%s'%s [%s]"
+       (format "Merge branch '%s'%s [#%s]"
                branch
                (let ((current (magit-get-current-branch)))
-                 (if (equal current "master") "" (format " into %s" current)))
+                 (if (equal current (magit-main-branch))
+                     ""
+                   (format " into %s" current)))
                pr)
        branch)
     (magit-run-git-async "merge" args "--no-edit" branch))
@@ -218,7 +232,7 @@ then also remove the respective remote branch."
   "Abort the current merge operation.
 \n(git merge --abort)"
   (interactive)
-  (unless (file-exists-p (magit-git-dir "MERGE_HEAD"))
+  (unless (file-exists-p (expand-file-name "MERGE_HEAD" (magit-gitdir)))
     (user-error "No merge in progress"))
   (magit-confirm 'abort-merge)
   (magit-run-git-async "merge" "--abort"))
@@ -238,7 +252,9 @@ then also remove the respective remote branch."
             (user-error "Quit")))))
   (pcase (cons arg (cddr (car (magit-file-status file))))
     ((or `("--ours"   ?D ,_)
-         `("--theirs" ,_ ?D))
+         '("--ours"   ?U ?A)
+         `("--theirs" ,_ ?D)
+         '("--theirs" ?A ?U))
      (magit-run-git "rm" "--" file))
     (_ (if (equal arg "--merge")
            ;; This fails if the file was deleted on one
@@ -250,12 +266,13 @@ then also remove the respective remote branch."
 ;;; Utilities
 
 (defun magit-merge-in-progress-p ()
-  (file-exists-p (magit-git-dir "MERGE_HEAD")))
+  (file-exists-p (expand-file-name "MERGE_HEAD" (magit-gitdir))))
 
 (defun magit--merge-range (&optional head)
   (unless head
     (setq head (magit-get-shortname
-                (car (magit-file-lines (magit-git-dir "MERGE_HEAD"))))))
+                (car (magit-file-lines
+                      (expand-file-name "MERGE_HEAD" (magit-gitdir)))))))
   (and head
        (concat (magit-git-string "merge-base" "--octopus" "HEAD" head)
                ".." head)))
@@ -269,15 +286,14 @@ then also remove the respective remote branch."
   (magit-read-char-case (format "For %s checkout: " file) t
     (?o "[o]ur stage"   "--ours")
     (?t "[t]heir stage" "--theirs")
-    (?c "[c]onflict"    "--merge")))
+    (?c (if magit-verbose-messages "restore [c]onflict" "[c]onflict")
+        "--merge")))
 
 ;;; Sections
 
-(defvar magit-unmerged-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing] 'magit-diff-dwim)
-    map)
-  "Keymap for `unmerged' sections.")
+(defvar-keymap magit-unmerged-section-map
+  :doc "Keymap for `unmerged' sections."
+  :parent magit-log-section-map)
 
 (defun magit-insert-merge-log ()
   "Insert section for the on-going merge.
@@ -285,17 +301,18 @@ Display the heads that are being merged.
 If no merge is in progress, do nothing."
   (when (magit-merge-in-progress-p)
     (let* ((heads (mapcar #'magit-get-shortname
-                          (magit-file-lines (magit-git-dir "MERGE_HEAD"))))
+                          (magit-file-lines
+                           (expand-file-name "MERGE_HEAD" (magit-gitdir)))))
            (range (magit--merge-range (car heads))))
       (magit-insert-section (unmerged range)
         (magit-insert-heading
           (format "Merging %s:" (mapconcat #'identity heads ", ")))
-        (magit-insert-log
-         range
-         (let ((args magit-buffer-log-args))
-           (unless (member "--decorate=full" magit-buffer-log-args)
-             (push "--decorate=full" args))
-           args))))))
+        (magit--insert-log nil
+          range
+          (let ((args magit-buffer-log-args))
+            (unless (member "--decorate=full" magit-buffer-log-args)
+              (push "--decorate=full" args))
+            args))))))
 
 ;;; _
 (provide 'magit-merge)

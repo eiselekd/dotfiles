@@ -1,10 +1,10 @@
 ;;; ob-emacs-lisp.el --- Babel Functions for Emacs-lisp Code -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -26,6 +26,9 @@
 ;; Org-Babel support for evaluating emacs-lisp code
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
 
 (require 'ob-core)
 
@@ -55,12 +58,12 @@ by `org-edit-src-code'.")
       (format "(let (%s)\n%s\n)"
 	      (mapconcat
 	       (lambda (var)
-		 (format "%S" (print `(,(car var) ',(cdr var)))))
+		 (format "%S" `(,(car var) ',(cdr var))))
 	       vars "\n      ")
 	      body))))
 
 (defun org-babel-execute:emacs-lisp (body params)
-  "Execute a block of emacs-lisp code with Babel."
+  "Execute emacs-lisp code BODY according to PARAMS."
   (let* ((lexical (cdr (assq :lexical params)))
 	 (result-params (cdr (assq :result-params params)))
 	 (body (format (if (member "output" result-params)
@@ -97,7 +100,8 @@ and the LEXICAL argument to `eval'."
 (defun org-babel-edit-prep:emacs-lisp (info)
   "Set `lexical-binding' in Org edit buffer.
 Set `lexical-binding' in Org edit buffer according to the
-corresponding :lexical source block argument."
+corresponding :lexical source block argument provide in the INFO
+channel, as returned by `org-babel-get-src-block-info'."
   (setq lexical-binding
         (org-babel-emacs-lisp-lexical
          (org-babel-read

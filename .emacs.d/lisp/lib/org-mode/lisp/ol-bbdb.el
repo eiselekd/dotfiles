@@ -1,11 +1,11 @@
 ;;; ol-bbdb.el --- Links to BBDB entries             -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
 
-;; Authors: Carsten Dominik <carsten at orgmode dot org>
+;; Authors: Carsten Dominik <carsten.dominik@gmail.com>
 ;;       Thomas Baumann <thomas dot baumann at ch dot tum dot de>
 ;; Keywords: outlines, hypermedia, calendar, wp
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -60,7 +60,7 @@
 ;;
 ;; CLASS-OR-FORMAT-STRING is one of two things:
 ;;
-;;  - an identifier for a class of anniversaries (eg. birthday or
+;;  - an identifier for a class of anniversaries (e.g. birthday or
 ;;    wedding) from `org-bbdb-anniversary-format-alist' which then
 ;;    defines the format string for this class
 ;;  - the (format) string displayed in the diary.
@@ -92,6 +92,9 @@
 ;; link from which the entry at point originates.
 ;;
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
 
 (require 'cl-lib)
 (require 'org-compat)
@@ -132,7 +135,7 @@
 
 (defgroup org-bbdb-anniversaries nil
   "Customizations for including anniversaries from BBDB into Agenda."
-  :group 'org-bbdb)
+  :group 'org-agenda)
 
 (defcustom org-bbdb-default-anniversary-format "birthday"
   "Default anniversary class."
@@ -252,7 +255,7 @@ italicized, in all other cases it is left unchanged."
 
 (defun org-bbdb-open (name _)
   "Follow a BBDB link to NAME."
-  (require 'bbdb-com)
+  (org-require-package 'bbdb-com "bbdb")
   (let ((inhibit-redisplay (not debug-on-error)))
     (if (fboundp 'bbdb-name)
 	(org-bbdb-open-old name)
@@ -366,7 +369,7 @@ This is used by Org to re-create the anniversary hash table."
   "Extract anniversaries from BBDB for display in the agenda.
 When called programmatically, this function expects the `date'
 variable to be globally bound."
-  (require 'bbdb)
+  (org-require-package 'bbdb)
   (require 'diary-lib)
   (unless (hash-table-p org-bbdb-anniv-hash)
     (setq org-bbdb-anniv-hash
@@ -431,7 +434,7 @@ variable to be globally bound."
 ;;; to override the 7-day default.
 
 (defun org-bbdb-date-list (d n)
-  "Return a list of dates in (m d y) format from the given date D to n-1 days hence."
+  "Return list of dates in (m d y) format from the given date D to n-1 days hence."
   (let ((abs (calendar-absolute-from-gregorian d)))
     (mapcar (lambda (i) (calendar-gregorian-from-absolute (+ abs i)))
 	    (number-sequence 0 (1- n)))))
@@ -497,7 +500,7 @@ must be positive"))
 
 (defun org-bbdb-complete-link ()
   "Read a bbdb link with name completion."
-  (require 'bbdb-com)
+  (org-require-package 'bbdb-com "bbdb")
   (let ((rec (bbdb-completing-read-record "Name: ")))
     (concat "bbdb:"
 	    (bbdb-record-name (if (listp rec)
@@ -506,7 +509,7 @@ must be positive"))
 
 (defun org-bbdb-anniv-export-ical ()
   "Extract anniversaries from BBDB and convert them to icalendar format."
-  (require 'bbdb)
+  (org-require-package 'bbdb)
   (require 'diary-lib)
   (unless (hash-table-p org-bbdb-anniv-hash)
     (setq org-bbdb-anniv-hash

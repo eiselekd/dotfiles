@@ -1,8 +1,8 @@
 ;;; ox-publish.el --- Publish Related Org Mode Files as a Website -*- lexical-binding: t; -*-
-;; Copyright (C) 2006-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2006-2023 Free Software Foundation, Inc.
 
 ;; Author: David O'Toole <dto@gnu.org>
-;; Maintainer: Carsten Dominik <carsten at orgmode dot org>
+;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: hypermedia, outlines, wp
 
 ;; This file is part of GNU Emacs.
@@ -27,7 +27,7 @@
 ;;
 ;; ox-publish.el can do the following:
 ;;
-;; + Publish all one's Org files to a given export back-end
+;; + Publish all one's Org files to a given export backend
 ;; + Upload HTML, images, attachments and other files to a web server
 ;; + Exclude selected private pages from publishing
 ;; + Publish a clickable sitemap of pages
@@ -38,10 +38,16 @@
 
 ;;; Code:
 
+(require 'org-macs)
+(org-assert-version)
+
 (require 'cl-lib)
 (require 'format-spec)
 (require 'ox)
 
+(declare-function org-at-heading-p "org" (&optional _))
+(declare-function org-back-to-heading "org" (&optional invisible-ok))
+(declare-function org-next-visible-heading "org" (arg))
 
 
 ;;; Variables
@@ -123,14 +129,14 @@ considered relative to the base directory.
 When both `:include' and `:exclude' properties are given values,
 the exclusion step happens first.
 
-One special property controls which back-end function to use for
+One special property controls which backend function to use for
 publishing files in the project.  This can be used to extend the
 set of file types publishable by `org-publish', as well as the
 set of output formats.
 
   `:publishing-function'
 
-    Function to publish file.  Each back-end may define its
+    Function to publish file.  Each backend may define its
     own (i.e. `org-latex-publish-to-pdf',
     `org-html-publish-to-html').  May be a list of functions, in
     which case each function in the list is invoked in turn.
@@ -156,8 +162,8 @@ date.
 
 Some properties control details of the Org publishing process,
 and are equivalent to the corresponding user variables listed in
-the right column.  Back-end specific properties may also be
-included.  See the back-end documentation for more information.
+the right column.  Backend specific properties may also be
+included.  See the backend documentation for more information.
 
   :author                   `user-full-name'
   :creator                  `org-export-creator-string'
@@ -168,7 +174,7 @@ included.  See the back-end documentation for more information.
   :preserve-breaks          `org-export-preserve-breaks'
   :section-numbers          `org-export-with-section-numbers'
   :select-tags              `org-export-select-tags'
-  :time-stamp-file          `org-export-time-stamp-file'
+  :time-stamp-file          `org-export-timestamp-file'
   :with-archived-trees      `org-export-with-archived-trees'
   :with-author              `org-export-with-author'
   :with-creator             `org-export-with-creator'
@@ -358,7 +364,7 @@ You can overwrite this default per project in your
   (concat "X" (if (fboundp 'sha1) (sha1 filename) (md5 filename))))
 
 (defun org-publish-needed-p
-  (filename &optional pub-dir pub-func _true-pub-dir base-dir)
+    (filename &optional pub-dir pub-func _true-pub-dir base-dir)
   "Non-nil if FILENAME should be published in PUB-DIR using PUB-FUNC.
 TRUE-PUB-DIR is where the file will truly end up.  Currently we
 are not using this - maybe it can eventually be used to check if
@@ -375,11 +381,11 @@ still decide about that independently."
     rtn))
 
 (defun org-publish-update-timestamp
-  (filename &optional pub-dir pub-func _base-dir)
+    (filename &optional pub-dir pub-func _base-dir)
   "Update publishing timestamp for file FILENAME.
 If there is no timestamp, create one."
   (let ((key (org-publish-timestamp-filename filename pub-dir pub-func))
-	(stamp (org-publish-cache-ctime-of-src filename)))
+	(stamp (org-publish-cache-mtime-of-src filename)))
     (org-publish-cache-set key stamp)))
 
 (defun org-publish-remove-all-timestamps ()
@@ -541,12 +547,12 @@ publishing FILENAME."
 
 
 
-;;; Tools for publishing functions in back-ends
+;;; Tools for publishing functions in backends
 
 (defun org-publish-org-to (backend filename extension plist &optional pub-dir)
-  "Publish an Org file to a specified back-end.
+  "Publish an Org file to a specified backend.
 
-BACKEND is a symbol representing the back-end used for
+BACKEND is a symbol representing the backend used for
 transcoding.  FILENAME is the filename of the Org file to be
 published.  EXTENSION is the extension used for the output
 string, with the leading dot.  PLIST is the property list for the
@@ -617,7 +623,8 @@ files, when entire projects are published (see
 			  (abbreviate-file-name filename))))
 	 (project-plist (cdr project))
 	 (publishing-function
-	  (pcase (org-publish-property :publishing-function project)
+	  (pcase (org-publish-property :publishing-function project
+                                       'org-html-publish-to-html)
 	    (`nil (user-error "No publishing function chosen"))
 	    ((and f (pred listp)) f)
 	    (f (list f))))
@@ -834,11 +841,11 @@ Default for SITEMAP-FILENAME is `sitemap.org'."
   "Find the PROPERTY of FILE in project.
 
 PROPERTY is a keyword referring to an export option, as defined
-in `org-export-options-alist' or in export back-ends.  In the
+in `org-export-options-alist' or in export backends.  In the
 latter case, optional argument BACKEND has to be set to the
-back-end where the option is defined, e.g.,
+backend where the option is defined, e.g.,
 
-  (org-publish-find-property file :subtitle 'latex)
+  (org-publish-find-property file :subtitle \\='latex)
 
 Return value may be a string or a list, depending on the type of
 PROPERTY, i.e. \"behavior\" parameter from `org-export-options-alist'."
@@ -884,7 +891,7 @@ time in `current-time' format."
 	     (file-attribute-modification-time (file-attributes file))
 	   (let ((date (org-publish-find-property file :date project)))
 	     ;; DATE is a secondary string.  If it contains
-	     ;; a time-stamp, convert it to internal format.
+	     ;; a timestamp, convert it to internal format.
 	     ;; Otherwise, use FILE modification time.
 	     (cond ((let ((ts (and (consp date) (assq 'timestamp date))))
 		      (and ts
@@ -1017,7 +1024,7 @@ the project."
   "Update index for a file in cache.
 
 OUTPUT is the output from transcoding current file.  BACKEND is
-the back-end that was used for transcoding.  INFO is a plist
+the backend that was used for transcoding.  INFO is a plist
 containing publishing and export options.
 
 The index relative to current file is stored as an alist.  An
@@ -1035,7 +1042,7 @@ its CDR is a string."
       (org-element-map (plist-get info :parse-tree) 'keyword
 	(lambda (k)
 	  (when (equal (org-element-property :key k) "INDEX")
-	    (let ((parent (org-export-get-parent-headline k)))
+	    (let ((parent (org-element-lineage k 'headline)))
 	      (list (org-element-property :value k)
 		    file
 		    (cond
@@ -1064,7 +1071,7 @@ publishing directory."
 		  (setq full-index
 			(sort (nreverse full-index)
 			      (lambda (a b) (string< (downcase (car a))
-						(downcase (car b)))))))
+						     (downcase (car b)))))))
       (let ((index (org-publish-cache-get-file-property file :index)))
 	(dolist (term index)
 	  (unless (member term full-index) (push term full-index)))))
@@ -1131,7 +1138,7 @@ publishing directory."
   "Store cross-references for current published file.
 
 OUTPUT is the produced output, as a string.  BACKEND is the export
-back-end used, as a symbol.  INFO is the final export state, as
+backend used, as a symbol.  INFO is the final export state, as
 a plist.
 
 This function is meant to be used as a final output filter.  See
@@ -1163,7 +1170,7 @@ option, e.g.,
 When PREFER-CUSTOM is non-nil, and SEARCH targets a headline in
 FILE, return its custom ID, if any.
 
-It only makes sense to use this if export back-end builds
+It only makes sense to use this if export backend builds
 references with `org-export-get-reference'."
   (cond
    ((and prefer-custom
@@ -1176,7 +1183,8 @@ references with `org-export-get-reference'."
 		     (org-link-search search nil t)
 		   (error
 		    (signal 'org-link-broken (cdr err)))))
-	       (and (org-at-heading-p)
+	       (and (derived-mode-p 'org-mode)
+                    (org-at-heading-p)
 		    (org-string-nw-p (org-entry-get (point) "CUSTOM_ID"))))))))
    ((not org-publish-cache)
     (progn
@@ -1270,7 +1278,7 @@ If FREE-CACHE, empty the cache."
   org-publish-cache)
 
 (defun org-publish-reset-cache ()
-  "Empty org-publish-cache and reset it nil."
+  "Empty `org-publish-cache' and reset it nil."
   (message "%s" "Resetting org-publish-cache")
   (when (hash-table-p org-publish-cache)
     (clrhash org-publish-cache))
@@ -1288,39 +1296,38 @@ the file including them will be republished as well."
   (let* ((key (org-publish-timestamp-filename filename pub-dir pub-func))
 	 (pstamp (org-publish-cache-get key))
 	 (org-inhibit-startup t)
-	 included-files-ctime)
+	 included-files-mtime)
     (when (equal (file-name-extension filename) "org")
-      (let ((visiting (find-buffer-visiting filename))
-	    (buf (find-file-noselect filename))
-	    (case-fold-search t))
-	(unwind-protect
-	    (with-current-buffer buf
-	      (goto-char (point-min))
-	      (while (re-search-forward "^[ \t]*#\\+INCLUDE:" nil t)
-		(let ((element (org-element-at-point)))
-		  (when (eq 'keyword (org-element-type element))
-		    (let* ((value (org-element-property :value element))
-			   (filename
-			    (and (string-match "\\`\\(\".+?\"\\|\\S-+\\)" value)
-				 (let ((m (org-strip-quotes
-					   (match-string 1 value))))
-				   ;; Ignore search suffix.
-				   (if (string-match "::.*?\\'" m)
-				       (substring m 0 (match-beginning 0))
-				     m)))))
-		      (when filename
-			(push (org-publish-cache-ctime-of-src
-			       (expand-file-name filename))
-			      included-files-ctime)))))))
-	  (unless visiting (kill-buffer buf)))))
+      (let ((case-fold-search t))
+	(with-temp-buffer
+          (delay-mode-hooks
+            (org-mode)
+            (insert-file-contents filename)
+	    (goto-char (point-min))
+	    (while (re-search-forward "^[ \t]*#\\+INCLUDE:" nil t)
+	      (let ((element (org-element-at-point)))
+	        (when (org-element-type-p element 'keyword)
+		  (let* ((value (org-element-property :value element))
+		         (include-filename
+			  (and (string-match "\\`\\(\".+?\"\\|\\S-+\\)" value)
+			       (let ((m (org-strip-quotes
+				         (match-string 1 value))))
+			         ;; Ignore search suffix.
+			         (if (string-match "::.*?\\'" m)
+				     (substring m 0 (match-beginning 0))
+				   m)))))
+		    (when include-filename
+		      (push (org-publish-cache-mtime-of-src
+			     (expand-file-name include-filename (file-name-directory filename)))
+			    included-files-mtime))))))))))
     (or (null pstamp)
-	(let ((ctime (org-publish-cache-ctime-of-src filename)))
-	  (or (time-less-p pstamp ctime)
-	      (cl-some (lambda (ct) (time-less-p ctime ct))
-		       included-files-ctime))))))
+	(let ((mtime (org-publish-cache-mtime-of-src filename)))
+	  (or (time-less-p pstamp mtime)
+	      (cl-some (lambda (ct) (time-less-p mtime ct))
+		       included-files-mtime))))))
 
 (defun org-publish-cache-set-file-property
-  (filename property value &optional project-name)
+    (filename property value &optional project-name)
   "Set the VALUE for a PROPERTY of file FILENAME in publishing cache to VALUE.
 Use cache file of PROJECT-NAME.  If the entry does not exist, it
 will be created.  Return VALUE."
@@ -1362,8 +1369,8 @@ does not exist."
     (error "`org-publish-cache-set' called, but no cache present"))
   (puthash key value org-publish-cache))
 
-(defun org-publish-cache-ctime-of-src (file)
-  "Get the ctime of FILE as an integer."
+(defun org-publish-cache-mtime-of-src (file)
+  "Get the mtime of FILE as an integer."
   (let ((attr (file-attributes
 	       (expand-file-name (or (file-symlink-p file) file)
 				 (file-name-directory file)))))

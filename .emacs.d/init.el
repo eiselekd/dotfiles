@@ -72,6 +72,8 @@
 (add-to-list 'load-path (expand-file-name "lib/magit-3.1.1" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/magit-gerrit" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/magit-with-editor" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/compat" *.emacs.d.lisp.dir*  ))
+
 (add-to-list 'load-path (expand-file-name "lib/tuareg" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/merlin" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/transient" *.emacs.d.lisp.dir*  ))
@@ -387,6 +389,26 @@
 (require 'config/keybindings.el)
 (message "[*] %s retire keybinding" (timestamp_str))
 
+;; (if (not (display-graphic-p))
+;;     (progn
+;;       (define-key function-key-map "\e[1;5A" [C-up])
+;;       (define-key function-key-map "\e[1;5D" [C-left])
+;;       (define-key function-key-map "\e[1;5C" [C-right])
+;;       (define-key function-key-map "\e[1;5B" [C-down])))
+
+(if (not (display-graphic-p))
+    (progn
+      (define-key function-key-map "\e[1;5A" [C-up])
+      (define-key function-key-map "\e[1;5D" [C-left])
+      (define-key function-key-map "\e[1;5C" [C-right])
+      (define-key function-key-map "\e[1;5B" [C-down])
+      (define-key function-key-map "\e[1;2A" [S-up])
+      (define-key function-key-map "\e[1;2B" [S-down])
+      (define-key function-key-map "\e[1;2C" [S-right])
+      (define-key function-key-map "\e[1;2D" [S-left])
+
+      ))
+
 ;;(require 'ux/popups.el.el)
 ;; 4: configure modes
 (message (format "[*] %s config modes" (timestamp_str)))
@@ -396,7 +418,7 @@
 (message "[*] %s retire ruby-mode" (timestamp_str))
 (require 'modes/lua-mode.el)
 (message "[*] %s retire lua-mode" (timestamp_str))
-(require 'modes/haskell-mode.el)
+;;(require 'modes/haskell-mode.el)
 (message "[*] %s retire haskell-mode" (timestamp_str))
 (require 'modes/cling-mode.el)
 (message "[*] %s retire cling-mode" (timestamp_str))
@@ -406,10 +428,10 @@
 (global-set-key (kbd "ESC M-h") (lambda ()(interactive) (progn (haskell-interactive-start))))
 (message "[*] %s retire elisp-mode" (timestamp_str))
 ;;(require 'modes/web-mode.el)
-(require 'modes/javascript-mode.el)
+;;(require 'modes/javascript-mode.el)
 (message "[*] %s retire javascript-mode" (timestamp_str))
-(require 'modes/org-mode.el)
-(message "[*] %s retire org-mode" (timestamp_str))
+;;(require 'modes/org-mode.el)
+;;(message "[*] %s retire org-mode" (timestamp_str))
 (require 'modes/l8-mode.el)
 (message "[*] %s retire l8-mode" (timestamp_str))
 (require 'modes/ocaml-mode.el)
@@ -678,7 +700,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages '(eglot utop merlin tuareg))
- '(safe-local-variable-values '((whitespace-line-column . 80))))
+ '(safe-local-variable-values '((whitespace-line-column . 80)))
+ '(warning-suppress-log-types '((org))))
 
 
 (setq vc-follow-symlinks 't)
@@ -732,10 +755,10 @@
 (require 'zoom-window)
 (global-set-key (kbd "C-L")  'zoom-window-zoom)
 
-(global-set-key (kbd "M-E")
-		(lambda ()(interactive)
-		  (progn
-		    (require 'evil)
-		    (evil-mode))))
+;;(global-set-key (kbd "M-E")
+;;		(lambda ()(interactive)
+;;		  (progn
+;;		    (require 'evil)
+;;		    (evil-mode))))
 
 ;;(require 'kanji-mode)

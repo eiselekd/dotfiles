@@ -1,10 +1,10 @@
 ;;; org-macs.el --- Top-level Definitions for Org -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
 
-;; Author: Carsten Dominik <carsten at orgmode dot org>
+;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -34,13 +34,99 @@
 (require 'cl-lib)
 (require 'format-spec)
 
-(declare-function org-show-context "org" (&optional key))
-(declare-function org-string-collate-lessp "org-compat" (s1 s2 &optional locale ignore-case))
+;;; Org version verification.
+
+(defvar org--inhibit-version-check nil
+  "When non-nil, skip the detection of mixed-versions situations.
+For internal use only.  See Emacs bug #62762.
+This variable is only supposed to be changed by Emacs build scripts.
+When nil, Org tries to detect when Org source files were compiled with
+a different version of Org (which tends to lead to incorrect `.elc' files),
+or when the current Emacs session has loaded a mix of files from different
+Org versions (typically the one bundled with Emacs and another one installed
+from GNU ELPA), which can happen if some parts of Org were loaded before
+`load-path' was changed (e.g. before the GNU-ELPA-installed Org is activated
+by `package-activate-all').")
+(defmacro org-assert-version ()
+  "Assert compile time and runtime version match."
+  ;; We intentionally use a more permissive `org-release' instead of
+  ;; `org-git-version' to work around deficiencies in Elisp
+  ;; compilation after pulling latest changes.  Unchanged files will
+  ;; not be re-compiled and thus their macro-expanded
+  ;; `org-assert-version' calls would fail using strict
+  ;; `org-git-version' check because the generated Org version strings
+  ;; will not match.
+  `(unless (or org--inhibit-version-check (equal (org-release) ,(org-release)))
+     (warn "Org version mismatch.  Org loading aborted.
+This warning usually appears when a built-in Org version is loaded
+prior to the more recent Org version.
+
+Version mismatch is commonly encountered in the following situations:
+
+1. Emacs is loaded using literate Org config and more recent Org
+   version is loaded inside the file loaded by `org-babel-load-file'.
+   `org-babel-load-file' triggers the built-in Org version clashing
+   the newer Org version attempt to be loaded later.
+
+   It is recommended to move the Org loading code before the
+   `org-babel-load-file' call.
+
+2. New Org version is loaded manually by setting `load-path', but some
+   other package depending on Org is loaded before the `load-path' is
+   configured.
+   This \"other package\" is triggering built-in Org version, again
+   causing the version mismatch.
+
+   It is recommended to set `load-path' as early in the config as
+   possible.
+
+3. New Org version is loaded using straight.el package manager and
+   other package depending on Org is loaded before straight triggers
+   loading of the newer Org version.
+
+   It is recommended to put
+
+    %s
+
+   early in the config.  Ideally, right after the straight.el
+   bootstrap.  Moving `use-package' :straight declaration may not be
+   sufficient if the corresponding `use-package' statement is
+   deferring the loading."
+           ;; Avoid `warn' replacing "'" with "’" (see `format-message').
+           "(straight-use-package 'org)")
+     (error "Org version mismatch.  Make sure that correct `load-path' is set early in init.el")))
+
+;; We rely on org-macs when generating Org version.  Checking Org
+;; version here will interfere with Org build process.
+;; (org-assert-version)
+
+(declare-function org-mode "org" ())
+(declare-function org-agenda-files "org" (&optional unrestricted archives))
+(declare-function org-time-string-to-seconds "org" (s))
+(declare-function org-fold-show-context "org-fold" (&optional key))
+(declare-function org-fold-save-outline-visibility "org-fold" (use-markers &rest body))
+(declare-function org-fold-next-visibility-change "org-fold" (&optional pos limit ignore-hidden-p previous-p))
+(declare-function org-fold-core-with-forced-fontification "org-fold" (&rest body))
+(declare-function org-fold-folded-p "org-fold" (&optional pos limit ignore-hidden-p previous-p))
+(declare-function string-collate-lessp "org-compat" (s1 s2 &optional locale ignore-case))
+(declare-function org-time-convert-to-list "org-compat" (time))
+(declare-function org-buffer-text-pixel-width "org-compat" ())
 
 (defvar org-ts-regexp0)
+(defvar ffap-url-regexp)
+(defvar org-fold-core-style)
 
 
 ;;; Macros
+
+(defmacro org-require-package (symbol &optional name noerror)
+  "Try to load library SYMBOL and display error otherwise.
+With optional parameter NAME, use NAME as package name instead of
+SYMBOL.  Show warning instead of error when NOERROR is non-nil."
+  `(unless (require ,symbol nil t)
+     (,(if noerror 'warn 'user-error)
+      "`%s' failed to load required package \"%s\""
+      this-command ,(or name symbol))))
 
 (defmacro org-with-gensyms (symbols &rest body)
   (declare (debug (sexp body)) (indent 1))
@@ -62,31 +148,37 @@
 	     ,@body)
 	 (set-buffer-modified-p ,was-modified)))))
 
-(defmacro org-without-partial-completion (&rest body)
-  (declare (debug (body)))
-  `(if (and (boundp 'partial-completion-mode)
-	    partial-completion-mode
-	    (fboundp 'partial-completion-mode))
-       (unwind-protect
-	   (progn
-	     (partial-completion-mode -1)
-	     ,@body)
-	 (partial-completion-mode 1))
+(defmacro org-with-base-buffer (buffer &rest body)
+  "Run BODY in base buffer for BUFFER.
+If BUFFER is nil, use base buffer for `current-buffer'."
+  (declare (debug (body)) (indent 1))
+  `(with-current-buffer (or (buffer-base-buffer ,buffer)
+                            (or ,buffer (current-buffer)))
      ,@body))
 
-(defmacro org-with-point-at (pom &rest body)
-  "Move to buffer and point of point-or-marker POM for the duration of BODY."
+(defmacro org-with-point-at (epom &rest body)
+  "Move to buffer and point of EPOM for the duration of BODY.
+EPOM is an element, point, or marker."
   (declare (debug (form body)) (indent 1))
-  (org-with-gensyms (mpom)
-    `(let ((,mpom ,pom))
+  (require 'org-element-ast)
+  (org-with-gensyms (mepom)
+    `(let ((,mepom ,epom))
        (save-excursion
-	 (when (markerp ,mpom) (set-buffer (marker-buffer ,mpom)))
+         (cond
+          ((markerp ,mepom)
+           (set-buffer (marker-buffer ,mepom)))
+          ((numberp ,mepom))
+          (t
+           (when (org-element-property :buffer ,mepom)
+             (set-buffer (org-element-property :buffer ,mepom)))
+           (setq ,mepom (org-element-property :begin ,mepom))))
 	 (org-with-wide-buffer
-	  (goto-char (or ,mpom (point)))
+	  (goto-char (or ,mepom (point)))
 	  ,@body)))))
 
 (defmacro org-with-remote-undo (buffer &rest body)
-  "Execute BODY while recording undo information in two buffers."
+  "Execute BODY while recording undo information in current buffer and BUFFER.
+This function is only useful when called from org-agenda buffer."
   (declare (debug (form body)) (indent 1))
   (org-with-gensyms (cline cmd buf1 buf2 undo1 undo2 c1 c2)
     `(let ((,cline (org-current-line))
@@ -115,38 +207,7 @@
   (declare (debug (body)))
   `(let ((inhibit-read-only t)) ,@body))
 
-(defmacro org-save-outline-visibility (use-markers &rest body)
-  "Save and restore outline visibility around BODY.
-If USE-MARKERS is non-nil, use markers for the positions.  This
-means that the buffer may change while running BODY, but it also
-means that the buffer should stay alive during the operation,
-because otherwise all these markers will point to nowhere."
-  (declare (debug (form body)) (indent 1))
-  (org-with-gensyms (data invisible-types markers?)
-    `(let* ((,invisible-types '(org-hide-block outline))
-	    (,markers? ,use-markers)
-	    (,data
-	     (mapcar (lambda (o)
-		       (let ((beg (overlay-start o))
-			     (end (overlay-end o))
-			     (type (overlay-get o 'invisible)))
-			 (and beg end
-			      (> end beg)
-			      (memq type ,invisible-types)
-			      (list (if ,markers? (copy-marker beg) beg)
-				    (if ,markers? (copy-marker end t) end)
-				    type))))
-		     (org-with-wide-buffer
-		      (overlays-in (point-min) (point-max))))))
-       (unwind-protect (progn ,@body)
-	 (org-with-wide-buffer
-	  (dolist (type ,invisible-types)
-	    (remove-overlays (point-min) (point-max) 'invisible type))
-	  (pcase-dolist (`(,beg ,end ,type) (delq nil ,data))
-	    (org-flag-region beg end t type)
-	    (when ,markers?
-	      (set-marker beg nil)
-	      (set-marker end nil))))))))
+(defalias 'org-save-outline-visibility #'org-fold-save-outline-visibility)
 
 (defmacro org-with-wide-buffer (&rest body)
   "Execute body while temporarily widening the buffer."
@@ -167,11 +228,11 @@ because otherwise all these markers will point to nowhere."
      (let* ((org-called-with-limited-levels t)
             (org-outline-regexp (org-get-limited-outline-regexp))
             (outline-regexp org-outline-regexp)
-            (org-outline-regexp-bol (concat "^" org-outline-regexp)))
+            (org-outline-regexp-bol (org-get-limited-outline-regexp t)))
        ,@body)))
 
 (defmacro org-eval-in-environment (environment form)
-  (declare (debug (form form)) (indent 1))
+  (declare (debug (form form)) (indent 1) (obsolete cl-progv "2021"))
   `(eval (list 'let ,environment ',form)))
 
 ;;;###autoload
@@ -189,25 +250,29 @@ because otherwise all these markers will point to nowhere."
 	     (and (re-search-backward "^[ \t]*# +Local Variables:"
 				      (max (- (point) 3000) 1)
 				      t)
-		  (delete-and-extract-region (point) (point-max)))))))
+               (let ((buffer-undo-list t))
+	         (delete-and-extract-region (point) (point-max)))))))
+         (tick-counter-before (buffer-modified-tick)))
      (unwind-protect (progn ,@body)
        (when local-variables
 	 (org-with-wide-buffer
 	  (goto-char (point-max))
-	  ;; If last section is folded, make sure to also hide file
-	  ;; local variables after inserting them back.
-	  (let ((overlay
-		 (cl-find-if (lambda (o)
-			       (eq 'outline (overlay-get o 'invisible)))
-			     (overlays-at (1- (point))))))
-	    (unless (bolp) (insert "\n"))
+	  (unless (bolp) (insert "\n"))
+          (let ((modified (< tick-counter-before (buffer-modified-tick)))
+                (buffer-undo-list t))
 	    (insert local-variables)
-	    (when overlay
-	      (move-overlay overlay (overlay-start overlay) (point-max)))))))))
+            (unless modified
+              (restore-buffer-modified-p nil))))))))
 
 (defmacro org-no-popups (&rest body)
   "Suppress popup windows and evaluate BODY."
-  `(let (pop-up-frames display-buffer-alist)
+  `(let (pop-up-frames pop-up-windows)
+     ,@body))
+
+(defmacro org-element-with-disabled-cache (&rest body)
+  "Run BODY without active org-element-cache."
+  (declare (debug (form body)) (indent 0))
+  `(cl-letf (((symbol-function #'org-element--cache-active-p) (lambda (&rest _) nil)))
      ,@body))
 
 
@@ -239,114 +304,112 @@ WINDOW defaults to the selected window.  MAX-HEIGHT and MIN-HEIGHT are
 passed through to `fit-window-to-buffer'.  If SHRINK-ONLY is set, call
 `shrink-window-if-larger-than-buffer' instead, the height limit is
 ignored in this case."
-  (cond ((if (fboundp 'window-full-width-p)
-             (not (window-full-width-p window))
-           ;; Do nothing if another window would suffer.
-           (> (frame-width) (window-width window))))
-        ((and (fboundp 'fit-window-to-buffer) (not shrink-only))
+  (cond ((not (window-full-width-p window))
+         ;; Do nothing if another window would suffer.
+         )
+        ((not shrink-only)
          (fit-window-to-buffer window max-height min-height))
-        ((fboundp 'shrink-window-if-larger-than-buffer)
-         (shrink-window-if-larger-than-buffer window)))
+        (t (shrink-window-if-larger-than-buffer window)))
   (or window (selected-window)))
+
+(defun org-buffer-list (&optional predicate exclude-tmp)
+  "Return a list of Org buffers.
+PREDICATE can be `export', `files' or `agenda'.
+
+export   restrict the list to Export buffers.
+files    restrict the list to buffers visiting Org files.
+agenda   restrict the list to buffers visiting agenda files.
+
+If EXCLUDE-TMP is non-nil, ignore temporary buffers."
+  (let* ((bfn nil)
+	 (agenda-files (and (eq predicate 'agenda)
+			    (mapcar 'file-truename (org-agenda-files t))))
+	 (filter
+	  (cond
+	   ((eq predicate 'files)
+	    (lambda (b) (with-current-buffer b (derived-mode-p 'org-mode))))
+	   ((eq predicate 'export)
+	    (lambda (b) (string-match "\\*Org .*Export" (buffer-name b))))
+	   ((eq predicate 'agenda)
+	    (lambda (b)
+	      (with-current-buffer b
+		(and (derived-mode-p 'org-mode)
+		     (setq bfn (buffer-file-name b))
+		     (member (file-truename bfn) agenda-files)))))
+	   (t (lambda (b) (with-current-buffer b
+			    (or (derived-mode-p 'org-mode)
+				(string-match "\\*Org .*Export"
+					      (buffer-name b)))))))))
+    (delq nil
+	  (mapcar
+	   (lambda(b)
+	     (if (and (funcall filter b)
+		      (or (not exclude-tmp)
+			  (not (string-match "tmp" (buffer-name b)))))
+		 b
+	       nil))
+	   (buffer-list)))))
 
 
 
 ;;; File
 
 (defun org-file-newer-than-p (file time)
-  "Non-nil if FILE is newer than TIME.
-FILE is a filename, as a string, TIME is a list of integers, as
-returned by, e.g., `current-time'."
-  (and (file-exists-p file)
-       ;; Only compare times up to whole seconds as some file-systems
-       ;; (e.g. HFS+) do not retain any finer granularity.  As
-       ;; a consequence, make sure we return non-nil when the two
-       ;; times are equal.
-       (not (time-less-p (cl-subseq (nth 5 (file-attributes file)) 0 2)
-			 (cl-subseq time 0 2)))))
+  "Non-nil if FILE modification time is greater than TIME.
+TIME should be obtained earlier for the same FILE name using
 
-(defun org-compile-file (source process ext &optional err-msg log-buf spec)
-  "Compile a SOURCE file using PROCESS.
+  \(file-attribute-modification-time (file-attributes file))
 
-PROCESS is either a function or a list of shell commands, as
-strings.  EXT is a file extension, without the leading dot, as
-a string.  It is used to check if the process actually succeeded.
+If TIME is nil (file did not exist) then any existing FILE
+is considered as a newer one.  Some file systems have coarse
+timestamp resolution, for example 1 second on HFS+ or 2 seconds on FAT,
+so nil may be returned when file is updated twice within a short period
+of time.  File timestamp and system clock `current-time' may have
+different resolution, so attempts to compare them may give unexpected
+results.
 
-PROCESS must create a file with the same base name and directory
-as SOURCE, but ending with EXT.  The function then returns its
-filename.  Otherwise, it raises an error.  The error message can
-then be refined by providing string ERR-MSG, which is appended to
-the standard message.
-
-If PROCESS is a function, it is called with a single argument:
-the SOURCE file.
-
-If it is a list of commands, each of them is called using
-`shell-command'.  By default, in each command, %b, %f, %F, %o and
-%O are replaced with, respectively, SOURCE base name, name, full
-name, directory and absolute output file name.  It is possible,
-however, to use more place-holders by specifying them in optional
-argument SPEC, as an alist following the pattern
-
-  (CHARACTER . REPLACEMENT-STRING).
-
-When PROCESS is a list of commands, optional argument LOG-BUF can
-be set to a buffer or a buffer name.  `shell-command' then uses
-it for output."
-  (let* ((base-name (file-name-base source))
-	 (full-name (file-truename source))
-	 (out-dir (or (file-name-directory source) "./"))
-	 (output (expand-file-name (concat base-name "." ext) out-dir))
-	 (time (current-time))
-	 (err-msg (if (stringp err-msg) (concat ".  " err-msg) "")))
-    (save-window-excursion
-      (pcase process
-	((pred functionp) (funcall process (shell-quote-argument source)))
-	((pred consp)
-	 (let ((log-buf (and log-buf (get-buffer-create log-buf)))
-	       (spec (append spec
-			     `((?b . ,(shell-quote-argument base-name))
-			       (?f . ,(shell-quote-argument source))
-			       (?F . ,(shell-quote-argument full-name))
-			       (?o . ,(shell-quote-argument out-dir))
-			       (?O . ,(shell-quote-argument output))))))
-	   (dolist (command process)
-	     (shell-command (format-spec command spec) log-buf))
-	   (when log-buf (with-current-buffer log-buf (compilation-mode)))))
-	(_ (error "No valid command to process %S%s" source err-msg))))
-    ;; Check for process failure.  Output file is expected to be
-    ;; located in the same directory as SOURCE.
-    (unless (org-file-newer-than-p output time)
-      (error (format "File %S wasn't produced%s" output err-msg)))
-    output))
-
+Consider `file-newer-than-file-p' to check up to date state
+in target-prerequisite files relation."
+  (let ((mtime (file-attribute-modification-time (file-attributes file))))
+    (and mtime (or (not time) (time-less-p time mtime)))))
 
 
 ;;; Indentation
 
-(defun org-do-remove-indentation (&optional n)
+(defmacro org-current-text-indentation ()
+  "Like `current-indentation', but ignore display/invisible properties."
+  `(let ((buffer-invisibility-spec nil))
+     (current-indentation)))
+
+(defun org-do-remove-indentation (&optional n skip-fl)
   "Remove the maximum common indentation from the buffer.
 When optional argument N is a positive integer, remove exactly
-that much characters from indentation, if possible.  Return nil
-if it fails."
+that much characters from indentation, if possible.  When
+optional argument SKIP-FL is non-nil, skip the first
+line.  Return nil if it fails."
   (catch :exit
     (goto-char (point-min))
     ;; Find maximum common indentation, if not specified.
     (let ((n (or n
 		 (let ((min-ind (point-max)))
 		   (save-excursion
+                     (when skip-fl (forward-line))
 		     (while (re-search-forward "^[ \t]*\\S-" nil t)
-		       (let ((ind (current-indentation)))
+		       (let ((ind (org-current-text-indentation)))
 			 (if (zerop ind) (throw :exit nil)
 			   (setq min-ind (min min-ind ind))))))
 		   min-ind))))
       (if (zerop n) (throw :exit nil)
 	;; Remove exactly N indentation, but give up if not possible.
+        (when skip-fl (forward-line))
 	(while (not (eobp))
 	  (let ((ind (progn (skip-chars-forward " \t") (current-column))))
-	    (cond ((eolp) (delete-region (line-beginning-position) (point)))
-		  ((< ind n) (throw :exit nil))
-		  (t (indent-line-to (- ind n))))
+	    (cond ((< ind n)
+                   (if (eolp) (delete-region (line-beginning-position) (point))
+                     (throw :exit nil)))
+		  (t (delete-region (line-beginning-position)
+                                    (progn (move-to-column n t)
+                                           (point)))))
 	    (forward-line)))
 	;; Signal success.
 	t))))
@@ -365,29 +428,38 @@ error when the user input is empty."
 	  (allow-empty? nil)
 	  (t (user-error "Empty input is not valid")))))
 
+(declare-function org-timestamp-inactive "org" (&optional arg))
+
 (defun org-completing-read (&rest args)
   "Completing-read with SPACE being a normal character."
   (let ((enable-recursive-minibuffers t)
 	(minibuffer-local-completion-map
 	 (copy-keymap minibuffer-local-completion-map)))
-    (define-key minibuffer-local-completion-map " " 'self-insert-command)
-    (define-key minibuffer-local-completion-map "?" 'self-insert-command)
+    (define-key minibuffer-local-completion-map " " #'self-insert-command)
+    (define-key minibuffer-local-completion-map "?" #'self-insert-command)
     (define-key minibuffer-local-completion-map (kbd "C-c !")
-      'org-time-stamp-inactive)
+                #'org-timestamp-inactive)
     (apply #'completing-read args)))
 
-(defun org--mks-read-key (allowed-keys prompt)
+(defun org--mks-read-key (allowed-keys prompt navigation-keys)
   "Read a key and ensure it is a member of ALLOWED-KEYS.
+Enable keys to scroll the window if NAVIGATION-KEYS is set.
 TAB, SPC and RET are treated equivalently."
-  (let* ((key (char-to-string
-	       (pcase (read-char-exclusive prompt)
-		 ((or ?\s ?\t ?\r) ?\t)
-		 (char char)))))
-    (if (member key allowed-keys)
-        key
-      (message "Invalid key: `%s'" key)
-      (sit-for 1)
-      (org--mks-read-key allowed-keys prompt))))
+  (setq header-line-format (when navigation-keys "Use C-n, C-p, C-v, M-v to navigate."))
+  (let ((char-key (read-char-exclusive prompt)))
+    (if (and navigation-keys (memq char-key '(14 16 22 134217846)))
+	(progn
+	  (org-scroll char-key)
+	  (org--mks-read-key allowed-keys prompt navigation-keys))
+      (let ((key (char-to-string
+		  (pcase char-key
+		    ((or ?\s ?\t ?\r) ?\t)
+		    (char char)))))
+	(if (member key allowed-keys)
+	    key
+	  (message "Invalid key: `%s'" key)
+	  (sit-for 1)
+	  (org--mks-read-key allowed-keys prompt navigation-keys))))))
 
 (defun org-mks (table title &optional prompt specials)
   "Select a member of an alist with multiple keys.
@@ -460,9 +532,13 @@ is selected, only the bare key is returned."
 		;; Display UI and let user select an entry or
 		;; a sub-level prefix.
 		(goto-char (point-min))
-		(unless (pos-visible-in-window-p (point-max))
-		  (org-fit-window-to-buffer))
-		(let ((pressed (org--mks-read-key allowed-keys prompt)))
+		(org-fit-window-to-buffer)
+		(message "") ; With this line the prompt appears in
+                                        ; the minibuffer. Else keystrokes may
+                                        ; appear, which is spurious.
+		(let ((pressed (org--mks-read-key
+				allowed-keys prompt
+				(not (pos-visible-in-window-p (1- (point-max)))))))
 		  (setq current (concat current pressed))
 		  (cond
 		   ((equal pressed "\C-g") (user-error "Abort"))
@@ -501,7 +577,7 @@ is selected, only the bare key is returned."
 For example, in this alist:
 
 \(org-uniquify-alist \\='((a 1) (b 2) (a 3)))
-  => \\='((a 1 3) (b 2))
+  => ((a 1 3) (b 2))
 
 merge (a 1) and (a 3) into (a 1 3).
 
@@ -522,6 +598,11 @@ that may remove elements by altering the list structure."
   (while elts
     (setq list (delete (pop elts) list)))
   list)
+
+(defun org-plist-delete-all (plist props)
+  "Delete all elements in PROPS from PLIST."
+  (dolist (e props plist)
+    (setq plist (org-plist-delete plist e))))
 
 (defun org-plist-delete (plist property)
   "Delete PROPERTY from PLIST.
@@ -553,7 +634,18 @@ ones and overrule settings in the other lists."
 
 (defconst org-unique-local-variables
   '(org-element--cache
-    org-element--cache-objects
+    org-element--headline-cache
+    org-element--cache-change-tic
+    org-element--cache-last-buffer-size
+    org-element--cache-change-warning
+    org-element--cache-gapless
+    org-element--cache-hash-left
+    org-element--cache-hash-right
+    org-element--cache-size
+    org-element--headline-cache-size
+    org-element--cache-sync-keys-value
+    org-element--cache-diagnostics-ring
+    org-element--cache-diagnostics-ring-size
     org-element--cache-sync-keys
     org-element--cache-sync-requests
     org-element--cache-sync-timer)
@@ -615,56 +707,126 @@ program is needed for, so that the error message can be more informative."
   (let ((message-log-max nil))
     (apply #'message args)))
 
-(defun org-let (list &rest body)
-  (eval (cons 'let (cons list body))))
-(put 'org-let 'lisp-indent-function 1)
+(defmacro org-dlet (binders &rest body)
+  "Like `let*' but using dynamic scoping."
+  (declare (indent 1) (debug let))
+  (let ((vars (mapcar (lambda (binder)
+                        (if (consp binder) (car binder) binder))
+                      binders)))
+    `(progn
+       (with-no-warnings
+         ,@(mapcar (lambda (var) `(defvar ,var)) vars))
+       (let* ,binders ,@body))))
 
-(defun org-let2 (list1 list2 &rest body)
-  (eval (cons 'let (cons list1 (list (cons 'let (cons list2 body)))))))
-(put 'org-let2 'lisp-indent-function 2)
+(defmacro org-pushnew-to-end (val var)
+  "Like `cl-pushnew' but pushes to the end of the list.
+Uses `equal' for comparisons.
+
+Beware: this performs O(N) memory allocations, so if you use it in a loop, you
+get an unnecessary O(N²) space complexity, so you're usually better off using
+`cl-pushnew' (with a final `reverse' if you care about the order of elements)."
+  (declare (debug (form gv-place)))
+  (let ((v (make-symbol "v")))
+    `(let ((,v ,val))
+       (unless (member ,v ,var)
+         (setf ,var (append ,var (list ,v)))))))
 
 (defun org-eval (form)
   "Eval FORM and return result."
-  (condition-case error
-      (eval form)
+  (condition-case-unless-debug error
+      (eval form t)
     (error (format "%%![Error: %s]" error))))
 
+(defvar org--headline-re-cache-no-bol nil
+  "Plist holding association between headline level regexp.")
+(defvar org--headline-re-cache-bol nil
+  "Plist holding association between headline level regexp.")
+(defsubst org-headline-re (true-level &optional no-bol)
+  "Generate headline regexp for TRUE-LEVEL.
+When NO-BOL is non-nil, regexp will not demand the regexp to start at
+beginning of line."
+  (or (plist-get
+       (if no-bol
+           org--headline-re-cache-no-bol
+         org--headline-re-cache-bol)
+       true-level)
+      (let ((re (rx-to-string
+                 (if no-bol
+                     `(seq (** 1 ,true-level "*") " ")
+                   `(seq line-start (** 1 ,true-level "*") " ")))))
+        (if no-bol
+            (setq org--headline-re-cache-no-bol
+                  (plist-put
+                   org--headline-re-cache-no-bol
+                   true-level re))
+          (setq org--headline-re-cache-bol
+                (plist-put
+                 org--headline-re-cache-bol
+                 true-level re)))
+        re)))
+
 (defvar org-outline-regexp) ; defined in org.el
+(defvar org-outline-regexp-bol) ; defined in org.el
 (defvar org-odd-levels-only) ; defined in org.el
 (defvar org-inlinetask-min-level) ; defined in org-inlinetask.el
-(defun org-get-limited-outline-regexp ()
+(defun org-get-limited-outline-regexp (&optional with-bol)
   "Return outline-regexp with limited number of levels.
-The number of levels is controlled by `org-inlinetask-min-level'."
+The number of levels is controlled by `org-inlinetask-min-level'.
+Match at beginning of line when WITH-BOL is non-nil."
   (cond ((not (derived-mode-p 'org-mode))
-	 outline-regexp)
+         (if (string-prefix-p "^" outline-regexp)
+             (if with-bol outline-regexp (substring outline-regexp 1))
+           (if with-bol (concat "^" outline-regexp) outline-regexp)))
 	((not (featurep 'org-inlinetask))
-	 org-outline-regexp)
+	 (if with-bol org-outline-regexp-bol org-outline-regexp))
 	(t
 	 (let* ((limit-level (1- org-inlinetask-min-level))
 		(nstars (if org-odd-levels-only
 			    (1- (* limit-level 2))
 			  limit-level)))
-	   (format "\\*\\{1,%d\\} " nstars)))))
+           (org-headline-re nstars (not with-bol))))))
 
 (defun org--line-empty-p (n)
-  "Is the Nth next line empty?
-Counts the current line as N = 1 and the previous line as N = 0;
-see `beginning-of-line'."
+  "Is the Nth next line empty?"
   (and (not (bobp))
        (save-excursion
-	 (beginning-of-line n)
-	 (looking-at-p "[ \t]*$"))))
+	 (forward-line n)
+         (skip-chars-forward "[ \t]")
+         (eolp))))
 
 (defun org-previous-line-empty-p ()
   "Is the previous line a blank line?
 When NEXT is non-nil, check the next line instead."
-  (org--line-empty-p 0))
+  (org--line-empty-p -1))
 
 (defun org-next-line-empty-p ()
   "Is the previous line a blank line?
 When NEXT is non-nil, check the next line instead."
-  (org--line-empty-p 2))
+  (org--line-empty-p 1))
 
+(defun org-id-uuid ()
+  "Return string with random (version 4) UUID."
+  (let ((rnd (md5 (format "%s%s%s%s%s%s%s"
+			  (random)
+			  (org-time-convert-to-list nil)
+			  (user-uid)
+			  (emacs-pid)
+			  (user-full-name)
+			  user-mail-address
+			  (recent-keys)))))
+    (format "%s-%s-4%s-%s%s-%s"
+	    (substring rnd 0 8)
+	    (substring rnd 8 12)
+	    (substring rnd 13 16)
+	    (format "%x"
+		    (logior
+		     #b10000000
+		     (logand
+		      #b10111111
+		      (string-to-number
+		       (substring rnd 16 18) 16))))
+	    (substring rnd 18 20)
+	    (substring rnd 20 32))))
 
 
 ;;; Motion
@@ -683,7 +845,7 @@ When NEXT is non-nil, check the next line instead."
 
 
 
-;;; Overlays
+;;; Overlays and text properties
 
 (defun org-overlay-display (ovl text &optional face evap)
   "Make overlay OVL display TEXT with face FACE."
@@ -706,20 +868,22 @@ If DELETE is non-nil, delete all those overlays."
 	    (delete (delete-overlay ov))
 	    (t (push ov found))))))
 
-(defun org-flag-region (from to flag spec)
-  "Hide or show lines from FROM to TO, according to FLAG.
-SPEC is the invisibility spec, as a symbol."
-  (remove-overlays from to 'invisible spec)
-  ;; Use `front-advance' since text right before to the beginning of
-  ;; the overlay belongs to the visible line than to the contents.
-  (when flag
-    (let ((o (make-overlay from to nil 'front-advance)))
-      (overlay-put o 'evaporate t)
-      (overlay-put o 'invisible spec)
-      (overlay-put o
-		   'isearch-open-invisible
-		   (lambda (&rest _) (org-show-context 'isearch))))))
-
+(defun org-find-text-property-region (pos prop)
+  "Find a region around POS containing same non-nil value of PROP text property.
+Return nil when PROP is not set at POS."
+  (let* ((beg (and (get-text-property pos prop) pos))
+	 (end beg))
+    (when beg
+      (unless (or (equal beg (point-min))
+		  (not (eq (get-text-property beg prop)
+			 (get-text-property (1- beg) prop))))
+	(setq beg (previous-single-property-change pos prop nil (point-min))))
+      (unless (or (equal end (point-max))
+		  ;; (not (eq (get-text-property end prop)
+		  ;; 	 (get-text-property (1+ end) prop)))
+		  )
+	(setq end (next-single-property-change pos prop nil (point-max))))
+      (cons beg end))))
 
 
 ;;; Regexp matching
@@ -729,14 +893,14 @@ SPEC is the invisibility spec, as a symbol."
        (<= (match-beginning n) pos)
        (>= (match-end n) pos)))
 
-(defun org-skip-whitespace ()
+(defsubst org-skip-whitespace ()
   "Skip over space, tabs and newline characters."
   (skip-chars-forward " \t\n\r"))
 
 (defun org-match-line (regexp)
   "Match REGEXP at the beginning of the current line."
   (save-excursion
-    (beginning-of-line)
+    (forward-line 0)
     (looking-at regexp)))
 
 (defun org-match-any-p (re list)
@@ -758,7 +922,7 @@ match."
     (let ((pos (point))
           (eol (line-end-position (if nlines (1+ nlines) 1))))
       (save-excursion
-	(beginning-of-line (- 1 (or nlines 0)))
+	(forward-line (- (or nlines 0)))
 	(while (and (re-search-forward regexp eol t)
 		    (<= (match-beginning 0) pos))
 	  (let ((end (match-end 0)))
@@ -777,22 +941,35 @@ return nil."
 	   (list context (match-beginning group) (match-end group))
 	 t)))
 
+(defun org-url-p (s)
+  "Non-nil if string S is a URL."
+  (require 'ffap)
+  (and ffap-url-regexp (string-match-p ffap-url-regexp s)))
+
+(defconst org-uuid-regexp
+  "\\`[0-9a-f]\\{8\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{4\\}-[0-9a-f]\\{12\\}\\'"
+  "Regular expression matching a universal unique identifier (UUID).")
+
+(defun org-uuidgen-p (s)
+  "Is S an ID created by UUIDGEN?"
+  (string-match org-uuid-regexp (downcase s)))
+
 
 
 ;;; String manipulation
 
 (defun org-string< (a b)
-  (org-string-collate-lessp a b))
+  (string-collate-lessp a b))
 
 (defun org-string<= (a b)
-  (or (string= a b) (org-string-collate-lessp a b)))
+  (or (string= a b) (string-collate-lessp a b)))
 
 (defun org-string>= (a b)
-  (not (org-string-collate-lessp a b)))
+  (not (string-collate-lessp a b)))
 
 (defun org-string> (a b)
   (and (not (string= a b))
-       (not (org-string-collate-lessp a b))))
+       (not (string-collate-lessp a b))))
 
 (defun org-string<> (a b)
   (not (string= a b)))
@@ -847,14 +1024,13 @@ delimiting S."
 	(cursor beg))
     (while (setq beg (text-property-not-all beg end property nil s))
       (let* ((next (next-single-property-change beg property s end))
-	     (props (text-properties-at beg s))
-	     (spec (plist-get props property))
+	     (spec (get-text-property beg property s))
 	     (value
 	      (pcase property
 		(`invisible
-		 ;; If `invisible' property in PROPS means text is to
-		 ;; be invisible, return 0.  Otherwise return nil so
-		 ;; as to resume search.
+		 ;; If `invisible' property means text is to be
+		 ;; invisible, return 0.  Otherwise return nil so as
+		 ;; to resume search.
 		 (and (or (eq t buffer-invisibility-spec)
 			  (assoc-string spec buffer-invisibility-spec))
 		      0))
@@ -865,7 +1041,8 @@ delimiting S."
 		    (let ((width (plist-get props :width)))
 		      (and (wholenump width) width)))
 		   (`(image . ,_)
-		    (ceiling (car (image-size spec))))
+                    (and (fboundp 'image-size)
+                         (ceiling (car (image-size spec)))))
 		   ((pred stringp)
 		    ;; Displayed string could contain invisible parts,
 		    ;; but no nested display.
@@ -894,7 +1071,7 @@ delimiting S."
 	     ((= cursor end) 0)
 	     (t (string-width (substring s cursor end)))))))
 
-(defun org-string-width (string)
+(defun org--string-width-1 (string)
   "Return width of STRING when displayed in the current buffer.
 Unlike `string-width', this function takes into consideration
 `invisible' and `display' text properties.  It supports the
@@ -902,6 +1079,78 @@ latter in a limited way, mostly for combinations used in Org.
 Results may be off sometimes if it cannot handle a given
 `display' value."
   (org--string-from-props string 'display 0 (length string)))
+
+(defun org-string-width (string &optional pixels)
+  "Return width of STRING when displayed in the current buffer.
+Return width in pixels when PIXELS is non-nil."
+  (if (and (version< emacs-version "28") (not pixels))
+      ;; FIXME: Fallback to old limited version, because
+      ;; `window-pixel-width' is buggy in older Emacs.
+      (org--string-width-1 string)
+    ;; Wrap/line prefix will make `window-text-pizel-size' return too
+    ;; large value including the prefix.
+    (remove-text-properties 0 (length string)
+                            '(wrap-prefix t line-prefix t)
+                            string)
+    ;; Face should be removed to make sure that all the string symbols
+    ;; are using default face with constant width.  Constant char width
+    ;; is critical to get right string width from pixel width (not needed
+    ;; when PIXELS are requested though).
+    (unless pixels
+      (remove-text-properties 0 (length string) '(face t) string))
+    (let (;; We need to remove the folds to make sure that folded table
+          ;; alignment is not messed up.
+          (current-invisibility-spec
+           (or (and (not (listp buffer-invisibility-spec))
+                    buffer-invisibility-spec)
+               (let (result)
+                 (dolist (el buffer-invisibility-spec)
+                   (unless (or (memq el
+                                     '(org-fold-drawer
+                                       org-fold-block
+                                       org-fold-outline))
+                               (and (listp el)
+                                    (memq (car el)
+                                          '(org-fold-drawer
+                                            org-fold-block
+                                            org-fold-outline))))
+                     (push el result)))
+                 result)))
+          (current-char-property-alias-alist char-property-alias-alist))
+      (with-current-buffer (get-buffer-create " *Org string width*")
+        (setq-local display-line-numbers nil)
+        (setq-local line-prefix nil)
+        (setq-local wrap-prefix nil)
+        (setq-local buffer-invisibility-spec
+                    (if (listp current-invisibility-spec)
+                        (mapcar (lambda (el)
+                                  ;; Consider ellipsis to have 0 width.
+                                  ;; It is what Emacs 28+ does, but we have
+                                  ;; to force it in earlier Emacs versions.
+                                  (if (and (consp el) (cdr el))
+                                      (list (car el))
+                                    el))
+                                current-invisibility-spec)
+                      current-invisibility-spec))
+        (setq-local char-property-alias-alist
+                    current-char-property-alias-alist)
+        (let (pixel-width symbol-width)
+          (with-silent-modifications
+            (erase-buffer)
+            (insert string)
+            (setq pixel-width (org-buffer-text-pixel-width))
+            (unless pixels
+              (erase-buffer)
+              (insert "a")
+              (setq symbol-width (org-buffer-text-pixel-width))))
+          (if pixels
+              pixel-width
+            (/ pixel-width symbol-width)))))))
+
+(defmacro org-current-text-column ()
+  "Like `current-column' but ignore display properties."
+  `(string-width (buffer-substring-no-properties
+                  (line-beginning-position) (point))))
 
 (defun org-not-nil (v)
   "If V not nil, and also not the string \"nil\", then return V.
@@ -916,7 +1165,8 @@ removed.  Return the new string.  If STRING is nil, return nil."
   (and string
        (if (and (string-prefix-p pre string)
 		(string-suffix-p post string))
-	   (substring string (length pre) (- (length post)))
+	   (substring string (length pre)
+                      (and (not (string-equal "" post)) (- (length post))))
 	 string)))
 
 (defun org-strip-quotes (string)
@@ -970,7 +1220,7 @@ IF WIDTH is nil and LINES is non-nil, the string is forced into at most that
 many lines, whatever width that takes.
 The return value is a list of lines, without newlines at the end."
   (let* ((words (split-string string))
-	 (maxword (apply 'max (mapcar 'org-string-width words)))
+	 (maxword (apply #'max (mapcar #'org-string-width words)))
 	 w ll)
     (cond (width
 	   (org--do-wrap words (max maxword width)))
@@ -1008,7 +1258,10 @@ as-is if removal failed."
   "Find each %key of ALIST in TEMPLATE and replace it."
   (let ((case-fold-search nil))
     (dolist (entry (sort (copy-sequence alist)
-                         (lambda (a b) (< (length (car a)) (length (car b))))))
+                         ; Sort from longest key to shortest, so that
+                         ; "noweb-ref" and "tangle-mode" get processed
+                         ; before "noweb" and "tangle", respectively.
+                         (lambda (a b) (< (length (car b)) (length (car a))))))
       (setq template
 	    (replace-regexp-in-string
 	     (concat "%" (regexp-quote (car entry)))
@@ -1029,7 +1282,7 @@ so values can contain further %-escapes if they are define later in TABLE."
       (setq re (concat "%-?[0-9.]*" (substring (car e) 1)))
       (when (and (cdr e) (string-match re (cdr e)))
         (let ((sref (substring (cdr e) (match-beginning 0) (match-end 0)))
-              (safe "SREF"))
+              (safe (copy-sequence "SREF")))
           (add-text-properties 0 3 (list 'sref sref) safe)
           (setcdr e (replace-match safe t t (cdr e)))))
       (while (string-match re string)
@@ -1050,6 +1303,25 @@ so values can contain further %-escapes if they are define later in TABLE."
 				   org-emphasis t)
   "Properties to remove when a string without properties is wanted.")
 
+(defun org-buffer-substring-fontified (beg end)
+  "Return fontified region between BEG and END."
+  (when (bound-and-true-p jit-lock-mode)
+    (when (text-property-not-all beg end 'fontified t)
+      (save-excursion (save-match-data (font-lock-fontify-region beg end)))))
+  (buffer-substring beg end))
+
+(defun org-looking-at-fontified (re)
+  "Call `looking-at' RE and make sure that the match is fontified."
+  (prog1 (looking-at re)
+    (when (bound-and-true-p jit-lock-mode)
+      (when (text-property-not-all
+             (match-beginning 0) (match-end 0)
+             'fontified t)
+        (save-excursion
+          (save-match-data
+            (font-lock-fontify-region (match-beginning 0)
+                              (match-end 0))))))))
+
 (defsubst org-no-properties (s &optional restricted)
   "Remove all text properties from string S.
 When RESTRICTED is non-nil, only remove the properties listed
@@ -1066,22 +1338,22 @@ that will be added to PLIST.  Returns the string that was modified."
    0 (length string) (if props (append plist props) plist) string)
   string)
 
-(defun org-make-parameter-alist (flat)
-  "Return alist based on FLAT.
-FLAT is a list with alternating symbol names and values.  The
-returned alist is a list of lists with the symbol name in car and
-the value in cdr."
-  (when flat
-    (cons (list (car flat) (cadr flat))
-	  (org-make-parameter-alist (cddr flat)))))
+(defun org-make-parameter-alist (plist)
+  "Return alist based on PLIST.
+PLIST is a property list with alternating symbol names and values.
+The returned alist is a list of lists with the symbol name in `car'
+and the value in `cadr'."
+  (when plist
+    (cons (list (car plist) (cadr plist))
+	  (org-make-parameter-alist (cddr plist)))))
 
 (defsubst org-get-at-bol (property)
   "Get text property PROPERTY at the beginning of line."
-  (get-text-property (point-at-bol) property))
+  (get-text-property (line-beginning-position) property))
 
 (defun org-get-at-eol (property n)
   "Get text property PROPERTY at the end of line less N characters."
-  (get-text-property (- (point-at-eol) n) property))
+  (get-text-property (- (line-end-position) n) property))
 
 (defun org-find-text-property-in-string (prop s)
   "Return the first non-nil value of property PROP in string S."
@@ -1089,18 +1361,19 @@ the value in cdr."
       (get-text-property (or (next-single-property-change 0 prop s) 0)
 			 prop s)))
 
+;; FIXME: move to org-fold?
 (defun org-invisible-p (&optional pos folding-only)
   "Non-nil if the character after POS is invisible.
 If POS is nil, use `point' instead.  When optional argument
 FOLDING-ONLY is non-nil, only consider invisible parts due to
 folding of a headline, a block or a drawer, i.e., not because of
 fontification."
-  (let ((value (get-char-property (or pos (point)) 'invisible)))
+  (let ((value (invisible-p (or pos (point)))))
     (cond ((not value) nil)
-	  (folding-only (memq value '(org-hide-block outline)))
+	  (folding-only (org-fold-folded-p (or pos (point))))
 	  (t value))))
 
-(defun org-truely-invisible-p ()
+(defun org-truly-invisible-p ()
   "Check if point is at a character currently not visible.
 This version does not only check the character property, but also
 `visible-mode'."
@@ -1116,17 +1389,23 @@ move it back by one char before doing this check."
       (backward-char 1))
     (org-invisible-p)))
 
+(defun org-region-invisible-p (beg end)
+  "Check if region if completely hidden."
+  (org-with-wide-buffer
+   (and (org-invisible-p beg)
+        (org-invisible-p (org-fold-next-visibility-change beg end)))))
+
 (defun org-find-visible ()
-  "Return closest visible buffer position, or `point-max'"
+  "Return closest visible buffer position, or `point-max'."
   (if (org-invisible-p)
-      (next-single-char-property-change (point) 'invisible)
+      (org-fold-next-visibility-change (point))
     (point)))
 
 (defun org-find-invisible ()
-  "Return closest invisible buffer position, or `point-max'"
+  "Return closest invisible buffer position, or `point-max'."
   (if (org-invisible-p)
       (point)
-    (next-single-char-property-change (point) 'invisible)))
+    (org-fold-next-visibility-change (point))))
 
 
 ;;; Time
@@ -1140,7 +1419,7 @@ nil, just return 0."
    ((numberp s) s)
    ((stringp s)
     (condition-case nil
-	(float-time (apply #'encode-time (org-parse-time-string s)))
+	(org-time-string-to-seconds s)
       (error 0)))
    (t 0)))
 
@@ -1174,6 +1453,39 @@ nil, just return 0."
 	(b (org-2ft b)))
     (and (> a 0) (> b 0) (\= a b))))
 
+(defmacro org-encode-time (&rest time)
+  "Compatibility and convenience helper for `encode-time'.
+TIME may be a 9 components list (SECONDS ... YEAR IGNORED DST ZONE)
+as the recommended way since Emacs-27 or 6 or 9 separate arguments
+similar to the only possible variant for Emacs-26 and earlier.
+6 elements list as the only argument causes wrong type argument till
+Emacs-29.
+
+Warning: use -1 for DST to guess the actual value, nil means no
+daylight saving time and may be wrong at particular time.
+
+DST value is ignored prior to Emacs-27.  Since Emacs-27 DST value matters
+even when multiple arguments is passed to this macro and such
+behavior is different from `encode-time'.  See
+Info node `(elisp)Time Conversion' for details and caveats,
+preferably the latest version."
+  (if (version< emacs-version "27.1")
+      (if (cdr time)
+          `(encode-time ,@time)
+        `(apply #'encode-time ,@time))
+    (if (ignore-errors (with-no-warnings (encode-time '(0 0 0 1 1 1971))))
+        (pcase (length time) ; Emacs-29 since d75e2c12eb
+          (1 `(encode-time ,@time))
+          ((or 6 9) `(encode-time (list ,@time)))
+          (_ (error "`org-encode-time' may be called with 1, 6, or 9 arguments but %d given"
+                    (length time))))
+      (pcase (length time)
+        (1 `(encode-time ,@time))
+        (6 `(encode-time (list ,@time nil -1 nil)))
+        (9 `(encode-time (list ,@time)))
+        (_ (error "`org-encode-time' may be called with 1, 6, or 9 arguments but %d given"
+                  (length time)))))))
+
 (defun org-parse-time-string (s &optional nodefault)
   "Parse Org time string S.
 
@@ -1197,7 +1509,7 @@ This should be a lot faster than the `parse-time-string'."
 	(string-to-number (match-string 4 s))
 	(string-to-number (match-string 3 s))
 	(string-to-number (match-string 2 s))
-	nil nil nil))
+	nil -1 nil))
 
 (defun org-matcher-time (s)
   "Interpret a time comparison value S as a floating point time.
@@ -1207,8 +1519,8 @@ following special strings: \"<now>\", \"<today>\",
 \"<tomorrow>\", and \"<yesterday>\".
 
 Return 0. if S is not recognized as a valid value."
-  (let ((today (float-time (apply #'encode-time
-				  (append '(0 0 0) (nthcdr 3 (decode-time)))))))
+  (let ((today (float-time (org-encode-time
+                            (append '(0 0 0) (nthcdr 3 (decode-time)))))))
     (save-match-data
       (cond
        ((string= s "<now>") (float-time))
@@ -1216,44 +1528,166 @@ Return 0. if S is not recognized as a valid value."
        ((string= s "<tomorrow>") (+ 86400.0 today))
        ((string= s "<yesterday>") (- today 86400.0))
        ((string-match "\\`<\\([-+][0-9]+\\)\\([hdwmy]\\)>\\'" s)
-	(+ today
+	(+ (if (string= (match-string 2 s) "h") (float-time) today)
 	   (* (string-to-number (match-string 1 s))
 	      (cdr (assoc (match-string 2 s)
-			  '(("d" . 86400.0)   ("w" . 604800.0)
+			  '(("h" . 3600.0)
+			    ("d" . 86400.0)   ("w" . 604800.0)
 			    ("m" . 2678400.0) ("y" . 31557600.0)))))))
        ((string-match org-ts-regexp0 s) (org-2ft s))
        (t 0.)))))
+
+
+;;; Misc
 
 (defun org-scroll (key &optional additional-keys)
   "Receive KEY and scroll the current window accordingly.
 When ADDITIONAL-KEYS is not nil, also include SPC and DEL in the
 allowed keys for scrolling, as expected in the export dispatch
 window."
-  (let ((scrlup (if additional-keys '(?\s 22) 22))
-	(scrldn (if additional-keys `(?\d 134217846) 134217846)))
-    (eval
-     `(cl-case ,key
-	;; C-n
-	(14 (if (not (pos-visible-in-window-p (point-max)))
-		(ignore-errors (scroll-up 1))
-	      (message "End of buffer")
-	      (sit-for 1)))
-	;; C-p
-	(16 (if (not (pos-visible-in-window-p (point-min)))
-		(ignore-errors (scroll-down 1))
-	      (message "Beginning of buffer")
-	      (sit-for 1)))
-	;; SPC or
-	(,scrlup
-	 (if (not (pos-visible-in-window-p (point-max)))
-	     (scroll-up nil)
-	   (message "End of buffer")
-	   (sit-for 1)))
-	;; DEL
-	(,scrldn (if (not (pos-visible-in-window-p (point-min)))
-		     (scroll-down nil)
-		   (message "Beginning of buffer")
-		   (sit-for 1)))))))
+  (let ((scrlup (if additional-keys '(?\s ?\C-v) ?\C-v))
+	(scrldn (if additional-keys `(?\d ?\M-v) ?\M-v)))
+    (pcase key
+      (?\C-n (if (not (pos-visible-in-window-p (point-max)))
+	         (ignore-errors (scroll-up 1))
+	       (message "End of buffer")
+	       (sit-for 1)))
+      (?\C-p (if (not (pos-visible-in-window-p (point-min)))
+	         (ignore-errors (scroll-down 1))
+	       (message "Beginning of buffer")
+	       (sit-for 1)))
+      ;; SPC or
+      ((guard (memq key scrlup))
+       (if (not (pos-visible-in-window-p (point-max)))
+	   (scroll-up nil)
+	 (message "End of buffer")
+	 (sit-for 1)))
+      ;; DEL
+      ((guard (memq key scrldn))
+       (if (not (pos-visible-in-window-p (point-min)))
+	   (scroll-down nil)
+	 (message "Beginning of buffer")
+	 (sit-for 1))))))
+
+(cl-defun org-knuth-hash (number &optional (base 32))
+  "Calculate Knuth's multiplicative hash for NUMBER.
+BASE is the maximum bitcount.
+Credit: https://stackoverflow.com/questions/11871245/knuth-multiplicative-hash#41537995"
+  (cl-assert (and (<= 0 base 32)))
+  (ash (* number 2654435769) (- base 32)))
+
+(defvar org-sxhash-hashes (make-hash-table :weakness 'key :test 'equal))
+(defvar org-sxhash-objects (make-hash-table :weakness 'value))
+(defun org-sxhash-safe (obj &optional counter)
+  "Like `sxhash' for OBJ, but collision-free for in-memory objects.
+When COUNTER is non-nil, return safe hash for (COUNTER . OBJ)."
+  ;; Note: third-party code may modify OBJ by side effect.
+  ;; Should not affect anything as long as `org-sxhash-safe'
+  ;; is used to calculate hash.
+  (or (and (not counter) (gethash obj org-sxhash-hashes))
+      (let* ((hash (sxhash (if counter (cons counter obj) obj)))
+	     (obj-old (gethash hash org-sxhash-objects)))
+	(if obj-old ; collision
+	    (org-sxhash-safe obj (if counter (1+ counter) 1))
+	  ;; No collision.  Remember and return normal hash.
+	  (puthash hash obj org-sxhash-objects)
+	  (puthash obj hash org-sxhash-hashes)))))
+
+(defun org-compile-file (source process ext &optional err-msg log-buf spec)
+  "Compile a SOURCE file using PROCESS.
+
+See `org-compile-file-commands' for information on PROCESS, EXT, and SPEC.
+If PROCESS fails, an error will be raised.  The error message can
+then be refined by providing string ERR-MSG, which is appended to
+the standard message.
+
+PROCESS must create a file with the same base name and directory
+as SOURCE, but ending with EXT.  The function then returns its
+filename.  Otherwise, it raises an error.
+
+When PROCESS is a list of commands, optional argument LOG-BUF can
+be set to a buffer or a buffer name.  `shell-command' then uses
+it for output."
+  (let* ((commands (org-compile-file-commands source process ext spec err-msg))
+         (output (concat (file-name-sans-extension source) "." ext))
+         ;; Resolve symlinks in default-directory to correctly handle
+         ;; absolute source paths or relative paths with ..
+         (relname (if (file-name-absolute-p source)
+                      (let ((pwd (file-truename default-directory)))
+                        (file-relative-name source pwd))
+                    source))
+         (log-buf (and log-buf (get-buffer-create log-buf)))
+         (time (file-attribute-modification-time (file-attributes output))))
+    (save-window-excursion
+      (dolist (command commands)
+        (cond
+         ((functionp command)
+          (funcall command (shell-quote-argument relname)))
+         ((stringp command) (shell-command command log-buf)))))
+    ;; Check for process failure.  Output file is expected to be
+    ;; located in the same directory as SOURCE.
+    (unless (org-file-newer-than-p output time)
+      (ignore (defvar org-batch-test))
+      ;; Display logs when running tests.
+      (when (bound-and-true-p org-batch-test)
+        (message "org-compile-file log ::\n-----\n%s\n-----\n"
+                 (with-current-buffer log-buf (buffer-string))))
+      (error
+       (format
+        "File %S wasn't produced%s"
+        output
+        (if (org-string-nw-p err-msg)
+            (concat "  " (org-trim err-msg))
+          err-msg))))
+    output))
+
+(defun org-compile-file-commands (source process ext &optional spec err-msg)
+  "Return list of commands used to compile SOURCE file.
+
+The commands are formed from PROCESS, which is either a function or
+a list of shell commands, as strings.  EXT is a file extension, without
+the leading dot, as a string.  After PROCESS has been executed,
+a file with the same basename and directory as SOURCE but with the
+file extension EXT is expected to be produced.
+Failure to produce this file will be interpreted as PROCESS failing.
+
+If PROCESS is a function, it is called with a single argument:
+the SOURCE file.
+
+If PROCESS is a list of commands, each of them is called using
+`shell-command'.  By default, in each command, %b, %f, %F, %o and
+%O are replaced with, respectively, SOURCE base name, relative
+file name, absolute file name, relative directory and absolute
+output file name.  It is possible, however, to use more
+place-holders by specifying them in optional argument SPEC, as an
+alist following the pattern
+
+  (CHARACTER . REPLACEMENT-STRING).
+
+Throw an error if PROCESS does not satisfy the described patterns.
+The error string will be appended with ERR-MSG, when it is a string."
+  (let* ((basename (file-name-base source))
+         ;; Resolve symlinks in default-directory to correctly handle
+         ;; absolute source paths or relative paths with ..
+         (pwd (file-truename default-directory))
+         (absname (expand-file-name source pwd))
+         (relname (if (file-name-absolute-p source)
+                        (file-relative-name source pwd)
+                      source))
+	 (relpath (or (file-name-directory relname) "./"))
+	 (output (concat (file-name-sans-extension absname) "." ext))
+	 (err-msg (if (stringp err-msg) (concat ".  " err-msg) "")))
+    (pcase process
+      ((pred functionp) (list process))
+      ((pred consp)
+       (let ((spec (append spec
+			   `((?b . ,(shell-quote-argument basename))
+			     (?f . ,(shell-quote-argument relname))
+			     (?F . ,(shell-quote-argument absname))
+			     (?o . ,(shell-quote-argument relpath))
+			     (?O . ,(shell-quote-argument output))))))
+         (mapcar (lambda (command) (format-spec command spec)) process)))
+      (_ (error "No valid command to process %S%s" source err-msg)))))
 
 (provide 'org-macs)
 

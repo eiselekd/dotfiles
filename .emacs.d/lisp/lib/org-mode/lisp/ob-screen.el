@@ -1,11 +1,11 @@
 ;;; ob-screen.el --- Babel Support for Interactive Terminal -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
 
 ;; Author: Benjamin Andresen
-;; Maintainer: Ken Mankoff
+;; Maintainer: Ken Mankoff <mankoff@gmail.com>
 ;; Keywords: literate programming, interactive shell
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -30,10 +30,14 @@
 ;; Adding :cmd and :terminal as header arguments
 ;; :terminal must support the -T (title) and -e (command) parameter
 ;;
-;; You can test the default setup. (xterm + sh) with
+;; You can test the default setup (xterm + sh) with
 ;; M-x org-babel-screen-test RET
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 
 (defvar org-babel-screen-location "screen"
@@ -41,8 +45,8 @@
 In case you want to use a different screen than one selected by your $PATH")
 
 (defvar org-babel-default-header-args:screen
-  '((:results . "silent") (:session . "default") (:cmd . "sh")
-    (:terminal . "xterm") (:screenrc . "/dev/null"))
+  `((:results . "silent") (:session . "default") (:cmd . "sh")
+    (:terminal . "xterm") (:screenrc . ,null-device))
   "Default arguments to use when running screen source blocks.")
 
 (defun org-babel-execute:screen (body params)

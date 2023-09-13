@@ -1,10 +1,10 @@
 ;;; ob-ocaml.el --- Babel Functions for Ocaml        -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -32,9 +32,13 @@
 
 ;;; Requirements:
 
-;; - tuareg-mode :: http://www-rocq.inria.fr/~acohen/tuareg/
+;; - tuareg-mode :: https://elpa.nongnu.org/nongnu/tuareg.html
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 (require 'comint)
 (require 'org-macs)
@@ -105,15 +109,15 @@
 (defvar tuareg-interactive-buffer-name)
 (defun org-babel-prep-session:ocaml (session _params)
   "Prepare SESSION according to the header arguments in PARAMS."
-  (require 'tuareg)
+  (org-require-package 'tuareg)
   (let ((tuareg-interactive-buffer-name (if (and (not (string= session "none"))
                                                  (not (string= session "default"))
                                                  (stringp session))
                                             session
                                           tuareg-interactive-buffer-name)))
     (save-window-excursion (if (fboundp 'tuareg-run-process-if-needed)
-	 (tuareg-run-process-if-needed org-babel-ocaml-command)
-       (tuareg-run-caml)))
+	                       (tuareg-run-process-if-needed org-babel-ocaml-command)
+                             (tuareg-run-caml)))
     (get-buffer tuareg-interactive-buffer-name)))
 
 (defun org-babel-variable-assignments:ocaml (params)

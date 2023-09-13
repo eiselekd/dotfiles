@@ -63,13 +63,13 @@
 
 (defun modes/ocamldebug-have-debugbuffer ()
   (let ((val nil))
-    (loop for buffer being the buffers
+    (cl-loop for buffer being the buffers
           do (and (is-ocambdebug-buffer buffer) (setq val 't)))
     val))
 
 (defun modes/ocamldebug-switchto-debugbuffer ()
   (let ((val nil))
-    (loop for buffer being the buffers
+    (cl-loop for buffer being the buffers
           do (and (is-ocambdebug-buffer buffer) (switch-to-buffer (buffer-name buffer))))
     val))
 

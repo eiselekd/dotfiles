@@ -1,17 +1,16 @@
-;;; magit-pull.el --- update local objects and refs  -*- lexical-binding: t -*-
+;;; magit-pull.el --- Update local objects and refs  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2019  The Magit Project Contributors
-;;
-;; You should have received a copy of the AUTHORS.md file which
-;; lists all contributors.  If not, see http://magit.vc/authors.
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Magit is free software; you can redistribute it and/or modify it
+;; SPDX-License-Identifier: GPL-3.0-or-later
+
+;; Magit is free software: you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 ;;
 ;; Magit is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -19,7 +18,7 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see http://www.gnu.org/licenses.
+;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -33,19 +32,22 @@
 
 (defcustom magit-pull-or-fetch nil
   "Whether `magit-pull' also offers some fetch suffixes."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'boolean)
 
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-pull "magit-pull" nil t)
-(define-transient-command magit-pull ()
+(transient-define-prefix magit-pull ()
   "Pull from another repository."
   :man-page "git-pull"
+  :incompatible '(("--ff-only" "--rebase"))
   [:description
    (lambda () (if magit-pull-or-fetch "Pull arguments" "Arguments"))
-   ("-r" "Rebase local commits" ("-r" "--rebase"))]
+   ("-f" "Fast-forward only" "--ff-only")
+   ("-r" "Rebase local commits" ("-r" "--rebase"))
+   ("-A" "Autostash" "--autostash" :level 7)]
   [:description
    (lambda ()
      (if-let ((branch (magit-get-current-branch)))
@@ -76,19 +78,19 @@
   (transient-args 'magit-pull))
 
 ;;;###autoload (autoload 'magit-pull-from-pushremote "magit-pull" nil t)
-(define-suffix-command magit-pull-from-pushremote (args)
+(transient-define-suffix magit-pull-from-pushremote (args)
   "Pull from the push-remote of the current branch.
 
-When the push-remote is not configured, then read the push-remote
-from the user, set it, and then pull from it.  With a prefix
-argument the push-remote can be changed before pulling from it."
-  :if 'magit-get-current-branch
-  :description 'magit-pull--pushbranch-description
+With a prefix argument or when the push-remote is either not
+configured or unusable, then let the user first configure the
+push-remote."
+  :if #'magit-get-current-branch
+  :description #'magit-pull--pushbranch-description
   (interactive (list (magit-pull-arguments)))
   (pcase-let ((`(,branch ,remote)
                (magit--select-push-remote "pull from there")))
     (run-hooks 'magit-credential-hook)
-    (magit-run-git-async "pull" args remote branch)))
+    (magit-run-git-with-editor "pull" args remote branch)))
 
 (defun magit-pull--pushbranch-description ()
   ;; Also used by `magit-rebase-onto-pushremote'.
@@ -106,14 +108,14 @@ argument the push-remote can be changed before pulling from it."
       (format "%s, setting that" v)))))
 
 ;;;###autoload (autoload 'magit-pull-from-upstream "magit-pull" nil t)
-(define-suffix-command magit-pull-from-upstream (args)
+(transient-define-suffix magit-pull-from-upstream (args)
   "Pull from the upstream of the current branch.
 
 With a prefix argument or when the upstream is either not
 configured or unusable, then let the user first configure
 the upstream."
-  :if 'magit-get-current-branch
-  :description 'magit-pull--upstream-description
+  :if #'magit-get-current-branch
+  :description #'magit-pull--upstream-description
   (interactive (list (magit-pull-arguments)))
   (let* ((branch (or (magit-get-current-branch)
                      (user-error "No branch is checked out")))
@@ -131,7 +133,7 @@ the upstream."
     (magit-run-git-with-editor "pull" args remote merge)))
 
 (defun magit-pull--upstream-description ()
-  (when-let ((branch (magit-get-current-branch)))
+  (and-let* ((branch (magit-get-current-branch)))
     (or (magit-get-upstream-branch branch)
         (let ((remote (magit-get "branch" branch "remote"))
               (merge  (magit-get "branch" branch "merge"))

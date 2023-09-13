@@ -1,17 +1,16 @@
-;;; magit-gitignore.el --- intentionally untracked files  -*- lexical-binding: t -*-
+;;; magit-gitignore.el --- Intentionally untracked files  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2019  The Magit Project Contributors
-;;
-;; You should have received a copy of the AUTHORS.md file which
-;; lists all contributors.  If not, see http://magit.vc/authors.
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Magit is free software; you can redistribute it and/or modify it
+;; SPDX-License-Identifier: GPL-3.0-or-later
+
+;; Magit is free software: you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 ;;
 ;; Magit is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -19,7 +18,7 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see http://www.gnu.org/licenses.
+;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -27,15 +26,12 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'subr-x))
-
 (require 'magit)
 
 ;;; Transient
 
 ;;;###autoload (autoload 'magit-gitignore "magit-gitignore" nil t)
-(define-transient-command magit-gitignore ()
+(transient-define-prefix magit-gitignore ()
   "Instruct Git to ignore a file or pattern."
   :man-page "gitignore"
   ["Gitignore"
@@ -71,8 +67,8 @@ repository.  Also stage the file."
 
 ;;;###autoload
 (defun magit-gitignore-in-subdir (rule directory)
-  "Add the Git ignore RULE to a \".gitignore\" file.
-Prompted the user for a directory and add the rule to the
+  "Add the Git ignore RULE to a \".gitignore\" file in DIRECTORY.
+Prompt the user for a directory and add the rule to the
 \".gitignore\" file in that directory.  Since such files are
 tracked, they are shared with other clones of the repository.
 Also stage the file."
@@ -81,14 +77,14 @@ Also stage the file."
   (magit-with-toplevel
     (let ((file (expand-file-name ".gitignore" directory)))
       (magit--gitignore rule file)
-      (magit-run-git "add" file))))
+      (magit-run-git "add" (magit-convert-filename-for-git file)))))
 
 ;;;###autoload
 (defun magit-gitignore-in-gitdir (rule)
   "Add the Git ignore RULE to \"$GIT_DIR/info/exclude\".
 Rules in that file only affects this clone of the repository."
   (interactive (list (magit-gitignore-read-pattern)))
-  (magit--gitignore rule (magit-git-dir "info/exclude"))
+  (magit--gitignore rule (expand-file-name "info/exclude" (magit-gitdir)))
   (magit-refresh))
 
 ;;;###autoload
@@ -122,7 +118,7 @@ Rules that are defined in that file affect all local repositories."
           (delete-dups
            (--mapcat
             (cons (concat "/" it)
-                  (when-let ((ext (file-name-extension it)))
+                  (and-let* ((ext (file-name-extension it)))
                     (list (concat "/" (file-name-directory it) "*." ext)
                           (concat "*." ext))))
             (sort (nconc
@@ -130,10 +126,10 @@ Rules that are defined in that file affect all local repositories."
                    ;; The untracked section of the status buffer lists
                    ;; directories containing only untracked files.
                    ;; Add those as candidates.
-                   (-filter #'directory-name-p
-                            (magit-list-files
-                             "--other" "--exclude-standard" "--directory"
-                             "--no-empty-directory" "--" base)))
+                   (seq-filter #'directory-name-p
+                               (magit-list-files
+                                "--other" "--exclude-standard" "--directory"
+                                "--no-empty-directory" "--" base)))
                   #'string-lessp)))))
     (when default
       (setq default (concat "/" default))
@@ -154,7 +150,8 @@ Rules that are defined in that file affect all local repositories."
                                  (magit-with-toplevel
                                    (cl-set-difference
                                     (magit-list-files)
-                                    (magit-skip-worktree-files))))))
+                                    (magit-skip-worktree-files)
+                                    :test #'equal)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--skip-worktree" "--" file)))
 
@@ -178,7 +175,8 @@ Rules that are defined in that file affect all local repositories."
                                  (magit-with-toplevel
                                    (cl-set-difference
                                     (magit-list-files)
-                                    (magit-assume-unchanged-files))))))
+                                    (magit-assume-unchanged-files)
+                                    :test #'equal)))))
   (magit-with-toplevel
     (magit-run-git "update-index" "--assume-unchanged" "--" file)))
 

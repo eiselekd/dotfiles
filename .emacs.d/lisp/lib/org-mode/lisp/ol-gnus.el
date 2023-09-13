@@ -1,11 +1,11 @@
 ;;; ol-gnus.el --- Links to Gnus Groups and Messages -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
 
-;; Author: Carsten Dominik <carsten at orgmode dot org>
+;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;;         Tassilo Horn <tassilo at member dot fsf dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -30,6 +30,9 @@
 ;; configure the variable `org-modules'.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
 
 (require 'gnus-sum)
 (require 'gnus-util)
@@ -71,7 +74,7 @@ negates this setting for the duration of the command."
 
 (defcustom org-gnus-no-server nil
   "Should Gnus be started using `gnus-no-server'?"
-  :group 'org-gnus
+  :group 'org-link-follow
   :version "24.4"
   :package-version '(Org . "8.0")
   :type 'boolean)
@@ -134,27 +137,23 @@ If `org-store-link' was called with a prefix arg the meaning of
      (let* ((group
 	     (pcase (gnus-find-method-for-group gnus-newsgroup-name)
 	       (`(nnvirtual . ,_)
-		(save-excursion
-		  (car (nnvirtual-map-article (gnus-summary-article-number)))))
+		(with-current-buffer gnus-summary-buffer
+		  (save-excursion
+		    (car (nnvirtual-map-article (gnus-summary-article-number))))))
 	       (`(,(or `nnselect `nnir) . ,_)  ; nnir is for Emacs < 28.
-		(save-excursion
-		  (cond
-		   ((fboundp 'nnselect-article-group)
-		    (nnselect-article-group (gnus-summary-article-number)))
-		   ((fboundp 'nnir-article-group)
-		    (nnir-article-group (gnus-summary-article-number)))
-		   (t
-		    (error "No article-group variant bound")))))
+		(with-current-buffer gnus-summary-buffer
+		  (save-excursion
+		    (cond
+		     ((fboundp 'nnselect-article-group)
+		      (nnselect-article-group (gnus-summary-article-number)))
+		     ((fboundp 'nnir-article-group)
+		      (nnir-article-group (gnus-summary-article-number)))
+		     (t
+		      (error "No article-group variant bound"))))))
 	       (_ gnus-newsgroup-name)))
-	    (header (if (eq major-mode 'gnus-article-mode)
-			;; When in an article, first move to summary
-			;; buffer, with point on the summary of the
-			;; current article before extracting headers.
-			(save-window-excursion
-			  (save-excursion
-			    (gnus-article-show-summary)
-			    (gnus-summary-article-header)))
-		      (gnus-summary-article-header)))
+	    (header (with-current-buffer gnus-summary-buffer
+		      (save-excursion
+			(gnus-summary-article-header))))
 	    (from (mail-header-from header))
 	    (message-id (org-unbracket-string "<" ">" (mail-header-id header)))
 	    (date (org-trim (mail-header-date header)))
@@ -194,15 +193,15 @@ If `org-store-link' was called with a prefix arg the meaning of
 			       (message-tokenize-header
 				(mail-fetch-field "gcc" nil t) " ,"))))
 	       (id (org-unbracket-string "<" ">"
-					 (mail-fetch-field "Message-ID")))
+		     (mail-fetch-field "Message-ID")))
 	       (to (mail-fetch-field "To"))
 	       (from (mail-fetch-field "From"))
 	       (subject (mail-fetch-field "Subject"))
-	       newsgroup xarchive)	;those are always nil for gcc
+	       ) ;; newsgroup xarchive	;those are always nil for gcc
 	   (unless gcc (error "Can not create link: No Gcc header found"))
 	   (org-link-store-props :type "gnus" :from from :subject subject
 				 :message-id id :group gcc :to to)
-	   (let ((link (org-gnus-article-link gcc newsgroup id xarchive))
+	   (let ((link (org-gnus-article-link gcc nil id nil)) ;;newsgroup xarchive
 		 (description (org-link-email-description)))
 	     (org-link-add-props :link link :description description)
 	     link)))))))

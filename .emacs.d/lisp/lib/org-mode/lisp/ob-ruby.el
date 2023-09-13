@@ -1,10 +1,10 @@
 ;;; ob-ruby.el --- Babel Functions for Ruby          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -27,19 +27,23 @@
 
 ;;; Requirements:
 
-;; - ruby and irb executables :: http://www.ruby-lang.org/
+;; - ruby and irb executables :: https://www.ruby-lang.org/
 ;;
-;; - ruby-mode :: Can be installed through ELPA, or from
-;;   https://github.com/eschulte/rinari/raw/master/util/ruby-mode.el
+;; - ruby-mode :: Comes with Emacs.
 ;;
 ;; - inf-ruby mode :: Can be installed through ELPA, or from
-;;   https://github.com/eschulte/rinari/raw/master/util/inf-ruby.el
+;;   https://raw.githubusercontent.com/nonsequitur/inf-ruby/master/inf-ruby.el
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 (require 'org-macs)
 
-(declare-function run-ruby "ext:inf-ruby" (&optional command name))
+(declare-function run-ruby-or-pop-to-buffer "ext:inf-ruby" (command &optional name buffer))
+(declare-function inf-ruby-buffer "ext:inf-ruby" ())
 (declare-function xmp "ext:rcodetools" (&optional option))
 
 (defvar inf-ruby-default-implementation)
@@ -82,7 +86,7 @@ This function is called by `org-babel-execute-src-block'."
 		     body params (org-babel-variable-assignments:ruby params)))
          (result (if (member "xmp" result-params)
 		     (with-temp-buffer
-		       (require 'rcodetools)
+		       (org-require-package 'rcodetools "rcodetools (gem package)")
 		       (insert full-body)
 		       (xmp (cdr (assq :xmp-option params)))
 		       (buffer-string))
@@ -136,7 +140,7 @@ This function is called by `org-babel-execute-src-block'."
 Convert an elisp value into a string of ruby source code
 specifying a variable of the same value."
   (if (listp var)
-      (concat "[" (mapconcat #'org-babel-ruby-var-to-ruby var ", ") "]")
+      (concat "[" (mapconcat #'org-babel-ruby-var-to-ruby var ", \n") "]")
     (if (eq var 'hline)
 	org-babel-ruby-hline-to
       (format "%S" var))))
@@ -148,34 +152,61 @@ Emacs-lisp table, otherwise return the results as a string."
   (let ((res (org-babel-script-escape results)))
     (if (listp res)
         (mapcar (lambda (el) (if (not el)
-				 org-babel-ruby-nil-to el))
+			    org-babel-ruby-nil-to el))
                 res)
       res)))
+
+(defvar org-babel-ruby-prompt "_org_babel_ruby_prompt "
+  "String used for unique prompt.")
+
+(defvar org-babel-ruby-define-prompt
+  (format  "IRB.conf[:PROMPT][:CUSTOM] = { :PROMPT_I => \"%s\" }" org-babel-ruby-prompt))
 
 (defun org-babel-ruby-initiate-session (&optional session params)
   "Initiate a ruby session.
 If there is not a current inferior-process-buffer in SESSION
 then create one.  Return the initialized session."
   (unless (string= session "none")
-    (require 'inf-ruby)
-    (let* ((cmd (cdr (or (assq :ruby params)
-			 (assoc inf-ruby-default-implementation
-				inf-ruby-implementations))))
+    (org-require-package 'inf-ruby)
+    (let* ((command (cdr (or (assq :ruby params)
+			     (assoc inf-ruby-default-implementation
+				    inf-ruby-implementations))))
 	   (buffer (get-buffer (format "*%s*" session)))
+           (new-session? (not buffer))
 	   (session-buffer (or buffer (save-window-excursion
-					(run-ruby cmd session)
+					(run-ruby-or-pop-to-buffer
+					 (if (functionp command)
+					     (funcall command)
+					   command)
+					 (or session "ruby")
+					 (unless session
+					   (inf-ruby-buffer)))
 					(current-buffer)))))
       (if (org-babel-comint-buffer-livep session-buffer)
-	  (progn (sit-for .25) session-buffer)
+	  (progn
+            (sit-for .25)
+            ;; Setup machine-readable prompt: no echo, prompts matching
+            ;; uniquely by regexp.
+            (when new-session?
+              (with-current-buffer session-buffer
+                (setq-local comint-prompt-regexp (concat "^" org-babel-ruby-prompt))
+                (insert org-babel-ruby-define-prompt ";")
+                (insert "_org_prompt_mode=conf.prompt_mode;conf.prompt_mode=:CUSTOM;")
+                (insert "conf.echo=false\n")
+                (comint-send-input nil t)))
+            session-buffer)
 	(sit-for .5)
 	(org-babel-ruby-initiate-session session)))))
 
 (defvar org-babel-ruby-eoe-indicator ":org_babel_ruby_eoe"
   "String to indicate that evaluation has completed.")
+
 (defvar org-babel-ruby-f-write
   "File.open('%s','w'){|f| f.write((_.class == String) ? _ : _.inspect)}")
+
 (defvar org-babel-ruby-pp-f-write
   "File.open('%s','w'){|f| $stdout = f; pp(results); $stdout = orig_out}")
+
 (defvar org-babel-ruby-wrapper-method
   "
 def main()
@@ -184,6 +215,7 @@ end
 results = main()
 File.open('%s', 'w'){ |f| f.write((results.class == String) ? results : results.inspect) }
 ")
+
 (defvar org-babel-ruby-pp-wrapper-method
   "
 require 'pp'
@@ -227,7 +259,6 @@ return the value of the last statement in BODY, as elisp."
 	 (org-babel-comint-with-output
 	     (buffer org-babel-ruby-eoe-indicator t eoe-string)
 	   (insert eoe-string) (comint-send-input nil t))
-	 ;; Now we can start the evaluation.
 	 (mapconcat
 	  #'identity
 	  (butlast
@@ -236,14 +267,9 @@ return the value of the last statement in BODY, as elisp."
 	     #'org-trim
 	     (org-babel-comint-with-output
 		 (buffer org-babel-ruby-eoe-indicator t body)
-	       (mapc
-		(lambda (line)
-		  (insert (org-babel-chomp line)) (comint-send-input nil t))
-		(list "conf.echo=false;_org_prompt_mode=conf.prompt_mode;conf.prompt_mode=:NULL"
-		      body
-		      "conf.prompt_mode=_org_prompt_mode;conf.echo=true"
-		      eoe-string)))
-	     "\n") "[\r\n]") 4) "\n")))
+               (insert (org-babel-chomp body) "\n" eoe-string)
+               (comint-send-input nil t))
+	     "\n") "[\r\n]")) "\n")))
       (`value
        (let* ((tmp-file (org-babel-temp-file "ruby-"))
 	      (ppp (or (member "code" result-params)
@@ -263,7 +289,7 @@ return the value of the last statement in BODY, as elisp."
 		"results=_" "require 'pp'" "orig_out = $stdout"
 		(format org-babel-ruby-pp-f-write
 			(org-babel-process-file-name tmp-file 'noquote))))
-	     (list org-babel-ruby-eoe-indicator)))
+	     (list (format "puts \"%s\"" org-babel-ruby-eoe-indicator))))
 	   (comint-send-input nil t))
 	 (org-babel-eval-read-file tmp-file))))))
 

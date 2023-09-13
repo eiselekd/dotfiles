@@ -1,10 +1,10 @@
 ;;; ob-js.el --- Babel Functions for Javascript      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2023 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research, js
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -38,6 +38,10 @@
 ;;   configuration instructions
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 
 (declare-function run-mozilla "ext:moz" (arg))
@@ -65,7 +69,10 @@
   :safe #'stringp)
 
 (defvar org-babel-js-function-wrapper
-  "require('process').stdout.write(require('util').inspect(function(){%s}()));"
+  ;; Note that newline after %s - it makes sure that closing
+  ;; parenthesis are not shadowed if the last line of the body is a
+  ;; line comment.
+  "require('process').stdout.write(require('util').inspect(function(){%s\n}()));"
   "Javascript code to print value of body.")
 
 (defun org-babel-execute:js (body params)
@@ -92,7 +99,7 @@ This function is called by `org-babel-execute-src-block'."
 		  ;; Indium Node REPL.  Separate case because Indium
 		  ;; REPL is not inherited from Comint mode.
 		  ((string= session "*JS REPL*")
-		   (require 'indium-repl)
+                   (org-require-package 'indium-repl "indium")
 		   (unless (get-buffer session)
 		     (indium-run-node org-babel-js-cmd))
 		   (indium-eval full-body))
@@ -158,13 +165,13 @@ specifying a variable of the same value."
    (org-babel--get-vars params)))
 
 (defun org-babel-js-initiate-session (&optional session _params)
-  "If there is not a current inferior-process-buffer in `SESSION'
-then create.  Return the initialized session."
+  "If there is not a current inferior-process-buffer in `SESSION' then create.
+Return the initialized session."
   (cond
    ((string= session "none")
     (warn "Session evaluation of ob-js is not supported"))
    ((string= "*skewer-repl*" session)
-    (require 'skewer-repl)
+    (org-require-package 'skewer-repl "skewer-mode")
     (let ((session-buffer (get-buffer "*skewer-repl*")))
       (if (and session-buffer
 	       (org-babel-comint-buffer-livep (get-buffer session-buffer))
@@ -176,7 +183,7 @@ then create.  Return the initialized session."
 	(skewer-repl)
 	session-buffer)))
    ((string= "*Javascript REPL*" session)
-    (require 'js-comint)
+    (org-require-package 'js-comint)
     (let ((session-buffer "*Javascript REPL*"))
       (if (and (org-babel-comint-buffer-livep (get-buffer session-buffer))
 	       (comint-check-proc session-buffer))
@@ -185,7 +192,9 @@ then create.  Return the initialized session."
 	(sit-for .5)
 	session-buffer)))
    ((string= "mozrepl" org-babel-js-cmd)
-    (require 'moz)
+    ;; FIXME: According to https://github.com/bard/mozrepl, this REPL
+    ;; is outdated and does not work for Firefox >54.
+    (org-require-package 'moz "mozrepl")
     (let ((session-buffer (save-window-excursion
 			    (run-mozilla nil)
 			    (rename-buffer session)

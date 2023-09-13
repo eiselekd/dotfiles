@@ -1,8 +1,9 @@
-;;; ox-ascii.el --- ASCII Back-End for Org Export Engine -*- lexical-binding: t; -*-
+;;; ox-ascii.el --- ASCII Backend for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2012-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2012-2023 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou at gmail dot com>
+;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: outlines, hypermedia, calendar, wp
 
 ;; This file is part of GNU Emacs.
@@ -22,10 +23,13 @@
 
 ;;; Commentary:
 ;;
-;; This library implements an ASCII back-end for Org generic exporter.
+;; This library implements an ASCII backend for Org generic exporter.
 ;; See Org manual for more information.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
 
 (require 'ox)
 (require 'ox-publish)
@@ -34,8 +38,11 @@
 ;;; Function Declarations
 
 (declare-function aa2u "ext:ascii-art-to-unicode" ())
+(declare-function org-at-heading-p "org" (&optional _))
+(declare-function org-back-to-heading "org" (&optional invisible-ok))
+(declare-function org-next-visible-heading "org" (arg))
 
-;;; Define Back-End
+;;; Define Backend
 ;;
 ;; The following setting won't allow modifying preferred charset
 ;; through a buffer keyword or an option item, but, since the property
@@ -455,7 +462,7 @@ Optional argument JUSTIFY can specify any type of justification
 among `left', `center', `right' or `full'.  A nil value is
 equivalent to `left'.  For a justification that doesn't also fill
 string, see `org-ascii--justify-lines' and
-`org-ascii--justify-block'.
+`org-ascii--justify-element'.
 
 Return nil if S isn't a string."
   (when (stringp s)
@@ -479,6 +486,9 @@ HOW determines the type of justification: it can be `left',
     (insert s)
     (goto-char (point-min))
     (let ((fill-column text-width)
+          ;; Ensure that `indent-tabs-mode' is nil so that indentation
+          ;; will always be achieved using spaces rather than tabs.
+          (indent-tabs-mode nil)
 	  ;; Disable `adaptive-fill-mode' so it doesn't prevent
 	  ;; filling lines matching `adaptive-fill-regexp'.
 	  (adaptive-fill-mode nil))
@@ -497,7 +507,7 @@ that is according to the widest non blank line in CONTENTS."
     (let ((text-width (org-ascii--current-text-width element info))
 	  (how (org-ascii--current-justification element)))
       (cond
-       ((eq (org-element-type element) 'paragraph)
+       ((org-element-type-p element 'paragraph)
 	;; Paragraphs are treated specially as they need to be filled.
 	(org-ascii--fill-string contents text-width info how))
        ((eq how 'left) contents)
@@ -565,13 +575,13 @@ INFO is a plist used as a communication channel."
             ;; inline task among ELEMENT parents.
             (total-width
              (if (cl-some (lambda (parent)
-                            (eq (org-element-type parent) 'inlinetask))
+                            (org-element-type-p parent 'inlinetask))
                           genealogy)
                  (plist-get info :ascii-inlinetask-width)
                ;; No inlinetask: Remove global margin from text width.
                (- (plist-get info :ascii-text-width)
                   (plist-get info :ascii-global-margin)
-                  (let ((parent (org-export-get-parent-headline element)))
+                  (let ((parent (org-element-lineage element 'headline)))
                     ;; Inner margin doesn't apply to text before first
                     ;; headline.
                     (if (not parent) 0
@@ -586,8 +596,8 @@ INFO is a plist used as a communication channel."
           ;; Each `quote-block' and `verse-block' above narrows text
           ;; width by twice the standard margin size.
           (+ (* (cl-count-if (lambda (parent)
-                               (memq (org-element-type parent)
-                                     '(quote-block verse-block)))
+                               (org-element-type-p
+                                parent '(quote-block verse-block)))
                              genealogy)
                 2
                 (plist-get info :ascii-quote-margin))
@@ -595,9 +605,9 @@ INFO is a plist used as a communication channel."
              ;; containing current line
              (* (cl-count-if
                  (lambda (e)
-                   (and (eq (org-element-type e) 'plain-list)
-                        (not (eq (org-element-type (org-export-get-parent e))
-                                 'item))))
+                   (and (org-element-type-p e 'plain-list)
+                        (not (org-element-type-p
+                            (org-element-parent e) 'item))))
                  genealogy)
                 (plist-get info :ascii-list-margin))
              ;; Compute indentation offset due to current list.  It is
@@ -606,8 +616,8 @@ INFO is a plist used as a communication channel."
              (let ((indentation 0))
                (dolist (e genealogy)
                  (cond
-                  ((not (eq 'item (org-element-type e))))
-                  ((eq (org-element-property :type (org-export-get-parent e))
+                  ((not (org-element-type-p e 'item)))
+                  ((eq (org-element-property :type (org-element-parent e))
                        'descriptive)
                    (cl-incf indentation org-ascii-quote-margin))
                   (t
@@ -622,16 +632,19 @@ INFO is a plist used as a communication channel."
   "Return expected justification for ELEMENT's contents.
 Return value is a symbol among `left', `center', `right' and
 `full'."
-  (let (justification)
-    (while (and (not justification)
-		(setq element (org-element-property :parent element)))
-      (pcase (org-element-type element)
-	(`center-block (setq justification 'center))
-	(`special-block
-	 (let ((name (org-element-property :type element)))
-	   (cond ((string= name "JUSTIFYRIGHT") (setq justification 'right))
-		 ((string= name "JUSTIFYLEFT") (setq justification 'left)))))))
-    (or justification 'left)))
+  (or (org-element-lineage-map
+       element
+       (lambda (el)
+         (pcase (org-element-type el)
+           (`center-block 'center)
+           (`special-block
+	    (let ((name (org-element-property :type element)))
+	      (cond ((string= name "JUSTIFYRIGHT") 'right)
+		    ((string= name "JUSTIFYLEFT") 'left))))))
+       '(center-block 'special-block)
+       nil 'first-match)
+      ;; default
+      'left))
 
 (defun org-ascii--build-title
     (element info text-width &optional underline notags toc)
@@ -650,7 +663,7 @@ the title.
 
 When optional argument TOC is non-nil, use optional title if
 possible.  It doesn't apply to `inlinetask' elements."
-  (let* ((headlinep (eq (org-element-type element) 'headline))
+  (let* ((headlinep (org-element-type-p element 'headline))
 	 (numbers
 	  ;; Numbering is specific to headlines.
 	  (and headlinep
@@ -876,7 +889,7 @@ is a plist used as a communication channel."
 			  (gethash link (plist-get info :exported-data)))
 			 (not (member footprint seen)))
 		(push footprint seen) link)))))
-    (org-element-map (if (eq (org-element-type element) 'section)
+    (org-element-map (if (org-element-type-p element 'section)
 			 element
 		       ;; In a headline, only retrieve links in title
 		       ;; and relative section, not in children.
@@ -944,12 +957,18 @@ channel."
 	 (when description
 	   (let ((dest (if (equal type "fuzzy")
 			   (org-export-resolve-fuzzy-link link info)
-			 (org-export-resolve-id-link link info))))
-	     (concat
-	      (org-ascii--fill-string
-	       (format "[%s] %s" anchor (org-ascii--describe-datum dest info))
-	       width info)
-	      "\n\n"))))
+                         ;; Ignore broken links.  On broken link,
+                         ;; `org-export-resolve-id-link' will throw an
+                         ;; error and we will return nil.
+			 (condition-case nil
+                             (org-export-resolve-id-link link info)
+                           (org-link-broken nil)))))
+             (when dest
+	       (concat
+	        (org-ascii--fill-string
+	         (format "[%s] %s" anchor (org-ascii--describe-datum dest info))
+	         width info)
+	        "\n\n")))))
 	;; Do not add a link that cannot be resolved and doesn't have
 	;; any description: destination is already visible in the
 	;; paragraph.
@@ -1033,7 +1052,7 @@ INFO is a plist used as a communication channel."
 	     ;; Format TITLE.  It may be filled if it is too wide,
 	     ;; that is wider than the two thirds of the total width.
 	     (title-len (min (apply #'max
-				    (mapcar #'length
+				    (mapcar #'string-width
 					    (org-split-string
 					     (concat title "\n" subtitle) "\n")))
 			     (/ (* 2 text-width) 3)))
@@ -1102,7 +1121,7 @@ holding export options."
 			  ;; paragraph (FIRST), if any, to be sure
 			  ;; filling will take it into consideration.
 			  (let ((first (car (org-element-contents def))))
-			    (if (not (eq (org-element-type first) 'paragraph))
+			    (if (not (org-element-type-p first 'paragraph))
 				(concat id "\n" (org-export-data def info))
 			      (push id (nthcdr 2 first))
 			      (org-export-data def info)))
@@ -1322,7 +1341,7 @@ holding contextual information."
 	    (if (not (org-string-nw-p links)) contents
 	      (let* ((contents (org-element-contents headline))
 		     (section (let ((first (car contents)))
-				(and (eq (org-element-type first) 'section)
+				(and (org-element-type-p first 'section)
 				     first))))
 		(concat (and section
 			     (concat (org-element-normalize-string
@@ -1376,7 +1395,7 @@ contextual information."
 ;;;; Inlinetask
 
 (defun org-ascii-format-inlinetask-default
-  (_todo _type _priority _name _tags contents width inlinetask info)
+    (_todo _type _priority _name _tags contents width inlinetask info)
   "Format an inline task element for ASCII export.
 See `org-ascii-format-inlinetask-function' for a description
 of the parameters."
@@ -1400,7 +1419,7 @@ of the parameters."
       (make-string width (if utf8p ?━ ?_)))
      ;; Flush the inlinetask to the right.
      (- (plist-get info :ascii-text-width) (plist-get info :ascii-global-margin)
-	(if (not (org-export-get-parent-headline inlinetask)) 0
+	(if (not (org-element-lineage inlinetask 'headline)) 0
 	  (plist-get info :ascii-inner-margin))
 	(org-ascii--current-text-width inlinetask info)))))
 
@@ -1446,7 +1465,7 @@ CONTENTS holds the contents of the item.  INFO is a plist holding
 contextual information."
   (let* ((utf8p (eq (plist-get info :ascii-charset) 'utf-8))
 	 (checkbox (org-ascii--checkbox item info))
-	 (list-type (org-element-property :type (org-export-get-parent item)))
+	 (list-type (org-element-property :type (org-element-parent item)))
 	 (bullet
 	  ;; First parent of ITEM is always the plain-list.  Get
 	  ;; `:type' property from it.
@@ -1463,7 +1482,7 @@ contextual information."
 			  (org-element-property :bullet item)))
 		    (num (number-to-string
 			  (car (last (org-list-get-item-number
-				      (org-element-property :begin item)
+				      (org-element-begin item)
 				      struct
 				      (org-list-prevs-alist struct)
 				      (org-list-parents-alist struct)))))))
@@ -1533,7 +1552,7 @@ information."
        keyword info)))))
 
 
-;;;; Latex Environment
+;;;; LaTeX Environment
 
 (defun org-ascii-latex-environment (latex-environment _contents info)
   "Transcode a LATEX-ENVIRONMENT element from Org to ASCII.
@@ -1545,7 +1564,7 @@ information."
      latex-environment info)))
 
 
-;;;; Latex Fragment
+;;;; LaTeX Fragment
 
 (defun org-ascii-latex-fragment (latex-fragment _contents info)
   "Transcode a LATEX-FRAGMENT object from Org to ASCII.
@@ -1639,8 +1658,8 @@ the plist used as a communication channel."
        (concat
 	;; Do not indent first paragraph in a section.
 	(unless (and (not (org-export-get-previous-element paragraph info))
-		     (eq (org-element-type (org-export-get-parent paragraph))
-			 'section))
+		     (org-element-type-p
+                      (org-element-parent paragraph) 'section))
 	  (make-string indented-line-width ?\s))
 	(replace-regexp-in-string "\\`[ \t]+" "" contents))))
    paragraph info))
@@ -1654,7 +1673,7 @@ CONTENTS is the contents of the list.  INFO is a plist holding
 contextual information."
   (let ((margin (plist-get info :ascii-list-margin)))
     (if (or (< margin 1)
-	    (eq (org-element-type (org-export-get-parent plain-list)) 'item))
+	    (org-element-type-p (org-element-parent plain-list) 'item))
 	contents
       (org-ascii--indent-string contents margin))))
 
@@ -1741,7 +1760,7 @@ contextual information."
   (let ((links
 	 (and (plist-get info :ascii-links-to-notes)
 	      ;; Take care of links in first section of the document.
-	      (not (org-element-lineage section '(headline)))
+	      (not (org-element-lineage section 'headline))
 	      (org-ascii--describe-links
 	       (org-ascii--unique-links section info)
 	       (org-ascii--current-text-width section info)
@@ -1750,7 +1769,7 @@ contextual information."
      (if (not (org-string-nw-p links)) contents
        (concat (org-element-normalize-string contents) "\n\n" links))
      ;; Do not apply inner margin if parent headline is low level.
-     (let ((headline (org-export-get-parent-headline section)))
+     (let ((headline (org-element-lineage section 'headline)))
        (if (or (not headline) (org-export-low-level-p headline info)) 0
 	 (plist-get info :ascii-inner-margin))))))
 
@@ -1840,7 +1859,7 @@ contextual information."
       (cond ((eq (org-element-property :type table) 'org) contents)
 	    ((and (plist-get info :ascii-table-use-ascii-art)
 		  (eq (plist-get info :ascii-charset) 'utf-8)
-		  (require 'ascii-art-to-unicode nil t))
+		  (org-require-package 'ascii-art-to-unicode nil 'noerror))
 	     (with-temp-buffer
 	       (insert (org-remove-indentation
 			(org-element-property :value table)))
@@ -1868,8 +1887,8 @@ column.
 
 When `org-ascii-table-widen-columns' is non-nil, width cookies
 are ignored."
-  (let* ((row (org-export-get-parent table-cell))
-	 (table (org-export-get-parent row))
+  (let* ((row (org-element-parent table-cell))
+	 (table (org-element-parent row))
 	 (col (let ((cells (org-element-contents row)))
 		(- (length cells) (length (memq table-cell cells)))))
 	 (cache
@@ -1925,7 +1944,11 @@ a communication channel."
 	       (org-export-table-cell-alignment table-cell info)))))
       (setq contents
 	    (concat data
-		    (make-string (- width (string-width (or data ""))) ?\s))))
+                    ;; FIXME: If CONTENTS was transformed by filters,
+                    ;; the whole width calculation can be wrong.
+                    ;; At least, make sure that we do not throw error
+                    ;; when CONTENTS is larger than width.
+		    (make-string (max 0 (- width (string-width (or data "")))) ?\s))))
     ;; Return cell.
     (concat (format " %s " contents)
 	    (when (memq 'right (org-export-table-cell-borders table-cell info))
@@ -2028,10 +2051,10 @@ contextual information."
   "Filter controlling number of blank lines after a headline.
 
 HEADLINE is a string representing a transcoded headline.  BACKEND
-is symbol specifying back-end used for export.  INFO is plist
+is symbol specifying backend used for export.  INFO is plist
 containing the communication channel.
 
-This function only applies to `ascii' back-end.  See
+This function only applies to `ascii' backend.  See
 `org-ascii-headline-spacing' for information."
   (let ((headline-spacing (plist-get info :ascii-headline-spacing)))
     (if (not headline-spacing) headline
@@ -2042,7 +2065,7 @@ This function only applies to `ascii' back-end.  See
   "Filter controlling number of blank lines between paragraphs.
 
 TREE is the parse tree.  BACKEND is the symbol specifying
-back-end used for export.  INFO is a plist used as
+backend used for export.  INFO is a plist used as
 a communication channel.
 
 See `org-ascii-paragraph-spacing' for information."
@@ -2050,20 +2073,21 @@ See `org-ascii-paragraph-spacing' for information."
     (when (wholenump paragraph-spacing)
       (org-element-map tree 'paragraph
 	(lambda (p)
-	  (when (eq (org-element-type (org-export-get-next-element p info))
-		    'paragraph)
+	  (when (org-element-type-p
+                 (org-export-get-next-element p info) 'paragraph)
 	    (org-element-put-property p :post-blank paragraph-spacing))))))
   tree)
 
 (defun org-ascii-filter-comment-spacing (tree _backend info)
   "Filter removing blank lines between comments.
 TREE is the parse tree.  BACKEND is the symbol specifying
-back-end used for export.  INFO is a plist used as
+backend used for export.  INFO is a plist used as
 a communication channel."
   (org-element-map tree '(comment comment-block)
     (lambda (c)
-      (when (memq (org-element-type (org-export-get-next-element c info))
-		  '(comment comment-block))
+      (when (org-element-type-p
+             (org-export-get-next-element c info)
+             '(comment comment-block))
 	(org-element-put-property c :post-blank 0))))
   tree)
 
@@ -2078,6 +2102,8 @@ a communication channel."
   (let ((org-ascii-charset 'ascii))
     (org-export-replace-region-by 'ascii)))
 
+(defalias 'org-export-region-to-ascii #'org-ascii-convert-region-to-ascii)
+
 ;;;###autoload
 (defun org-ascii-convert-region-to-utf8 ()
   "Assume region has Org syntax, and convert it to UTF-8."
@@ -2085,9 +2111,11 @@ a communication channel."
   (let ((org-ascii-charset 'utf-8))
     (org-export-replace-region-by 'ascii)))
 
+(defalias 'org-export-region-to-utf8 #'org-ascii-convert-region-to-utf8)
+
 ;;;###autoload
 (defun org-ascii-export-as-ascii
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a text buffer.
 
 If narrowing is active in the current buffer, only export its
@@ -2122,7 +2150,7 @@ is non-nil."
 
 ;;;###autoload
 (defun org-ascii-export-to-ascii
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to a text file.
 
 If narrowing is active in the current buffer, only export its

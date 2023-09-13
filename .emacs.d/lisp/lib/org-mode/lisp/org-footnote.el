@@ -1,10 +1,10 @@
 ;;; org-footnote.el --- Footnote support in Org      -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
 ;;
-;; Author: Carsten Dominik <carsten at orgmode dot org>
+;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -28,6 +28,9 @@
 
 ;;; Code:
 
+(require 'org-macs)
+(org-assert-version)
+
 ;;;; Declarations
 
 (require 'cl-lib)
@@ -37,13 +40,15 @@
 (declare-function org-at-comment-p "org" ())
 (declare-function org-at-heading-p "org" (&optional ignored))
 (declare-function org-back-over-empty-lines "org" ())
+(declare-function org-end-of-meta-data "org" (&optional full))
 (declare-function org-edit-footnote-reference "org-src" ())
-(declare-function org-element-at-point "org-element" ())
+(declare-function org-element-at-point "org-element" (&optional pom cached-only))
 (declare-function org-element-class "org-element" (datum &optional parent))
 (declare-function org-element-context "org-element" (&optional element))
-(declare-function org-element-lineage "org-element" (blob &optional types with-self))
-(declare-function org-element-property "org-element" (property element))
-(declare-function org-element-type "org-element" (element))
+(declare-function org-element-lineage "org-element-ast" (blob &optional types with-self))
+(declare-function org-element-property "org-element-ast" (property node))
+(declare-function org-element-type "org-element-ast" (node &optional anonymous))
+(declare-function org-element-type-p "org-element-ast" (node types))
 (declare-function org-end-of-subtree "org"  (&optional invisible-ok to-heading))
 (declare-function org-fill-paragraph "org" (&optional justify region))
 (declare-function org-in-block-p "org" (names))
@@ -51,7 +56,7 @@
 (declare-function org-inside-LaTeX-fragment-p "org" ())
 (declare-function org-inside-latex-macro-p "org" ())
 (declare-function org-mark-ring-push "org" (&optional pos buffer))
-(declare-function org-show-context "org" (&optional key))
+(declare-function org-fold-show-context "org-fold" (&optional key))
 (declare-function outline-next-heading "outline")
 
 (defvar electric-indent-mode)
@@ -90,13 +95,13 @@ Match group 1 contains definition's label.")
 (defcustom org-footnote-section "Footnotes"
   "Outline heading containing footnote definitions.
 
-This can be nil, to place footnotes locally at the end of the
-current outline node.  If can also be the name of a special
-outline heading under which footnotes should be put.
+This can be nil, to place footnotes locally at the end of the current
+outline node.  It can also be a string representing the name of a
+special outline heading under which footnotes should be put.
 
 This variable defines the place where Org puts the definition
 automatically, i.e. when creating the footnote, and when sorting
-the notes.  However, by hand you may place definitions
+the notes.  However, by hand, you may place definitions
 *anywhere*.
 
 If this is a string, during export, all subtrees starting with
@@ -109,7 +114,7 @@ you will need to run the following command after the change:
   :group 'org-footnote
   :initialize 'custom-initialize-default
   :set (lambda (var val)
-	 (set var val)
+	 (set-default-toplevel-value var val)
 	 (when (fboundp 'org-element-cache-reset)
 	   (org-element-cache-reset 'all)))
   :type '(choice
@@ -179,21 +184,21 @@ extracted will be filled again."
   "Is point in a context where footnotes are allowed?"
   (save-match-data
     (not (or (org-at-comment-p)
-	     (org-inside-LaTeX-fragment-p)
-	     ;; Avoid literal example.
-	     (org-in-verbatim-emphasis)
-	     (save-excursion
-	       (beginning-of-line)
-	       (looking-at "[ \t]*:[ \t]+"))
-	     ;; Avoid forbidden blocks.
-	     (org-in-block-p org-footnote-forbidden-blocks)))))
+	   (org-inside-LaTeX-fragment-p)
+	   ;; Avoid literal example.
+	   (org-in-verbatim-emphasis)
+	   (save-excursion
+	     (forward-line 0)
+	     (looking-at "[ \t]*:[ \t]+"))
+	   ;; Avoid forbidden blocks.
+	   (org-in-block-p org-footnote-forbidden-blocks)))))
 
 (defun org-footnote-at-reference-p ()
   "Non-nil if point is at a footnote reference.
 If so, return a list containing its label, beginning and ending
 positions, and the definition, when inline."
   (let ((reference (org-element-context)))
-    (when (eq 'footnote-reference (org-element-type reference))
+    (when (org-element-type-p reference 'footnote-reference)
       (let ((end (save-excursion
 		   (goto-char (org-element-property :end reference))
 		   (skip-chars-backward " \t")
@@ -219,7 +224,7 @@ defined locally.
 The return value is nil if not at a footnote definition, and
 a list with label, start, end and definition of the footnote
 otherwise."
-  (pcase (org-element-lineage (org-element-at-point) '(footnote-definition) t)
+  (pcase (org-element-lineage (org-element-at-point) 'footnote-definition t)
     (`nil nil)
     (definition
       (let* ((label (org-element-property :label definition))
@@ -265,7 +270,7 @@ otherwise."
        ((memq type '(headline inlinetask))
 	(or (not (org-at-heading-p))
 	    (and (save-excursion
-		   (beginning-of-line)
+		   (forward-line 0)
 		   (and (let ((case-fold-search t))
 			  (not (looking-at-p "\\*+ END[ \t]*$")))
 			(let ((case-fold-search nil))
@@ -277,16 +282,24 @@ otherwise."
        ;; White spaces after an object or blank lines after an element
        ;; are OK.
        ((>= (point)
-	    (save-excursion (goto-char (org-element-property :end context))
-			    (skip-chars-backward " \r\t\n")
-			    (if (eq (org-element-class context) 'object) (point)
-			      (1+ (line-beginning-position 2))))))
+	   (save-excursion (goto-char (org-element-property :end context))
+			   (skip-chars-backward " \r\t\n")
+			   (if (eq (org-element-class context) 'object) (point)
+			     (line-beginning-position 2)))))
+       ;; At the beginning of a footnote definition, right after the
+       ;; label, is OK.
+       ((eq type 'footnote-definition) (looking-at (rx space)))
        ;; Other elements are invalid.
        ((eq (org-element-class context) 'element) nil)
        ;; Just before object is fine.
        ((= (point) (org-element-property :begin context)))
        ;; Within recursive object too, but not in a link.
        ((eq type 'link) nil)
+       ((eq type 'table-cell)
+        ;; :contents-begin is not reliable on empty cells, so special
+        ;; case it.
+        (<= (save-excursion (skip-chars-backward " \t") (point))
+           (org-element-property :contents-end context)))
        ((let ((cbeg (org-element-property :contents-begin context))
 	      (cend (org-element-property :contents-end context)))
 	  (and cbeg (>= (point) cbeg) (<= (point) cend))))))))
@@ -356,14 +369,14 @@ References are sorted according to a deep-reading order."
 	   ;; Ensure point is within the reference before parsing it.
 	   (backward-char)
 	   (let ((object (org-element-context)))
-	     (when (eq (org-element-type object) 'footnote-reference)
+	     (when (org-element-type-p object 'footnote-reference)
 	       (let* ((label (org-element-property :label object))
 		      (begin (org-element-property :begin object))
 		      (size
 		       (and (eq (org-element-property :type object) 'inline)
 			    (- (org-element-property :contents-end object)
 			       (org-element-property :contents-begin object)))))
-		 (let ((d (org-element-lineage object '(footnote-definition))))
+		 (let ((d (org-element-lineage object 'footnote-definition)))
 		   (push (list label (copy-marker begin) (not d) size)
 			 references)
 		   (when d
@@ -408,7 +421,7 @@ while collecting them."
        (backward-char)
        (let ((element (org-element-at-point)))
 	 (let ((label (org-element-property :label element)))
-	   (when (and (eq (org-element-type element) 'footnote-definition)
+	   (when (and (org-element-type-p element 'footnote-definition)
 		      (not (member label seen)))
 	     (push label seen)
 	     (let* ((beg (progn
@@ -504,7 +517,7 @@ This function is meant to be used for fontification only."
 	 ;; Definition: also grab the last square bracket, matched in
 	 ;; `org-footnote-re' for non-inline footnotes.
 	 ((and (save-excursion
-		 (beginning-of-line)
+		 (forward-line 0)
 		 (save-match-data (org-footnote-in-valid-context-p)))
 	       (save-excursion
 		 (end-of-line)
@@ -546,7 +559,7 @@ value if point was successfully moved."
     (goto-char def-start)
     (looking-at (format "\\[fn:%s[]:]" (regexp-quote label)))
     (goto-char (match-end 0))
-    (org-show-context 'link-search)
+    (org-fold-show-context 'link-search)
     (when (derived-mode-p 'org-mode)
       (message "%s" (substitute-command-keys
 		     "Edit definition and go back with \
@@ -572,7 +585,7 @@ value if point was successfully moved."
 	   (user-error "Reference is outside narrowed part of buffer")))
     (org-mark-ring-push)
     (goto-char start)
-    (org-show-context 'link-search)))
+    (org-fold-show-context 'link-search)))
 
 
 ;;;; Getters
@@ -621,8 +634,8 @@ This function ignores narrowing, if any."
      (while (re-search-forward org-footnote-re nil t)
        (backward-char)
        (let ((context (org-element-context)))
-	 (when (memq (org-element-type context)
-		     '(footnote-definition footnote-reference))
+	 (when (org-element-type-p
+                context '(footnote-definition footnote-reference))
 	   (let ((label (org-element-property :label context)))
 	     (when label (cl-pushnew label all :test #'equal))))))
      all)))
@@ -704,7 +717,7 @@ function doesn't move point."
 	   (concat "^\\*+[ \t]+" (regexp-quote org-footnote-section) "[ \t]*$")
 	   nil t))
 	(goto-char (match-end 0))
-	(forward-line)
+        (org-end-of-meta-data t)
 	(unless (bolp) (insert "\n")))
        (t (org-footnote--clear-footnote-section)))
       (when (zerop (org-back-over-empty-lines)) (insert "\n"))
@@ -839,9 +852,12 @@ to `org-footnote-section'.  Inline definitions are ignored."
 			    (format "[fn:%s] DEFINITION NOT FOUND." label))
 			"\n"))))
 	  ;; Insert un-referenced footnote definitions at the end.
-	  (pcase-dolist (`(,label . ,definition) definitions)
-	    (unless (member label inserted)
-	      (insert "\n" definition "\n")))))))))
+          ;; Combine all insertions into one to create a single cache
+          ;; update call.
+          (org-combine-change-calls (point) (point)
+	    (pcase-dolist (`(,label . ,definition) definitions)
+	      (unless (member label inserted)
+	        (insert "\n" definition "\n"))))))))))
 
 (defun org-footnote-normalize ()
   "Turn every footnote in buffer into a numbered one."

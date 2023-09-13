@@ -1,9 +1,10 @@
-;;; ox-beamer.el --- Beamer Back-End for Org Export Engine -*- lexical-binding: t; -*-
+;;; ox-beamer.el --- Beamer Backend for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2007-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2007-2023 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik AT gmail DOT com>
 ;;         Nicolas Goaziou <n.goaziou AT gmail DOT com>
+;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: org, wp, tex
 
 ;; This file is part of GNU Emacs.
@@ -23,11 +24,14 @@
 
 ;;; Commentary:
 ;;
-;; This library implements both a Beamer back-end, derived from the
+;; This library implements both a Beamer backend, derived from the
 ;; LaTeX one and a minor mode easing structure edition of the
 ;; document.  See Org manual for more information.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
 
 (require 'cl-lib)
 (require 'ox-latex)
@@ -112,6 +116,7 @@ open    The opening template for the environment, with the following escapes
         %r   the raw headline text (i.e. without any processing)
         %H   if there is headline text, that raw text in {} braces
         %U   if there is headline text, that raw text in [] brackets
+        %l   the label, obtained from `org-beamer--get-label'
 close   The closing string of the environment."
   :group 'org-export-beamer
   :version "24.4"
@@ -149,7 +154,7 @@ which is replaced with the subtitle."
 
 (defconst org-beamer-column-widths
   "0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.0 :ETC"
-"The column widths that should be installed as allowed property values.")
+  "The column widths that should be installed as allowed property values.")
 
 (defconst org-beamer-environments-special
   '(("againframe"     "A")
@@ -161,7 +166,7 @@ which is replaced with the subtitle."
     ("ignoreheading"  "i")
     ("note"           "n")
     ("noteNH"         "N"))
-  "Alist of environments treated in a special way by the back-end.
+  "Alist of environments treated in a special way by the backend.
 Keys are environment names, as strings, values are bindings used
 in `org-beamer-select-environment'.  Environments listed here,
 along with their binding, are hard coded and cannot be modified
@@ -174,10 +179,10 @@ through `org-beamer-environments-extra' variable.")
     ("quotation"      "q" "\\begin{quotation}%a %% %h"    "\\end{quotation}")
     ("quote"          "Q" "\\begin{quote}%a %% %h"        "\\end{quote}")
     ("structureenv"   "s" "\\begin{structureenv}%a %% %h" "\\end{structureenv}")
-    ("theorem"        "t" "\\begin{theorem}%a[%h]"        "\\end{theorem}")
-    ("definition"     "d" "\\begin{definition}%a[%h]"     "\\end{definition}")
-    ("example"        "e" "\\begin{example}%a[%h]"        "\\end{example}")
-    ("exampleblock"   "E" "\\begin{exampleblock}%a{%h}"   "\\end{exampleblock}")
+    ("theorem"        "t" "\\begin{theorem}%a[%h]%l"        "\\end{theorem}")
+    ("definition"     "d" "\\begin{definition}%a[%h]%l"     "\\end{definition}")
+    ("example"        "e" "\\begin{example}%a[%h]%l"        "\\end{example}")
+    ("exampleblock"   "E" "\\begin{exampleblock}%a{%h}%l"   "\\end{exampleblock}")
     ("proof"          "p" "\\begin{proof}%a[%h]"          "\\end{proof}")
     ("beamercolorbox" "o" "\\begin{beamercolorbox}%o{%h}" "\\end{beamercolorbox}"))
   "Environments triggered by properties in Beamer export.
@@ -217,14 +222,14 @@ An element has an overlay specification when it starts with an
 `beamer' export-snippet whose value is between angular brackets.
 Return overlay specification, as a string, or nil."
   (let ((first-object (car (org-element-contents element))))
-    (when (eq (org-element-type first-object) 'export-snippet)
+    (when (org-element-type-p first-object 'export-snippet)
       (let ((value (org-element-property :value first-object)))
 	(and (string-prefix-p "<" value) (string-suffix-p ">" value)
 	     value)))))
 
 
 
-;;; Define Back-End
+;;; Define Backend
 
 (org-export-define-derived-backend 'beamer 'latex
   :menu-entry
@@ -372,7 +377,7 @@ CONTENTS holds the contents of the headline.  INFO is a plist
 used as a communication channel."
   (let ((latex-headline
 	 (org-export-with-backend
-	  ;; We create a temporary export back-end which behaves the
+	  ;; We create a temporary export backend which behaves the
 	  ;; same as current one, but adds "\protect" in front of the
 	  ;; output of some objects.
 	  (org-export-create-backend
@@ -384,7 +389,7 @@ used as a communication channel."
 				 'beamer object contents info)))
 		      (if (org-string-nw-p code) (concat "\\protect" code)
 			code)))))
-	     (mapcar #'(lambda (type) (cons type protected-output))
+             (mapcar (lambda (type) (cons type protected-output))
 		     '(bold footnote-reference italic strike-through timestamp
 			    underline))))
 	  headline
@@ -425,16 +430,16 @@ used as a communication channel."
 		    ;; Collect nonempty options from default value and
 		    ;; headline's properties.
 		    (cl-remove-if-not #'org-string-nw-p
-		     (append
-		      (org-split-string
-		       (plist-get info :beamer-frame-default-options) ",")
-		      (and beamer-opt
-			   (org-split-string
-			    ;; Remove square brackets if user provided
-			    ;; them.
-			    (and (string-match "^\\[?\\(.*\\)\\]?$" beamer-opt)
-				 (match-string 1 beamer-opt))
-			    ",")))))
+		                      (append
+		                       (org-split-string
+		                        (plist-get info :beamer-frame-default-options) ",")
+		                       (and beamer-opt
+			                    (org-split-string
+			                     ;; Remove square brackets if user provided
+			                     ;; them.
+			                     (and (string-match "^\\[?\\(.*\\)\\]?$" beamer-opt)
+				                  (match-string 1 beamer-opt))
+			                     ",")))))
 		   (fragile
 		    ;; Add "fragile" option if necessary.
 		    (and fragilep
@@ -512,7 +517,7 @@ used as a communication channel."
 	 ;; when there is no previous headline or the previous
 	 ;; headline do not have a BEAMER_column property.
 	 (parent-env (org-element-property
-		      :BEAMER_ENV (org-export-get-parent-headline headline)))
+		      :BEAMER_ENV (org-element-lineage headline 'headline)))
 	 (start-columns-p
 	  (or (equal environment "columns")
 	      (and column-width
@@ -574,6 +579,7 @@ used as a communication channel."
 		(cons "O" (or raw-options ""))
 		(cons "h" title)
 		(cons "r" raw-title)
+                (cons "l" (format "\\label{%s}" (org-beamer--get-label headline info)))
 		(cons "H" (if (equal raw-title "") ""
 			    (format "{%s}" raw-title)))
 		(cons "U" (if (equal raw-title "") ""
@@ -689,7 +695,7 @@ contextual information."
       (lambda (item _c _i)
 	(let ((action
 	       (let ((first (car (org-element-contents item))))
-		 (and (eq (org-element-type first) 'paragraph)
+		 (and (org-element-type-p first 'paragraph)
 		      (org-beamer--element-has-overlay-p first))))
 	      (output (org-latex-item item contents info)))
 	  (if (not (and action (string-match "\\\\item" output))) output
@@ -709,7 +715,7 @@ channel."
   (let ((key (org-element-property :key keyword))
 	(value (org-element-property :value keyword)))
     ;; Handle specifically BEAMER and TOC (headlines only) keywords.
-    ;; Otherwise, fallback to `latex' back-end.
+    ;; Otherwise, fallback to `latex' backend.
     (cond
      ((equal key "BEAMER") value)
      ((and (equal key "TOC") (string-match "\\<headlines\\>" value))
@@ -733,13 +739,23 @@ used as a communication channel."
   (or (org-export-custom-protocol-maybe link contents 'beamer info)
       ;; Fall-back to LaTeX export.  However, prefer "\hyperlink" over
       ;; "\hyperref" since the former handles overlay specifications.
-      (let ((latex-link (org-export-with-backend 'latex link contents info)))
-	(if (string-match "\\`\\\\hyperref\\[\\(.*?\\)\\]" latex-link)
-	    (replace-match
-	     (format "\\\\hyperlink%s{\\1}"
-		     (or (org-beamer--element-has-overlay-p link) ""))
-	     nil nil latex-link)
-	  latex-link))))
+      (let* ((latex-link (org-export-with-backend 'latex link contents info))
+             (parent (org-element-parent-element link))
+             (attr (org-export-read-attribute :attr_beamer parent))
+             (overlay (plist-get attr :overlay)))
+        (cond ((string-match "\\`\\\\hyperref\\[\\(.*?\\)\\]" latex-link)
+               (replace-match
+                (format "\\\\hyperlink%s{\\1}"
+                        (or (org-beamer--element-has-overlay-p link) ""))
+                nil nil latex-link))
+              ((string-match "\\\\include\\(graphics\\|svg\\)\\([[{]?\\)" latex-link)
+               ;; Check for overlay specification and insert if
+               ;; present.
+               (replace-match
+                (format "\\\\include\\1%s\\2"
+                        (if overlay overlay ""))
+                nil nil latex-link))
+              (t latex-link)))))
 
 
 ;;;; Plain List
@@ -792,7 +808,7 @@ contextual information."
 
 ;;;; Template
 ;;
-;; Template used is similar to the one used in `latex' back-end,
+;; Template used is similar to the one used in `latex' backend,
 ;; excepted for the table of contents and Beamer themes.
 
 (defun org-beamer-template (contents info)
@@ -802,7 +818,7 @@ holding export options."
   (let ((title (org-export-data (plist-get info :title) info))
 	(subtitle (org-export-data (plist-get info :subtitle) info)))
     (concat
-     ;; Time-stamp.
+     ;; Timestamp.
      (and (plist-get info :time-stamp-file)
 	  (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
      ;; LaTeX compiler
@@ -856,6 +872,12 @@ holding export options."
      (let ((template (plist-get info :latex-hyperref-template)))
        (and (stringp template)
 	    (format-spec template (org-latex--format-spec info))))
+     ;; engrave-faces-latex preamble
+     (when (and (eq (plist-get info :latex-src-block-backend) 'engraved)
+                (org-element-map (plist-get info :parse-tree)
+                    '(src-block inline-src-block) #'identity
+                    info t))
+       (org-latex-generate-engraved-preamble info))
      ;; Document start.
      "\\begin{document}\n\n"
      ;; Title command.
@@ -893,14 +915,16 @@ holding export options."
 ;;; Minor Mode
 
 
-(defvar org-beamer-mode-map (make-sparse-keymap)
+(defvar org-beamer-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-b" 'org-beamer-select-environment)
+    map)
   "The keymap for `org-beamer-mode'.")
-(define-key org-beamer-mode-map "\C-c\C-b" 'org-beamer-select-environment)
 
 ;;;###autoload
 (define-minor-mode org-beamer-mode
   "Support for editing Beamer oriented Org mode files."
-  nil " Bm" 'org-beamer-mode-map)
+  :lighter " Bm")
 
 (when (fboundp 'font-lock-add-keywords)
   (font-lock-add-keywords
@@ -956,7 +980,7 @@ value."
 
 ;;;###autoload
 (defun org-beamer-export-as-latex
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer as a Beamer buffer.
 
 If narrowing is active in the current buffer, only export its
@@ -991,7 +1015,7 @@ is non-nil."
 
 ;;;###autoload
 (defun org-beamer-export-to-latex
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer as a Beamer presentation (tex).
 
 If narrowing is active in the current buffer, only export its
@@ -1025,7 +1049,7 @@ Return output file's name."
 
 ;;;###autoload
 (defun org-beamer-export-to-pdf
-  (&optional async subtreep visible-only body-only ext-plist)
+    (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer as a Beamer presentation (PDF).
 
 If narrowing is active in the current buffer, only export its
@@ -1056,7 +1080,7 @@ Return PDF file's name."
   (let ((file (org-export-output-file-name ".tex" subtreep)))
     (org-export-to-file 'beamer file
       async subtreep visible-only body-only ext-plist
-      (lambda (file) (org-latex-compile file)))))
+      #'org-latex-compile)))
 
 ;;;###autoload
 (defun org-beamer-select-environment ()
@@ -1076,7 +1100,7 @@ aid, but the tag does not have any semantic meaning."
 	 (org-current-tag-alist
 	  (append '((:startgroup))
 		  (mapcar (lambda (e) (cons (concat "B_" (car e))
-				       (string-to-char (nth 1 e))))
+				            (string-to-char (nth 1 e))))
 			  envs)
 		  '((:endgroup))
 		  '(("BMCOL" . ?|))))

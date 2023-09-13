@@ -1,17 +1,16 @@
-;;; magit-margin.el --- margins in Magit buffers  -*- lexical-binding: t -*-
+;;; magit-margin.el --- Margins in Magit buffers  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2010-2019  The Magit Project Contributors
-;;
-;; You should have received a copy of the AUTHORS.md file which
-;; lists all contributors.  If not, see http://magit.vc/authors.
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Magit is free software; you can redistribute it and/or modify it
+;; SPDX-License-Identifier: GPL-3.0-or-later
+
+;; Magit is free software: you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 ;;
 ;; Magit is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -19,7 +18,7 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see http://www.gnu.org/licenses.
+;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -30,14 +29,11 @@
 
 ;;; Code:
 
-(require 'dash)
-
-(eval-when-compile
-  (require 'subr-x))
-
-(require 'magit-section)
+(require 'magit-base)
 (require 'magit-transient)
 (require 'magit-mode)
+
+;;; Options
 
 (defgroup magit-margin nil
   "Information Magit displays in the margin.
@@ -48,7 +44,7 @@ options to the same values by customizing `magit-log-margin'
 values for the other options will default to what you have set
 for that variable.  Likewise if you set `magit-log-margin's INIT
 to nil, then that is used in the default of all other options.  But
-setting it to t, i.e. re-enforcing the default for that option,
+setting it to t, i.e., re-enforcing the default for that option,
 does not carry to other options."
   :link '(info-link "(magit)Log Margin")
   :group 'magit-log)
@@ -62,12 +58,12 @@ does not carry to other options."
 
 ;;; Commands
 
-(define-transient-command magit-margin-settings ()
+(transient-define-prefix magit-margin-settings ()
   "Change what information is displayed in the margin."
   :info-manual "(magit) Log Margin"
   ["Margin"
-   ("L" "Toggle visibility" magit-toggle-margin)
-   ("l" "Cycle style"       magit-cycle-margin-style)
+   ("L" "Toggle visibility" magit-toggle-margin      :transient t)
+   ("l" "Cycle style"       magit-cycle-margin-style :transient t)
    ("d" "Toggle details"    magit-toggle-margin-details)
    ("v" "Change verbosity"  magit-refs-set-show-commit-count
     :if-derived magit-refs-mode)])
@@ -80,6 +76,9 @@ does not carry to other options."
   (setcar magit-buffer-margin (not (magit-buffer-margin-p)))
   (magit-set-buffer-margin))
 
+(defvar magit-margin-default-time-format nil
+  "See https://github.com/magit/magit/pull/4605.")
+
 (defun magit-cycle-margin-style ()
   "Cycle style used for the Magit margin."
   (interactive)
@@ -88,9 +87,10 @@ does not carry to other options."
   ;; This is only suitable for commit margins (there are not others).
   (setf (cadr magit-buffer-margin)
         (pcase (cadr magit-buffer-margin)
-          (`age 'age-abbreviated)
-          (`age-abbreviated
-           (let ((default (cadr (symbol-value (magit-margin-option)))))
+          ('age 'age-abbreviated)
+          ('age-abbreviated
+           (let ((default (or magit-margin-default-time-format
+                              (cadr (symbol-value (magit-margin-option))))))
              (if (stringp default) default "%Y-%m-%d %H:%M ")))
           (_ 'age)))
   (magit-set-buffer-margin nil t))
@@ -111,14 +111,14 @@ does not carry to other options."
 
 (defun magit-margin-option ()
   (pcase major-mode
-    (`magit-cherry-mode     'magit-cherry-margin)
-    (`magit-log-mode        'magit-log-margin)
-    (`magit-log-select-mode 'magit-log-select-margin)
-    (`magit-reflog-mode     'magit-reflog-margin)
-    (`magit-refs-mode       'magit-refs-margin)
-    (`magit-stashes-mode    'magit-stashes-margin)
-    (`magit-status-mode     'magit-status-margin)
-    (`forge-notifications-mode 'magit-status-margin)))
+    ('magit-cherry-mode     'magit-cherry-margin)
+    ('magit-log-mode        'magit-log-margin)
+    ('magit-log-select-mode 'magit-log-select-margin)
+    ('magit-reflog-mode     'magit-reflog-margin)
+    ('magit-refs-mode       'magit-refs-margin)
+    ('magit-stashes-mode    'magit-stashes-margin)
+    ('magit-status-mode     'magit-status-margin)
+    ('forge-notifications-mode 'magit-status-margin)))
 
 (defun magit-set-buffer-margin (&optional reset refresh)
   (when-let ((option (magit-margin-option)))
@@ -136,9 +136,9 @@ does not carry to other options."
             (magit-set-window-margin window)
             (if enable
                 (add-hook  'window-configuration-change-hook
-                           'magit-set-window-margin nil t)
+                           #'magit-set-window-margin nil t)
               (remove-hook 'window-configuration-change-hook
-                           'magit-set-window-margin t))))
+                           #'magit-set-window-margin t))))
         (when (and enable (or refresh magit-set-buffer-margin-refresh))
           (magit-refresh-buffer))))))
 
@@ -222,14 +222,14 @@ English.")
 
 (defun magit--age (date &optional abbreviate)
   (cl-labels ((fn (age spec)
-                  (pcase-let ((`(,char ,unit ,units ,weight) (car spec)))
-                    (let ((cnt (round (/ age weight 1.0))))
-                      (if (or (not (cdr spec))
-                              (>= (/ age weight) 1))
-                          (list cnt (cond (abbreviate char)
-                                          ((= cnt 1) unit)
-                                          (t units)))
-                        (fn age (cdr spec)))))))
+                (pcase-let ((`(,char ,unit ,units ,weight) (car spec)))
+                  (let ((cnt (round (/ age weight 1.0))))
+                    (if (or (not (cdr spec))
+                            (>= (/ age weight) 1))
+                        (list cnt (cond (abbreviate char)
+                                        ((= cnt 1) unit)
+                                        (t units)))
+                      (fn age (cdr spec)))))))
     (fn (abs (- (float-time)
                 (if (stringp date)
                     (string-to-number date)

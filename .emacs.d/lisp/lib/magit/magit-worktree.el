@@ -1,17 +1,16 @@
-;;; magit-worktree.el --- worktree support  -*- lexical-binding: t -*-
+;;; magit-worktree.el --- Worktree support  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2010-2019  The Magit Project Contributors
-;;
-;; You should have received a copy of the AUTHORS.md file which
-;; lists all contributors.  If not, see http://magit.vc/authors.
+;; Copyright (C) 2008-2023 The Magit Project Contributors
 
 ;; Author: Jonas Bernoulli <jonas@bernoul.li>
 ;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
 
-;; Magit is free software; you can redistribute it and/or modify it
+;; SPDX-License-Identifier: GPL-3.0-or-later
+
+;; Magit is free software: you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 ;;
 ;; Magit is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
@@ -19,7 +18,7 @@
 ;; License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with Magit.  If not, see http://www.gnu.org/licenses.
+;; along with Magit.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -31,19 +30,19 @@
 
 ;;; Options
 
-(defcustom magit-worktree-read-directory-name-function 'read-directory-name
+(defcustom magit-worktree-read-directory-name-function #'read-directory-name
   "Function used to read a directory for worktree commands.
 This is called with one argument, the prompt, and can be used
-to e.g. use a base directory other than `default-directory'.
+to, e.g., use a base directory other than `default-directory'.
 Used by `magit-worktree-checkout' and `magit-worktree-branch'."
-  :package-version '(magit . "2.91.0")
+  :package-version '(magit . "3.0.0")
   :group 'magit-commands
   :type 'function)
 
 ;;; Commands
 
 ;;;###autoload (autoload 'magit-worktree "magit-worktree" nil t)
-(define-transient-command magit-worktree ()
+(transient-define-prefix magit-worktree ()
   "Act on a worktree."
   :man-page "git-worktree"
   [["Create new"
@@ -62,7 +61,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
      (list (funcall magit-worktree-read-directory-name-function
                     (format "Checkout %s in new worktree: " branch))
            branch)))
-  (magit-run-git "worktree" "add" (expand-file-name path) branch)
+  (magit-run-git "worktree" "add" (magit--expand-worktree path) branch)
   (magit-diff-visit-directory path))
 
 ;;;###autoload
@@ -74,7 +73,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
      ,@(magit-branch-read-args "Create and checkout branch")
      ,current-prefix-arg))
   (magit-run-git "worktree" "add" (if force "-B" "-b")
-                 branch (expand-file-name path) start-point)
+                 branch (magit--expand-worktree path) start-point)
   (magit-diff-visit-directory path))
 
 ;;;###autoload
@@ -91,7 +90,7 @@ Used by `magit-worktree-checkout' and `magit-worktree-branch'."
       (user-error "You may not move the main working tree")
     (let ((preexisting-directory (file-directory-p path)))
       (when (and (zerop (magit-call-git "worktree" "move" worktree
-                                        (expand-file-name path)))
+                                        (magit--expand-worktree path)))
                  (not (file-exists-p default-directory))
                  (derived-mode-p 'magit-status-mode))
         (kill-buffer)
@@ -141,43 +140,67 @@ then show it in Dired instead."
                          :test #'equal :key #'car)))))
   (magit-diff-visit-directory worktree))
 
+(defun magit--expand-worktree (path)
+  (magit-convert-filename-for-git (expand-file-name path)))
+
 ;;; Sections
 
-(defvar magit-worktree-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-visit-thing]  'magit-worktree-status)
-    (define-key map [remap magit-delete-thing] 'magit-worktree-delete)
-    map)
-  "Keymap for `worktree' sections.")
+(defvar-keymap magit-worktree-section-map
+  :doc "Keymap for `worktree' sections."
+  "<remap> <magit-delete-thing>" #'magit-worktree-delete
+  "<remap> <magit-visit-thing>"  #'magit-worktree-status
+  "<4>" (magit-menu-item "Worktree commands..." #'magit-worktree)
+  "<3>" '(menu-item "--")
+  "<2>" (magit-menu-item "Delete %m" #'magit-worktree-delete)
+  "<1>" (magit-menu-item "Visit %s" #'magit-worktree-status))
 
 (defun magit-insert-worktrees ()
   "Insert sections for all worktrees.
 If there is only one worktree, then insert nothing."
   (let ((worktrees (magit-list-worktrees)))
-    (when (> (length worktrees) 1)
+    (when (length> worktrees 1)
       (magit-insert-section (worktrees)
         (magit-insert-heading "Worktrees:")
         (let* ((cols
                 (mapcar
-                 (pcase-lambda (`(,path ,barep ,commit ,branch))
-                   (cons (cond
-                          (branch (propertize
-                                   branch 'font-lock-face 'magit-branch-local))
-                          (commit (propertize (magit-rev-abbrev commit)
-                                              'font-lock-face 'magit-hash))
-                          (barep  "(bare)"))
-                         path))
+                 (lambda (config)
+                   (pcase-let ((`(,_ ,commit ,branch ,bare) config))
+                     (cons (cond
+                            (branch
+                             (propertize
+                              branch 'font-lock-face
+                              (if (equal branch (magit-get-current-branch))
+                                  'magit-branch-current
+                                'magit-branch-local)))
+                            (commit
+                             (propertize (magit-rev-abbrev commit)
+                                         'font-lock-face 'magit-hash))
+                            (bare "(bare)"))
+                           config)))
                  worktrees))
-               (align (1+ (-max (--map (string-width (car it)) cols)))))
-          (pcase-dolist (`(,head . ,path) cols)
-            (magit-insert-section (worktree path)
-              (insert head)
-              (indent-to align)
-              (insert (let ((r (file-relative-name path))
-                            (a (abbreviate-file-name path)))
-                        (if (< (string-width r) (string-width a)) r a)))
-              (insert ?\n))))
+               (align (1+ (apply #'max (--map (string-width (car it)) cols)))))
+          (pcase-dolist (`(,head . ,config) cols)
+            (magit--insert-worktree
+             config
+             (concat head (make-string (- align (length head)) ?\s)))))
         (insert ?\n)))))
+
+(defun magit--insert-worktree (config head)
+  "Insert worktree section for CONFIG.
+See `magit-list-worktrees' for the format of CONFIG.  HEAD is
+a prettified reference or revision representing the worktree,
+with padding for alignment."
+  ;; #4926 Before changing the signature, inform @vermiculus.
+  (let ((path (car config)))
+    (magit-insert-section (worktree path)
+      (insert head)
+      (insert (let ((relative (file-relative-name path))
+                    (absolute (abbreviate-file-name path)))
+                (if (or (> (string-width relative) (string-width absolute))
+                        (equal relative "./"))
+                    absolute
+                  relative)))
+      (insert ?\n))))
 
 ;;; _
 (provide 'magit-worktree)

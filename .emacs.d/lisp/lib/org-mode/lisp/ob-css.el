@@ -1,10 +1,10 @@
 ;;; ob-css.el --- Babel Functions for CSS            -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -27,12 +27,16 @@
 ;; CSS from Org files.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 
 (defvar org-babel-default-header-args:css '())
 
 (defun org-babel-execute:css (body _params)
-  "Execute a block of CSS code.
+  "Execute BODY of CSS code.
 This function is called by `org-babel-execute-src-block'."
   body)
 

@@ -1,11 +1,11 @@
 ;;; org-entities.el --- Support for Special Entities -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2023 Free Software Foundation, Inc.
 
-;; Author: Carsten Dominik <carsten at orgmode dot org>,
+;; Author: Carsten Dominik <carsten.dominik@gmail.com>,
 ;;         Ulf Stegemann <ulf at zeitform dot de>
 ;; Keywords: outlines, calendar, wp
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -27,6 +27,10 @@
 
 ;;; Code:
 
+(require 'org-macs)
+(org-assert-version)
+
+(declare-function org-mode "org" ())
 (declare-function org-toggle-pretty-entities "org"       ())
 (declare-function org-table-align            "org-table" ())
 
@@ -88,8 +92,8 @@ packages to be loaded, add these packages to `org-latex-packages-alist'."
      ("aacute" "\\'{a}" nil "&aacute;" "a" "á" "á")
      ("Acirc" "\\^{A}" nil "&Acirc;" "A" "Â" "Â")
      ("acirc" "\\^{a}" nil "&acirc;" "a" "â" "â")
-     ("Amacr" "\\bar{A}" nil "&Amacr;" "A" "Ã" "Ã")
-     ("amacr" "\\bar{a}" nil "&amacr;" "a" "ã" "ã")
+     ("Amacr" "\\={A}" nil "&Amacr;" "A" "Ã" "Ã")
+     ("amacr" "\\={a}" nil "&amacr;" "a" "ã" "ã")
      ("Atilde" "\\~{A}" nil "&Atilde;" "A" "Ã" "Ã")
      ("atilde" "\\~{a}" nil "&atilde;" "a" "ã" "ã")
      ("Auml" "\\\"{A}" nil "&Auml;" "Ae" "Ä" "Ä")
@@ -113,6 +117,8 @@ packages to be loaded, add these packages to `org-latex-packages-alist'."
      ("igrave" "\\`{i}" nil "&igrave;" "i" "ì" "ì")
      ("Iacute" "\\'{I}" nil "&Iacute;" "I" "Í" "Í")
      ("iacute" "\\'{i}" nil "&iacute;" "i" "í" "í")
+     ("Idot" "\\.{I}" nil "&idot;" "I" "İ" "İ")
+     ("inodot" "\\i" nil "&inodot;" "i" "ı" "ı")
      ("Icirc" "\\^{I}" nil "&Icirc;" "I" "Î" "Î")
      ("icirc" "\\^{i}" nil "&icirc;" "i" "î" "î")
      ("Iuml" "\\\"{I}" nil "&Iuml;" "I" "Ï" "Ï")
@@ -266,8 +272,10 @@ packages to be loaded, add these packages to `org-latex-packages-alist'."
      ("vert" "\\vert{}" t "&vert;" "|" "|" "|")
      ("vbar" "|" nil "|" "|" "|" "|")
      ("brvbar" "\\textbrokenbar{}" nil "&brvbar;" "|" "¦" "¦")
-     ("S" "\\S" nil "&sect;" "paragraph" "§" "§")
-     ("sect" "\\S" nil "&sect;" "paragraph" "§" "§")
+     ("S" "\\S" nil "&sect;" "section" "§" "§")
+     ("sect" "\\S" nil "&sect;" "section" "§" "§")
+     ("P" "\\P{}" nil "&para;" "paragraph" "¶" "¶")
+     ("para" "\\P{}" nil "&para;" "paragraph" "¶" "¶")
      ("amp" "\\&" nil "&amp;" "&" "&" "&")
      ("lt" "\\textless{}" nil "&lt;" "<" "<" "<")
      ("gt" "\\textgreater{}" nil "&gt;" ">" ">" ">")
@@ -304,7 +312,7 @@ packages to be loaded, add these packages to `org-latex-packages-alist'."
      ("trade" "\\texttrademark{}" nil "&trade;" "TM" "TM" "™")
 
      "** Science et al."
-     ("minus" "\\minus" t "&minus;" "-" "-" "−")
+     ("minus" "-" t "&minus;" "-" "-" "−")
      ("pm" "\\textpm{}" nil "&plusmn;" "+-" "±" "±")
      ("plusmn" "\\textpm{}" nil "&plusmn;" "+-" "±" "±")
      ("times" "\\texttimes{}" nil "&times;" "*" "×" "×")
@@ -483,7 +491,6 @@ packages to be loaded, add these packages to `org-latex-packages-alist'."
      ("checkmark" "\\checkmark" t "&check;" "[checkmark]" "[checkmark]" "✓")
 
      "** Miscellaneous (seldom used)"
-     ("para" "\\P{}" nil "&para;" "[pilcrow]" "¶" "¶")
      ("ordf" "\\textordfeminine{}" nil "&ordf;" "_a_" "ª" "ª")
      ("ordm" "\\textordmasculine{}" nil "&ordm;" "_o_" "º" "º")
      ("cedil" "\\c{}" nil "&cedil;" "[cedilla]" "¸" "¸")

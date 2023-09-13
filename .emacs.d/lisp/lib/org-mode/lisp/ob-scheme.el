@@ -1,11 +1,11 @@
 ;;; ob-scheme.el --- Babel Functions for Scheme      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2023 Free Software Foundation, Inc.
 
 ;; Authors: Eric Schulte
 ;;	    Michael Gauland
 ;; Keywords: literate programming, reproducible research, scheme
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -38,6 +38,10 @@
 ;;   ELPA.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 (require 'geiser nil t)
 (require 'geiser-impl nil t)
@@ -52,12 +56,18 @@
 (defvar geiser-repl-window-allow-split)	; Defined in geiser-repl.el
 
 (declare-function run-geiser "ext:geiser-repl" (impl))
+(declare-function geiser "ext:geiser-repl" (impl))
 (declare-function geiser-mode "ext:geiser-mode" ())
 (declare-function geiser-eval-region "ext:geiser-mode"
                   (start end &optional and-go raw nomsg))
+(declare-function geiser-eval-region/wait "ext:geiser-mode"
+                  (start end &optional timeout))
 (declare-function geiser-repl-exit "ext:geiser-repl" (&optional arg))
 (declare-function geiser-eval--retort-output "ext:geiser-eval" (ret))
 (declare-function geiser-eval--retort-result-str "ext:geiser-eval" (ret prefix))
+(declare-function geiser-eval--retort-error "ext:geiser-eval" (ret))
+(declare-function geiser-eval--retort-error-msg "ext:geiser-eval" (err))
+(declare-function geiser-eval--error-msg "ext:geiser-eval" (err))
 
 (defcustom org-babel-scheme-null-to 'hline
   "Replace `null' and empty lists in scheme tables with this before returning."
@@ -69,6 +79,14 @@
 (defvar org-babel-default-header-args:scheme '()
   "Default header arguments for scheme code blocks.")
 
+(defun org-babel-scheme-expand-header-arg-vars (vars)
+  "Expand :var header arguments given as VARS."
+  (mapconcat
+   (lambda (var)
+     (format "(define %S %S)" (car var) (cdr var)))
+   vars
+   "\n"))
+
 (defun org-babel-expand-body:scheme (body params)
   "Expand BODY according to PARAMS, return the expanded body."
   (let ((vars (org-babel--get-vars params))
@@ -76,13 +94,7 @@
 	(postpends (cdr (assq :epilogue params))))
     (concat (and prepends (concat prepends "\n"))
 	    (if (null vars) body
-	      (format "(let (%s)\n%s\n)"
-		      (mapconcat
-		       (lambda (var)
-			 (format "%S" (print `(,(car var) ',(cdr var)))))
-		       vars
-		       "\n      ")
-		      body))
+	      (concat (org-babel-scheme-expand-header-arg-vars vars) "\n" body))
 	    (and postpends (concat "\n" postpends)))))
 
 
@@ -110,11 +122,14 @@
     geiser-impl--implementation))
 
 (defun org-babel-scheme-get-repl (impl name)
-  "Switch to a scheme REPL, creating it if it doesn't exist:"
+  "Switch to a scheme REPL, creating it if it doesn't exist."
   (let ((buffer (org-babel-scheme-get-session-buffer name)))
     (or buffer
 	(progn
-	  (run-geiser impl)
+          (if (fboundp 'geiser)
+              (geiser impl)
+            ;; Obsolete since Geiser 0.26.
+	    (run-geiser impl))
 	  (when name
 	    (rename-buffer name t)
 	    (org-babel-scheme-set-session-buffer name (current-buffer)))
@@ -176,23 +191,37 @@ is true; otherwise returns the last value."
 	  (setq geiser-impl--implementation nil)
 	  (let ((geiser-debug-jump-to-debug-p nil)
 		(geiser-debug-show-debug-p nil))
-	    (let ((ret (geiser-eval-region (point-min) (point-max))))
-	      (setq result (if output
+            ;; `geiser-eval-region/wait' was introduced to await the
+            ;; result of async evaluation in geiser version 0.22.
+	    (let ((ret (funcall (if (fboundp 'geiser-eval-region/wait)
+                                    #'geiser-eval-region/wait
+                                  #'geiser-eval-region)
+                                (point-min)
+                                (point-max))))
+	      (let ((err (geiser-eval--retort-error ret)))
+		(setq result (cond
+			      (output
 			       (or (geiser-eval--retort-output ret)
-				   "Geiser Interpreter produced no output")
-			     (geiser-eval--retort-result-str ret "")))))
+				   "Geiser Interpreter produced no output"))
+			      (err nil)
+			      (t (geiser-eval--retort-result-str ret ""))))
 	  (when (not repl)
 	    (save-current-buffer (set-buffer repl-buffer)
 				 (geiser-repl-exit))
 	    (set-process-query-on-exit-flag (get-buffer-process repl-buffer) nil)
-	    (kill-buffer repl-buffer)))))
+		  (kill-buffer repl-buffer))
+		(when err
+		  (let ((msg (geiser-eval--error-msg err)))
+		    (org-babel-eval-error-notify
+		     nil
+		     (concat (if (listp msg) (car msg) msg) "\n"))))))))))
     result))
 
 (defun org-babel-scheme--table-or-string (results)
   "Convert RESULTS into an appropriate elisp value.
 If the results look like a list or tuple, then convert them into an
 Emacs-lisp table, otherwise return the results as a string."
-  (let ((res (org-babel-script-escape results)))
+  (let ((res (and results (org-babel-script-escape results))))
     (cond ((listp res)
            (mapcar (lambda (el)
 		     (if (or (null el) (eq el 'null))

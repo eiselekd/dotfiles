@@ -1,10 +1,10 @@
 ;;; org-id.el --- Global identifiers for Org entries -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2008-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2008-2023 Free Software Foundation, Inc.
 ;;
-;; Author: Carsten Dominik <carsten at orgmode dot org>
+;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -70,12 +70,18 @@
 
 ;;; Code:
 
+(require 'org-macs)
+(org-assert-version)
+
 (require 'org)
+(require 'org-element-ast)
 (require 'org-refile)
 (require 'ol)
 
 (declare-function message-make-fqdn "message" ())
 (declare-function org-goto-location "org-goto" (&optional _buf help))
+;; Declared inside `org-element-with-disabled-cache' macro.
+(declare-function org-element--cache-active-p "org-element.el" (&optional called-from-cache-change-func-p))
 
 ;;; Customization
 
@@ -129,8 +135,11 @@ nil   Never use an ID to make a link, instead link using a text search for
   :type 'string)
 
 (defcustom org-id-ts-format "%Y%m%dT%H%M%S.%6N"
-  "Default format for IDs generated using `ts' `org-id-method'.
-The format should be suitable to pass as an argument to `format-time-string'."
+  "Timestamp format for IDs generated using `ts' `org-id-method'.
+The format should be suitable to pass as an argument to `format-time-string'.
+
+Defaults to ISO8601 timestamps without separators and without
+timezone, local time and precision down to 1e-6 seconds."
   :type 'string
   :package-version '(Org . "9.5"))
 
@@ -150,13 +159,12 @@ uuid       Create random (version 4) UUIDs.  If the program defined in
            `org-id-uuid-program' is available it is used to create the ID.
            Otherwise an internal functions is used.
 
-ts         Create ID's based on ISO8601 timestamps (without separators
-           and without timezone, local time).  Precision down to seconds."
+ts         Create ID's based on timestamps as specified in `org-id-ts-format'."
   :group 'org-id
   :type '(choice
 	  (const :tag "Org's internal method" org)
 	  (const :tag "external: uuidgen" uuid)
-	  (const :tag "ISO8601 timestamp" ts)))
+	  (const :tag "Timestamp with format `org-id-ts-format'" ts)))
 
 (defcustom org-id-prefix nil
   "The prefix for IDs.
@@ -194,15 +202,14 @@ the link."
   :group 'org-id
   :type 'boolean)
 
-(defcustom org-id-locations-file (convert-standard-filename
-				  (concat user-emacs-directory ".org-id-locations"))
+(defcustom org-id-locations-file (locate-user-emacs-file ".org-id-locations")
   "The file for remembering in which file an ID was defined.
 This variable is only relevant when `org-id-track-globally' is set."
   :group 'org-id
   :type 'file)
 
 (defcustom org-id-locations-file-relative nil
-  "Determines if org-id-locations should be stored as relative links.
+  "Determine if `org-id-locations' should be stored as relative links.
 Non-nil means that links to locations are stored as links
 relative to the location of where `org-id-locations-file' is
 stored.
@@ -219,6 +226,8 @@ systems."
 
 (defvar org-id-locations nil
   "List of files with IDs in those files.")
+(defvar org-id--locations-checksum nil
+  "Last checksum corresponding to ID files and their modifications.")
 
 (defvar org-id-files nil
   "List of files that contain IDs.")
@@ -271,25 +280,26 @@ This is useful when working with contents in a temporary buffer
 that will be copied back to the original.")
 
 ;;;###autoload
-(defun org-id-get (&optional pom create prefix)
-  "Get the ID property of the entry at point-or-marker POM.
-If POM is nil, refer to the entry at point.
+(defun org-id-get (&optional epom create prefix)
+  "Get the ID property of the entry at EPOM.
+EPOM is an element, marker, or buffer position.
+If EPOM is nil, refer to the entry at point.
 If the entry does not have an ID, the function returns nil.
 However, when CREATE is non-nil, create an ID if none is present already.
 PREFIX will be passed through to `org-id-new'.
 In any case, the ID of the entry is returned."
-  (org-with-point-at pom
-    (let ((id (org-entry-get nil "ID")))
-      (cond
-       ((and id (stringp id) (string-match "\\S-" id))
-	id)
-       (create
-	(setq id (org-id-new prefix))
-	(org-entry-put pom "ID" id)
-	(org-id-add-location id
+  (let ((id (org-entry-get epom "ID")))
+    (cond
+     ((and id (stringp id) (string-match "\\S-" id))
+      id)
+     (create
+      (setq id (org-id-new prefix))
+      (org-entry-put epom "ID" id)
+      (org-with-point-at epom
+        (org-id-add-location id
 			     (or org-id-overriding-file-name
-				 (buffer-file-name (buffer-base-buffer))))
-	id)))))
+			         (buffer-file-name (buffer-base-buffer)))))
+      id))))
 
 ;;;###autoload
 (defun org-id-get-with-outline-path-completion (&optional targets)
@@ -303,7 +313,7 @@ If necessary, the ID is created."
 	  (if (caar org-refile-targets) 'file t))
 	 (org-refile-target-verify-function nil)
 	 (spos (org-refile-get-location "Entry"))
-	 (pom (and spos (move-marker (make-marker) (nth 3 spos)
+	 (pom (and spos (move-marker (make-marker) (or (nth 3 spos) 1)
 				     (get-file-buffer (nth 1 spos))))))
     (prog1 (org-id-get pom 'create)
       (move-marker pom nil))))
@@ -329,7 +339,7 @@ Move the cursor to that entry in that buffer."
     (pop-to-buffer-same-window (marker-buffer m))
     (goto-char m)
     (move-marker m nil)
-    (org-show-context)))
+    (org-fold-show-context)))
 
 ;;;###autoload
 (defun org-id-find (id &optional markerp)
@@ -380,54 +390,28 @@ So a typical ID could look like \"Org:4nd91V40HI\"."
 	(setq unique (org-id-uuid))))
      ((eq org-id-method 'org)
       (let* ((etime (org-reverse-string (org-id-time-to-b36)))
-	     (postfix (if org-id-include-domain
-			  (progn
-			    (require 'message)
-			    (concat "@" (message-make-fqdn))))))
+	     (postfix (when org-id-include-domain
+			(require 'message)
+			(concat "@" (message-make-fqdn)))))
 	(setq unique (concat etime postfix))))
      ((eq org-id-method 'ts)
       (let ((ts (format-time-string org-id-ts-format))
-	    (postfix (if org-id-include-domain
-			 (progn
-			   (require 'message)
-			   (concat "@" (message-make-fqdn))))))
+	    (postfix (when org-id-include-domain
+		       (require 'message)
+		       (concat "@" (message-make-fqdn)))))
 	(setq unique (concat ts postfix))))
      (t (error "Invalid `org-id-method'")))
     (concat prefix unique)))
 
-(defun org-id-uuid ()
-  "Return string with random (version 4) UUID."
-  (let ((rnd (md5 (format "%s%s%s%s%s%s%s"
-			  (random)
-			  (org-time-convert-to-list nil)
-			  (user-uid)
-			  (emacs-pid)
-			  (user-full-name)
-			  user-mail-address
-			  (recent-keys)))))
-    (format "%s-%s-4%s-%s%s-%s"
-	    (substring rnd 0 8)
-	    (substring rnd 8 12)
-	    (substring rnd 13 16)
-	    (format "%x"
-		    (logior
-		     #b10000000
-		     (logand
-		      #b10111111
-		      (string-to-number
-		       (substring rnd 16 18) 16))))
-	    (substring rnd 18 20)
-	    (substring rnd 20 32))))
-
-(defun org-id-int-to-b36-one-digit (i)
-  "Turn an integer between 0 and 61 into a single character 0..9, A..Z, a..z."
+(defun org-id-int-to-b36-one-digit (integer)
+  "Convert INTEGER between 0 and 61 into a single character 0..9, A..Z, a..z."
   (cond
-   ((< i 10) (+ ?0 i))
-   ((< i 36) (+ ?a i -10))
+   ((< integer 10) (+ ?0 integer))
+   ((< integer 36) (+ ?a integer -10))
    (t (error "Larger that 35"))))
 
 (defun org-id-b36-to-int-one-digit (i)
-  "Turn a character 0..9, A..Z, a..z into a number 0..61.
+  "Convert character 0..9, A..Z, a..z into a number 0..61.
 The input I may be a character, or a single-letter string."
   (and (stringp i) (setq i (string-to-char i)))
   (cond
@@ -435,9 +419,11 @@ The input I may be a character, or a single-letter string."
    ((and (>= i ?a) (<= i ?z)) (+ (- i ?a) 10))
    (t (error "Invalid b36 letter"))))
 
-(defun org-id-int-to-b36 (i &optional length)
-  "Convert an integer to a base-36 number represented as a string."
-  (let ((s ""))
+(defun org-id-int-to-b36 (integer &optional length)
+  "Convert an INTEGER to a base-36 number represented as a string.
+The returned string is padded with leading zeros to LENGTH if necessary."
+  (let ((s "")
+        (i integer))
     (while (> i 0)
       (setq s (concat (char-to-string
 		       (org-id-int-to-b36-one-digit (mod i 36))) s)
@@ -447,11 +433,11 @@ The input I may be a character, or a single-letter string."
 	(setq s (concat (make-string (- length (length s)) ?0) s)))
     s))
 
-(defun org-id-b36-to-int (s)
-  "Convert a base-36 string into the corresponding integer."
+(defun org-id-b36-to-int (string)
+  "Convert a base-36 STRING into the corresponding integer."
   (let ((r 0))
     (mapc (lambda (i) (setq r (+ (* r 36) (org-id-b36-to-int-one-digit i))))
-	  s)
+	  string)
     r))
 
 (defun org-id-time-to-b36 (&optional time)
@@ -487,13 +473,13 @@ and TIME is a Lisp time value (HI LO USEC)."
 (defun org-id-update-id-locations (&optional files silent)
   "Scan relevant files for IDs.
 Store the relation between files and corresponding IDs.
-This will scan all agenda files, all associated archives, and all
-files currently mentioned in `org-id-locations'.
-When FILES is given, scan also these files."
+This will scan all agenda files, all associated archives, all open Org
+files, and all files currently mentioned in `org-id-locations'.
+When FILES is given, scan also these files.
+If SILENT is non-nil, messages are suppressed."
   (interactive)
   (unless org-id-track-globally
     (error "Please turn on `org-id-track-globally' if you want to track IDs"))
-  (setq org-id-locations nil)
   (let* ((files
           (delete-dups
            (mapcar #'file-truename
@@ -510,47 +496,60 @@ When FILES is given, scan also these files."
 		       org-id-extra-files)
 		     ;; All files known to have IDs.
 		     org-id-files
+                     ;; All Org files open in Emacs.
+                     (mapcar #'buffer-file-name (org-buffer-list 'files t))
 		     ;; Additional files from function call.
 		     files)))))
          (nfiles (length files))
          (id-regexp
 	  (rx (seq bol (0+ (any "\t ")) ":ID:" (1+ " ") (not (any " ")))))
-         (seen-ids nil)
+         (seen-ids (make-hash-table :test #'equal))
          (ndup 0)
-         (i 0))
-    (with-temp-buffer
-      (delay-mode-hooks
-	(org-mode)
-	(dolist (file files)
-	  (when (file-exists-p file)
-            (unless silent
-              (cl-incf i)
-              (message "Finding ID locations (%d/%d files): %s" i nfiles file))
-	    (insert-file-contents file nil nil nil 'replace)
-            (let ((ids nil)
-		  (case-fold-search t))
-              (org-with-point-at 1
-		(while (re-search-forward id-regexp nil t)
-		  (when (org-at-property-p)
-                    (push (org-entry-get (point) "ID") ids)))
-		(when ids
-		  (push (cons (abbreviate-file-name file) ids)
-			org-id-locations)
-		  (dolist (id ids)
-                    (cond
-                     ((not (member id seen-ids)) (push id seen-ids))
-                     (silent nil)
-                     (t
-                      (message "Duplicate ID %S" id)
-                      (cl-incf ndup)))))))))))
-    (setq org-id-files (mapcar #'car org-id-locations))
-    (org-id-locations-save)
-    ;; Now convert to a hash table.
-    (setq org-id-locations (org-id-alist-to-hash org-id-locations))
-    (when (and (not silent) (> ndup 0))
-      (warn "WARNING: %d duplicate IDs found, check *Messages* buffer" ndup))
-    (message "%d files scanned, %d files contains IDs, and %d IDs found."
-             nfiles (length org-id-files) (hash-table-count org-id-locations))
+         (i 0)
+         (checksum
+          (mapcar
+           (lambda (f)
+             (when (file-exists-p f)
+               (list f (file-attribute-modification-time (file-attributes f)))))
+           (sort (copy-sequence files) #'string<))))
+    (unless (equal checksum org-id--locations-checksum) ; Files have changed since the last update.
+      (setq org-id-locations nil)
+      (with-temp-buffer
+        (delay-mode-hooks
+	  (org-mode)
+	  (dolist (file files)
+	    (when (file-exists-p file)
+              (unless silent
+                (cl-incf i)
+                (message "Finding ID locations (%d/%d files): %s" i nfiles file))
+	      (insert-file-contents file nil nil nil 'replace)
+              (let ((ids nil)
+                    node
+		    (case-fold-search t))
+                (org-with-point-at 1
+		  (while (re-search-forward id-regexp nil t)
+                    (setq node (org-element-at-point))
+		    (when (org-element-type-p node 'node-property)
+                      (push (org-element-property :value node) ids)))
+		  (when ids
+		    (push (cons (abbreviate-file-name file) ids)
+			  org-id-locations)
+		    (dolist (id ids)
+                      (cond
+                       ((not (gethash id seen-ids)) (puthash id t seen-ids))
+                       (silent nil)
+                       (t
+                        (message "Duplicate ID %S" id)
+                        (cl-incf ndup)))))))))))
+      (setq org-id-files (mapcar #'car org-id-locations))
+      (org-id-locations-save)
+      ;; Now convert to a hash table.
+      (setq org-id-locations (org-id-alist-to-hash org-id-locations))
+      (setq org-id--locations-checksum checksum)
+      (when (and (not silent) (> ndup 0))
+        (warn "WARNING: %d duplicate IDs found, check *Messages* buffer" ndup))
+      (message "%d files scanned, %d files contains IDs, and %d IDs found."
+               nfiles (length org-id-files) (hash-table-count org-id-locations)))
     org-id-locations))
 
 (defun org-id-locations-save ()
@@ -589,7 +588,7 @@ When FILES is given, scan also these files."
 			(setf (car item) (expand-file-name (car item) loc))))
 		    org-id-locations)))
 	(error
-	 (message "Could not read org-id-values from %s.  Setting it to nil."
+         (message "Could not read `org-id-locations' from %s, setting it to nil"
 		  org-id-locations-file))))
     (setq org-id-files (mapcar 'car org-id-locations))
     (setq org-id-locations (org-id-alist-to-hash org-id-locations))))
@@ -598,7 +597,7 @@ When FILES is given, scan also these files."
   "Add the ID with location FILE to the database of ID locations."
   ;; Only if global tracking is on, and when the buffer has a file
   (unless file
-    (error "bug: org-id-get expects a file-visiting buffer"))
+    (error "`org-id-get' expects a file-visiting buffer"))
   (let ((afile (abbreviate-file-name file)))
     (when (and org-id-track-globally id)
       (unless org-id-locations (org-id-locations-load))
@@ -610,7 +609,8 @@ When FILES is given, scan also these files."
   (add-hook 'kill-emacs-hook 'org-id-locations-save))
 
 (defun org-id-hash-to-alist (hash)
-  "Turn an org-id hash into an alist, so that it can be written to a file."
+  "Turn an org-id HASH into an alist.
+This is to be able to write it to a file."
   (let (res x)
     (maphash
      (lambda (k v)
@@ -621,7 +621,7 @@ When FILES is given, scan also these files."
     res))
 
 (defun org-id-alist-to-hash (list)
-  "Turn an org-id location list into a hash table."
+  "Turn an org-id location LIST into a hash table."
   (let ((res (make-hash-table
 	      :test 'equal
 	      :size (apply '+ (mapcar 'length list))))
@@ -634,7 +634,7 @@ When FILES is given, scan also these files."
     res))
 
 (defun org-id-paste-tracker (txt &optional buffer-or-file)
-  "Update any IDs in TXT and assign BUFFER-OR-FILE to them."
+  "Update any ids in TXT and assign BUFFER-OR-FILE to them."
   (when org-id-track-globally
     (save-match-data
       (setq buffer-or-file (or buffer-or-file (current-buffer)))
@@ -653,7 +653,7 @@ When FILES is given, scan also these files."
 
 ;;;###autoload
 (defun org-id-find-id-file (id)
-  "Query the id database for the file in which this ID is located."
+  "Query the id database for the file in which ID is located."
   (unless org-id-locations (org-id-locations-load))
   (or (and org-id-locations
 	   (hash-table-p org-id-locations)
@@ -675,16 +675,31 @@ optional argument MARKERP, return the position as a new marker."
    ((not (file-exists-p file)) nil)
    (t
     (let* ((visiting (find-buffer-visiting file))
-	   (buffer (or visiting (find-file-noselect file))))
+	   (buffer (or visiting
+                       (if markerp (find-file-noselect file)
+                         (if (<= 2 (cdr (func-arity #'get-buffer-create)))
+                             (with-no-warnings (get-buffer-create " *Org ID temp*" t))
+                           ;; FIXME: Emacs 27 does not yet have second argument.
+                           (get-buffer-create " *Org ID temp*"))))))
       (unwind-protect
 	  (with-current-buffer buffer
+            (unless (derived-mode-p 'org-mode) (org-mode))
+            (unless (or visiting markerp)
+              (buffer-disable-undo)
+              ;; FIXME: In Emacs 27, `insert-file-contents' seemingly
+              ;; does not trigger modification hooks in some
+              ;; scenarios.  This is manifested in test failures due
+              ;; to element cache losing track of the modifications.
+              (org-element-cache-reset)
+              (insert-file-contents file nil nil nil 'replace))
 	    (let ((pos (org-find-entry-with-id id)))
 	      (cond
 	       ((null pos) nil)
 	       (markerp (move-marker (make-marker) pos buffer))
 	       (t (cons file pos)))))
-	;; Remove opened buffer in the process.
-	(unless (or visiting markerp) (kill-buffer buffer)))))))
+	;; Clean temporarily buffer if we don't need to keep it.
+	(unless (or visiting markerp)
+          (with-current-buffer buffer (erase-buffer))))))))
 
 ;; id link type
 
@@ -693,21 +708,27 @@ optional argument MARKERP, return the position as a new marker."
 
 ;;;###autoload
 (defun org-id-store-link ()
-  "Store a link to the current entry, using its ID."
+  "Store a link to the current entry, using its ID.
+
+If before first heading store first title-keyword as description
+or filename if no title."
   (interactive)
   (when (and (buffer-file-name (buffer-base-buffer)) (derived-mode-p 'org-mode))
     (let* ((link (concat "id:" (org-id-get-create)))
 	   (case-fold-search nil)
 	   (desc (save-excursion
 		   (org-back-to-heading-or-point-min t)
-		   (or (and (org-before-first-heading-p)
-			    (file-name-nondirectory
-			     (buffer-file-name (buffer-base-buffer))))
-		       (and (looking-at org-complex-heading-regexp)
-			    (if (match-end 4)
-				(match-string 4)
-			      (match-string 0)))
-		       link))))
+                   (cond ((org-before-first-heading-p)
+                          (let ((keywords (org-collect-keywords '("TITLE"))))
+                            (if keywords
+                                (cadr (assoc "TITLE" keywords))
+                              (file-name-nondirectory
+			       (buffer-file-name (buffer-base-buffer))))))
+		         ((looking-at org-complex-heading-regexp)
+			  (if (match-end 4)
+			      (match-string 4)
+			    (match-string 0)))
+                         (t link)))))
       (org-link-store-props :link link :description desc :type "id")
       link)))
 
@@ -732,7 +753,7 @@ optional argument MARKERP, return the position as a new marker."
 	(funcall cmd (marker-buffer m)))
     (goto-char m)
     (move-marker m nil)
-    (org-show-context)))
+    (org-fold-show-context)))
 
 (org-link-set-parameters "id" :follow #'org-id-open)
 

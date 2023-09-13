@@ -1,10 +1,11 @@
 ;;; ob-calc.el --- Babel Functions for Calc          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2023 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
+;; Maintainer: Tom Gillespie <tgbugs@gmail.com>
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -26,6 +27,10 @@
 ;; Org-Babel support for evaluating calc code
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 (require 'org-macs)
 (require 'calc)
@@ -45,7 +50,7 @@
 (defvar org--var-syms) ; Dynamically scoped from org-babel-execute:calc
 
 (defun org-babel-execute:calc (body params)
-  "Execute a block of calc code with Babel."
+  "Execute BODY of calc code with Babel using PARAMS."
   (unless (get-buffer "*Calculator*")
     (save-window-excursion (calc) (calc-quit)))
   (let* ((vars (org-babel--get-vars params))
@@ -90,10 +95,12 @@
   (save-excursion
     (with-current-buffer (get-buffer "*Calculator*")
       (prog1
-        (calc-eval (calc-top 1))
+          (calc-eval (calc-top 1))
         (calc-pop 1)))))
 
 (defun org-babel-calc-maybe-resolve-var (el)
+"Resolve user variables in EL.
+EL is taken from the output of `math-read-exprs'."
   (if (consp el)
       (if (and (eq 'var (car el)) (member (cadr el) org--var-syms))
 	  (progn

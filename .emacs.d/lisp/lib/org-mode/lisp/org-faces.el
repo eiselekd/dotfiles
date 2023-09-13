@@ -1,10 +1,10 @@
 ;;; org-faces.el --- Face definitions -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
 
-;; Author: Carsten Dominik <carsten at orgmode dot org>
+;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -27,6 +27,9 @@
 ;; This file contains the face definitions for Org.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
 
 (defgroup org-faces nil
   "Faces in Org mode."
@@ -105,7 +108,7 @@ color of the frame."
   "Face used for drawers."
   :group 'org-faces)
 
-(defface org-property-value nil
+(defface org-property-value '((t :inherit default))
   "Face used for the value of a property."
   :group 'org-faces)
 
@@ -137,7 +140,7 @@ The following faces apply, with this priority.
 
 Since column view works by putting overlays with a display property
 over individual characters in the buffer, the face of the underlining
-character (this might for example be the a TODO keyword) might still
+character (this might for example be the TODO keyword) might still
 shine through in some properties.  So when your column view looks
 funny, with \"random\" colors, weight, strike-through, try to explicitly
 set the properties in the `org-column' face.  For example, set
@@ -165,6 +168,14 @@ set the properties in the `org-column' face.  For example, set
 
 (defface org-archived '((t :inherit shadow))
   "Face for headline with the ARCHIVE tag."
+  :group 'org-faces)
+
+(defface org-cite '((t :inherit link))
+  "Face for citations."
+  :group 'org-faces)
+
+(defface org-cite-key '((t :inherit link))
+  "Face for citation keys."
   :group 'org-faces)
 
 (defface org-link '((t :inherit link))
@@ -330,7 +341,7 @@ determines if it is a foreground or a background color."
 
 (defvar org-tags-special-faces-re nil)
 (defun org-set-tag-faces (var value)
-  (set var value)
+  (set-default-toplevel-value var value)
   (if (not value)
       (setq org-tags-special-faces-re nil)
     (setq org-tags-special-faces-re
@@ -447,6 +458,10 @@ verse and quote blocks are fontified using the `org-verse' and
   "Face used for the line delimiting the end of source blocks."
   :group 'org-faces)
 
+(defface org-inline-src-block '((t (:inherit org-block)))
+  "Face used for inline source blocks as a whole."
+  :group 'org-faces)
+
 (defface org-verbatim '((t (:inherit shadow)))
   "Face for fixed-with text like code snippets."
   :group 'org-faces
@@ -495,6 +510,16 @@ content of these blocks will still be treated as Org syntax."
   "Face used in agenda for captions and dates."
   :group 'org-faces)
 
+(defface org-agenda-structure-secondary '((t (:inherit org-agenda-structure)))
+  "Face used for secondary information in agenda block headers."
+  :group 'org-faces)
+
+(defface org-agenda-structure-filter '((t (:inherit (org-warning org-agenda-structure))))
+  "Face used for the current type of task filter in the agenda.
+It inherits from `org-agenda-structure' so it can adapt to
+it (e.g. if that is assigned a different font height or family)."
+  :group 'org-faces)
+
 (defface org-agenda-date '((t (:inherit org-agenda-structure)))
   "Face used in agenda for normal days."
   :group 'org-faces)
@@ -502,6 +527,10 @@ content of these blocks will still be treated as Org syntax."
 (defface org-agenda-date-today
   '((t (:inherit org-agenda-date :weight bold :italic t)))
   "Face used in agenda for today."
+  :group 'org-faces)
+
+(defface org-agenda-date-weekend-today '((t (:inherit org-agenda-date-today)))
+  "Face used in agenda for today during weekends."
   :group 'org-faces)
 
 (defface org-agenda-clocking '((t (:inherit secondary-selection)))
@@ -546,6 +575,11 @@ which days belong to the weekend."
   "Face for items scheduled previously, and not yet done."
   :group 'org-faces)
 
+(defface org-imminent-deadline '((t :inherit org-warning))
+  "Face for current deadlines in the agenda.
+See also `org-agenda-deadline-faces'."
+  :group 'org-faces)
+
 (defface org-upcoming-deadline
   '((((class color) (min-colors 88) (background light)) (:foreground "Firebrick"))
     (((class color) (min-colors 88) (background dark)) (:foreground "chocolate1"))
@@ -561,12 +595,12 @@ See also `org-agenda-deadline-faces'."
 See also `org-agenda-deadline-faces'.")
 
 (defcustom org-agenda-deadline-faces
-  '((1.0 . org-warning)
+  '((1.0 . org-imminent-deadline)
     (0.5 . org-upcoming-deadline)
     (0.0 . org-upcoming-distant-deadline))
   "Faces for showing deadlines in the agenda.
 This is a list of cons cells.  The cdr of each cell is a face to be used,
-and it can also just be like \\='(:foreground \"yellow\").
+and it can also just be like (:foreground \"yellow\").
 Each car is a fraction of the head-warning time that must have passed for
 this the face in the cdr to be used for display.  The numbers must be
 given in descending order.  The head-warning time is normally taken
@@ -624,6 +658,10 @@ month and 365.24 days for a year)."
 
 (defface org-agenda-diary '((t :inherit default))
   "Face used for agenda entries that come from the Emacs diary."
+  :group 'org-faces)
+
+(defface org-agenda-calendar-daterange '((t :inherit default))
+  "Face used to show entries with a date range in the agenda."
   :group 'org-faces)
 
 (defface org-agenda-calendar-event '((t :inherit default))

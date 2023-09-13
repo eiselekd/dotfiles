@@ -1,12 +1,12 @@
 ;;; ob-java.el --- org-babel functions for java evaluation -*- lexical-binding: t -*-
 
-;; Copyright (C) 2011-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2011-2023 Free Software Foundation, Inc.
 
 ;; Authors: Eric Schulte
 ;;          Dan Davison
 ;; Maintainer: Ian Martins <ianxm@jhu.edu>
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://orgmode.org
+;; URL: https://orgmode.org
 
 ;; This file is part of GNU Emacs.
 
@@ -28,6 +28,10 @@
 ;; Org-Babel support for evaluating java source code.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
+
 (require 'ob)
 
 (defvar org-babel-tangle-lang-exts)
@@ -49,7 +53,13 @@ directory, so we keep that as the default behavior.
 
 [1] https://orgmode.org/manual/Results-of-Evaluation.html")
 
-(defconst org-babel-header-args:java '((imports . :any))
+(defconst org-babel-header-args:java
+  '((dir       . :any)
+    (classname . :any)
+    (imports   . :any)
+    (cmpflag   . :any)
+    (cmdline   . :any)
+    (cmdarg    . :any))
   "Java-specific header arguments.")
 
 (defcustom org-babel-java-command "java"
@@ -87,7 +97,8 @@ like javac -verbose."
 					 (0+ space) ?\; line-end)
   "Regexp for the package statement.")
 (defconst org-babel-java--imports-re (rx line-start (0+ space) "import"
-					 (1+ space) (group (1+ (in alnum ?_ ?.))) ; capture the fully qualified class name
+                                         (opt (1+ space) "static")
+					 (1+ space) (group (1+ (in alnum ?_ ?. ?*))) ; capture the fully qualified class name
 					 (0+ space) ?\; line-end)
   "Regexp for import statements.")
 (defconst org-babel-java--class-re (rx line-start (0+ space) (opt (seq "public" (1+ space)))
@@ -95,27 +106,29 @@ like javac -verbose."
 				       (group (1+ (in alnum ?_))) ; capture the class name
 				       (0+ space) ?{)
   "Regexp for the class declaration.")
-(defconst org-babel-java--main-re (rx line-start (0+ space) "public"
-				      (1+ space) "static"
-				      (1+ space) "void"
-				      (1+ space) "main"
-				      (0+ space) ?\(
-				      (0+ space) "String"
-				      (0+ space) (1+ (in alnum ?_ ?\[ ?\] space)) ; "[] args" or "args[]"
-				      (0+ space) ?\)
-				      (0+ space) (opt "throws" (1+ (in alnum ?_ ?, ?. space)))
-				      ?{)
+(defconst org-babel-java--main-re
+  (rx line-start (0+ space) "public"
+      (1+ space) "static"
+      (1+ space) "void"
+      (1+ space) "main"
+      (0+ space) ?\(
+      (0+ space) "String"
+      (1+ (in alnum ?_ ?\[ ?\] space)) ; "[] args" or "args[]"
+      ?\)
+      (0+ space) (opt "throws" (1+ (in alnum ?_ ?, ?. space)))
+      ?{)
   "Regexp for the main method declaration.")
-(defconst org-babel-java--any-method-re (rx line-start
-					    (0+ space) (opt (seq (1+ alnum) (1+ space)))   ; visibility
-					    (opt (seq "static" (1+ space)))                ; binding
-					    (1+ (in alnum ?_ ?\[ ?\]))                     ; return type
-                                            (1+ space) (1+ (in alnum ?_))                  ; method name
-					    (0+ space) ?\(
-					    (0+ space) (0+ (in alnum ?_ ?\[ ?\] ?, space)) ; params
-					    (0+ space) ?\)
-					    (0+ space) (opt "throws" (1+ (in alnum ?_ ?, ?. space)))
-					    ?{)
+(defconst org-babel-java--any-method-re
+  (rx line-start
+      (0+ space) (opt (seq (1+ alnum) (1+ space)))   ; visibility
+      (opt (seq "static" (1+ space)))                ; binding
+      (1+ (in alnum ?_ ?\[ ?\]))                     ; return type
+      (1+ space) (1+ (in alnum ?_))                  ; method name
+      (0+ space) ?\(
+      (0+ (in alnum ?_ ?\[ ?\] ?, space)) ; params
+      ?\)
+      (0+ space) (opt "throws" (1+ (in alnum ?_ ?, ?. space)))
+      ?{)
   "Regexp for any method.")
 (defconst org-babel-java--result-wrapper "\n    public static String __toString(Object val) {
         if (val instanceof String) {
@@ -163,8 +176,15 @@ replaced in this string.")
 
 (defun org-babel-execute:java (body params)
   "Execute a java source block with BODY code and PARAMS params."
-  (let* (;; if true, run from babel temp directory
-         (run-from-temp (not (alist-get :dir params)))
+  (let* (;; allow header overrides
+         (org-babel-java-compiler
+          (or (cdr (assq :javac params))
+              org-babel-java-compiler))
+         (org-babel-java-command
+          (or (cdr (assq :java params))
+              org-babel-java-command))
+         ;; if true, run from babel temp directory
+         (run-from-temp (not (cdr (assq :dir params))))
          ;; class and package
          (fullclassname (or (cdr (assq :classname params))
                             (org-babel-java-find-classname body)))
@@ -174,13 +194,14 @@ replaced in this string.")
          (packagename (if (string-match-p "\\." fullclassname)
                           (file-name-base fullclassname)))
          ;; the base dir that contains the top level package dir
-         (basedir (file-name-as-directory (if run-from-temp
-                                              org-babel-temporary-directory
-                                            ".")))
+         (basedir (file-name-as-directory
+                   (if run-from-temp
+                       (org-babel-temp-directory)
+                     default-directory)))
          ;; the dir to write the source file
          (packagedir (if (and (not run-from-temp) packagename)
                          (file-name-as-directory
-                          (concat basedir (replace-regexp-in-string "\\\." "/" packagename)))
+                          (concat basedir (replace-regexp-in-string "\\." "/" packagename)))
                        basedir))
          ;; the filename of the source file
          (src-file (concat packagedir classname ".java"))
@@ -299,7 +320,8 @@ RESULT-FILE is the temp file to write the result."
     (goto-char (point-min))
     (setq class-found (re-search-forward class nil t))
     (goto-char (point-min))
-    (setq import-found (re-search-forward (concat "^import .*" package ".*" class ";") nil t))
+    (setq import-found
+          (re-search-forward (concat "^import .*" package ".*\\(?:\\*\\|" class "\\);") nil t))
     (when (and class-found (not import-found))
       (org-babel-java--move-past org-babel-java--package-re)
       (insert (concat "import " package "." class ";\n")))))
@@ -459,7 +481,7 @@ If RESULT-TYPE equals `output' then return standard output as a
 string.  If RESULT-TYPE equals `value' then return the value
 returned by the source block, as elisp.
 
-RESULT-PARAMS input params used to format the reponse.
+RESULT-PARAMS input params used to format the response.
 
 RESULT-FILE filename of the tempfile to store the returned value in
 for `value' RESULT-TYPE.  Not used for `output' RESULT-TYPE."
@@ -468,7 +490,7 @@ for `value' RESULT-TYPE.  Not used for `output' RESULT-TYPE."
                (`value (org-babel-eval cmd "")
                        (org-babel-eval-read-file result-file)))))
     (org-babel-result-cond result-params raw
-      (org-babel-java-table-or-string raw))))
+                           (org-babel-java-table-or-string raw))))
 
 (provide 'ob-java)
 

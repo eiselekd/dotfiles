@@ -1,8 +1,9 @@
-;;; ox-md.el --- Markdown Back-End for Org Export Engine -*- lexical-binding: t; -*-
+;;; ox-md.el --- Markdown Backend for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2012-2020 Free Software Foundation, Inc.
+;; Copyright (C) 2012-2023 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou@gmail.com>
+;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: org, wp, markdown
 
 ;; This file is part of GNU Emacs.
@@ -22,11 +23,14 @@
 
 ;;; Commentary:
 
-;; This library implements a Markdown back-end (vanilla flavor) for
-;; Org exporter, based on `html' back-end.  See Org manual for more
+;; This library implements a Markdown backend (vanilla flavor) for
+;; Org exporter, based on `html' backend.  See Org manual for more
 ;; information.
 
 ;;; Code:
+
+(require 'org-macs)
+(org-assert-version)
 
 (require 'cl-lib)
 (require 'ox-html)
@@ -36,7 +40,7 @@
 ;;; User-Configurable Variables
 
 (defgroup org-export-md nil
-  "Options specific to Markdown export back-end."
+  "Options specific to Markdown export backend."
   :tag "Org Markdown"
   :group 'org-export
   :version "24.4"
@@ -57,10 +61,10 @@ This variable can be set to either `atx' or `setext'."
   "Format string for the footnotes section.
 The first %s placeholder will be replaced with the localized Footnotes section
 heading, the second with the contents of the Footnotes section."
- :group 'org-export-md
- :type 'string
- :version "26.1"
- :package-version '(Org . "9.0"))
+  :group 'org-export-md
+  :type 'string
+  :version "26.1"
+  :package-version '(Org . "9.0"))
 
 (defcustom org-md-footnote-format "<sup>%s</sup>"
   "Format string for the footnote reference.
@@ -70,8 +74,25 @@ The %s will be replaced by the footnote reference itself."
   :version "26.1"
   :package-version '(Org . "9.0"))
 
+(defcustom org-md-toplevel-hlevel 1
+  "Heading level to use for level 1 Org headings in markdown export.
+
+If this is 1, headline levels will be preserved on export.  If this is
+2, top level Org headings will be exported to level 2 markdown
+headings, level 2 Org headings will be exported to level 3 markdown
+headings, and so on.
+
+Incrementing this value may be helpful when creating markdown to be
+included into another document or application that reserves top-level
+headings for its own use."
+  :group 'org-export-md
+  :package-version '(Org . "9.6")
+  ;; Avoid `natnum' because that's not available until Emacs 28.1.
+  :type 'integer)
+
+
 
-;;; Define Back-End
+;;; Define Backend
 
 (org-export-define-derived-backend 'md 'html
   :filters-alist '((:filter-parse-tree . org-md-separate-elements))
@@ -100,6 +121,8 @@ The %s will be replaced by the footnote reference itself."
 		     (italic . org-md-italic)
 		     (item . org-md-item)
 		     (keyword . org-md-keyword)
+                     (latex-environment . org-md-latex-environment)
+                     (latex-fragment . org-md-latex-fragment)
 		     (line-break . org-md-line-break)
 		     (link . org-md-link)
 		     (node-property . org-md-node-property)
@@ -117,7 +140,8 @@ The %s will be replaced by the footnote reference itself."
   :options-alist
   '((:md-footnote-format nil nil org-md-footnote-format)
     (:md-footnotes-section nil nil org-md-footnotes-section)
-    (:md-headline-style nil nil org-md-headline-style)))
+    (:md-headline-style nil nil org-md-headline-style)
+    (:md-toplevel-hlevel nil nil org-md-toplevel-hlevel)))
 
 
 ;;; Filters
@@ -126,7 +150,7 @@ The %s will be replaced by the footnote reference itself."
   "Fix blank lines between elements.
 
 TREE is the parse tree being exported.  BACKEND is the export
-back-end used.  INFO is a plist used as a communication channel.
+backend used.  INFO is a plist used as a communication channel.
 
 Enforce a blank line between elements.  There are two exceptions
 to this rule:
@@ -142,11 +166,11 @@ Assume BACKEND is `md'."
     (lambda (e)
       (org-element-put-property
        e :post-blank
-       (if (and (eq (org-element-type e) 'paragraph)
-		(eq (org-element-type (org-element-property :parent e)) 'item)
+       (if (and (org-element-type-p e 'paragraph)
+		(org-element-type-p (org-element-parent e) 'item)
 		(org-export-first-sibling-p e info)
 		(let ((next (org-export-get-next-element e info)))
-		  (and (eq (org-element-type next) 'plain-list)
+		  (and (org-element-type-p next 'plain-list)
 		       (not (org-export-get-next-element next info)))))
 	   0
 	 1))))
@@ -171,7 +195,7 @@ of contents can refer to headlines."
       (lambda (h)
 	(let ((section (car (org-element-contents h))))
 	  (and
-	   (eq 'section (org-element-type section))
+	   (org-element-type-p section 'section)
 	   (org-element-map section 'keyword
 	     (lambda (keyword)
 	       (when (equal "TOC" (org-element-property :key keyword))
@@ -190,11 +214,11 @@ of contents can refer to headlines."
      ;; A link refers internally to HEADLINE.
      (org-element-map (plist-get info :parse-tree) 'link
        (lambda (link)
-	 (eq headline
-	     (pcase (org-element-property :type link)
-	       ((or "custom-id" "id") (org-export-resolve-id-link link info))
-	       ("fuzzy" (org-export-resolve-fuzzy-link link info))
-	       (_ nil))))
+	 (equal headline
+                ;; Ignore broken links.
+                (condition-case nil
+                    (org-export-resolve-id-link link info)
+                  (org-link-broken nil))))
        info t))))
 
 (defun org-md--headline-title (style level title &optional anchor tags)
@@ -210,9 +234,9 @@ the section."
                (underline (concat (make-string (length title) underline-char)
 				  "\n")))
           (concat "\n" anchor-lines title tags "\n" underline "\n"))
-        ;; Use "Atx" style
-        (let ((level-mark (make-string level ?#)))
-          (concat "\n" anchor-lines level-mark " " title tags "\n\n")))))
+      ;; Use "Atx" style
+      (let ((level-mark (make-string level ?#)))
+        (concat "\n" anchor-lines level-mark " " title tags "\n\n")))))
 
 (defun org-md--build-toc (info &optional n _keyword scope)
   "Return a table of contents.
@@ -226,9 +250,10 @@ When optional argument SCOPE is non-nil, build a table of
 contents according to the specified element."
   (concat
    (unless scope
-     (let ((style (plist-get info :md-headline-style))
+     (let ((level (plist-get info :md-toplevel-hlevel))
+           (style (plist-get info :md-headline-style))
 	   (title (org-html--translate "Table of Contents" info)))
-       (org-md--headline-title style 1 title nil)))
+       (org-md--headline-title style level title nil)))
    (mapconcat
     (lambda (headline)
       (let* ((indentation
@@ -347,7 +372,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 CONTENTS is the headline contents.  INFO is a plist used as
 a communication channel."
   (unless (org-element-property :footnote-section-p headline)
-    (let* ((level (org-export-get-relative-level headline info))
+    (let* ((level (+ (org-export-get-relative-level headline info)
+                     (1- (plist-get info :md-toplevel-hlevel))))
 	   (title (org-export-data (org-element-property :title headline) info))
 	   (todo (and (plist-get info :with-todo-keywords)
 		      (let ((todo (org-element-property :todo-keyword
@@ -411,7 +437,7 @@ as a communication channel."
   "Transcode ITEM element into Markdown format.
 CONTENTS is the item contents.  INFO is a plist used as
 a communication channel."
-  (let* ((type (org-element-property :type (org-export-get-parent item)))
+  (let* ((type (org-element-property :type (org-element-parent item)))
 	 (struct (org-element-property :structure item))
 	 (bullet (if (not (eq type 'ordered)) "-"
 		   (concat (number-to-string
@@ -459,6 +485,35 @@ channel."
 	    (org-md--build-toc info depth keyword scope)))))))
     (_ (org-export-with-backend 'html keyword contents info))))
 
+
+;;;; LaTeX Environment
+
+(defun org-md-latex-environment (latex-environment _contents info)
+  "Transcode a LATEX-ENVIRONMENT object from Org to Markdown.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (when (plist-get info :with-latex)
+    (let ((latex-frag (org-remove-indentation
+                       (org-element-property :value latex-environment)))
+          (label (org-html--reference latex-environment info t)))
+      (if (org-string-nw-p label)
+          (replace-regexp-in-string "\\`.*"
+                                    (format "\\&\n\\\\label{%s}" label)
+                                    latex-frag)
+        latex-frag))))
+
+;;;; LaTeX Fragment
+
+(defun org-md-latex-fragment (latex-fragment _contents info)
+  "Transcode a LATEX-FRAGMENT object from Org to Markdown.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (when (plist-get info :with-latex)
+    (let ((frag (org-element-property :value latex-fragment)))
+      (cond
+       ((string-match-p "^\\\\(" frag)
+        (concat "$" (substring frag 2 -2) "$"))
+       ((string-match-p "^\\\\\\[" frag)
+        (concat "$$" (substring frag 2 -2) "$$"))
+       (t frag))))) ; either already $-deliminated or a macro
 
 ;;;; Line Break
 
@@ -535,7 +590,7 @@ INFO is a plist holding contextual information.  See
 			(t (expand-file-name raw-path))))
 	    (caption (org-export-data
 		      (org-export-get-caption
-		       (org-export-get-parent-element link))
+		       (org-element-parent-element link))
 		      info)))
 	(format "![img](%s)"
 		(if (not (org-string-nw-p caption)) path
@@ -543,7 +598,12 @@ INFO is a plist holding contextual information.  See
      ((string= type "coderef")
       (format (org-export-get-coderef-format path desc)
 	      (org-export-resolve-coderef path info)))
-     ((equal type "radio") desc)
+     ((string= type "radio")
+      (let ((destination (org-export-resolve-radio-link link info)))
+	(if (not destination) desc
+	  (format "<a href=\"#%s\">%s</a>"
+		  (org-export-get-reference destination info)
+		  desc))))
      (t (if (not desc) (format "<%s>" path)
 	  (format "[%s](%s)" desc path))))))
 
@@ -704,6 +764,7 @@ this command to convert it."
   (interactive)
   (org-export-replace-region-by 'md))
 
+(defalias 'org-export-region-to-md #'org-md-convert-region-to-md)
 
 ;;;###autoload
 (defun org-md-export-to-markdown (&optional async subtreep visible-only)

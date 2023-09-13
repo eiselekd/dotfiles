@@ -174,8 +174,8 @@
   ;; 	  )
   ;; 	)
   ;;   )
-  (when (require 'mode-compile nil t)
-    (utils/mode-compile-init))
+;;  (when (require 'mode-compile nil t)
+;;    (utils/mode-compile-init))
   )
 
 (utils/compile-init)
