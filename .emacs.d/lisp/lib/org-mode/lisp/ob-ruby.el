@@ -1,6 +1,6 @@
 ;;; ob-ruby.el --- Babel Functions for Ruby          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -73,7 +73,7 @@ It's possible to override it by using a header argument `:ruby'")
   :type 'symbol)
 
 (defun org-babel-execute:ruby (body params)
-  "Execute a block of Ruby code with Babel.
+  "Execute Ruby BODY according to PARAMS.
 This function is called by `org-babel-execute-src-block'."
   (let* ((session (org-babel-ruby-initiate-session
 		   (cdr (assq :session params)) params))
@@ -127,7 +127,8 @@ This function is called by `org-babel-execute-src-block'."
 ;; helper functions
 
 (defun org-babel-variable-assignments:ruby (params)
-  "Return list of ruby statements assigning the block's variables."
+  "Return list of ruby statements assigning the block's variables.
+The assignments are defined in PARAMS."
   (mapcar
    (lambda (pair)
      (format "%s=%s"
@@ -165,7 +166,8 @@ Emacs-lisp table, otherwise return the results as a string."
 (defun org-babel-ruby-initiate-session (&optional session params)
   "Initiate a ruby session.
 If there is not a current inferior-process-buffer in SESSION
-then create one.  Return the initialized session."
+then create one.  Return the initialized session.
+Session settings (`:ruby' header arg value) are taken from PARAMS."
   (unless (string= session "none")
     (org-require-package 'inf-ruby)
     (let* ((command (cdr (or (assq :ruby params)
@@ -189,7 +191,9 @@ then create one.  Return the initialized session."
             ;; uniquely by regexp.
             (when new-session?
               (with-current-buffer session-buffer
-                (setq-local comint-prompt-regexp (concat "^" org-babel-ruby-prompt))
+                (setq-local
+                 org-babel-comint-prompt-regexp-old comint-prompt-regexp
+                 comint-prompt-regexp (concat "^" org-babel-ruby-prompt))
                 (insert org-babel-ruby-define-prompt ";")
                 (insert "_org_prompt_mode=conf.prompt_mode;conf.prompt_mode=:CUSTOM;")
                 (insert "conf.echo=false\n")

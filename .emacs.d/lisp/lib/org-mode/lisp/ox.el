@@ -1,6 +1,6 @@
 ;;; ox.el --- Export Framework for Org Mode          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2012-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2012-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
@@ -140,6 +140,7 @@
     (:with-properties nil "prop" org-export-with-properties)
     (:with-smart-quotes nil "'" org-export-with-smart-quotes)
     (:with-special-strings nil "-" org-export-with-special-strings)
+    (:with-special-rows nil nil nil)
     (:with-statistics-cookies nil "stat" org-export-with-statistics-cookies)
     (:with-sub-superscript nil "^" org-export-with-sub-superscripts)
     (:with-toc nil "toc" org-export-with-toc)
@@ -264,26 +265,13 @@ whose extension is either \"png\", \"jpeg\", \"jpg\", \"gif\",
 See `org-export-inline-image-p' for more information about
 rules.")
 
-(defconst org-export-ignored-local-variables
-  '( org-font-lock-keywords org-element--cache-change-tic
-     org-element--cache-change-tic org-element--cache-size
-     org-element--headline-cache-size
-     org-element--cache-sync-keys-value
-     org-element--cache-change-warning org-element--headline-cache
-     org-element--cache org-element--cache-sync-keys
-     org-element--cache-sync-requests org-element--cache-sync-timer)
-  "List of variables not copied through upon buffer duplication.
-Export process takes place on a copy of the original buffer.
-When this copy is created, all Org related local variables not in
-this list are copied to the new buffer.  Variables with an
-unreadable value are also ignored.")
-
 (defvar org-export-async-debug nil
   "Non-nil means asynchronous export process should leave data behind.
 
 This data is found in the appropriate \"*Org Export Process*\"
 buffer, and in files prefixed with \"org-export-process\" and
-located in `temporary-file-directory'.
+located in the directory defined by variable
+`temporary-file-directory'.
 
 When non-nil, it will also set `debug-on-error' to a non-nil
 value in the external process.")
@@ -1647,11 +1635,10 @@ an alist where associations are (VARIABLE-NAME VALUE)."
 ;; `org-export--collect-tree-properties'.
 ;;
 ;; Dedicated functions focus on computing the value of specific tree
-;; properties during initialization.  Thus,
-;; `org-export--populate-ignore-list' lists elements and objects that
-;; should be skipped during export, `org-export--get-min-level' gets
-;; the minimal exportable level, used as a basis to compute relative
-;; level for headlines.  Eventually
+;; properties during initialization.  Thus, `org-export--prune-tree'
+;; lists elements and objects that should be skipped during export,
+;; `org-export--get-min-level' gets the minimal exportable level, used
+;; as a basis to compute relative level for headlines.  Eventually
 ;; `org-export--collect-headline-numbering' builds an alist between
 ;; headlines and their numbering.
 
@@ -1852,7 +1839,9 @@ not exported."
      (and (org-export-table-has-special-column-p
 	   (org-element-lineage datum 'table))
 	  (org-export-first-sibling-p datum options)))
-    (table-row (org-export-table-row-is-special-p datum options))
+    (table-row
+     (unless (plist-get options :with-special-rows)
+       (org-export-table-row-is-special-p datum options)))
     (timestamp
      ;; `:with-timestamps' only applies to isolated timestamps
      ;; objects, i.e. timestamp objects in a paragraph containing only
@@ -2573,38 +2562,30 @@ Return the updated communication channel."
 ;; a default template (or a backend specific template) at point or in
 ;; current subtree.
 
+(defun org-export--set-variables (variable-alist)
+  "Set buffer-local variables according to VARIABLE-ALIST in current buffer."
+  (pcase-dolist (`(,var . ,val) variable-alist)
+    (set (make-local-variable var) val)))
+
 (cl-defun org-export-copy-buffer (&key to-buffer drop-visibility
                                        drop-narrowing drop-contents
                                        drop-locals)
   "Return a copy of the current buffer.
-The copy preserves Org buffer-local variables, visibility and
-narrowing.
+This function calls `org-element-copy-buffer', passing the same
+arguments TO-BUFFER, DROP-VISIBILITY, DROP-NARROWING, DROP-CONTENTS,
+and DROP-LOCALS.
 
-IMPORTANT: The buffer copy may also have `buffer-file-name' copied.
-To prevent Emacs overwriting the original buffer file,
-`write-contents-functions' is set to (always).  Do not alter this
-variable and do not do anything that might alter it (like calling a
-major mode) to prevent data corruption.  Also, do note that Emacs may
-jump into the created buffer if the original file buffer is closed and
-then re-opened.  Making edits in the buffer copy may also trigger
-Emacs save dialog.  Prefer using `org-export-with-buffer-copy' macro
-when possible.
-
-When optional key `:to-buffer' is non-nil, copy into BUFFER.
-
-Optional keys `:drop-visibility', `:drop-narrowing', `:drop-contents',
-and `:drop-locals' are passed to `org-export--generate-copy-script'."
-  (let ((copy-buffer-fun (org-export--generate-copy-script
-                          (current-buffer)
-                          :copy-unreadable 'do-not-check
-                          :drop-visibility drop-visibility
-                          :drop-narrowing drop-narrowing
-                          :drop-contents drop-contents
-                          :drop-locals drop-locals))
-	(new-buf (or to-buffer (generate-new-buffer (buffer-name)))))
-    (with-current-buffer new-buf
-      (funcall copy-buffer-fun)
-      (set-buffer-modified-p nil))
+In addition, buffer-local variables are set according to #+BIND:
+keywords."
+  (let ((new-buf (org-element-copy-buffer
+                  :to-buffer to-buffer
+                  :drop-visibility drop-visibility
+                  :drop-narrowing drop-narrowing
+                  :drop-contents drop-contents
+                  :drop-locals drop-locals)))
+    (let ((bind-variables (org-export--list-bound-variables)))
+      (with-current-buffer new-buf
+        (org-export--set-variables bind-variables)))
     new-buf))
 
 (cl-defmacro org-export-with-buffer-copy ( &rest body
@@ -2613,136 +2594,25 @@ and `:drop-locals' are passed to `org-export--generate-copy-script'."
                                            drop-locals
                                            &allow-other-keys)
   "Apply BODY in a copy of the current buffer.
-The copy preserves local variables, visibility and contents of
-the original buffer.  Point is at the beginning of the buffer
-when BODY is applied.
+This macro is like `org-element-with-buffer-copy', passing the same
+arguments BODY, TO-BUFFER, DROP-VISIBILITY, DROP-NARROWING,
+DROP-CONTENTS, and DROP-LOCALS.
 
-Optional keys can modify what is being copied and the generated buffer
-copy.  `:to-buffer', `:drop-visibility', `:drop-narrowing',
-`:drop-contents', and `:drop-locals' are passed as arguments to
-`org-export-copy-buffer'."
+In addition, buffer-local variables are set according to #+BIND:
+keywords."
   (declare (debug t))
-  (org-with-gensyms (buf-copy)
-    `(let ((,buf-copy (org-export-copy-buffer
-                       :to-buffer ,to-buffer
-                       :drop-visibility ,drop-visibility
-                       :drop-narrowing ,drop-narrowing
-                       :drop-contents ,drop-contents
-                       :drop-locals ,drop-locals)))
-       (unwind-protect
-	   (with-current-buffer ,buf-copy
-	     (goto-char (point-min))
-             (prog1
-	         (progn ,@body)
-               ;; `org-export-copy-buffer' carried the value of
-               ;; `buffer-file-name' from the original buffer.  When not
-               ;; killed, the new buffer copy may become a target of
-               ;; `find-file'.  Prevent this.
-               (setq buffer-file-name nil)))
-	 (and (buffer-live-p ,buf-copy)
-	      ;; Kill copy without confirmation.
-	      (progn (with-current-buffer ,buf-copy
-		       (restore-buffer-modified-p nil))
-                     (unless ,to-buffer
-		       (kill-buffer ,buf-copy))))))))
-
-(cl-defun org-export--generate-copy-script (buffer
-                                            &key
-                                            copy-unreadable
-                                            drop-visibility
-                                            drop-narrowing
-                                            drop-contents
-                                            drop-locals)
-  "Generate a function duplicating BUFFER.
-
-The copy will preserve local variables, visibility, contents and
-narrowing of the original buffer.  If a region was active in
-BUFFER, contents will be narrowed to that region instead.
-
-When optional key `:copy-unreadable' is non-nil, do not ensure that all
-the copied local variables will be readable in another Emacs session.
-
-When optional keys `:drop-visibility', `:drop-narrowing',
-`:drop-contents', or `:drop-locals' are non-nil, do not preserve
-visibility, narrowing, contents, or local variables correspondingly.
-
-The resulting function can be evaluated at a later time, from
-another buffer, effectively cloning the original buffer there.
-
-The function assumes BUFFER's major mode is `org-mode'."
-  (with-current-buffer buffer
-    (let ((str (unless drop-contents (org-with-wide-buffer (buffer-string))))
-          (narrowing
-           (unless drop-narrowing
-             (if (org-region-active-p)
-	         (list (region-beginning) (region-end))
-	       (list (point-min) (point-max)))))
-	  (pos (point))
-	  (varvals
-           (unless drop-locals
-	     (let ((bound-variables (org-export--list-bound-variables))
-		   (varvals nil))
-	       (dolist (entry (buffer-local-variables (buffer-base-buffer)))
-	         (when (consp entry)
-		   (let ((var (car entry))
-		         (val (cdr entry)))
-		     (and (not (memq var org-export-ignored-local-variables))
-			  (or (memq var
-				    '(default-directory
-                                       ;; Required to convert file
-                                       ;; links in the #+INCLUDEd
-                                       ;; files.  See
-                                       ;; `org-export--prepare-file-contents'.
-				       buffer-file-name
-				       buffer-file-coding-system
-                                       ;; Needed to preserve folding state
-                                       char-property-alias-alist))
-			      (assq var bound-variables)
-			      (string-match "^\\(org-\\|orgtbl-\\)"
-					    (symbol-name var)))
-			  ;; Skip unreadable values, as they cannot be
-			  ;; sent to external process.
-			  (or copy-unreadable (not val)
-                              (ignore-errors (read (format "%S" val))))
-			  (push (cons var val) varvals)))))
-               varvals)))
-	  (ols
-           (unless drop-visibility
-	     (let (ov-set)
-	       (dolist (ov (overlays-in (point-min) (point-max)))
-	         (let ((invis-prop (overlay-get ov 'invisible)))
-		   (when invis-prop
-		     (push (list (overlay-start ov) (overlay-end ov)
-			         invis-prop)
-			   ov-set))))
-	       ov-set))))
-      (lambda ()
-	(let ((inhibit-modification-hooks t))
-	  ;; Set major mode. Ignore `org-mode-hook' and other hooks as
-	  ;; they have been run already in BUFFER.
-          (unless (eq major-mode 'org-mode)
-            (delay-mode-hooks
-              (let ((org-inhibit-startup t)) (org-mode))))
-	  ;; Copy specific buffer local variables and variables set
-	  ;; through BIND keywords.
-	  (pcase-dolist (`(,var . ,val) varvals)
-	    (set (make-local-variable var) val))
-	  ;; Whole buffer contents when requested.
-          (when str (erase-buffer) (insert str))
-          ;; Make org-element-cache not complain about changed buffer
-          ;; state.
-          (org-element-cache-reset nil 'no-persistence)
-	  ;; Narrowing.
-          (when narrowing
-	    (apply #'narrow-to-region narrowing))
-	  ;; Current position of point.
-	  (goto-char pos)
-	  ;; Overlays with invisible property.
-	  (pcase-dolist (`(,start ,end ,invis) ols)
-	    (overlay-put (make-overlay start end) 'invisible invis))
-          ;; Never write the buffer copy to disk, despite
-          ;; `buffer-file-name' not being nil.
-          (setq write-contents-functions (list (lambda (&rest _) t))))))))
+  ;; Drop keyword arguments from BODY.
+  (while (keywordp (car body)) (pop body) (pop body))
+  (org-with-gensyms (bind-variables)
+    `(let ((,bind-variables (org-export--list-bound-variables)))
+       (org-element-with-buffer-copy
+        :to-buffer ,to-buffer
+        :drop-visibility ,drop-visibility
+        :drop-narrowing ,drop-narrowing
+        :drop-contents ,drop-contents
+        :drop-locals ,drop-locals
+        (org-export--set-variables ,bind-variables)
+        ,@body))))
 
 (defun org-export--delete-comment-trees ()
   "Delete commented trees and commented inlinetasks in the buffer.
@@ -3054,6 +2924,9 @@ returned by the function."
 (defun org-export-as
     (backend &optional subtreep visible-only body-only ext-plist)
   "Transcode current Org buffer into BACKEND code.
+
+See info node `(org)Advanced Export Configuration' for the details of
+the transcoding process.
 
 BACKEND is either an export backend, as returned by, e.g.,
 `org-export-create-backend', or a symbol referring to
@@ -4492,7 +4365,7 @@ Return modified DATA."
 			     (or rules org-export-default-inline-image-rule))
 		;; Replace contents with image link.
 		(org-element-adopt
-		    (org-element-set-contents l nil)
+		    (org-element-set-contents l)
 		  (with-temp-buffer
 		    (save-excursion (insert contents))
 		    (org-element-link-parser))))))))
@@ -4545,13 +4418,14 @@ A search cell follows the pattern (TYPE . SEARCH) where
     - NAME or RESULTS affiliated keyword if TYPE is `other'.
 
 A search cell is the internal representation of a fuzzy link.  It
-ignores white spaces and statistics cookies, if applicable."
+ignores case, white spaces, and statistics cookies, if applicable."
   (pcase (org-element-type datum)
     (`headline
-     (let ((title (split-string
-		   (replace-regexp-in-string
-		    "\\[[0-9]*\\(?:%\\|/[0-9]*\\)\\]" " "
-		    (org-element-property :raw-value datum)))))
+     (let ((title (mapcar #'upcase
+                          (split-string
+		           (replace-regexp-in-string
+		            "\\[[0-9]*\\(?:%\\|/[0-9]*\\)\\]" " "
+		            (org-element-property :raw-value datum))))))
        (delq nil
 	     (list
 	      (cons 'headline title)
@@ -4559,7 +4433,9 @@ ignores white spaces and statistics cookies, if applicable."
 	      (let ((custom-id (org-element-property :custom-id datum)))
 		(and custom-id (cons 'custom-id custom-id)))))))
     (`target
-     (list (cons 'target (split-string (org-element-property :value datum)))))
+     (list (cons 'target
+                 (mapcar #'upcase
+                         (split-string (org-element-property :value datum))))))
     ((and (let name (or (org-element-property :name datum)
                         (car (org-element-property :results datum))))
 	  (guard name))
@@ -4570,12 +4446,19 @@ ignores white spaces and statistics cookies, if applicable."
   "Return search cells associated to string S.
 S is either the path of a fuzzy link or a search option, i.e., it
 tries to match either a headline (through custom ID or title),
-a target or a named element."
+a target or a named element.
+
+The title match is case-insensitive."
   (pcase (string-to-char s)
-    (?* (list (cons 'headline (split-string (substring s 1)))))
+    (?* (list (cons 'headline (mapcar #'upcase (split-string (substring s 1))))))
     (?# (list (cons 'custom-id (substring s 1))))
     ((let search (split-string s))
-     (list (cons 'target search) (cons 'other search)))))
+     (cl-remove-duplicates
+      (list (cons 'target search)
+            (cons 'other search)
+            (cons 'target (mapcar #'upcase search))
+            (cons 'other (mapcar #'upcase search)))
+      :test #'equal))))
 
 (defun org-export-match-search-cell-p (datum cells)
   "Non-nil when DATUM matches search cells CELLS.
@@ -4918,7 +4801,10 @@ objects of the same type."
 	 (lambda (el)
            (let ((cached (org-element-property :org-export--counter el)))
 	     (cond
-	      ((eq element el) (1+ counter))
+	      ((and (eq element el)
+                    (or (not predicate)
+                        (funcall predicate el info)))
+               (1+ counter))
               ;; Use cached result.
               ((and cached
                     (equal predicate (car cached))
@@ -5976,7 +5862,7 @@ INFO is the current export state, as a plist."
 		    (let ((table (make-hash-table :test #'eq)))
 		      (plist-put info :smart-quote-cache table)
 		      table)))
-	 (value (gethash parent cache 'missing-data)))
+	 (value (gethash (cons parent (org-element-secondary-p s)) cache 'missing-data)))
     (if (not (eq value 'missing-data)) (cdr (assq s value))
       (let (level1-open full-status)
 	(org-element-map
@@ -6044,7 +5930,7 @@ INFO is the current export state, as a plist."
 	      (when current-status
 		(push (cons text (nreverse current-status)) full-status))))
 	  info nil org-element-recursive-objects)
-	(puthash parent full-status cache)
+	(puthash (cons parent (org-element-secondary-p s)) full-status cache)
 	(cdr (assq s full-status))))))
 
 (defun org-export-activate-smart-quotes (s encoding info &optional original)
@@ -6715,7 +6601,7 @@ and `org-export-to-file' for more specialized functions."
   ;; buffer to a temporary file, as it may be too long for program
   ;; args in `start-process'.
   (with-temp-message "Initializing asynchronous export process"
-    (let ((copy-fun (org-export--generate-copy-script (current-buffer)))
+    (let ((copy-fun (org-element--generate-copy-script (current-buffer)))
           (temp-file (make-temp-file "org-export-process")))
       (let ((coding-system-for-write 'utf-8-emacs-unix))
         (write-region
@@ -6901,6 +6787,11 @@ or FILE."
 		     ',ext-plist)))
 	       (with-temp-buffer
 		 (insert output)
+                 ;; Ensure final newline.  This is what was done
+                 ;; historically, when we used `write-file'.
+                 ;; Note that adding a newline is only safe for
+                 ;; non-binary data.
+                 (unless (bolp) (insert "\n"))
 		 (let ((coding-system-for-write ',encoding))
 		   (write-region nil nil ,file)))
 	       (or (ignore-errors (funcall ',post-process ,file)) ,file)))
@@ -6908,6 +6799,11 @@ or FILE."
                        backend subtreep visible-only body-only ext-plist)))
           (with-temp-buffer
             (insert output)
+            ;; Ensure final newline.  This is what was done
+            ;; historically, when we used `write-file'.
+            ;; Note that adding a newline is only safe for
+            ;; non-binary data.
+            (unless (bolp) (insert "\n"))
             (let ((coding-system-for-write encoding))
 	      (write-region nil nil file)))
           (when (and (org-export--copy-to-kill-ring-p) (org-string-nw-p output))
@@ -7020,8 +6916,8 @@ within Emacs."
   (interactive "P")
   (let ((source (org-export--stack-source-at-point)))
     (cond ((processp source)
-	   (org-switch-to-buffer-other-window (process-buffer source)))
-	  ((bufferp source) (org-switch-to-buffer-other-window source))
+	   (switch-to-buffer-other-window (process-buffer source)))
+	  ((bufferp source) (switch-to-buffer-other-window source))
 	  (t (org-open-file source in-emacs)))))
 
 (defvar org-export-stack-mode-map
@@ -7365,7 +7261,7 @@ back to standard interface."
         ;; At first call, create frame layout in order to display menu.
         (unless (get-buffer "*Org Export Dispatcher*")
 	  (delete-other-windows)
-	  (org-switch-to-buffer-other-window
+	  (switch-to-buffer-other-window
 	   (get-buffer-create "*Org Export Dispatcher*"))
           (setq cursor-type nil)
           (setq header-line-format

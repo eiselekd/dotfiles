@@ -1,6 +1,6 @@
 ;;; ob-tangle.el --- Extract Source Code From Org Files -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
@@ -219,7 +219,10 @@ Return list of the tangled file names."
   (unless (file-exists-p pub-dir)
     (make-directory pub-dir t))
   (setq pub-dir (file-name-as-directory pub-dir))
-  (mapc (lambda (el) (copy-file el pub-dir t)) (org-babel-tangle-file filename)))
+  ;; Rename files to avoid copying to same file when publishing to ./
+  ;; `copy-file' would throw an error when copying file to self.
+  (mapc (lambda (el) (rename-file el pub-dir t))
+        (org-babel-tangle-file filename)))
 
 ;;;###autoload
 (defun org-babel-tangle (&optional arg target-file lang-re)
@@ -253,7 +256,8 @@ matching a regular expression."
 	     (when (equal arg '(16))
 	       (or (cdr (assq :tangle (nth 2 (org-babel-get-src-block-info 'no-eval))))
 		   (user-error "Point is not in a source code block"))))
-	    path-collector)
+	    path-collector
+            (source-file buffer-file-name))
 	(mapc ;; map over file-names
 	 (lambda (by-fn)
 	   (let ((file-name (car by-fn)))
@@ -310,9 +314,15 @@ matching a regular expression."
                                       (compare-buffer-substrings
                                        nil nil nil
                                        tangle-buf nil nil)))))))
-                     ;; erase previous file
-                     (when (file-exists-p file-name)
-                       (delete-file file-name))
+                     (when (equal (if (file-name-absolute-p file-name)
+                                      file-name
+                                    (expand-file-name file-name))
+                                  (if (file-name-absolute-p source-file)
+                                      source-file
+                                    (expand-file-name source-file)))
+                       (error "Not allowed to tangle into the same file as self"))
+                     ;; We do not erase, but overwrite previous file
+                     ;; to preserve any existing symlinks.
 		     (write-region nil nil file-name)
 		     (mapc (lambda (mode) (set-file-modes file-name mode)) modes))
                    (push file-name path-collector))))))
@@ -475,6 +485,7 @@ code blocks by target file."
 	       (src-lang (nth 0 info))
 	       (src-tfile (cdr (assq :tangle (nth 2 info)))))
 	  (unless (or (string= src-tfile "no")
+                      (not src-lang) ;; src block without lang
 		      (and tangle-file (not (equal tangle-file src-tfile)))
 		      (and lang-re (not (string-match-p lang-re src-lang))))
 	    ;; Add the spec for this block to blocks under its tangled
@@ -615,9 +626,12 @@ by `org-babel-get-src-block-info'."
 
 ;; de-tangling functions
 (defun org-babel-detangle (&optional source-code-file)
-  "Propagate changes in source file back original to Org file.
+  "Propagate changes from current source buffer back to the original Org file.
 This requires that code blocks were tangled with link comments
-which enable the original code blocks to be found."
+which enable the original code blocks to be found.
+
+Optional argument SOURCE-CODE-FILE is the file path to be used instead
+of the current buffer."
   (interactive)
   (save-excursion
     (when source-code-file (find-file source-code-file))

@@ -1,6 +1,6 @@
 ;;; org-lint.el --- Linting for Org documents        -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2015-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2015-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -386,6 +386,17 @@ called with one argument, the key used for comparison."
 	   (t (push (cons key (funcall extract-position datum key)) keys))))))
     (dolist (e originals reports) (funcall make-report (cdr e) (car e)))))
 
+(defun org-lint-misplaced-heading (ast)
+  "Check for accidentally misplaced heading lines."
+  (org-with-point-at ast
+    (goto-char (point-min))
+    (let (result)
+      ;; Heuristics for 2+ level heading not at bol.
+      (while (re-search-forward (rx (not (any "*\n\r ,")) ;; Not a bol; not escaped ,** heading; not " *** words"
+                                    "*" (1+ "*") " ") nil t)
+        (push (list (match-beginning 0) "Possibly misplaced heading line") result))
+      result)))
+
 (defun org-lint-duplicate-custom-id (ast)
   (org-lint--collect-duplicates
    ast
@@ -440,6 +451,19 @@ called with one argument, the key used for comparison."
 		   (member key keywords))
 	       (list (org-element-post-affiliated k)
 		     (format "Orphaned affiliated keyword: \"%s\"" key))))))))
+
+(defun org-lint-regular-keyword-before-affiliated (ast)
+  (org-element-map ast 'keyword
+    (lambda (keyword)
+      (when (= (org-element-post-blank keyword) 0)
+        (let ((next-element (org-with-point-at (org-element-end keyword)
+                              (org-element-at-point))))
+          (when (< (org-element-begin next-element) (org-element-post-affiliated next-element))
+            ;; A keyword followed without blank lines by an element with affiliated keywords.
+            ;; The keyword may be confused with affiliated keywords.
+            (list (org-element-begin keyword)
+                  (format "Independent keyword %s may be confused with affiliated keywords below"
+                          (org-element-property :key keyword)))))))))
 
 (defun org-lint-obsolete-affiliated-keywords (_)
   (let ((regexp (format "^[ \t]*#\\+%s:"
@@ -727,13 +751,14 @@ in description"
                          (org-link-search-must-match-exact-headline t))
                     (unwind-protect
                         (with-current-buffer buffer
-                          (when (and search
-                                     (not (ignore-errors
-                                            (org-link-search search nil t))))
-                            (list (org-element-post-affiliated k)
-                                  (format
-                                   "Invalid search part \"%s\" in INCLUDE keyword"
-                                   search))))
+                          (org-with-wide-buffer
+                           (when (and search
+                                      (not (ignore-errors
+                                           (org-link-search search nil t))))
+                             (list (org-element-post-affiliated k)
+                                   (format
+                                    "Invalid search part \"%s\" in INCLUDE keyword"
+                                    search)))))
                       (unless visiting (kill-buffer buffer)))))))))))))
 
 (defun org-lint-obsolete-include-markup (ast)
@@ -946,21 +971,6 @@ Use \"export %s\" instead"
 		     (format "No reference for footnote definition [%s]"
 			     label))))))))
 
-(defun org-lint-colon-in-name (ast)
-  (org-element-map ast org-element-all-elements
-    (lambda (e)
-      (let ((name (org-element-property :name e)))
-	(and name
-	     (string-match-p ":" name)
-	     (list (progn
-		     (goto-char (org-element-begin e))
-		     (re-search-forward
-		      (format "^[ \t]*#\\+\\w+: +%s *$" (regexp-quote name)))
-		     (match-beginning 0))
-		   (format
-		    "Name \"%s\" contains a colon; Babel cannot use it as input"
-		    name)))))))
-
 (defun org-lint-mismatched-planning-repeaters (ast)
   (org-element-map ast 'planning
     (lambda (e)
@@ -1081,6 +1091,36 @@ Use \"export %s\" instead"
 		      (format "Possible missing colon in keyword \"%s\"" name))
 		reports))))
     reports))
+
+(defun org-lint-invalid-image-alignment (ast)
+  (apply
+   #'nconc
+   (org-element-map ast 'paragraph
+     (lambda (p)
+       (let ((center-re ":center[[:space:]]+\\(\\S-+\\)")
+             (align-re ":align[[:space:]]+\\(\\S-+\\)")
+             (keyword-string
+              (car-safe (org-element-property :attr_org p)))
+             reports)
+         (when keyword-string
+           (when (and (string-match align-re keyword-string)
+                      (not (member (match-string 1 keyword-string)
+                                   '("left" "center" "right"))))
+             (push
+              (list (org-element-begin p)
+                    (format
+                     "\"%s\" not a supported value for #+ATTR_ORG keyword attribute \":align\"."
+                     (match-string 1 keyword-string)))
+              reports))
+           (when (and (string-match center-re keyword-string)
+                      (not (equal (match-string 1 keyword-string) "t")))
+             (push
+              (list (org-element-begin p)
+                    (format
+                     "\"%s\" not a supported value for #+ATTR_ORG keyword attribute \":center\"."
+                     (match-string 1 keyword-string)))
+              reports)))
+         reports)))))
 
 (defun org-lint-extraneous-element-in-footnote-section (ast)
   (org-element-map ast 'headline
@@ -1319,6 +1359,21 @@ Use \"export %s\" instead"
 			   reports))))))))))))
     reports))
 
+(defun org-lint-named-result (ast)
+  (org-element-map ast org-element-all-elements
+    (lambda (el)
+      (when-let* ((result (org-element-property :results el))
+                  (result-name (org-element-property :name el))
+                  (origin-block
+                   (if (org-string-nw-p (car result))
+                       (condition-case _
+                           (org-export-resolve-link (car result) `(:parse-tree ,ast))
+                         (org-link-broken nil))
+                     (org-export-get-previous-element el nil))))
+        (when (org-element-type-p origin-block 'src-block)
+          (list (org-element-begin el)
+                (format "Links to \"%s\" will not be valid during export unless the parent source block has :exports results or both" result-name)))))))
+
 (defun org-lint-spurious-colons (ast)
   (org-element-map ast '(headline inlinetask)
     (lambda (h)
@@ -1358,8 +1413,11 @@ Use \"export %s\" instead"
                   (`(,(and (pred symbolp) name)
                      ,(pred string-or-null-p)
                      ,(pred string-or-null-p))
-                   (unless (org-cite-get-processor name)
-                     (list source "Unknown cite export processor %S" name)))
+                   (unless (or (org-cite-get-processor name)
+                               (progn
+                                 (org-cite-try-load-processor name)
+                                 (org-cite-get-processor name)))
+                     (list source (format "Unknown cite export processor %S" name))))
                   (_
                    (list source "Invalid cite export processor declaration")))
               (error
@@ -1452,6 +1510,10 @@ AST is the buffer parse tree."
 
 ;;; Checkers declaration
 
+(org-lint-add-checker 'misplaced-heading
+  "Report accidentally misplaced heading lines."
+  #'org-lint-misplaced-heading :trust 'low)
+
 (org-lint-add-checker 'duplicate-custom-id
   "Report duplicates CUSTOM_ID properties"
   #'org-lint-duplicate-custom-id
@@ -1475,6 +1537,11 @@ AST is the buffer parse tree."
 (org-lint-add-checker 'orphaned-affiliated-keywords
   "Report orphaned affiliated keywords"
   #'org-lint-orphaned-affiliated-keywords
+  :trust 'low)
+
+(org-lint-add-checker 'combining-keywords-with-affiliated
+  "Report independent keywords preceding affiliated keywords."
+  #'org-lint-regular-keyword-before-affiliated
   :trust 'low)
 
 (org-lint-add-checker 'obsolete-affiliated-keywords
@@ -1512,11 +1579,6 @@ AST is the buffer parse tree."
   #'org-lint-invalid-babel-call-block
   :categories '(babel))
 
-(org-lint-add-checker 'colon-in-name
-  "Report NAME values with a colon"
-  #'org-lint-colon-in-name
-  :categories '(babel))
-
 (org-lint-add-checker 'wrong-header-argument
   "Report wrong babel headers"
   #'org-lint-wrong-header-argument
@@ -1526,6 +1588,11 @@ AST is the buffer parse tree."
   "Report invalid value in babel headers"
   #'org-lint-wrong-header-value
   :categories '(babel) :trust 'low)
+
+(org-lint-add-checker 'named-result
+  "Report results evaluation with #+name keyword."
+  #'org-lint-named-result
+  :categories '(babel) :trust 'high)
 
 (org-lint-add-checker 'empty-header-argument
   "Report empty values in babel headers"
@@ -1636,6 +1703,11 @@ AST is the buffer parse tree."
   "Report probable invalid keywords"
   #'org-lint-invalid-keyword-syntax
   :trust 'low)
+
+(org-lint-add-checker 'invalid-image-alignment
+  "Report unsupported align attribute for keyword"
+  #'org-lint-invalid-image-alignment
+  :trust 'high)
 
 (org-lint-add-checker 'invalid-block
   "Report invalid blocks"

@@ -1,6 +1,6 @@
 ;;; ob-python.el --- Babel Functions for Python      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
 ;; Authors: Eric Schulte
 ;;	 Dan Davison
@@ -41,29 +41,57 @@
 
 (defvar org-babel-default-header-args:python '())
 
-(defcustom org-babel-python-command "python"
-  "Name of the command for executing Python code."
-  :version "24.4"
-  :package-version '(Org . "8.0")
+(defconst org-babel-header-args:python
+  '((return . :any)
+    (python . :any)
+    (async . ((yes no))))
+  "Python-specific header arguments.")
+
+(defcustom org-babel-python-command 'auto
+  "Command (including arguments) for interactive and non-interactive Python code.
+When not `auto', it overrides `org-babel-python-command-session'
+and `org-babel-python-command-nonsession'."
+  :package-version '(Org . "9.7")
+  :group 'org-babel
+  :type '(choice string (const auto)))
+
+(defcustom org-babel-python-command-session 'auto
+  "Command (including arguments) for starting interactive Python sessions.
+If `auto' (the default), uses the values from
+`python-shell-interpreter' and `python-shell-interpreter-args'.
+If `org-babel-python-command' is set, then it overrides this
+option."
+  :package-version '(Org . "9.7")
+  :group 'org-babel
+  :type '(choice string (const auto)))
+
+(defcustom org-babel-python-command-nonsession "python"
+  "Command (including arguments) for executing non-interactive Python code.
+If `org-babel-python-command' is set, then it overrides this option."
+  :package-version '(Org . "9.7")
   :group 'org-babel
   :type 'string)
 
 (defcustom org-babel-python-hline-to "None"
   "Replace hlines in incoming tables with this when translating to python."
   :group 'org-babel
-  :version "24.4"
   :package-version '(Org . "8.0")
   :type 'string)
 
 (defcustom org-babel-python-None-to 'hline
   "Replace `None' in python tables with this before returning."
   :group 'org-babel
-  :version "24.4"
   :package-version '(Org . "8.0")
   :type 'symbol)
 
+(defun org-babel-python-associate-session (session)
+  "Associate Python code buffer with an Python session.
+Make SESSION without earmuffs be the Python buffer name."
+  (setq-local python-shell-buffer-name
+              (org-babel-python-without-earmuffs session)))
+
 (defun org-babel-execute:python (body params)
-  "Execute a block of Python code with Babel.
+  "Execute Python BODY according to PARAMS.
 This function is called by `org-babel-execute-src-block'."
   (let* ((org-babel-python-command
 	  (or (cdr (assq :python params))
@@ -174,7 +202,8 @@ def __org_babel_python_format_value(result, result_file, result_params):
   "Python function to format value result and save it to file.")
 
 (defun org-babel-variable-assignments:python (params)
-  "Return a list of Python statements assigning the block's variables."
+  "Return a list of Python statements assigning the block's variables.
+The assignments are defined in PARAMS."
   (mapcar
    (lambda (pair)
      (format "%s=%s"
@@ -199,7 +228,8 @@ specifying a variable of the same value."
 If the results look like a list or tuple (but not a dict), then
 convert them into an Emacs-lisp table.  Otherwise return the
 results as a string."
-  (let ((res (if (string-equal "{" (substring results 0 1))
+  (let ((res (if (and (> (length results) 0)
+                      (string-equal "{" (substring results 0 1)))
                  results ;don't covert dicts to elisp
                (org-babel-script-escape results))))
     (if (listp res)
@@ -215,6 +245,7 @@ results as a string."
   (cdr (assoc session org-babel-python-buffers)))
 
 (defun org-babel-python-with-earmuffs (session)
+  "Return SESSION name as string, ensuring *...* around."
   (let ((name (if (stringp session) session (format "%s" session))))
     (if (and (string= "*" (substring name 0 1))
 	     (string= "*" (substring name (- (length name) 1))))
@@ -222,11 +253,40 @@ results as a string."
       (format "*%s*" name))))
 
 (defun org-babel-python-without-earmuffs (session)
+  "Return SESSION name as string, without *...* around."
   (let ((name (if (stringp session) session (format "%s" session))))
     (if (and (string= "*" (substring name 0 1))
 	     (string= "*" (substring name (- (length name) 1))))
 	(substring name 1 (- (length name) 1))
       name)))
+
+(defun org-babel-session-buffer:python (session &optional _)
+  "Return session buffer name for SESSION."
+  (or (org-babel-python-session-buffer session)
+      (org-babel-python-with-earmuffs session)))
+
+(defun org-babel-python--python-util-comint-end-of-output-p ()
+  "Return non-nil if the last prompt matches input prompt.
+Backport of `python-util-comint-end-of-output-p' to emacs28.  To
+be removed after minimum supported version reaches emacs29."
+  (when-let ((prompt (python-util-comint-last-prompt)))
+    (python-shell-comint-end-of-output-p
+     (buffer-substring-no-properties
+      (car prompt) (cdr prompt)))))
+
+(defun org-babel-python--command (is-session)
+  "Helper function to return the Python command.
+This checks `org-babel-python-command', and then
+`org-babel-python-command-session' (if IS-SESSION) or
+`org-babel-python-command-nonsession' (if not IS-SESSION).  If
+IS-SESSION, this might return `nil', which means to use
+`python-shell-calculate-command'."
+  (or (unless (eq org-babel-python-command 'auto)
+        org-babel-python-command)
+      (if is-session
+          (unless (eq org-babel-python-command-session 'auto)
+            org-babel-python-command-session)
+        org-babel-python-command-nonsession)))
 
 (defvar-local org-babel-python--initialized nil
   "Flag used to mark that python session has been initialized.")
@@ -239,24 +299,39 @@ unless the Python session was created outside Org."
   (setq-local org-babel-python--initialized t))
 (defun org-babel-python-initiate-session-by-key (&optional session)
   "Initiate a python session.
-If there is not a current inferior-process-buffer in SESSION
-then create.  Return the initialized session."
+If there is not a current inferior-process-buffer matching
+SESSION then create it. If inferior process already
+exists (e.g. if it was manually started with `run-python'), make
+sure it's configured to work with ob-python.  If session has
+already been configured as such, do nothing.  Return the
+initialized session."
   (save-window-excursion
     (let* ((session (if session (intern session) :default))
-           (py-buffer (or (org-babel-python-session-buffer session)
-                          (org-babel-python-with-earmuffs session)))
-	   (cmd (if (member system-type '(cygwin windows-nt ms-dos))
-		    (concat org-babel-python-command " -i")
-		  org-babel-python-command))
+           (py-buffer (org-babel-session-buffer:python session))
            (python-shell-buffer-name
 	    (org-babel-python-without-earmuffs py-buffer))
-           (existing-session-p (comint-check-proc py-buffer)))
-      (run-python cmd)
+           (existing-session-p (comint-check-proc py-buffer))
+           (cmd (org-babel-python--command t)))
+      (if cmd
+          (let* ((cmd-split (split-string-and-unquote cmd))
+                 (python-shell-interpreter (car cmd-split))
+                 (python-shell-interpreter-args
+                  (combine-and-quote-strings
+                   (append (cdr cmd-split)
+                           (when (member system-type
+                                         '(cygwin windows-nt ms-dos))
+                             (list "-i"))))))
+            (run-python))
+        (run-python))
       (with-current-buffer py-buffer
         (if existing-session-p
             ;; Session was created outside Org.  Assume first prompt
             ;; already happened; run session setup code directly
             (unless org-babel-python--initialized
+              ;; Ensure first prompt. Based on python-tests.el
+              ;; (`python-tests-shell-wait-for-prompt')
+              (while (not (org-babel-python--python-util-comint-end-of-output-p))
+                (sit-for 0.1))
               (org-babel-python--setup-session))
           ;; Adding to `python-shell-first-prompt-hook' immediately
           ;; after `run-python' should be safe from race conditions,
@@ -272,14 +347,19 @@ then create.  Return the initialized session."
       ;; multiple prompts during initialization.
       (with-current-buffer py-buffer
         (while (not org-babel-python--initialized)
-          (sleep-for 0 10)))
+          (sleep-for 0.010)))
       (setq org-babel-python-buffers
 	    (cons (cons session py-buffer)
 		  (assq-delete-all session org-babel-python-buffers)))
       session)))
 
 (defun org-babel-python-initiate-session (&optional session _params)
-  "Create a session named SESSION according to PARAMS."
+  "Initiate Python session named SESSION according to PARAMS.
+If there is not a current inferior-process-buffer matching
+SESSION then create it. If inferior process already
+exists (e.g. if it was manually started with `run-python'), make
+sure it's configured to work with ob-python.  If session has
+already been configured as such, do nothing."
   (unless (string= session "none")
     (org-babel-python-session-buffer
      (org-babel-python-initiate-session-by-key session))))
@@ -289,7 +369,8 @@ then create.  Return the initialized session."
 
 (defun org-babel-python-format-session-value
     (src-file result-file result-params)
-  "Return Python code to evaluate SRC-FILE and write result to RESULT-FILE."
+  "Return Python code to evaluate SRC-FILE and write result to RESULT-FILE.
+RESULT-PARAMS defines the result type."
   (format "\
 import ast
 with open('%s') as __org_babel_python_tmpfile:
@@ -342,7 +423,7 @@ the last statement in BODY, as elisp.  If GRAPHICS-FILE is
 non-nil, then save graphical results to that file instead."
   (let ((raw
          (pcase result-type
-           (`output (org-babel-eval org-babel-python-command
+           (`output (org-babel-eval (org-babel-python--command nil)
 				    (concat preamble (and preamble "\n")
                                             (if graphics-file
                                                 (format org-babel-python--output-graphics-wrapper
@@ -350,8 +431,7 @@ non-nil, then save graphical results to that file instead."
                                               body))))
            (`value (let ((results-file (or graphics-file
 				           (org-babel-temp-file "python-"))))
-		     (org-babel-eval
-		      org-babel-python-command
+		     (org-babel-eval (org-babel-python--command nil)
 		      (concat
 		       preamble (and preamble "\n")
 		       (format
@@ -390,9 +470,10 @@ finally:
 	     (org-babel-python-without-earmuffs session)))
 	(python-shell-send-string body))
       ;; same as `python-shell-comint-end-of-output-p' in emacs-25.1+
-      (while (not (string-match
-		   org-babel-python-eoe-indicator
-		   string-buffer))
+      (while (not (and (python-shell-comint-end-of-output-p string-buffer)
+                       (string-match
+		        org-babel-python-eoe-indicator
+		        string-buffer)))
 	(accept-process-output (get-buffer-process (current-buffer))))
       (org-babel-chomp (substring string-buffer 0 (match-beginning 0))))))
 
@@ -425,14 +506,14 @@ with open('%s') as f:
 		      (body (org-babel-python-format-session-value
 			     tmp-src-file results-file result-params)))
 		 (org-babel-python-send-string session body)
-		 (sleep-for 0 10)
+		 (sleep-for 0.010)
 		 (org-babel-eval-read-file results-file)))))))
     (org-babel-result-cond result-params
       results
       (org-babel-python-table-or-string results))))
 
 (defun org-babel-python-read-string (string)
-  "Strip \\='s from around Python string."
+  "Strip \\='s from around Python STRING."
   (if (and (string-prefix-p "'" string)
 	   (string-suffix-p "'" string))
       (substring string 1 -1)

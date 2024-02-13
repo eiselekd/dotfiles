@@ -1,6 +1,6 @@
 ;;; ob-comint.el --- Babel Functions for Interaction with Comint Buffers -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research, comint
@@ -58,6 +58,22 @@ executed inside the protection of `save-excursion' and
 	   (let ((comint-input-filter (lambda (_input) nil)))
 	     ,@body))))))
 
+(defvar-local org-babel-comint-prompt-regexp-old nil
+  "Fallback regexp used to detect prompt.")
+
+(defcustom org-babel-comint-fallback-regexp-threshold 5.0
+  "Waiting time until trying to use fallback regexp to detect prompt.
+This is useful when prompt unexpectedly changes."
+  :type 'float
+  :group 'org-babel)
+
+(defun org-babel-comint--set-fallback-prompt ()
+  "Swap `comint-prompt-regexp' and `org-babel-comint-prompt-regexp-old'."
+  (when org-babel-comint-prompt-regexp-old
+    (let ((tmp comint-prompt-regexp))
+      (setq comint-prompt-regexp org-babel-comint-prompt-regexp-old
+            org-babel-comint-prompt-regexp-old tmp))))
+
 (defmacro org-babel-comint-with-output (meta &rest body)
   "Evaluate BODY in BUFFER and return process output.
 Will wait until EOE-INDICATOR appears in the output, then return
@@ -96,14 +112,29 @@ or user `keyboard-quit' during execution of body."
 	 ;; pass FULL-BODY to process
 	 ,@body
 	 ;; wait for end-of-evaluation indicator
-	 (while (progn
-		  (goto-char comint-last-input-end)
-		  (not (save-excursion
-		       (and (re-search-forward
-			     (regexp-quote ,eoe-indicator) nil t)
-			    (re-search-forward
-			     comint-prompt-regexp nil t)))))
-	   (accept-process-output (get-buffer-process (current-buffer))))
+         (let ((start-time (current-time)))
+	   (while (progn
+		    (goto-char comint-last-input-end)
+		    (not (save-excursion
+		         (and (re-search-forward
+			       (regexp-quote ,eoe-indicator) nil t)
+			      (re-search-forward
+			       comint-prompt-regexp nil t)))))
+	     (accept-process-output
+              (get-buffer-process (current-buffer))
+              org-babel-comint-fallback-regexp-threshold)
+             (when (and org-babel-comint-prompt-regexp-old
+                        (> (float-time (time-since start-time))
+                           org-babel-comint-fallback-regexp-threshold)
+                        (progn
+		          (goto-char comint-last-input-end)
+		          (save-excursion
+                            (and
+                             (re-search-forward
+			      (regexp-quote ,eoe-indicator) nil t)
+			     (re-search-forward
+                              org-babel-comint-prompt-regexp-old nil t)))))
+               (org-babel-comint--set-fallback-prompt))))
 	 ;; replace cut dangling text
 	 (goto-char (process-mark (get-buffer-process (current-buffer))))
 	 (insert dangling-text)
@@ -148,11 +179,23 @@ The input will not be echoed."
 Note: this is only safe when waiting for the result of a single
 statement (not large blocks of code)."
   (org-babel-comint-in-buffer buffer
-    (while (progn
-             (goto-char comint-last-input-end)
-             (not (and (re-search-forward comint-prompt-regexp nil t)
-                     (goto-char (match-beginning 0)))))
-      (accept-process-output (get-buffer-process buffer)))))
+    (let ((start-time (current-time)))
+      (while (progn
+               (goto-char comint-last-input-end)
+               (not (and (re-search-forward comint-prompt-regexp nil t)
+                       (goto-char (match-beginning 0)))))
+        (accept-process-output
+         (get-buffer-process buffer)
+         org-babel-comint-fallback-regexp-threshold)
+        (when (and org-babel-comint-prompt-regexp-old
+                   (> (float-time (time-since start-time))
+                      org-babel-comint-fallback-regexp-threshold)
+                   (progn
+		     (goto-char comint-last-input-end)
+		     (save-excursion
+		       (re-search-forward
+                        org-babel-comint-prompt-regexp-old nil t))))
+          (org-babel-comint--set-fallback-prompt))))))
 
 (defun org-babel-comint-eval-invisibly-and-wait-for-file
     (buffer file string &optional period)
@@ -224,6 +267,8 @@ STRING contains the output originally inserted into the comint buffer."
 	 (file-callback org-babel-comint-async-file-callback)
 	 (combined-string (concat org-babel-comint-async-dangling string))
 	 (new-dangling combined-string)
+         ;; Assumes comint filter called with session buffer current
+         (session-dir default-directory)
 	 ;; list of UUID's matched by `org-babel-comint-async-indicator'
 	 uuid-list)
     (with-temp-buffer
@@ -248,7 +293,8 @@ STRING contains the output originally inserted into the comint buffer."
                                 (let* ((info (org-babel-get-src-block-info))
                                        (params (nth 2 info))
                                        (result-params
-                                        (cdr (assq :result-params params))))
+                                        (cdr (assq :result-params params)))
+                                       (default-directory session-dir))
                                   (org-babel-insert-result
                                    (funcall file-callback
                                             (nth
@@ -291,7 +337,8 @@ STRING contains the output originally inserted into the comint buffer."
                                    (let* ((info (org-babel-get-src-block-info))
                                           (params (nth 2 info))
                                           (result-params
-                                           (cdr (assq :result-params params))))
+                                           (cdr (assq :result-params params)))
+                                          (default-directory session-dir))
 				     (org-babel-insert-result
                                       res-str result-params info))
 				   t))))

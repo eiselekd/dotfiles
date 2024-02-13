@@ -1,6 +1,6 @@
 ;;; ob-core.el --- Working with Code Blocks          -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
 ;; Authors: Eric Schulte
 ;;	Dan Davison
@@ -767,8 +767,30 @@ When `:file-desc' is missing, return nil."
     (`(:file-desc) result)
     (`(:file-desc . ,(and (pred stringp) val)) val)))
 
-(defvar *this*) ; Dynamically bound in `org-babel-execute-src-block'
-                ; and `org-babel-read'
+(defvar *this*)
+;; Dynamically bound in `org-babel-execute-src-block'
+;; and `org-babel-read'
+
+(defun org-babel-session-buffer (&optional info)
+  "Return buffer name for session associated with current code block.
+Return nil when no such live buffer with process exists.
+When INFO is non-nil, it should be a list returned by
+`org-babel-get-src-block-info'.
+This function uses org-babel-session-buffer:<lang> function to
+retrieve backend-specific session buffer name."
+  (declare-function org-babel-comint-buffer-livep "ob-comint" (buffer))
+  (when-let* ((info (or info (org-babel-get-src-block-info 'no-eval)))
+              (lang (nth 0 info))
+              (session (cdr (assq :session (nth 2 info))))
+              (cmd (intern (concat "org-babel-session-buffer:" lang)))
+              (buffer-name
+               (if (fboundp cmd)
+                   (funcall cmd session info)
+                 ;; Use session name as buffer name by default.
+                 session)))
+    (require 'ob-comint)
+    (when (org-babel-comint-buffer-livep buffer-name)
+      buffer-name)))
 
 ;;;###autoload
 (defun org-babel-execute-src-block (&optional arg info params executor-type)
@@ -840,14 +862,16 @@ guess will be made."
 		 (dir (cdr (assq :dir params)))
 		 (mkdirp (cdr (assq :mkdirp params)))
 		 (default-directory
-		   (cond
-		    ((not dir) default-directory)
-		    ((member mkdirp '("no" "nil" nil))
-		     (file-name-as-directory (expand-file-name dir)))
-		    (t
-		     (let ((d (file-name-as-directory (expand-file-name dir))))
-		       (make-directory d 'parents)
-		       d))))
+		  (cond
+		   ((not dir) default-directory)
+                   ((when-let ((session (org-babel-session-buffer info)))
+                      (buffer-local-value 'default-directory (get-buffer session))))
+		   ((member mkdirp '("no" "nil" nil))
+		    (file-name-as-directory (expand-file-name dir)))
+		   (t
+		    (let ((d (file-name-as-directory (expand-file-name dir))))
+		      (make-directory d 'parents)
+		      d))))
 		 (cmd (intern (concat "org-babel-execute:" lang)))
 		 result exec-start-time)
 	    (unless (fboundp cmd)
@@ -2015,12 +2039,12 @@ buffer or nil if no such result exists."
 
 (defun org-babel-result-names (&optional file)
   "Return the names of results in FILE or the current buffer."
-  (save-excursion
-    (when file (find-file file)) (goto-char (point-min))
-    (let ((case-fold-search t) names)
+  (with-current-buffer (if file (find-file-noselect file) (current-buffer))
+    (org-with-point-at 1
+      (let ((case-fold-search t) names)
       (while (re-search-forward org-babel-result-w-name-regexp nil t)
 	(setq names (cons (match-string-no-properties 9) names)))
-      names)))
+      names))))
 
 ;;;###autoload
 (defun org-babel-next-src-block (&optional arg)
@@ -2441,7 +2465,7 @@ INFO may provide the values of these header arguments (in the
           using the argument supplied to specify the export block
           or snippet type."
   (cond ((stringp result)
-	 (setq result (org-no-properties result))
+	 (setq result (substring-no-properties result))
 	 (when (member "file" result-params)
 	   (setq result
                  (org-babel-result-to-file

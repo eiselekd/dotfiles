@@ -1,6 +1,6 @@
 ;;; org-capture.el --- Fast note taking in Org       -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2024 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -58,7 +58,7 @@
 (declare-function org-at-table-p "org-table" (&optional table-type))
 (declare-function org-clock-update-mode-line "org-clock" (&optional refresh))
 (declare-function org-datetree-find-date-create "org-datetree" (date &optional keep-restriction))
-(declare-function org-datetree-find-month-create (d &optional keep-restriction))
+(declare-function org-datetree-find-month-create "org-datetree" (d &optional keep-restriction))
 (declare-function org-decrypt-entry "org-crypt" ())
 (declare-function org-element-at-point "org-element" (&optional pom cached-only))
 (declare-function org-element-lineage "org-element-ast" (datum &optional types with-self))
@@ -500,12 +500,6 @@ The capture buffer is current and still narrowed."
   :group 'org-capture
   :version "24.1"
   :type 'hook)
-
-(defcustom org-capture-bookmark t
-  "When non-nil, add bookmark pointing at the last stored position when capturing."
-  :group 'org-capture
-  :version "24.3"
-  :type 'boolean)
 
 ;;; The property list for keeping information about the capture process
 
@@ -1001,12 +995,12 @@ Store them in the capture property list."
 	((or `here
              `(here))
 	 (org-capture-put :exact-position (point) :insert-here t))
-	(`(file ,path)
+	(`(file ,(and path (pred stringp)))
 	 (set-buffer (org-capture-target-buffer path))
 	 (org-capture-put-target-region-and-position)
 	 (widen)
 	 (setq target-entry-p nil))
-	(`(id ,id)
+	(`(id ,(and id (or (pred stringp) (pred symbolp))))
 	 (pcase (org-id-find id)
 	   (`(,path . ,position)
 	    (set-buffer (org-capture-target-buffer path))
@@ -1014,7 +1008,7 @@ Store them in the capture property list."
 	    (org-capture-put-target-region-and-position)
 	    (goto-char position))
 	   (_ (error "Cannot find target ID \"%s\"" id))))
-	(`(file+headline ,path ,headline)
+	(`(file+headline ,(and path (pred stringp)) ,(and headline (pred stringp)))
 	 (set-buffer (org-capture-target-buffer path))
 	 ;; Org expects the target file to be in Org mode, otherwise
 	 ;; it throws an error.  However, the default notes files
@@ -1036,7 +1030,7 @@ Store them in the capture property list."
 	   (unless (bolp) (insert "\n"))
 	   (insert "* " headline "\n")
 	   (forward-line -1)))
-	(`(file+olp ,path . ,outline-path)
+	(`(file+olp ,(and path (pred stringp)) . ,(and outline-path (guard outline-path)))
 	 (let ((m (org-find-olp (cons (org-capture-expand-file path)
 				      outline-path))))
 	   (set-buffer (marker-buffer m))
@@ -1044,7 +1038,7 @@ Store them in the capture property list."
 	   (widen)
 	   (goto-char m)
 	   (set-marker m nil)))
-	(`(file+regexp ,path ,regexp)
+	(`(file+regexp ,(and path (pred stringp)) ,(and regexp (pred stringp)))
 	 (set-buffer (org-capture-target-buffer path))
 	 (org-capture-put-target-region-and-position)
 	 (widen)
@@ -1057,7 +1051,7 @@ Store them in the capture property list."
 	   (org-capture-put :exact-position (point))
 	   (setq target-entry-p
 		 (and (derived-mode-p 'org-mode) (org-at-heading-p)))))
-	(`(file+olp+datetree ,path . ,outline-path)
+	(`(file+olp+datetree ,(and path (pred stringp)) . ,outline-path)
 	 (let ((m (if outline-path
 		      (org-find-olp (cons (org-capture-expand-file path)
 					  outline-path))
@@ -1112,7 +1106,7 @@ Store them in the capture property list."
 	    ;; the following is the keep-restriction argument for
 	    ;; org-datetree-find-date-create
 	    (when outline-path 'subtree-at-point))))
-	(`(file+function ,path ,function)
+	(`(file+function ,(and path (pred stringp)) ,(and function (pred functionp)))
 	 (set-buffer (org-capture-target-buffer path))
 	 (org-capture-put-target-region-and-position)
 	 (widen)
@@ -1120,7 +1114,7 @@ Store them in the capture property list."
 	 (org-capture-put :exact-position (point))
 	 (setq target-entry-p
 	       (and (derived-mode-p 'org-mode) (org-at-heading-p))))
-	(`(function ,fun)
+	(`(function ,(and fun (pred functionp)))
 	 (funcall fun)
 	 (org-capture-put :exact-position (point))
 	 (setq target-entry-p
@@ -1177,7 +1171,7 @@ may have been stored before."
   (unless inhibit-wconf-store
     (org-capture-put :return-to-wconf (current-window-configuration)))
   (delete-other-windows)
-  (org-switch-to-buffer-other-window
+  (switch-to-buffer-other-window
    (org-capture-get-indirect-buffer (org-capture-get :buffer) "CAPTURE"))
   (widen)
   (org-fold-show-all)
@@ -1326,7 +1320,7 @@ may have been stored before."
 		(while (< (point) end)
 		  (indent-to i)
 		  (forward-line)))
-	      ;; Pre-pending an item could change the type of the list
+	      ;; Prepending an item could change the type of the list
 	      ;; if there is a mismatch.  In this situation,
 	      ;; prioritize the existing list.
 	      (when prepend?
@@ -1506,7 +1500,9 @@ Of course, if exact position has been required, just put it there."
 		  (point))))))
     (with-current-buffer (buffer-base-buffer (current-buffer))
       (org-with-point-at pos
-	(when org-capture-bookmark
+        ;; FIXME: `org-capture-bookmark' is obsolete.  To be removed
+        ;; in future Org releases.
+	(when (with-no-warnings org-capture-bookmark)
 	  (let ((bookmark (plist-get org-bookmark-names-plist :last-capture)))
 	    (when bookmark
               (condition-case err
@@ -1675,11 +1671,8 @@ Expansion occurs in a temporary Org mode buffer."
 		  (org-no-properties org-clock-heading)
 		""))
 	 (v-K (if (marker-buffer org-clock-marker)
-		  (org-link-make-string
-		   (format "%s::*%s"
-			   (buffer-file-name (marker-buffer org-clock-marker))
-			   v-k)
-		   v-k)
+                  (org-with-point-at org-clock-marker
+                    (org-store-link nil nil))
 		""))
 	 (v-f (or (org-capture-get :original-file-nondirectory) ""))
 	 (v-F (or (org-capture-get :original-file) ""))
@@ -1697,7 +1690,7 @@ Expansion occurs in a temporary Org mode buffer."
       (message "no template") (ding)
       (sit-for 1))
     (save-window-excursion
-      (org-switch-to-buffer-other-window (get-buffer-create "*Capture*"))
+      (switch-to-buffer-other-window (get-buffer-create "*Capture*"))
       (erase-buffer)
       (setq buffer-file-name nil)
       (setq mark-active nil)

@@ -1,6 +1,6 @@
 ;;; ob-haskell.el --- Babel Functions for Haskell    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Maintainer: Lawrence Bottorff <borgauf@gmail.com>
@@ -104,7 +104,8 @@ Return the value of the last form of BODY."
   `(org-babel-haskell-with-session--worker ,params (lambda (,session-symbol) ,@body)))
 
 (defun org-babel-haskell-execute (body params)
-  "This function should only be called by `org-babel-execute:haskell'."
+  "Execute Haskell BODY according to PARAMS.
+This function should only be called by `org-babel-execute:haskell'."
   (let* ((tmp-src-file (org-babel-temp-file "Haskell-src-" ".hs"))
          (tmp-bin-file
           (org-babel-process-file-name
@@ -151,8 +152,10 @@ Return the value of the last form of BODY."
   (org-require-package 'inf-haskell "haskell-mode")
   (add-hook 'inferior-haskell-hook
             (lambda ()
-              (setq-local comint-prompt-regexp
-                          (concat haskell-prompt-regexp "\\|^λ?> "))))
+              (setq-local
+               org-babel-comint-prompt-regexp-old comint-prompt-regexp
+               comint-prompt-regexp
+               (concat haskell-prompt-regexp "\\|^λ?> "))))
   (org-babel-haskell-with-session session params
     (cl-labels
         ((send-txt-to-ghci (txt)

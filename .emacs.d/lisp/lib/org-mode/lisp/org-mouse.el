@@ -1,6 +1,6 @@
 ;;; org-mouse.el --- Better mouse support for Org -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2006-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2006-2024 Free Software Foundation, Inc.
 
 ;; Author: Piotr Zielinski <piotr dot zielinski at gmail dot com>
 ;; Maintainer: Carsten Dominik <carsten.dominik@gmail.com>
@@ -185,7 +185,7 @@ Changing this variable requires a restart of Emacs to get activated."
 	      (const :tag "Activate checkboxes" activate-checkboxes)))
 
 (defun org-mouse-re-search-line (regexp)
-  "Search the current line for a given regular expression."
+  "Search the current line for a given regular expression REGEXP."
   (forward-line 0)
   (re-search-forward regexp (line-end-position) t))
 

@@ -1,6 +1,6 @@
 ;;; org-src.el --- Source code examples in Org       -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2024 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;;	   Bastien Guerry <bzg@gnu.org>
@@ -119,15 +119,16 @@ These are the regions where each line starts with a colon."
 
 (defcustom org-src-preserve-indentation nil
   "If non-nil preserve leading whitespace characters on export.
-\\<org-mode-map>
-If non-nil leading whitespace characters in source code blocks
-are preserved on export, and when switching between the org
-buffer and the language mode edit buffer.
 
-When this variable is nil, after editing with `\\[org-edit-src-code]',
-the minimum (across-lines) number of leading whitespace characters
-are removed from all lines, and the code block is uniformly indented
-according to the value of `org-edit-src-content-indentation'."
+If non-nil leading whitespace characters in source code blocks are
+preserved on export, or adjusted while indenting or when switching
+between the org buffer and the language mode edit buffer.
+
+When this variable is nil, while indenting with `\\[org-indent-block]'
+or after editing with `\\[org-edit-src-code]', the minimum (across-lines)
+number of leading whitespace characters are removed from all lines,
+and the code block is uniformly indented according to the value of
+`org-edit-src-content-indentation'."
   :group 'org-edit-structure
   :type 'boolean)
 
@@ -925,7 +926,6 @@ INFO should be a list similar in format to the return value of
   (interactive)
   (let ((session (cdr (assq :session (nth 2 info)))))
     (and session (not (string= session "none"))
-	 (org-babel-comint-buffer-livep session)
 	 (let ((f (intern (format "org-babel-%s-associate-session"
                                   (nth 0 info)))))
            (and (fboundp f) (funcall f session))))))
@@ -1012,7 +1012,7 @@ Raise an error when current buffer is not a source editing buffer."
     (`current-window (pop-to-buffer-same-window buffer))
     (`other-window
      (let ((cur-win (selected-window)))
-       (org-switch-to-buffer-other-window buffer)
+       (switch-to-buffer-other-window buffer)
        (when (eq context 'exit) (quit-restore-window cur-win))))
     (`split-window-below
      (if (eq context 'exit)
@@ -1036,7 +1036,7 @@ Raise an error when current buffer is not a source editing buffer."
        (_ (switch-to-buffer-other-frame buffer))))
     (`reorganize-frame
      (when (eq context 'edit) (delete-other-windows))
-     (org-switch-to-buffer-other-window buffer)
+     (switch-to-buffer-other-window buffer)
      (when (eq context 'exit) (delete-other-windows)))
     (`switch-invisibly (set-buffer buffer))
     (_
@@ -1310,16 +1310,18 @@ name of the sub-editing buffer."
        element
        (or edit-buffer-name
 	   (org-src--construct-edit-buffer-name (buffer-name) lang))
-       lang-f
+       (lambda ()
+         (when lang-f (funcall lang-f))
+         (setq-local org-coderef-label-format
+		     (or (org-element-property :label-fmt element)
+		         org-coderef-label-format))
+         (when (eq type 'src-block)
+	   (setq org-src--babel-info babel-info)))
        (and (null code)
 	    (lambda () (org-escape-code-in-region (point-min) (point-max))))
        (and code (org-unescape-code-in-string code)))
       ;; Finalize buffer.
-      (setq-local org-coderef-label-format
-		  (or (org-element-property :label-fmt element)
-		      org-coderef-label-format))
       (when (eq type 'src-block)
-	(setq org-src--babel-info babel-info)
 	(let ((edit-prep-func (intern (concat "org-babel-edit-prep:" lang))))
 	  (when (fboundp edit-prep-func)
 	    (funcall edit-prep-func babel-info))))

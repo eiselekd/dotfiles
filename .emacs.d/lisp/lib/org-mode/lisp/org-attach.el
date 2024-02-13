@@ -1,6 +1,6 @@
 ;;; org-attach.el --- Manage file attachments to Org outlines -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2008-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2008-2024 Free Software Foundation, Inc.
 
 ;; Author: John Wiegley <johnw@newartisans.com>
 ;; Keywords: org data attachment
@@ -142,7 +142,7 @@ Selective means to respect the inheritance setting in
 	  (const :tag "Inherit parent node attachments" t)
 	  (const :tag "Respect org-use-property-inheritance" selective)))
 
-(defcustom org-attach-store-link-p nil
+(defcustom org-attach-store-link-p 'attached
   "Non-nil means store a link to a file when attaching it.
 When t, store the link to original file location.
 When `file', store link to the attached file location.
@@ -320,7 +320,7 @@ Shows a list of commands and prompts for another key to execute a command."
         (save-excursion
 	  (save-window-excursion
 	    (unless org-attach-expert
-	      (org-switch-to-buffer-other-window "*Org Attach*")
+	      (switch-to-buffer-other-window "*Org Attach*")
 	      (erase-buffer)
 	      (setq cursor-type nil
 	            header-line-format "Use C-v, M-v, C-n or C-p to navigate.")
@@ -437,17 +437,26 @@ ignoring nils.  If EXISTING is non-nil, then return the first path
 found in the filesystem.  Otherwise return the first non-nil value."
   (let ((fun-list org-attach-id-to-path-function-list)
         (base-dir (expand-file-name org-attach-id-dir))
+        (default-base-dir (expand-file-name "data/"))
         preferred first)
     (while (and fun-list
                 (not preferred))
       (let* ((name (funcall (car fun-list) id))
-             (candidate (and name (expand-file-name name base-dir))))
+             (candidate (and name (expand-file-name name base-dir)))
+             ;; Try the default value `org-attach-id-dir' as a fallback.
+             (candidate2 (and name (not (equal base-dir default-base-dir))
+                              (expand-file-name name default-base-dir))))
         (setq fun-list (cdr fun-list))
         (when candidate
           (if (or (not existing) (file-directory-p candidate))
               (setq preferred candidate)
             (unless first
-              (setq first candidate))))))
+              (setq first candidate)))
+          (when (and existing
+                     candidate2
+                     (not (file-directory-p candidate))
+                     (file-directory-p candidate2))
+            (setq preferred candidate2)))))
     (or preferred first)))
 
 (defun org-attach-check-absolute-path (dir)
@@ -582,7 +591,7 @@ METHOD may be `cp', `mv', `ln', `lns' or `url' default taken from
        ((eq method 'url)
         (if (org--should-fetch-remote-resource-p file)
             (url-copy-file file attach-file)
-          (error "The remote resource %S is considered unsafe, and will not be downloaded."
+          (error "The remote resource %S is considered unsafe, and will not be downloaded"
                  file))))
       (run-hook-with-args 'org-attach-after-change-hook attach-dir)
       (org-attach-tag)

@@ -1,6 +1,6 @@
 ;;; org-macro.el --- Macro Replacement Code for Org  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2013-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -333,14 +333,14 @@ Return a list of arguments, as strings.  This is the opposite of
   "Find PROPERTY's value at LOCATION.
 PROPERTY is a string.  LOCATION is a search string, as expected
 by `org-link-search', or the empty string."
-  (save-excursion
-    (when (org-string-nw-p location)
-      (condition-case _
-	  (let ((org-link-search-must-match-exact-headline t))
-	    (org-link-search location nil t))
-        (error
-	 (error "Macro property failed: cannot find location %s" location))))
-    (org-entry-get nil property 'selective)))
+  (org-with-wide-buffer
+   (when (org-string-nw-p location)
+     (condition-case _
+	 (let ((org-link-search-must-match-exact-headline t))
+	   (org-link-search location nil t))
+       (error
+	(error "Macro property failed: cannot find location %s" location))))
+   (org-entry-get nil property 'selective)))
 
 (defun org-macro--find-keyword-value (name &optional collect)
   "Find value for keyword NAME in current buffer.

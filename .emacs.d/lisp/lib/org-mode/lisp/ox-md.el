@@ -1,6 +1,6 @@
 ;;; ox-md.el --- Markdown Backend for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2012-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2012-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou@gmail.com>
 ;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
@@ -305,13 +305,14 @@ INFO is a plist used as a communication channel."
          (section-title (org-html--translate "Footnotes" info)))
     (when fn-alist
       (format (plist-get info :md-footnotes-section)
-              (org-md--headline-title headline-style 1 section-title)
+              (org-md--headline-title headline-style (plist-get info :md-toplevel-hlevel) section-title)
               (mapconcat (lambda (fn) (org-md--footnote-formatted fn info))
                          fn-alist
                          "\n")))))
 
 (defun org-md--convert-to-html (datum _contents info)
-  "Convert DATUM into raw HTML, including contents."
+  "Convert DATUM into raw HTML.
+CONTENTS is ignored.  INFO is the info plist."
   (org-export-data-with-backend datum 'html info))
 
 (defun org-md--identity (_datum contents _info)

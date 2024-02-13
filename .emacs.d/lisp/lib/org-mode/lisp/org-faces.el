@@ -1,6 +1,6 @@
 ;;; org-faces.el --- Face definitions -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2024 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -387,6 +387,10 @@ changes."
     (((class color) (min-colors 8)  (background light)) (:foreground "blue"))
     (((class color) (min-colors 8)  (background dark))))
   "Face used for tables."
+  :group 'org-faces)
+
+(defface org-table-row '((t :inherit org-table))
+  "Face used to fontify whole table rows (including newlines and indentation)."
   :group 'org-faces)
 
 (defface org-table-header '((t :inherit org-table

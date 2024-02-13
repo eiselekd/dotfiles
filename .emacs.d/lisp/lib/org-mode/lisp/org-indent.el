@@ -1,6 +1,6 @@
 ;;; org-indent.el --- Dynamic indentation for Org    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -102,6 +102,14 @@ For details see the variable `org-adapt-indentation'."
   "Indentation per level in number of characters."
   :group 'org-indent
   :type 'integer)
+
+(defcustom org-indent-post-buffer-init-functions nil
+  "Hook run after org-indent finishes initializing a buffer.
+The function(s) in in this hook must accept a single argument representing
+the initialized buffer."
+  :group 'org-indent
+  :package-version '(Org . "9.7")
+  :type 'hook)
 
 (defface org-indent '((t (:inherit org-hide)))
   "Face for outline indentation.
@@ -290,7 +298,8 @@ a time value."
 	 ;; Job is complete: un-agentize buffer.
 	 (unless interruptp
 	   (setq org-indent-agentized-buffers
-		 (delq buffer org-indent-agentized-buffers))))))))
+		 (delq buffer org-indent-agentized-buffers))
+           (run-hook-with-args 'org-indent-post-buffer-init-functions buffer)))))))
 
 (defun org-indent-set-line-properties (level indentation &optional heading)
   "Set prefix properties on current line an move to next one.

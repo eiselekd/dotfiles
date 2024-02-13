@@ -1,6 +1,6 @@
 ;;; ol.el --- Org links library                      -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2018-2024 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -197,6 +197,16 @@ link.
   :type '(alist :tag "Link display parameters"
 		:value-type plist))
 
+(defun org-link--set-link-display (symbol value)
+  "Set `org-link-descriptive' (SYMBOL) to VALUE.
+Also, ensure that links are updated in current buffer.
+
+This function is intended to be used as a :set function."
+  (set symbol value)
+  (dolist (buf (org-buffer-list))
+    (with-current-buffer buf
+      (org-link-descriptive-ensure))))
+
 (defcustom org-link-descriptive t
   "Non-nil means Org displays descriptive links.
 
@@ -208,6 +218,7 @@ literally.
 You can interactively set the value of this variable by calling
 `org-toggle-link-display' or from the \"Org > Hyperlinks\" menu."
   :group 'org-link
+  :set #'org-link--set-link-display
   :type 'boolean
   :safe #'booleanp)
 
@@ -296,10 +307,7 @@ or emacs-wiki packages to Org syntax.
 The function must accept two parameters, a TYPE containing the link
 protocol name like \"rmail\" or \"gnus\" as a string, and the linked path,
 which is everything after the link protocol.  It should return a cons
-with possibly modified values of type and path.
-Org contains a function for this, so if you set this variable to
-`org-translate-link-from-planner', you should be able follow many
-links created by planner."
+with possibly modified values of type and path."
   :group 'org-link-follow
   :type '(choice (const nil) (function))
   :safe #'null)
@@ -360,14 +368,17 @@ another window."
 		 (const wl-other-frame)))))
 
 (defcustom org-link-search-must-match-exact-headline 'query-to-create
-  "Non-nil means internal fuzzy links can only match headlines.
+  "Control fuzzy link behaviour when specific matches not found.
 
-When nil, the fuzzy link may point to a target or a named
-construct in the document.  When set to the special value
-`query-to-create', offer to create a new headline when none
-matched.
+When nil, if a fuzzy link does not match a more specific
+target (such as a heading, named block, target, or code ref),
+attempt a regular text search.  When set to the special value
+`query-to-create', offer to create a new heading matching the
+link instead.  Otherwise, signal an error rather than attempting
+a regular text search.
 
-Spaces and statistics cookies are ignored during heading searches."
+This option only affects behaviour in Org buffers.  Spaces and
+statistics cookies are ignored during heading searches."
   :group 'org-link-follow
   :version "24.1"
   :type '(choice
@@ -845,12 +856,12 @@ This should be called after the variable `org-link-parameters' has changed."
 	  org-link-plain-re
           (let* ((non-space-bracket "[^][ \t\n()<>]")
 	         (parenthesis
-		  `(seq "("
+		  `(seq (any "<([")
 		        (0+ (or (regex ,non-space-bracket)
-			        (seq "("
+			        (seq (any "<([")
 				     (0+ (regex ,non-space-bracket))
-				     ")")))
-		        ")")))
+				     (any "])>"))))
+		        (any "])>"))))
 	    ;; Heuristics for an URL link inspired by
 	    ;; https://daringfireball.net/2010/07/improved_regex_for_matching_urls
 	    (rx-to-string
@@ -883,7 +894,8 @@ This should be called after the variable `org-link-parameters' has changed."
 		  org-link-plain-re "\\)"))))
 
 (defun org-link-complete-file (&optional arg)
-  "Create a file link using completion."
+  "Create a file link using completion.
+With optional ARG \\='(16), abbreviate the file name in the link."
   (let ((file (read-file-name "File: "))
 	(pwd (file-name-as-directory (expand-file-name ".")))
 	(pwd1 (file-name-as-directory (abbreviate-file-name
@@ -928,7 +940,7 @@ according to FMT (default from `org-link-email-description-format')."
     (org-replace-escapes fmt table)))
 
 (defun org-link-store-props (&rest plist)
-  "Store link properties.
+  "Store link properties PLIST.
 The properties are pre-processed by extracting names, addresses
 and dates."
   (let ((x (plist-get plist :from)))
@@ -960,7 +972,7 @@ and dates."
   (setq org-store-link-plist plist))
 
 (defun org-link-add-props (&rest plist)
-  "Add these properties to the link property list."
+  "Add these properties to the link property list PLIST."
   (let (key value)
     (while plist
       (setq key (pop plist) value (pop plist))
@@ -1133,14 +1145,14 @@ for internal and \"file\" links, or stored as a parameter in
 	   ;; argument, as it was mandatory before Org 9.4.  This is
 	   ;; deprecated, but support it for now.
 	   (condition-case nil
-	       (funcall (org-link-get-parameter type :follow) path arg)
+	       (funcall f path arg)
 	     (wrong-number-of-arguments
-	      (funcall (org-link-get-parameter type :follow) path)))))))))
+	      (funcall f path)))))))))
 
 (defun org-link-open-from-string (s &optional arg)
   "Open a link in the string S, as if it was in Org mode.
-Optional argument is passed to `org-open-file' when S is
-a \"file\" link."
+Optional argument ARG is passed to `org-open-file' when S is a
+\"file\" link."
   (interactive "sLink: \nP")
   (pcase (with-temp-buffer
 	   (let ((org-inhibit-startup nil))
@@ -1152,7 +1164,7 @@ a \"file\" link."
     (link (org-link-open link arg))))
 
 (defun org-link-search (s &optional avoid-pos stealth)
-  "Search for a search string S.
+  "Search for a search string S in the accessible part of the buffer.
 
 If S starts with \"#\", it triggers a custom ID search.
 
@@ -1172,7 +1184,8 @@ visibility around point, thus ignoring `org-show-context-detail'
 variable.
 
 Search is case-insensitive and ignores white spaces.  Return type
-of matched result, which is either `dedicated' or `fuzzy'."
+of matched result, which is either `dedicated' or `fuzzy'.  Search
+respects buffer narrowing."
   (unless (org-string-nw-p s) (error "Invalid search string \"%s\"" s))
   (let* ((case-fold-search t)
 	 (origin (point))
@@ -1237,7 +1250,7 @@ of matched result, which is either `dedicated' or `fuzzy'."
 	       (while (re-search-forward name nil t)
 		 (let* ((element (org-element-at-point))
 			(name (org-element-property :name element)))
-		   (when (and name (equal words (split-string name)))
+		   (when (and name (equal (mapcar #'upcase words) (mapcar #'upcase (split-string name))))
 		     (setq type 'dedicated)
 		     (forward-line 0)
 		     (throw :name-match t))))
@@ -1254,10 +1267,11 @@ of matched result, which is either `dedicated' or `fuzzy'."
 	     (goto-char (point-min))
 	     (catch :found
 	       (while (re-search-forward title-re nil t)
-		 (when (equal words
-			      (split-string
-			       (org-link--normalize-string
-				(org-get-heading t t t t))))
+		 (when (equal (mapcar #'upcase words)
+                              (mapcar #'upcase
+			              (split-string
+			               (org-link--normalize-string
+				        (org-get-heading t t t t)))))
 		   (throw :found t)))
 	       nil)))
       (forward-line 0)
@@ -1321,8 +1335,10 @@ priority cookie or tag."
 	  (org-link--normalize-string
 	   (or string (org-get-heading t t t t)))))
 
-(defun org-link-open-as-file (path arg)
+(defun org-link-open-as-file (path in-emacs)
   "Pretend PATH is a file name and open it.
+
+IN-EMACS is passed to `org-open-file'.
 
 According to \"file\"-link syntax, PATH may include additional
 search options, separated from the file name with \"::\".
@@ -1337,7 +1353,7 @@ This function is meant to be used as a possible tool for
 	(dired file-name)
       (apply #'org-open-file
 	     file-name
-	     arg
+	     in-emacs
 	     (cond ((not option) nil)
 		   ((string-match-p "\\`[0-9]+\\'" option)
 		    (list (string-to-number option)))
@@ -1509,10 +1525,12 @@ If the link is in hidden text, expose it."
 \\<org-mode-map>
 This link is added to `org-stored-links' and can later be inserted
 into an Org buffer with `org-insert-link' (`\\[org-insert-link]').
+When optional argument INTERACTIVE? is nil, the link is not stored in
+`org-stored-links', but returned as a string.
 
 For some link types, a `\\[universal-argument]' prefix ARG is interpreted.  \
 A single
-`\\[universal-argument]' negates `org-context-in-file-links' for file links or
+`\\[universal-argument]' negates `org-link-context-for-files' for file links or
 `org-gnus-prefer-web-links' for links to Usenet articles.
 
 A `\\[universal-argument] \\[universal-argument]' prefix ARG forces \
@@ -1849,18 +1867,34 @@ non-interactively, don't allow to edit the default description."
      (t
       ;; Read link, with completion for stored links.
       (org-link--fontify-links-to-this-file)
-      (org-switch-to-buffer-other-window "*Org Links*")
+      (switch-to-buffer-other-window "*Org Links*")
       (with-current-buffer "*Org Links*"
-	(erase-buffer)
-	(insert "Insert a link.
-Use TAB to complete link prefixes, then RET for type-specific completion support\n")
-	(when org-stored-links
-	  (insert "\nStored links are available with <up>/<down> or M-p/n \
-\(most recent with RET):\n\n")
-	  (insert (mapconcat #'org-link--prettify
-			     (reverse org-stored-links)
-			     "\n")))
-	(goto-char (point-min)))
+        (read-only-mode 1)
+        (let ((inhibit-read-only t)
+              ;; FIXME Duplicate: Also in 'ox.el'.
+              (propertize-help-key
+               (lambda (key)
+                 ;; Add `face' *and* `font-lock-face' to "work
+                 ;; reliably in any buffer", per a comment in
+                 ;; `help--key-description-fontified'.
+                 (propertize key
+                             'font-lock-face 'help-key-binding
+                             'face 'help-key-binding))))
+          (erase-buffer)
+          (insert
+           (apply #'format "Type %s to complete link type, then %s to complete destination.\n"
+                  (mapcar propertize-help-key
+                          (list "TAB" "RET"))))
+	  (when org-stored-links
+            (insert (apply #'format "\nStored links accessible with %s/%s or %s/%s are:\n\n"
+                           (mapcar propertize-help-key
+                                   (list "<up>" "<down>"
+                                         "M-p" "M-n"
+                                         "RET"))))
+	    (insert (mapconcat #'org-link--prettify
+			       (reverse org-stored-links)
+			       "\n"))))
+        (goto-char (point-min)))
       (when (get-buffer-window "*Org Links*" 'visible)
         (let ((cw (selected-window)))
 	  (select-window (get-buffer-window "*Org Links*" 'visible))
@@ -1875,14 +1909,13 @@ Use TAB to complete link prefixes, then RET for type-specific completion support
 			 org-link--insert-history)))
 	    (setq link
 		  (org-completing-read
-		   "Link: "
+                   (org-format-prompt "Insert link" (caar org-stored-links))
 		   (append
 		    (mapcar (lambda (x) (concat x ":")) all-prefixes)
 		    (mapcar #'car org-stored-links)
                     ;; Allow description completion.  Avoid "nil" option
-                    ;; in the case of `completing-read-default' and
-                    ;; an error in `ido-completing-read' when some links
-                    ;; have no description.
+                    ;; in the case of `completing-read-default' when
+                    ;; some links have no description.
                     (delq nil (mapcar 'cadr org-stored-links)))
 		   nil nil nil
 		   'org-link--history

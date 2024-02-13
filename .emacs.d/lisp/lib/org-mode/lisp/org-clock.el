@@ -1,6 +1,6 @@
 ;;; org-clock.el --- The time clocking code for Org mode -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2024 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -350,14 +350,15 @@ For more information, see `org-clocktable-write-default'."
   :type 'function)
 
 (defcustom org-clock-clocktable-language-setup
-  '(("en" "File"     "L"  "Timestamp"  "Headline" "Time"  "ALL"   "Total time"   "File time" "Clock summary at")
-    ("es" "Archivo"  "N"  "Fecha y hora" "Tarea" "Duración" "TODO" "Duración total" "Tiempo archivo" "Generado el")
-    ("fr" "Fichier"  "N"  "Horodatage" "En-tête"  "Durée" "TOUT"  "Durée totale" "Durée fichier" "Horodatage sommaire à")
-    ("nl" "Bestand"  "N"  "Tijdstip"   "Rubriek" "Duur"  "ALLES" "Totale duur"  "Bestandstijd" "Klok overzicht op")
-    ("nn" "Fil"      "N"  "Tidspunkt" "Overskrift" "Tid" "ALLE" "Total tid" "Filtid" "Tidsoversyn")
-    ("de" "Datei"    "E"  "Zeitstempel" "Kopfzeile" "Dauer" "GESAMT" "Gesamtdauer"  "Dateizeit" "Erstellt am")
+  '(("en" "File"     "L" "Timestamp" "Headline" "Time" "ALL" "Total time" "File time" "Clock summary at")
+    ("de" "Datei"    "E" "Zeitstempel" "Kopfzeile" "Dauer" "GESAMT" "Gesamtdauer" "Dateizeit" "Erstellt am")
+    ("es" "Archivo"  "N" "Fecha y hora" "Tarea" "Duración" "TODO" "Duración total" "Tiempo archivo" "Generado el")
+    ("fr" "Fichier"  "N" "Horodatage" "En-tête"  "Durée" "TOUT"  "Durée totale" "Durée fichier" "Horodatage sommaire à")
+    ("nl" "Bestand"  "N" "Tijdstip" "Rubriek" "Duur" "ALLES" "Totale duur" "Bestandstijd" "Klok overzicht op")
+    ("nn" "Fil"      "N" "Tidspunkt" "Overskrift" "Tid" "ALLE" "Total tid" "Filtid" "Tidsoversyn")
+    ("pl" "Plik"     "P" "Data i godzina" "Nagłówek" "Czas" "WSZYSTKO" "Czas całkowity" "Czas pliku" "Poddumowanie zegara na")
     ("pt-BR" "Arquivo" "N" "Data e hora" "Título" "Hora" "TODOS" "Hora total" "Hora do arquivo" "Resumo das horas em")
-    ("sk" "Súbor" "L" "Časová značka" "Záhlavie" "Čas" "VŠETKO" "Celkový čas" "Čas súboru" "Časový súhrn pre"))
+    ("sk" "Súbor"    "L" "Časová značka" "Záhlavie" "Čas" "VŠETKO" "Celkový čas" "Čas súboru" "Časový súhrn pre"))
   "Terms used in clocktable, translated to different languages."
   :group 'org-clocktable
   :version "24.1"
@@ -417,8 +418,8 @@ play with them."
   :type 'string)
 
 (defcustom org-clock-clocked-in-display 'mode-line
-  "When clocked in for a task, Org can display the current
-task and accumulated time in the mode line and/or frame title.
+  "Where to display clocked in task and accumulated time when clocked in.
+
 Allowed values are:
 
 both         displays in both mode line and frame title
@@ -513,7 +514,11 @@ to add an effort property.")
 (defvar org-clock-in-hook nil
   "Hook run when starting the clock.")
 (defvar org-clock-out-hook nil
-  "Hook run when stopping the current clock.")
+  "Hook run when stopping the current clock.
+The point is at the current clock line when the hook is executed.
+
+The hook functions can access `org-clock-out-removed-last-clock' to
+check whether the latest CLOCK line has been cleared.")
 
 (defvar org-clock-cancel-hook nil
   "Hook run when canceling the current clock.")
@@ -567,6 +572,10 @@ of a different task.")
 Assume S in the English term to translate.  Return S as-is if it
 cannot be translated."
   (or (nth (pcase s
+             ;; "L" stands for "Level"
+             ;; "ALL" stands for a line summarizing clock data across
+             ;; all the files, when the clocktable includes multiple
+             ;; files.
 	     ("File" 1) ("L" 2) ("Timestamp" 3) ("Headline" 4) ("Time" 5)
 	     ("ALL" 6) ("Total time" 7) ("File time" 8) ("Clock summary at" 9))
 	   (assoc-string language org-clock-clocktable-language-setup t))
@@ -581,6 +590,7 @@ cannot be translated."
 	    (org-no-properties (org-get-heading t t t t))))))
 
 (defun org-clock-menu ()
+  "Pop up org-clock menu."
   (interactive)
   (popup-menu
    '("Clock"
@@ -590,7 +600,12 @@ cannot be translated."
      ["Switch task" (lambda () (interactive) (org-clock-in '(4))) :active t :keys "C-u C-c C-x C-i"])))
 
 (defun org-clock-history-push (&optional pos buffer)
-  "Push a marker to the clock history."
+  "Push point marker to the clock history.
+When POS is provided, use it as marker point.
+When BUFFER and POS are provided, use marker at POS in base buffer of
+BUFFER."
+  ;; When buffer is provided, POS must be provided.
+  (cl-assert (or (not buffer) pos))
   (setq org-clock-history-length (max 1 org-clock-history-length))
   (let ((m (move-marker (make-marker)
 			(or pos (point)) (org-base-buffer
@@ -610,7 +625,10 @@ cannot be translated."
     (push m org-clock-history)))
 
 (defun org-clock-save-markers-for-cut-and-paste (beg end)
-  "Save relative positions of markers in region."
+  "Save relative positions of markers in region BEG..END.
+Save `org-clock-marker', `org-clock-hd-marker',
+`org-clock-default-task', `org-clock-interrupted-task', and the
+markers in `org-clock-history'."
   (org-check-and-save-marker org-clock-marker beg end)
   (org-check-and-save-marker org-clock-hd-marker beg end)
   (org-check-and-save-marker org-clock-default-task beg end)
@@ -636,6 +654,7 @@ cannot be translated."
 
 (defun org-clock-select-task (&optional prompt)
   "Select a task that was recently associated with clocking.
+PROMPT is the prompt text to be used, as a string.
 Return marker position of the selected task.  Raise an error if
 there is no recent clock to choose from."
   (let (och chl sel-list rpl (i 0) s)
@@ -646,7 +665,7 @@ there is no recent clock to choose from."
     (if (zerop chl)
 	(user-error "No recent clock")
       (save-window-excursion
-	(org-switch-to-buffer-other-window
+	(switch-to-buffer-other-window
 	 (get-buffer-create "*Clock Task Select*"))
 	(erase-buffer)
 	(when (marker-buffer org-clock-default-task)
@@ -1483,6 +1502,33 @@ the default behavior."
 	 (message "Clock starts at %s - %s" ts org--msg-extra)
 	 (run-hooks 'org-clock-in-hook))))))
 
+(defvar org-clock--auto-clockout-timer-obj nil
+  "Timer object holding the existing clockout timer.")
+(defun org-clock--auto-clockout-maybe ()
+  "Clock out the currently clocked in task when idle.
+See `org-clock-auto-clockout-timer' to set the idle time span.
+
+This function is to be called by a timer."
+  (when (and (numberp org-clock-auto-clockout-timer)
+	     org-clock-current-task)
+    (let ((user-idle-seconds (org-user-idle-seconds)))
+      (cond
+       ;; Already idle.  Clock out.
+       ((>= user-idle-seconds org-clock-auto-clockout-timer)
+        (setq org-clock--auto-clockout-timer-obj nil)
+        (org-clock-out))
+       ;; Emacs is idle but system is not.  Retry assuming that system will remain idle.
+       ((>= (org-emacs-idle-seconds) org-clock-auto-clockout-timer)
+        (setq org-clock--auto-clockout-timer-obj
+              (run-with-timer
+               (- org-clock-auto-clockout-timer user-idle-seconds)
+               nil #'org-clock--auto-clockout-maybe)))
+       ;; Emacs is not idle.  Check again next time we are idle.
+       (t
+        (setq org-clock--auto-clockout-timer-obj
+              (run-with-idle-timer
+               org-clock-auto-clockout-timer nil #'org-clock--auto-clockout-maybe)))))))
+
 (defun org-clock-auto-clockout ()
   "Clock out the currently clocked in task if Emacs is idle.
 See `org-clock-auto-clockout-timer' to set the idle time span.
@@ -1490,9 +1536,11 @@ See `org-clock-auto-clockout-timer' to set the idle time span.
 This is only effective when `org-clock-auto-clockout-insinuate'
 is present in the user configuration."
   (when (and (numberp org-clock-auto-clockout-timer)
-	     org-clock-current-task)
-    (run-with-idle-timer
-     org-clock-auto-clockout-timer nil #'org-clock-out)))
+	     org-clock-current-task
+             (not (timerp org-clock--auto-clockout-timer-obj)))
+    (setq org-clock--auto-clockout-timer-obj
+          (run-with-idle-timer
+           org-clock-auto-clockout-timer nil #'org-clock--auto-clockout-maybe))))
 
 ;;;###autoload
 (defun org-clock-toggle-auto-clockout ()
@@ -1691,6 +1739,11 @@ and current `frame-title-format' is equal to `org-clock-frame-title-format'."
 	     (equal frame-title-format org-clock-frame-title-format))
     (setq frame-title-format org-frame-title-format-backup)))
 
+(defvar org-clock-out-removed-last-clock nil
+  "When non-nil, the last `org-clock-out' removed the clock line.
+This can happen when `org-clock-out-remove-zero-time-clocks' is set to
+non-nil and the latest clock took 0 minutes.")
+
 ;;;###autoload
 (defun org-clock-out (&optional switch-to-state fail-quietly at-time)
   "Stop the currently running clock.
@@ -1781,6 +1834,7 @@ to, overriding the existing value of `org-clock-out-switch-to-state'."
 		   te (org-duration-from-minutes (+ (* 60 h) m)))
           (unless (org-clocking-p)
 	    (setq org-clock-current-task nil))
+          (setq org-clock-out-removed-last-clock remove)
           (run-hooks 'org-clock-out-hook)
           ;; Add a note, but only if we didn't remove the clock line.
           (when (and org-log-note-clock-out (not remove))

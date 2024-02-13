@@ -1,10 +1,10 @@
 ;;; ox-icalendar.el --- iCalendar Backend for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2024 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;;      Nicolas Goaziou <mail@nicolasgoaziou.fr>
-;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
+;; Maintainer: Jack Kamm <jackkamm@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; URL: https://orgmode.org
 
@@ -222,7 +222,8 @@ Valid values are:
 nil                  don't include any task.
 t                    include tasks that are not in DONE state.
 `unblocked'          include all TODO items that are not blocked.
-`all'                include both done and not done items."
+`all'                include both done and not done items.
+\\(\"TODO\" ...)       include specific TODO keywords."
   :group 'org-export-icalendar
   :type '(choice
 	  (const :tag "None" nil)
@@ -330,6 +331,32 @@ Interesting value are:
 	  (const :tag "Universal time" ":%Y%m%dT%H%M%SZ")
 	  (string :tag "Explicit format")))
 
+(defcustom org-icalendar-ttl nil
+  "Time to live for the exported calendar.
+
+Subscribing clients to the exported ics file can derive the time
+interval to read the file again from the server.  One example of such
+client is Nextcloud calendar, which respects the setting of
+X-PUBLISHED-TTL in ICS files.  Setting `org-icalendar-ttl' to \"PT1H\"
+would advise a server to reload the file every hour.
+
+See https://icalendar.org/iCalendar-RFC-5545/3-8-2-5-duration.html
+for a complete description of possible specifications of this
+option.  For example, \"PT1H\" stands for 1 hour and
+\"PT0H27M34S\" stands for 0 hours, 27 minutes and 34 seconds.
+
+The default value is nil, which means no such option is set in
+the ICS file. This option can also be set on a per-document basis
+with the ICAL-TTL export keyword."
+  :group 'org-export-icalendar
+  :type '(choice
+          (const :tag "No refresh period" nil)
+          (const :tag "One hour" "PT1H")
+          (const :tag "One day" "PT1D")
+          (const :tag "One week" "PT7D")
+          (string :tag "Other"))
+  :package-version '(Org . "9.7"))
+
 (defvar org-icalendar-after-save-hook nil
   "Hook run after an iCalendar file has been saved.
 This hook is run with the name of the file as argument.  A good
@@ -367,7 +394,8 @@ re-read the iCalendar file.")
     (:icalendar-use-deadline nil nil org-icalendar-use-deadline)
     (:icalendar-use-scheduled nil nil org-icalendar-use-scheduled)
     (:icalendar-scheduled-summary-prefix nil nil org-icalendar-scheduled-summary-prefix)
-    (:icalendar-deadline-summary-prefix nil nil org-icalendar-deadline-summary-prefix))
+    (:icalendar-deadline-summary-prefix nil nil org-icalendar-deadline-summary-prefix)
+    (:icalendar-ttl "ICAL-TTL" nil org-icalendar-ttl))
   :filters-alist
   '((:filter-headline . org-icalendar-clear-blank-lines))
   :menu-entry
@@ -642,13 +670,15 @@ inlinetask within the section."
        (let ((todo-type (org-element-property :todo-type entry))
 	     (uid (or (org-element-property :ID entry) (org-id-new)))
 	     (summary (org-icalendar-cleanup-string
-		       (or (org-element-property :SUMMARY entry)
-			   (org-export-data
-			    (org-element-property :title entry) info))))
-	     (loc (org-icalendar-cleanup-string
-		   (org-export-get-node-property
-		    :LOCATION entry
-		    (org-property-inherit-p "LOCATION"))))
+		       (or
+                        (let ((org-property-separators '(("SUMMARY" . "\n"))))
+                          (org-entry-get entry "SUMMARY" 'selective))
+			(org-export-data
+			 (org-element-property :title entry) info))))
+	     (loc
+              (let ((org-property-separators '(("LOCATION" . "\n"))))
+                (org-icalendar-cleanup-string
+                 (org-entry-get entry "LOCATION" 'selective))))
 	     (class (org-icalendar-cleanup-string
 		     (org-export-get-node-property
 		      :CLASS entry
@@ -657,7 +687,8 @@ inlinetask within the section."
 	     ;; (headline) or contents (inlinetask).
 	     (desc
 	      (org-icalendar-cleanup-string
-	       (or (org-element-property :DESCRIPTION entry)
+	       (or (let ((org-property-separators '(("DESCRIPTION" . "\n"))))
+                     (org-entry-get entry "DESCRIPTION" 'selective))
 		   (let ((contents (org-export-data inside info)))
 		     (cond
 		      ((not (org-string-nw-p contents)) nil)
@@ -727,13 +758,16 @@ inlinetask within the section."
 	  ;; so, call `org-icalendar--vtodo' to transcode it into
 	  ;; a "VTODO" component.
 	  (when (and todo-type
-		     (cl-case (plist-get info :icalendar-include-todo)
-		       (all t)
-		       (unblocked
+		     (pcase (plist-get info :icalendar-include-todo)
+		       (`all t)
+		       (`unblocked
 			(and (eq type 'headline)
 			     (not (org-icalendar-blocked-headline-p
-				   entry info))))
-		       ((t) (eq todo-type 'todo))))
+				 entry info))))
+                       ;; unfinished
+		       (`t (eq todo-type 'todo))
+                       ((and (pred listp) kwd-list)
+                        (member (org-element-property :todo-keyword entry) kwd-list))))
 	    (org-icalendar--vtodo entry uid summary loc desc cat tz class))
 	  ;; Diary-sexp: Collect every diary-sexp element within ENTRY
 	  ;; and its title, and transcode them.  If ENTRY is
@@ -765,6 +799,8 @@ inlinetask within the section."
        contents))))
 
 (defun org-icalendar--rrule (unit value)
+  "Format RRULE icalendar entry for UNIT frequency and VALUE interval.
+UNIT is a symbol `hour', `day', `week', `month', or `year'."
   (format "RRULE:FREQ=%s;INTERVAL=%d"
 	  (cl-case unit
 	    (hour "HOURLY") (day "DAILY") (week "WEEKLY")
@@ -783,7 +819,7 @@ venue for the event.  DESCRIPTION provides the complete
 description of the event.  CATEGORIES defines the categories the
 event belongs to.  TIMEZONE specifies a time zone for this event
 only.  CLASS contains the visibility attribute.  Three of them
-(\"PUBLIC\", \"CONFIDENTIAL\", and \"PRIVATE\") are predefined, others
+\\(\"PUBLIC\", \"CONFIDENTIAL\", and \"PRIVATE\") are predefined, others
 should be treated as \"PRIVATE\" if they are unknown to the iCalendar server.
 
 Return VEVENT component as a string."
@@ -809,7 +845,7 @@ Return VEVENT component as a string."
 	    "CATEGORIES:" categories "\n"
 	    ;; VALARM.
 	    (org-icalendar--valarm entry timestamp summary)
-	    "END:VEVENT")))
+	    "END:VEVENT\n")))
 
 (defun org-icalendar--repeater-type (elem)
   "Return ELEM's repeater-type if supported, else warn and return nil."
@@ -835,9 +871,10 @@ Return VEVENT component as a string."
 ENTRY is either a headline or an inlinetask element.  UID is the
 unique identifier for the task.  SUMMARY defines a short summary
 or subject for the task.  LOCATION defines the intended venue for
-the task.  DESCRIPTION provides the complete description of the
-task.  CATEGORIES defines the categories the task belongs to.
-TIMEZONE specifies a time zone for this TODO only.
+the task.  CLASS sets the task class (e.g. confidential).  DESCRIPTION
+provides the complete description of the task.  CATEGORIES defines the
+categories the task belongs to.  TIMEZONE specifies a time zone for
+this TODO only.
 
 Return VTODO component as a string."
   (let* ((sc (and (memq 'todo-start org-icalendar-use-scheduled)
@@ -952,7 +989,7 @@ repeater on DEADLINE but not SCHEDULED. Skipping.")
 		    (if (eq (org-element-property :todo-type entry) 'todo)
 			"NEEDS-ACTION"
 		      "COMPLETED"))
-	    "END:VTODO")))
+	    "END:VTODO\n")))
 
 (defun org-icalendar--valarm (entry timestamp summary)
   "Create a VALARM component.
@@ -1011,25 +1048,30 @@ as a communication channel."
    (or (org-string-nw-p org-icalendar-timezone) (format-time-string "%Z"))
    ;; Description.
    (org-export-data (plist-get info :title) info)
+   ;; TTL
+   (plist-get info :icalendar-ttl)
    contents))
 
-(defun org-icalendar--vcalendar (name owner tz description contents)
+(defun org-icalendar--vcalendar (name owner tz description ttl contents)
   "Create a VCALENDAR component.
-NAME, OWNER, TZ, DESCRIPTION and CONTENTS are all strings giving,
+NAME, OWNER, TZ, DESCRIPTION, TTL and CONTENTS are all strings giving,
 respectively, the name of the calendar, its owner, the timezone
-used, a short description and the other components included."
+used, a short description, time to live (refresh period) and
+the other components included."
   (org-icalendar-fold-string
    (concat (format "BEGIN:VCALENDAR
 VERSION:2.0
 X-WR-CALNAME:%s
 PRODID:-//%s//Emacs with Org mode//EN
 X-WR-TIMEZONE:%s
-X-WR-CALDESC:%s
-CALSCALE:GREGORIAN\n"
+X-WR-CALDESC:%s\n"
 		   (org-icalendar-cleanup-string name)
 		   (org-icalendar-cleanup-string owner)
 		   (org-icalendar-cleanup-string tz)
 		   (org-icalendar-cleanup-string description))
+           (when ttl (format "X-PUBLISHED-TTL:%s\n"
+                             (org-icalendar-cleanup-string ttl)))
+           "CALSCALE:GREGORIAN\n"
 	   contents
 	   "END:VCALENDAR\n")))
 
@@ -1157,6 +1199,7 @@ This function assumes major mode for current buffer is
 	user-full-name
 	(or (org-string-nw-p org-icalendar-timezone) (format-time-string "%Z"))
 	org-icalendar-combined-description
+	org-icalendar-ttl
 	contents)))
     (org-icalendar--post-process-file file)))
 
@@ -1181,6 +1224,8 @@ FILES is a list of files to build the calendar from."
 		  (format-time-string "%Z"))
 	      ;; Description.
 	      org-icalendar-combined-description
+	      ;; TTL (Refresh period)
+	      org-icalendar-ttl
 	      ;; Contents.
 	      (concat
 	       ;; Agenda contents.

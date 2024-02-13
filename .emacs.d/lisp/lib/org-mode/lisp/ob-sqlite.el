@@ -1,6 +1,6 @@
 ;;; ob-sqlite.el --- Babel Functions for SQLite Databases -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2024 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Maintainer: Nick Savage <nick@nicksavage.ca>
@@ -57,13 +57,20 @@
 
 (defun org-babel-expand-body:sqlite (body params)
   "Expand BODY according to the values of PARAMS."
-  (org-babel-sql-expand-vars
-   body (org-babel--get-vars params) t))
+  (let ((prologue (cdr (assq :prologue params)))
+	(epilogue (cdr (assq :epilogue params))))
+    (mapconcat 'identity
+               (list
+                prologue
+                (org-babel-sql-expand-vars
+                 body (org-babel--get-vars params) t)
+                epilogue)
+               "\n")))
 
 (defvar org-babel-sqlite3-command "sqlite3")
 
 (defun org-babel-execute:sqlite (body params)
-  "Execute a block of Sqlite code with Babel.
+  "Execute Sqlite BODY according to PARAMS.
 This function is called by `org-babel-execute-src-block'."
   (let ((result-params (split-string (or (cdr (assq :results params)) "")))
 	(db (cdr (assq :db params)))
@@ -121,7 +128,8 @@ This function is called by `org-babel-execute-src-block'."
   (org-babel-sql-expand-vars body vars t))
 
 (defun org-babel-sqlite-table-or-scalar (result)
-  "If RESULT looks like a trivial table, then unwrap it."
+  "Cleanup cells in the RESULT table.
+If RESULT is a trivial 1x1 table, then unwrap it."
   (if (and (equal 1 (length result))
 	   (equal 1 (length (car result))))
       (org-babel-read (caar result) t)
@@ -132,7 +140,7 @@ This function is called by `org-babel-execute-src-block'."
 	    result)))
 
 (defun org-babel-sqlite-offset-colnames (table headers-p)
-  "If HEADERS-P is non-nil then offset the first row as column names."
+  "If HEADERS-P is non-nil then offset the first row as column names in TABLE."
   (if headers-p
       (cons (car table) (cons 'hline (cdr table)))
     table))

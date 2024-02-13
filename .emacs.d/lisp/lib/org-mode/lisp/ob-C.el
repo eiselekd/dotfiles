@@ -1,6 +1,6 @@
 ;;; ob-C.el --- Babel Functions for C and Similar Languages -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2010-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2010-2024 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;;      Thierry Banel
@@ -213,7 +213,9 @@ This function should only be called by `org-babel-execute:C' or
 		  nil))
 	(namespaces (org-babel-read
 		     (cdr (assq :namespaces params))
-		     nil)))
+		     nil))
+        (prologue (cdr (assq :prologue params)))
+        (epilogue (cdr (assq :epilogue params))))
     (when (stringp includes)
       (setq includes (split-string includes)))
     (when (stringp namespaces)
@@ -227,6 +229,11 @@ This function should only be called by `org-babel-execute:C' or
 	    (nconc result (list (concat y " " x)))
 	    (setq y nil)))
 	(setq defines (cdr result))))
+    (setq body
+          (concat
+           (and prologue (concat prologue "\n"))
+           body
+           (and epilogue (concat "\n" epilogue "\n"))))
     (mapconcat 'identity
 	       (list
 		;; includes

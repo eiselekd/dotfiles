@@ -1,6 +1,6 @@
 ;;; ob-R.el --- Babel Functions for R                -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2024 Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;;	Dan Davison
@@ -64,6 +64,7 @@
     (colormodel		 . :any)
     (useDingbats	 . :any)
     (horizontal		 . :any)
+    (async               . ((yes no)))
     (results             . ((file list vector table scalar verbatim)
 			    (raw html latex org code pp drawer)
 			    (replace silent none append prepend)
@@ -90,15 +91,6 @@ this variable.")
   :group 'org-babel
   :version "24.1"
   :type 'string)
-
-(defvar ess-current-process-name) ; dynamically scoped
-(defvar ess-local-process-name)   ; dynamically scoped
-(defun org-babel-edit-prep:R (info)
-  (let ((session (cdr (assq :session (nth 2 info)))))
-    (when (and session
-	       (string-prefix-p "*"  session)
-	       (string-suffix-p "*" session))
-      (org-babel-R-initiate-session session nil))))
 
 ;; The usage of utils::read.table() ensures that the command
 ;; read.table() can be found even in circumstances when the utils
@@ -262,16 +254,22 @@ Retrieve variables from PARAMS."
 	  (t                (format "%s <- %S" name (prin1-to-string value))))))
 
 
+(defvar ess-current-process-name) ; dynamically scoped
+(defvar ess-local-process-name)   ; dynamically scoped
 (defvar ess-ask-for-ess-directory) ; dynamically scoped
+(defvar ess-gen-proc-buffer-name-function) ; defined in ess-inf.el
 (defun org-babel-R-initiate-session (session params)
   "Create or return the current R SESSION buffer.
 Use PARAMS to set default directory when creating a new session."
   (unless (string= session "none")
-    (let ((session (or session "*R*"))
-	  (ess-ask-for-ess-directory
-	   (and (boundp 'ess-ask-for-ess-directory)
-		ess-ask-for-ess-directory
-		(not (cdr (assq :dir params))))))
+    (let* ((session (or session "*R*"))
+	   (ess-ask-for-ess-directory
+	    (and (boundp 'ess-ask-for-ess-directory)
+		 ess-ask-for-ess-directory
+		 (not (cdr (assq :dir params)))))
+           ;; Make ESS name the process buffer as SESSION.
+           (ess-gen-proc-buffer-name-function
+            (lambda (_) session)))
       (if (org-babel-comint-buffer-livep session)
 	  session
 	(save-window-excursion
@@ -284,21 +282,16 @@ Use PARAMS to set default directory when creating a new session."
 					 ess-current-process-name))))
 	    (while (process-get R-proc 'callbacks)
 	      (ess-wait-for-process R-proc)))
-	  (rename-buffer
-	   (if (bufferp session)
-	       (buffer-name session)
-	     (if (stringp session)
-		 session
-	       (buffer-name))))
 	  (current-buffer))))))
 
 (defun org-babel-R-associate-session (session)
   "Associate R code buffer with an R session.
 Make SESSION be the inferior ESS process associated with the
 current code buffer."
-  (setq ess-local-process-name
-	(process-name (get-buffer-process session)))
-  (ess-make-buffer-current))
+  (when-let ((process (get-buffer-process session)))
+    (setq ess-local-process-name (process-name process))
+    (ess-make-buffer-current))
+  (setq-local ess-gen-proc-buffer-name-function (lambda (_) session)))
 
 (defvar org-babel-R-graphics-devices
   '((:bmp "bmp" "filename")

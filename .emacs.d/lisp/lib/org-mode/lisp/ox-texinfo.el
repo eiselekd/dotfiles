@@ -1,6 +1,6 @@
 ;;; ox-texinfo.el --- Texinfo Backend for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2012-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2012-2024 Free Software Foundation, Inc.
 ;; Author: Jonathan Leech-Pepin <jonathan.leechpepin at gmail dot com>
 ;; Maintainer: Nicolas Goaziou <mail@nicolasgoaziou.fr>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -31,6 +31,7 @@
 
 (require 'cl-lib)
 (require 'ox)
+(require 'org-element-ast)
 
 (eval-when-compile (require 'subr-x))
 
@@ -502,7 +503,9 @@ Return new tree."
 	  (let ((first (org-element-map contents '(headline section)
 			 #'identity info t)))
 	    (unless (org-element-type-p first 'section)
-              (org-element-create 'section nil contents))))))
+              (apply #'org-element-set-contents
+                     hl
+                     (org-element-create 'section `(:parent ,hl)) contents))))))
     info)
   tree)
 

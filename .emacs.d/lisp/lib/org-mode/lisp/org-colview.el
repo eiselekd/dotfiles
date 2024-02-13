@@ -1,6 +1,6 @@
 ;;; org-colview.el --- Column View in Org            -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2004-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2004-2024 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -183,28 +183,10 @@ See `org-columns-summary-types' for details.")
 (org-defkey org-columns-map "\M-b"     #'backward-char)
 (org-defkey org-columns-map "a"        #'org-columns-edit-allowed)
 (org-defkey org-columns-map "s"        #'org-columns-edit-attributes)
-(org-defkey org-columns-map "\M-f"
-	    (lambda () (interactive) (goto-char (1+ (point)))))
-(org-defkey org-columns-map [right]
-	    (lambda () (interactive) (goto-char (1+ (point)))))
-(org-defkey org-columns-map [down]
-	    (lambda () (interactive)
-	      (let ((col (current-column)))
-		(forward-line 1)
-		(while (and (org-invisible-p2) (not (eobp)))
-		  (forward-line 1))
-		(move-to-column col)
-		(if (derived-mode-p 'org-agenda-mode)
-		    (org-agenda-do-context-action)))))
-(org-defkey org-columns-map [up]
-	    (lambda () (interactive)
-	      (let ((col (current-column)))
-		(forward-line -1)
-		(while (and (org-invisible-p2) (not (bobp)))
-		  (forward-line -1))
-		(move-to-column col)
-		(if (eq major-mode 'org-agenda-mode)
-		    (org-agenda-do-context-action)))))
+(org-defkey org-columns-map "\M-f"     #'forward-char)
+(org-defkey org-columns-map [right]    #'forward-char)
+(org-defkey org-columns-map [up]       #'org-columns-move-up)
+(org-defkey org-columns-map [down]     #'org-columns-move-down)
 (org-defkey org-columns-map [(shift right)] #'org-columns-next-allowed-value)
 (org-defkey org-columns-map "n" #'org-columns-next-allowed-value)
 (org-defkey org-columns-map [(shift left)] #'org-columns-previous-allowed-value)
@@ -383,13 +365,15 @@ ORIGINAL is the real string, i.e., before it is modified by
   "Store the relative remapping of column header-line.
 This is needed to later remove this relative remapping.")
 
+(defvar org-columns--read-only-string nil)
 (defun org-columns--display-here (columns &optional dateline)
   "Overlay the current line with column display.
 COLUMNS is an alist (SPEC VALUE DISPLAYED).  Optional argument
 DATELINE is non-nil when the face used should be
 `org-agenda-column-dateline'."
-  (when (and (ignore-errors (require 'face-remap))
-             org-columns-header-line-remap)
+  (when (and (not org-columns-header-line-remap)
+             (or (fboundp 'face-remap-add-relative)
+                 (ignore-errors (require 'face-remap))))
     (setq org-columns-header-line-remap
 	  (face-remap-add-relative 'header-line '(:inherit default))))
   (save-excursion
@@ -456,9 +440,11 @@ DATELINE is non-nil when the face used should be
 	   (line-end-position 0)
 	   (line-beginning-position 2)
 	   'read-only
-	   (substitute-command-keys
-	    "Type \\<org-columns-map>`\\[org-columns-edit-value]' \
-to edit property")))))))
+           (or org-columns--read-only-string
+	       (setq org-columns--read-only-string
+                     (substitute-command-keys
+	              "Type \\<org-columns-map>`\\[org-columns-edit-value]' \
+to edit property")))))))))
 
 (defun org-columns--truncate-below-width (string width)
   "Return a substring of STRING no wider than WIDTH.
@@ -548,7 +534,8 @@ for the duration of the command.")
       (setq header-line-format org-previous-header-line-format)
       (kill-local-variable 'org-previous-header-line-format)
       (remove-hook 'post-command-hook #'org-columns-hscroll-title 'local))
-    (set-marker org-columns-begin-marker nil)
+    (when (markerp org-columns-begin-marker)
+      (set-marker org-columns-begin-marker nil))
     (when (markerp org-columns-top-level-marker)
       (set-marker org-columns-top-level-marker nil))
     (with-silent-modifications
@@ -910,7 +897,6 @@ When COLUMNS-FMT-STRING is non-nil, use it as the column format."
                 (setq truncate-lines t))
 	    (dolist (entry cache)
 	      (goto-char (car entry))
-              (move-marker (car entry) nil)
 	      (org-columns--display-here (cdr entry)))))))))
 
 (defun org-columns-new (&optional spec &rest attributes)
@@ -994,6 +980,30 @@ details."
   "Make the column narrower by ARG characters."
   (interactive "p")
   (org-columns-widen (- arg)))
+
+(defun org-columns-move-up ()
+  "In column view, move cursor up one row.
+When in agenda column view, also call `org-agenda-do-context-action'."
+  (interactive)
+  (let ((col (current-column)))
+    (forward-line -1)
+    (while (and (org-invisible-p2) (not (bobp)))
+      (forward-line -1))
+    (move-to-column col)
+    (if (eq major-mode 'org-agenda-mode)
+	(org-agenda-do-context-action))))
+
+(defun org-columns-move-down ()
+  "In column view, move cursor down one row.
+When in agenda column view, also call `org-agenda-do-context-action'."
+  (interactive)
+  (let ((col (current-column)))
+    (forward-line 1)
+    (while (and (org-invisible-p2) (not (eobp)))
+      (forward-line 1))
+    (move-to-column col)
+    (if (derived-mode-p 'org-agenda-mode)
+	(org-agenda-do-context-action))))
 
 (defun org-columns-move-right ()
   "Swap this column with the one to the right."
@@ -1206,8 +1216,8 @@ Return the result as a duration."
 SPEC is a column format specification.  When optional argument
 UPDATE is non-nil, summarized values can replace existing ones in
 properties drawers."
-  (let* ((lmax (if (bound-and-true-p org-inlinetask-min-level)
-		   org-inlinetask-min-level
+  (let* ((lmax (if (bound-and-true-p org-inlinetask-max-level)
+		   org-inlinetask-max-level
 		 29))			;Hard-code deepest level.
 	 (lvals (make-vector (1+ lmax) nil))
 	 (level 0)

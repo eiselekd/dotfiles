@@ -1,6 +1,6 @@
 ;;; org-id.el --- Global identifiers for Org entries -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2008-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2008-2024 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten.dominik@gmail.com>
 ;; Keywords: outlines, hypermedia, calendar, wp
@@ -29,13 +29,13 @@
 ;; are provided that create and retrieve such identifiers, and that find
 ;; entries based on the identifier.
 
-;; Identifiers consist of a prefix (default "Org" given by the variable
+;; Identifiers consist of a prefix (given by the variable
 ;; `org-id-prefix') and a unique part that can be created by a number
-;; of different methods, see the variable `org-id-method'.
-;; Org has a builtin method that uses a compact encoding of the creation
-;; time of the ID, with microsecond accuracy.  This virtually
-;; guarantees globally unique identifiers, even if several people are
-;; creating IDs at the same time in files that will eventually be used
+;; of different methods, see the variable `org-id-method'.  Org has a
+;; builtin method that uses a compact encoding of the creation time of
+;; the ID, with microsecond accuracy.  This virtually guarantees
+;; globally unique identifiers, even if several people are creating
+;; IDs at the same time in files that will eventually be used
 ;; together.
 ;;
 ;; By default Org uses UUIDs as global unique identifiers.
@@ -677,10 +677,7 @@ optional argument MARKERP, return the position as a new marker."
     (let* ((visiting (find-buffer-visiting file))
 	   (buffer (or visiting
                        (if markerp (find-file-noselect file)
-                         (if (<= 2 (cdr (func-arity #'get-buffer-create)))
-                             (with-no-warnings (get-buffer-create " *Org ID temp*" t))
-                           ;; FIXME: Emacs 27 does not yet have second argument.
-                           (get-buffer-create " *Org ID temp*"))))))
+                         (org-get-buffer-create " *Org ID temp*" t)))))
       (unwind-protect
 	  (with-current-buffer buffer
             (unless (derived-mode-p 'org-mode) (org-mode))

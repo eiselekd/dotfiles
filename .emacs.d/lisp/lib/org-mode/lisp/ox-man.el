@@ -1,6 +1,6 @@
 ;;; ox-man.el --- Man Backend for Org Export Engine -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2011-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2011-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou at gmail dot com>
 ;;      Luis R Anaya <papoanaya aroba hot mail punto com>
@@ -972,7 +972,7 @@ This function assumes TABLE has `org' as its `:type' attribute."
 ;;; Table Cell
 
 (defun org-man-table-cell (table-cell contents info)
-  "Transcode a TABLE-CELL element from Org to Man
+  "Transcode a TABLE-CELL element from Org to Man.
 CONTENTS is the cell contents.  INFO is a plist used as
 a communication channel."
   (concat
