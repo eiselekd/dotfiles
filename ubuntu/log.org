@@ -138,6 +138,11 @@ fi
 
 exec gnome-session --session=gnome-xmonad --disable-acceleration-check "$@"
 
+gnome-terminal : disable headerbar:
+
+gsettings set org.gnome.Terminal.Legacy.Settings headerbar "@mb false"
+
+https://xmonad.org/gnome.html
 
            ├─user.slice
            │ └─user-1000.slice

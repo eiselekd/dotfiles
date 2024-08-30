@@ -105,6 +105,7 @@
 (add-to-list 'load-path (expand-file-name "lib/poly-markdown" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/racket-mode" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/hyperbole" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/rust" *.emacs.d.lisp.dir* ))
 
 
 ;;* Encoding
