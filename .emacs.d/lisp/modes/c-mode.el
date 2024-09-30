@@ -315,6 +315,26 @@
   (setq c-basic-offset 4
         c-indent-level 4
         c-default-style "bsd")
+
+
+  (require 'utils/shell.el)
+
+  ;; start shell
+  (message "[+] set M-E shell normal-c-mode")
+  (global-set-key (kbd "M-E")   (lambda ()(interactive)
+				  (progn
+				    (utils/shell)
+				    )))
+
+
+  ;; (setq c-default-style
+  ;; 	'((java-mode . "java")
+  ;; 	  (awk-mode . "awk")
+  ;; 	  (c-mode . "bsd")
+  ;; 	  (c++-mode . "bsd")
+  ;; 	  (other . "gnu")))
+
+
   )
 
 (add-hook 'hs-org/minor-mode-hook (lambda ()
@@ -365,6 +385,9 @@
 	  (lambda ()
 	    (progn
 
+	      (message (format "[*] c++-mode-hook"))
+
+
 	      ;; using wsa-butler instead
 	      ;;(add-to-list 'write-file-functions 'delete-trailing-whitespace)
 		   (if (eq system-type 'cygwin) ;; use helm for !=cygwin
@@ -406,8 +429,6 @@
 
 		   ;;(require 'utils/gtest-checker.el)
 
-		   ;;(when (require 'gtest-minor)
-		   ;;(gtest-minor-mode))
 
 
 
@@ -417,6 +438,9 @@
 (add-hook 'c-mode-hook
 	  (lambda ()
 	    (progn
+
+	      (message (format "[*] c-mode-hook"))
+
 	      ;; using wsa-butler instead
 	      ;;(add-to-list 'write-file-functions 'delete-trailing-whitespace)
 	      (if (eq system-type 'cygwin) ;; use helm for !=cygwin
