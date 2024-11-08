@@ -20,4 +20,4 @@ bashrc:
 
 
 prepare:
-	sudo apt-get install xsel
+	sudo apt-get install xsel xdotool
