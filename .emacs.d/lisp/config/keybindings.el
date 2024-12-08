@@ -72,7 +72,9 @@
 
 
 (global-set-key (kbd "M-E")  (lambda()(interactive)
-			       (ansi-term )))
+			       (require 'utils/shell.el)
+			       (utils/shell)
+			       ))
 ;; start proced
 (global-set-key (kbd "M-p")  'proced)
 

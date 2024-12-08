@@ -320,12 +320,12 @@
   (require 'utils/shell.el)
 
   ;; start shell
-  (message "[+] set M-E shell normal-c-mode")
-  (global-set-key (kbd "M-E")   (lambda ()(interactive)
+  (define-key c-mode-base-map (kbd "M-e") nil)
+  (message "[+] set M-e shell normal-c-mode")
+  (global-set-key (kbd "M-e")   (lambda ()(interactive)
 				  (progn
 				    (utils/shell)
 				    )))
-
 
   ;; (setq c-default-style
   ;; 	'((java-mode . "java")
