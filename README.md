@@ -50,6 +50,7 @@ Keybindings:
  * Win up/down/left/right : jump window
  * M-S up/down/left/right : enlarge/shrink window
  * M-n|p (Alt) : scroll without moving cursor
+ * M-; : toggle modeline
  * Xmonad: Win-Shift up/down/left/right : move window
  * Org-mode:
    * F1 (ESC a, Ctrl-c a) : org-agenda
