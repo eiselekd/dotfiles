@@ -75,6 +75,12 @@
 			       (require 'utils/shell.el)
 			       (utils/shell)
 			       ))
+
+(global-set-key (kbd "M-;")  (lambda()(interactive)
+			       (require 'utils/hidebars.el)
+			       (toggle-mode-line)
+			       ))
+
 ;; start proced
 (global-set-key (kbd "M-p")  'proced)
 

@@ -803,3 +803,4 @@
 ;;(require 'kanji-mode)
 
 (message "[*] %s init finish" (timestamp_str))
+

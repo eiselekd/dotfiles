@@ -21,7 +21,9 @@
 	      (show-paren-mode)
 
 	      (require 'popup)
-	      (global-set-key  (kbd "M-;") 'modes/elisp-mode-describe-thing-in-popup)
+	      (message (format "[*] set emacs-lisp-mode-hook"))
+
+	      (local-set-key  (kbd "M-;") 'modes/elisp-mode-describe-thing-in-popup)
 
 	      ;;(when (require 'org)
 		;;(orgstruct++-mode))
