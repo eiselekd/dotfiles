@@ -316,6 +316,7 @@
         c-indent-level 4
         c-default-style "bsd")
 
+  (c-set-style "gnu")
 
   (require 'utils/shell.el)
 
@@ -390,50 +391,54 @@
 
 	      ;; using wsa-butler instead
 	      ;;(add-to-list 'write-file-functions 'delete-trailing-whitespace)
-		   (if (eq system-type 'cygwin) ;; use helm for !=cygwin
-		       (ggtags-mode))
-		   (global-set-key (kbd "M-(")  'hs-hide-block)
-		   (global-set-key (kbd "M-)")  'hs-show-block)
-		   (global-set-key (kbd "M-M")
-				   (lambda () (interactive)
-				     (progn
-				       (message "Prepare: helm-man-woman")
-				       (when  (require 'helm-man nil t )
-				     	 (call-interactively 'helm-man-woman)))))
+	      (if (eq system-type 'cygwin) ;; use helm for !=cygwin
+		  (ggtags-mode))
+	      (global-set-key (kbd "M-(")  'hs-hide-block)
+	      (global-set-key (kbd "M-)")  'hs-show-block)
+	      (global-set-key (kbd "M-M")
+			      (lambda () (interactive)
+				(progn
+				  (message "Prepare: helm-man-woman")
+				  (when  (require 'helm-man nil t )
+				    (call-interactively 'helm-man-woman)))))
 
-		   (modes/orgstruct-commen)
-		   (when (require 'rainbow-delimiters)
-		     (rainbow-delimiters-mode))
-		   (when (require 'flyspell)
-		     (flyspell-prog-mode))
-		   (when (require 'which-func)
-		     (which-func-mode 1))
-		   (show-paren-mode)
+	      (message (format "[*] c++-mode-hook: rainbow-delimiters"))
+	      (modes/orgstruct-commen)
+	      (when (require 'rainbow-delimiters)
+		(rainbow-delimiters-mode))
+	      (message (format "[*] c++-mode-hook: flyspell"))
+	      (when (require 'flyspell)
+		(flyspell-prog-mode))
+	      (message (format "[*] c++-mode-hook: which-func"))
+	      (when (require 'which-func)
+		(which-function-mode))
+	      (show-paren-mode)
 
-		   ;; (hs-org/minor-mode)
-		   (global-set-key (kbd "M-h")
-				   (lambda () (interactive)
-				     (progn
-				       (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
-				       ;;(orgstruct-mode -1)
-				       (call-interactively 'hs-org/minor-mode))))
-		   (global-set-key (kbd "M-H")  'orgstruct-mode)
-		   (global-set-key (kbd "C-<f9>")  'c++-mode/toggle-org)
-		   ;;(global-set-key (kbd "S-<f9>") 'sync-buffer-overlays)
-		   (global-set-key (kbd "S-<f9>") 'show-chunks)
+	      ;; (hs-org/minor-mode)
+	      (global-set-key (kbd "M-h")
+			      (lambda () (interactive)
+				(progn
+				  (message "Note: hs-org/minor-mode is not compatible with orgstruct-mode")
+				  ;;(orgstruct-mode -1)
+				  (call-interactively 'hs-org/minor-mode))))
+	      (global-set-key (kbd "M-H")  'orgstruct-mode)
+	      (global-set-key (kbd "C-<f9>")  'c++-mode/toggle-org)
+	      ;;(global-set-key (kbd "S-<f9>") 'sync-buffer-overlays)
+	      (global-set-key (kbd "S-<f9>") 'show-chunks)
 
-		   (add-hook 'multi-select-mode-hook 'sync-buffer-overlays)
+	      (add-hook 'multi-select-mode-hook 'sync-buffer-overlays)
 
-		   (c-mode-addfuncs)
-		   (normal-c-mode)
+	      (message (format "[*] c++-mode-hook: misc"))
+	      (c-mode-addfuncs)
+	      (normal-c-mode)
 
-		   ;;(require 'utils/gtest-checker.el)
-
-
-
+	      ;;(require 'utils/gtest-checker.el)
 
 
-		   )))
+
+
+
+	      )))
 
 (add-hook 'c-mode-hook
 	  (lambda ()

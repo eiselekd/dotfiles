@@ -1,6 +1,6 @@
 ;;; helm-find.el --- helm interface for find command. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2018 Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2012 ~ 2023 Thierry Volpiatto 
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,8 +26,14 @@
   :type  'boolean)
 
 (defcustom helm-findutils-search-full-path nil
-  "Search in full path with shell command find when non--nil.
-I.e use the -path/ipath arguments of find instead of -name/iname."
+  "Search in full path with shell command find when non-nil.
+I.e. use the -path/ipath arguments of find instead of
+-name/iname."
+  :group 'helm-files
+  :type 'boolean)
+
+(defcustom helm-find-noerrors nil
+  "Prevent showing error messages in helm buffer when non nil."
   :group 'helm-files
   :type 'boolean)
 
@@ -107,9 +113,10 @@ Additional find options can be specified after a \"*\"
 separator."
   (let* (process-connection-type
          non-essential
-         (cmd (helm-find--build-cmd-line))
+         (cmd (concat (helm-find--build-cmd-line)
+                      (if helm-find-noerrors "2> /dev/null" "")))
          (proc (start-file-process-shell-command "hfind" helm-buffer cmd)))
-    (helm-log "Find command:\n%s" cmd)
+    (helm-log "helm-find-shell-command-fn" "Find command:\n%s" cmd)
     (prog1 proc
       (set-process-sentinel
        proc
@@ -117,19 +124,9 @@ separator."
            (helm-process-deferred-sentinel-hook
             process event (helm-default-directory))
            (if (string= event "finished\n")
-               (with-helm-window
-                 (setq mode-line-format
-                       '(" " mode-line-buffer-identification " "
-                         (:eval (format "L%s" (helm-candidate-number-at-point))) " "
-                         (:eval (propertize
-                                 (format "[Find process finished - (%s results)]"
-                                         (max (1- (count-lines
-                                                   (point-min) (point-max)))
-                                              0))
-                                 'face 'helm-locate-finish))))
-                 (force-mode-line-update))
-               (helm-log "Error: Find %s"
-                         (replace-regexp-in-string "\n" "" event))))))))
+               (helm-locate-update-mode-line "Find")
+             (helm-log "helm-find-shell-command-fn sentinel" "Error: Find %s"
+                       (replace-regexp-in-string "\n" "" event))))))))
 
 (defun helm-find-1 (dir)
   (let ((default-directory (file-name-as-directory dir)))
@@ -169,11 +166,5 @@ are passed to \"find\" literally."
     (helm-find-1 directory)))
 
 (provide 'helm-find)
-
-;; Local Variables:
-;; byte-compile-warnings: (not obsolete)
-;; coding: utf-8
-;; indent-tabs-mode: nil
-;; End:
 
 ;;; helm-find.el ends here
