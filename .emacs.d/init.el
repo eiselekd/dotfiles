@@ -55,6 +55,7 @@
 (require 'moreconf-erc.el nil t)
 (add-to-list 'load-path *.emacs.d.lisp.dir*)
 (add-to-list 'load-path (expand-file-name "lib" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "themes/solarized-emacs" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "wanderlust/elmo" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "wanderlust/wl" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "flim" *.emacs.d.dir* ))
@@ -487,8 +488,10 @@
 ;;* Themes
 ;;;; ======================== themes ===============================
 
-(add-to-list 'custom-theme-load-path (expand-file-name "themes/" *.emacs.d.dir*  ))
+(add-to-list 'custom-theme-load-path (expand-file-name "themes/solarized-emacs" *.emacs.d.dir*  ))
 ;;(load-theme 'cyberpunk t)
+
+
 
 ;;;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
@@ -506,11 +509,11 @@
 ;;   ))
 
 
-(setq solarized-distinct-fringe-background t)
-(setq solarized-use-variable-pitch nil)
-(setq solarized-high-contrast-mode-line t)
-(add-to-list 'custom-theme-load-path (expand-file-name "themes/emacs-color-theme-solarized" *.emacs.d.dir*  ))
-(load                                (expand-file-name "themes/emacs-color-theme-solarized/solarized-theme.el" *.emacs.d.dir*  ))
+;; (setq solarized-distinct-fringe-background t)
+;; (setq solarized-use-variable-pitch nil)
+;; (setq solarized-high-contrast-mode-line t)
+;; (add-to-list 'custom-theme-load-path (expand-file-name "themes/emacs-color-theme-solarized" *.emacs.d.dir*  ))
+;; (load                                (expand-file-name "themes/emacs-color-theme-solarized/solarized-theme.el" *.emacs.d.dir*  ))
 
 ;; (custom-set-variables
 ;;  ;; custom-set-variables was added by Custom.
@@ -540,15 +543,15 @@
 ;;      (set-terminal-parameter frame 'background-mode mode))
 ;;    (enable-theme 'solarized)))
 
-(defun set-dark-light-theme (mode)
-  (message (format "[*] mode %s background" (timestamp_str) mode))
-  (let ((frame (selected-frame)))
-    (set-frame-parameter frame 'background-mode mode)
-    (set-terminal-parameter frame 'background-mode mode)
-    ;;(custom-set-variables '( frame-background-mode mode))
+;; (defun set-dark-light-theme (mode)
+;;   (message (format "[*] mode %s background" (timestamp_str) mode))
+;;   (let ((frame (selected-frame)))
+;;     (set-frame-parameter frame 'background-mode mode)
+;;     (set-terminal-parameter frame 'background-mode mode)
+;;     ;;(custom-set-variables '( frame-background-mode mode))
 
-    )
-  (enable-theme 'solarized))
+;;     )
+;;   (enable-theme 'solarized))
 
 ;;(add-to-list 'custom-theme-load-path (expand-file-name "themes/solarized-emacs" *.emacs.d.dir*  ))
 ;;(add-to-list 'load-path              (expand-file-name "themes/solarized-emacs" *.emacs.d.dir*  ))
@@ -559,19 +562,29 @@
 ;;(load-theme 'solarized-dark t)
 
 
-(defun toggle-dark-light-theme ()
-   (interactive)
-   (if (eq active-theme 'light)
-       (setq active-theme 'dark)
-     (setq active-theme 'light))
-   (set-dark-light-theme active-theme))
+;; (defun toggle-dark-light-theme ()
+;;    (interactive)
+;;    (if (eq active-theme 'light)
+;;        (setq active-theme 'dark)
+;;      (setq active-theme 'light))
+;;    (set-dark-light-theme active-theme))
 
 (require 'dash)
+
 (setq themes-list
       `(
-	("light"     . ,( lambda () (progn (set-dark-light-theme 'light)) ))
-	("dark"      . ,( lambda () (progn (set-dark-light-theme 'dark)) ))
-	("cyberpunk" . ,( lambda () (progn (load-theme 'cyberpunk t) )))
+	("light"     . ,( lambda () (progn (load-theme 'solarized-light t)) ))
+	("dark"      . ,( lambda () (progn (load-theme 'solarized-dark t)) ))
+	("selenized-light"     . ,( lambda () (progn (load-theme 'solarized-selenized-light t)) ))
+	("selenized-dark"      . ,( lambda () (progn (load-theme 'solarized-selenized-dark t)) ))
+	("gruvbox-light"     . ,( lambda () (progn (load-theme 'solarized-gruvbox-light t)) ))
+	("gruvbox-dark"      . ,( lambda () (progn (load-theme 'solarized-gruvbox-dark t)) ))
+	("high contrast light"     . ,( lambda () (progn (load-theme 'solarized-light-high-contrast t)) ))
+	("high contrast dark"      . ,( lambda () (progn (load-theme 'solarized-dark-high-contrast t)) ))
+	("wombat"      . ,( lambda () (progn (load-theme 'solarized-wombat-dark t)) ))
+	("zenburn"      . ,( lambda () (progn (load-theme 'solarized-zenburn t)) ))
+
+
 	))
 
 (defun cycle-theme-sel ()
@@ -581,9 +594,14 @@
   (message (format "[+] enable theme %s" (car (nth 0 themes-list))))
   (funcall (cdr (nth 0 themes-list))))
 
-;;(setq active-theme 'light)
-(setq active-theme 'dark)
-(set-dark-light-theme active-theme)
+
+;;solarized-dark
+(load-theme 'solarized-wombat-dark t)
+
+
+;; ;;(setq active-theme 'light)
+;; (setq active-theme 'dark)
+;; (set-dark-light-theme active-theme)
 
 (global-set-key (kbd "ESC t") 'cycle-theme-sel)
 (global-set-key (kbd "ESC M-t") 'xterm-mouse-mode)

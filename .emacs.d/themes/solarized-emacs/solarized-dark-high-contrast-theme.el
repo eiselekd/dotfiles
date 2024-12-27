@@ -1,6 +1,6 @@
-;;; solarized-dark-theme.el --- Solarized Dark Theme for Emacs  -*- lexical-binding: t -*-
+;;; solarized-dark-high-contrast-theme.el --- Solarized Light Theme for Emacs  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2011-2021 Bozhidar Batsov
+;; Copyright (C) 2019 Thomas Frössman
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -25,17 +25,19 @@
 (eval-when-compile
   (require 'solarized-palettes))
 
-(deftheme solarized-dark "The dark variant of the Solarized colour theme")
+(deftheme solarized-dark-high-contrast
+  "The dark variant of the Solarized colour theme with slightly higher text contrast")
 
-(solarized-with-color-variables 'dark 'solarized-dark
-  solarized-dark-color-palette-alist)
+(solarized-with-color-variables 'dark 'solarized-dark-high-contrast
+  solarized-dark-high-contrast-palette-alist)
 
-(provide-theme 'solarized-dark)
+(provide-theme 'solarized-dark-high-contrast)
 
-(provide 'solarized-dark-theme)
+
+(provide 'solarized-dark-high-contrast-theme)
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; End:
 
-;;; solarized-dark-theme.el ends here
+;;; solarized-dark-high-contrast-theme.el ends here
