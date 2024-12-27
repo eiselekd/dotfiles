@@ -165,7 +165,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
         (italic      (if solarized-italic 'italic 'unspecified)))
     (cond ((eq 'high solarized-contrast)
            (let ((orig-base3 base3))
-             (rotatef base01 base00 base0 base1 base2 base3)
+             (cl-rotatef base01 base00 base0 base1 base2 base3)
              (setf base3 orig-base3)))
           ((eq 'low solarized-contrast)
            (setf back      base02
@@ -321,7 +321,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (eshell-ls-archive (,@fg-magenta))
                 (eshell-ls-backup (,@fg-yellow))
                 (eshell-ls-clutter (,@fg-orange))
-                (eshell-ls-directory (,@fg-blue)) ; Directory
+                (eshell-ls-directory (,@fg-orange)) ; Directory
                 (eshell-ls-executable (,@fg-green))
                 (eshell-ls-missing (,@fg-red))
                 (eshell-ls-product (,@fg-yellow))
@@ -335,12 +335,12 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (font-lock-comment-face (,@fmt-ital ,@fg-base01)) ; Comment
                 (font-lock-constant-face (,@fmt-none ,@fg-cyan)) ; Constant
                 (font-lock-function-name-face ; Identifier
-                 (,@fmt-none ,@fg-blue))
+                 (,@fmt-none ,@fg-yellow))
                 (font-lock-keyword-face (,@fmt-none ,@fg-green)) ; Statement
                 (font-lock-string-face (,@fmt-none ,@fg-cyan)) ; Constant
                 (font-lock-type-face (,@fmt-none ,@fg-yellow)) ; Type
                 (font-lock-variable-name-face ; Identifier
-                 (,@fmt-none ,@fg-blue))
+                 (,@fmt-none ,@fg-yellow))
                 (font-lock-warning-face (,@fmt-bold ,@fg-red)) ; Error
                 (font-lock-doc-face (,@fmt-ital ,@fg-base01)) ; Comment
                 (font-lock-doc-string-face ; Comment (XEmacs-only)
@@ -351,7 +351,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (font-lock-preprocessor-face (,@fmt-none ,@fg-orange)) ; PreProc
                 (font-lock-reference-face (,@fmt-none ,@fg-cyan))
                 (font-lock-negation-char-face (,@fmt-none ,@fg-red))
-                (font-lock-other-type-face (,@fmt-ital ,@fg-blue))
+                (font-lock-other-type-face (,@fmt-ital ,@fg-yellow))
                 (font-lock-regexp-grouping-construct (,@fmt-none ,@fg-orange))
                 (font-lock-special-keyword-face (,@fmt-none ,@fg-red)) ; Special
                 (font-lock-exit-face (,@fmt-none ,@fg-red))
@@ -369,7 +369,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (org-done-kwd-face (,@fmt-bold ,@fg-green))
                 (org-project-kwd-face (,@fg-violet ,@bg-base03))
                 (org-waiting-kwd-face (,@fg-orange ,@bg-base03))
-                (org-someday-kwd-face (,@fg-blue ,@bg-base03))
+                (org-someday-kwd-face (,@fg-yellow ,@bg-base03))
                 (org-started-kwd-face (,@fg-yellow ,@bg-base03))
                 (org-cancelled-kwd-face (,@fg-green ,@bg-base03))
                 (org-delegated-kwd-face (,@fg-cyan ,@bg-base03))
@@ -383,7 +383,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (org-level-7 (:inherit outline-7))
                 (org-level-8 (:inherit outline-8))
                 (org-special-keyword (,@fmt-ital ,@fg-base01))
-                (org-drawer (,@fmt-bold ,@fg-blue))
+                (org-drawer (,@fmt-bold ,@fg-yellow))
                 (org-column (,@fmt-revr ,@fg-cyan))
                 (org-column-title (,@fmt-bold ,@fmt-revr))
                 (org-warning (,@fmt-bold ,@fg-red))
@@ -409,7 +409,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (org-block (,@fg-base01))
                 (org-verbatim (,@fmt-undr ,@fg-base01))
                 (org-clock-overlay (,@fmt-revr ,@bg-cyan ,@fg-base03))
-                (org-agenda-structure (,@fmt-bold ,@fg-blue))
+                (org-agenda-structure (,@fmt-bold ,@fg-yellow))
                 (org-scheduled (:weight bold :slant italic ,@fg-green))
                 (org-scheduled-today (:weight bold :slant italic ,@fg-green))
                 (org-agenda-dimmed-todo-face (,@fg-base00))
@@ -421,7 +421,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 ;; table
                 (table-cell (,@fmt-none ,@fg-base0 ,@bg-back))
                 ;; outline - pandocBlockQuoteLeader[1–6]
-                (outline-1 (,@fg-blue))
+                (outline-1 (,@fg-yellow))
                 (outline-2 (,@fg-cyan))
                 (outline-3 (,@fg-yellow))
                 (outline-4 (,@fg-red))
@@ -437,7 +437,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (speedbar-button-face
                  (,@fg-base1 ,@bg-base02
                              :box (:line-width 2 :style released-button)))
-                (speedbar-directory-face (,@fmt-none ,@fg-blue))
+                (speedbar-directory-face (,@fmt-none ,@fg-yellow))
                 (speedbar-file-face (,@fmt-none ,@fg-green))
                 ;; (speedbar-highlight-face (,@bg-base02))
                 (speedbar-highlight-face
@@ -446,7 +446,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 ;; (speedbar-selected-face (,@fmt-undr ,@fg-yellow))
                 (speedbar-selected-face (,@fmt-none ,@bg-base02 ,@fg-green))
                 (speedbar-separator-face (,@fmt-stnd))
-                (speedbar-tag-face (,@fmt-none ,@fg-blue))
+                (speedbar-tag-face (,@fmt-none ,@fg-yellow))
                 ;; widgets
                 (widget-field
                  (,@fg-base1 ,@bg-base02 :box (:line-width 1 :color base2)
@@ -459,7 +459,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (alert-high (,@fg-orange))
                 (alert-moderate (,@fg-yellow))
                 (alert-normal (,@fg-green))
-                (alert-low (,@fg-blue))
+                (alert-low (,@fg-yellow))
                 (alert-trivial (,@fg-violet))
                 ;; col-highlight -- Highlight the current column.
                 ;; http://www.emacswiki.org/emacs/col-highlight.el
@@ -574,7 +574,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 ;;helm
                 (helm-apt-deinstalled (,@fg-base01))
                 (helm-apt-installed (,@fg-green))
-                (helm-bookmark-addressbook (,@fg-blue))
+                (helm-bookmark-addressbook (,@fg-yellow))
                 (helm-bookmark-directory (:inherit helm-ff-directory))
                 (helm-bookmark-file (:inherit helm-ff-file))
                 (helm-bookmark-gnus (,@fg-cyan))
@@ -589,7 +589,7 @@ the \"Gen RGB\" column in solarized-definitions.el to improve them further."
                 (helm-candidate-number (,@fmt-bold ,@bg-base02 ,@fg-base1))
                 (helm-emms-playlist (,@fmt-none ,@fg-base01))
                 (helm-etags+-highlight-face (:inherit highlight))
-                (helm-ff-directory (,@bg-back ,@fg-blue))
+                (helm-ff-directory (,@bg-back ,@fg-yellow))
                 (helm-ff-executable (,@fmt-bold ,@fg-green))
                 (helm-ff-file (:inherit default))
                 (helm-ff-invalid-symlink (,@bg-base02 ,@fg-red))
