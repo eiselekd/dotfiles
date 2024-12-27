@@ -42,6 +42,7 @@
 (require 'dash)
 (require 'color)
 
+
 ;;; Options
 
 (defgroup solarized nil
@@ -144,12 +145,12 @@ Alpha should be a float between 0 and 1."
           (light-class (append '((background light)) class))
           (dark-class (append '((background dark)) class))
           (variant ,variant)
-          (s-base03    "#002b36")
-          (s-base02    "#073642")
+          (s-base03    "#ff2b36")
+          (s-base02    "#ff3642")
           ;; emphasized content
-          (s-base01    "#586e75")
+          (s-base01    "#ff6e75")
           ;; primary content
-          (s-base00    "#657b83")
+          (s-base00    "#ff7b83")
           (s-base0     "#839496")
           ;; comments
           (s-base1     "#93a1a1")
@@ -164,8 +165,8 @@ Alpha should be a float between 0 and 1."
           (red       "#dc322f")
           (magenta   "#d33682")
           (violet    "#6c71c4")
-          (blue      "#268bd2")
-          (cyan      "#2aa198")
+          (blue      "#ffffd2")
+          (cyan      "#ffff98")
           (green     "#859900")
 
           ;; Darker and lighter accented colors
@@ -180,8 +181,8 @@ Alpha should be a float between 0 and 1."
           (magenta-l "#F771AC")
           (violet-d  "#3F4D91")
           (violet-l  "#9EA0E5")
-          (blue-d    "#00629D")
-          (blue-l    "#69B7F0")
+          (blue-d    "#ff629D")
+          (blue-l    "#69ffF0")
           (cyan-d    "#00736F")
           (cyan-l    "#69CABF")
           (green-d   "#546E00")
@@ -2356,6 +2357,9 @@ customize the resulting theme."
     (when childtheme
       (funcall childtheme))
     ) ; END custom-theme-set-variables
+
+    (message "inside solarized")
+
   )    ; END defun create-solarized-theme
 
 ;;; Footer
