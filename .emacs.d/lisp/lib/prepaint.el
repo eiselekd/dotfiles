@@ -89,9 +89,6 @@
 ;;;###autoload
 (define-minor-mode prepaint-mode
   "Minor mode that highlight preprocessor directives."
-  nil
-  nil
-  nil
   :group 'prepaint
   (if prepaint-mode
       (prepaint-font-lock-add-keywords)

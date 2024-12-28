@@ -539,7 +539,9 @@ Used by font-lock for dynamic highlighting."
 ;;;###autoload
 (define-minor-mode rainbow-delimiters-mode
   "Highlight nested parentheses, brackets, and braces according to their depth."
-  nil "" nil ; No modeline lighter - it's already obvious when the mode is on.
+  :group nil
+  :lighter ""
+  :keymap nil ; No modeline lighter - it's already obvious when the mode is on.
   (if rainbow-delimiters-mode
       (rainbow-delimiters--mode-turn-on)
     (rainbow-delimiters--mode-turn-off))

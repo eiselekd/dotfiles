@@ -312,12 +312,14 @@
   (interactive)
   (message (format "[*] detected standard c mode"))
 
+  (utils/debug-keybind)
   (setq c-basic-offset 4
         c-indent-level 4
         c-default-style "bsd")
 
   (c-set-style "gnu")
 
+  (message (format "[*] set gdb key"))
   (require 'utils/shell.el)
 
   ;; start shell
@@ -456,7 +458,7 @@
 	      (when (require 'rainbow-delimiters)
 		(rainbow-delimiters-mode))
 	      (when (require 'which-func)
-		(which-func-mode 1))
+		(which-function-mode 1))
 
 	      (show-paren-mode)
 	      ;;(hs-org/minor-mode)
