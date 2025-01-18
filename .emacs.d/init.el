@@ -90,6 +90,8 @@
 (add-to-list 'load-path (expand-file-name "lib/irony-mode" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/company-irony" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/org-mode/lisp" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/org-roam" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib/emacsql" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/org-mode/contrib/lisp" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/latex-preview-pane" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib/hydra" *.emacs.d.lisp.dir*  ))
@@ -596,7 +598,9 @@
 
 ;;solarized-dark
 ;;(load-theme 'solarized-wombat-dark t)
-(load-theme 'solarized-dark-high-contrast t)
+;;(load-theme 'solarized-dark-high-contrast t)
+(load-theme 'wombat t)
+
 
 ;; ;;(setq active-theme 'light)
 ;; (setq active-theme 'dark)
@@ -748,9 +752,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(eglot utop merlin tuareg))
- '(safe-local-variable-values '((whitespace-line-column . 80)))
- '(warning-suppress-log-types '((org))))
+ '(package-selected-packages (quote (org-roam eglot utop merlin tuareg)))
+ '(safe-local-variable-values (quote ((whitespace-line-column . 80))))
+ '(warning-suppress-log-types (quote ((org)))))
 
 
 (setq vc-follow-symlinks 't)
@@ -824,3 +828,22 @@
 
 ;;(require 'loadhist)
 ;;(file-dependents (feature-file 'cl))
+(setq org-agenda-span 24
+      org-agenda-start-on-weekday nil
+      org-agenda-start-day "-3d")
+
+
+ (require 'package)
+ ;; (emacsql-sqlite "~/.emacs.d/org-roam.db")
+ (require 'org-roam)
+ (require 'emacsql-sqlite)
+ (global-set-key (kbd "C-c n l")  'org-roam-buffer-toggle)
+ (global-set-key (kbd "C-c n f") 'org-roam-node-find)
+ (global-set-key (kbd "C-c n g") 'org-roam-graph)
+ (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
+ (global-set-key (kbd "C-c n c") 'org-roam-capture)
+ (global-set-key (kbd "C-c n j") 'org-roam-dailies-capture-today)
+
+ (setq org-roam-directory (file-truename "~/git/org/"))
+ (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+ ;;(org-roam-db-autosync-mode)

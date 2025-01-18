@@ -57,8 +57,8 @@ myTerminal :: String
 myTerminal = do
   if os == "freebsd"
     then "xterm"
---    else "if which konsole > /dev/null ; then /usr/bin/konsole; else xterm; fi"
-    else "if which gnome-terminal > /dev/null ; then /usr/bin/gnome-terminal; else xterm; fi"
+    else "if which konsole > /dev/null ; then /usr/bin/konsole; else xterm; fi"
+--    else "if which gnome-terminal > /dev/null ; then /usr/bin/gnome-terminal; else xterm; fi"
 
 myBrowser :: String
 myBrowser = do

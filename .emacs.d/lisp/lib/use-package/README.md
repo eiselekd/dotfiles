@@ -1,9 +1,8 @@
 # `use-package`
 
 [![Join the chat at https://gitter.im/use-package/Lobby](https://badges.gitter.im/use-package/Lobby.svg)](https://gitter.im/use-package/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/jwiegley/use-package.svg?branch=master)](https://travis-ci.org/jwiegley/use-package)
-[![MELPA](http://melpa.milkbox.net/packages/use-package-badge.svg)](http://melpa.milkbox.net/#/use-package)
-[![MELPA Stable](https://stable.melpa.org/packages/use-package-badge.svg)](https://stable.melpa.org/#/use-package)
+[![Build Status](https://github.com/jwiegley/use-package/actions/workflows/test.yml/badge.svg)](https://github.com/jwiegley/use-package/actions)
+[![GNU ELPA](https://elpa.gnu.org/packages/use-package.svg)](https://elpa.gnu.org/packages/use-package.html)
 
 The `use-package` macro allows you to isolate package configuration in your
 `.emacs` file in a way that is both performance-oriented and, well, tidy.  I
@@ -11,17 +10,56 @@ created it because I have over 80 packages that I use in Emacs, and things
 were getting difficult to manage.  Yet with this utility my total load time is
 around 2 seconds, with no loss of functionality!
 
-Note that `use-package` is **not** a package manager! Although `use-package`
+**NOTE**: `use-package` is **not** a package manager! Although `use-package`
 does have the useful capability to interface with package managers (see
 [below](#package-installation)), its primary purpose is for the configuration
 and loading of packages.
 
-Notes for users upgrading to 2.x are located [at the bottom](#upgrading-to-2x).
-
+- [Installing use-package](#installing-use-package)
+- [Getting started](#getting-started)
+- [Key-binding](#key-binding)
+	+ [Binding to keymaps](#binding-to-keymaps)
+	+ [Binding within local keymaps](#binding-within-local-keymaps)
+- [Modes and interpreters](#modes-and-interpreters)
+- [Magic handlers](#magic-handlers)
+- [Hooks](#hooks)
+- [Package customization](#package-customization)
+  + [Customizing variables](#customizing-variables)
+  + [Customizing faces](#customizing-faces)
+- [Notes about lazy loading](#notes-about-lazy-loading)
+- [Information about package loads](#information-about-package-loads)
+- [Conditional loading](#conditional-loading)
+	+ [Conditional loading before :preface](#conditional-loading-before-preface)
+	+ [Loading packages in a sequence](#loading-packages-in-sequence)
+	+ [Prevent loading if dependencies are missing](#prevent-loading-if-dependencies-are-missing)
+- [Byte compiling your .emacs](#byte-compiling-your-emacs)
+	+ [Prevent a package from loading at compile-time](#prevent-a-package-from-loading-at-compile-time)
+- [Extending the load-path](#extending-the-load-path)
+- [Catching errors during use-package expansion](#catching-errors-during-use-package-expansion)
+- [Diminishing and delighting minor modes](#diminishing-and-delighting-minor-modes)
+- [Package installation](#package-installation)
+	+ [Usage with other package managers](#usage-with-other-package-managers)
+- [Gathering Statistics](#gathering-statistics)
+- [Keyword Extensions](#keyword-extensions)
+	+ [use-package-ensure-system-package](#use-package-ensure-system-package)
+	+ [use-package-chords](#use-package-chords)
+	+ [How to create an extension](#how-to-create-an-extension)
+		+ [First step: Add the keyword](#first-step-add-the-keyword)
+		+ [Second step: Create a normalizer](#second-step-create-a-normalizer)
+		+ [Third step: Create a handler](#third-step-create-a-handler)
+		+ [Fourth step: Test it out](#fourth-step-test-it-out)
+- [Some timing results](#some-timing-results)
+* [Upgrading to 2.x](#upgrading-to-2x)
+	+ [Semantics of :init is now consistent](#semantics-of-init-is-now-consistent)
+	+ [:idle has been removed](#idle-has-been-removed)
+	+ [:defer now accepts an optional numeric argument](#defer-now-accepts-an-optional-numeric-argument)
+	+ [Add :preface, occurring before everything except :disabled](#add-preface-occurring-before-everything-except-disabled)
+	+ [Add :functions, for declaring functions to the byte-compiler](#add-functions-for-declaring-functions-to-the-byte-compiler)
+	+ [use-package.el is no longer needed at runtime](#use-packageel-is-no-longer-needed-at-runtime)
 ## Installing use-package
 
 Either clone from this GitHub repository or install from
-[MELPA](http://melpa.milkbox.net/) (recommended).
+[GNU ELPA](https://elpa.gnu.org/) (recommended).
 
 ## Getting started
 
@@ -82,6 +120,13 @@ and within the `isearch-mode-map` (see next section).  When the package is
 actually loaded (by using one of these commands), `moccur-edit` is also
 loaded, to allow editing of the `moccur` buffer.
 
+If you autoload non-interactive function, please use `:autoload`.
+
+```elisp
+(use-package org-crypt
+  :autoload org-crypt-use-before-save-magic)
+```
+
 ## Key-binding
 
 Another common thing to do when loading a module is to bind a key to primary
@@ -121,9 +166,23 @@ The `:bind` keyword takes either a cons or a list of conses:
          ("M-o w" . highlight-phrase)))
 ```
 
-The `:commands` keyword likewise takes either a symbol or a list of symbols.
+Alternatively, the command name may be replaced with a cons `(desc . command)`,
+where `desc` is a string describing `command`, which is the name of a command
+to bind to:
 
-NOTE: Inside strings, special keys like `tab` or `F1`-`Fn` have to be written inside angle brackets, e.g. `"C-<up>"`.
+```elisp
+(use-package avy
+  :bind ("C-:" ("Jump to char" . avy-goto-char)
+         "M-g f" ("Jump to line" . avy-goto-line)))
+```
+
+These descriptions can be used by other code that deals with key bindings.
+For example, the GNU ELPA package which-key displays them when showing key
+bindings, instead of the plain command names.
+
+The `:commands` keyword takes either a symbol or a list of symbols.
+
+**NOTE**: inside strings, special keys like `tab` or `F1`-`Fn` have to be written inside angle brackets, e.g. `"C-<up>"`.
 Standalone special keys (and some combinations) can be written in square brackets, e.g. `[tab]` instead of `"<tab>"`. The syntax for the keybindings is similar to
 the "kbd" syntax: see [https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-Rebinding.html](https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-Rebinding.html)
 for more information.
@@ -185,7 +244,7 @@ supports this with a `:map` modifier, taking the local keymap to bind to:
 
 The effect of this statement is to wait until `helm` has loaded, and then to
 bind the key `C-c h` to `helm-execute-persistent-action` within Helm's local
-keymap, `helm-mode-map`.
+keymap, `helm-command-map`.
 
 Multiple uses of `:map` may be specified. Any binding occurring before the
 first use of `:map` are applied to the global keymap:
@@ -201,6 +260,87 @@ first use of `:map` are applied to the global keymap:
          ("M-p" . term-send-up)
          ("M-n" . term-send-down)))
 ```
+### Binding to repeat-maps
+
+A special case of binding within a local keymap is when that keymap is
+used by `repeat-mode`. These keymaps are usually defined specifically
+for this. Using the `:repeat-map` keyword, and passing it a name for
+the map it defines, will bind all following keys inside that map, and
+(by default) set the `repeat-map` property of each bound command to
+that map.
+
+
+This creates a keymap called `git-gutter+-repeat-map`, makes four
+bindings in it as above, then sets the `repeat-map` property of each
+bound command (`git-gutter+-next-hunk` `git-gutter+-previous-hunk`,
+`git-gutter+-stage-hunks` and `git-gutter+-revert-hunk`) to that
+keymap.
+
+``` elisp
+(use-package git-gutter+
+  :bind
+  (:repeat-map git-gutter+-repeat-map
+   ("n" . git-gutter+-next-hunk)
+   ("p" . git-gutter+-previous-hunk)
+   ("s" . git-gutter+-stage-hunks)
+   ("r" . git-gutter+-revert-hunk)))
+```
+
+Specifying `:exit` inside the scope of `:repeat-map` will prevent the
+`repeat-map` property being set, so that the command can be used from
+within the repeat map, but after it using it the repeat map will no
+longer be available. This is useful for commands often used at the end
+of a series of repeated commands:
+
+``` elisp
+(use-package git-gutter+
+  :bind
+  (:repeat-map my/git-gutter+-repeat-map
+   ("n" . git-gutter+-next-hunk)
+   ("p" . git-gutter+-previous-hunk)
+   ("s" . git-gutter+-stage-hunks)
+   ("r" . git-gutter+-revert-hunk)
+   :exit
+   ("c" . magit-commit-create)
+   ("C" . magit-commit)
+   ("b" . magit-blame)))
+```
+
+Specifying `:continue` *forces* setting the `repeat-map` property
+(just like *not* specifying `:exit`), so these two snippets are
+equivalent:
+
+``` elisp
+(use-package git-gutter+
+  :bind
+  (:repeat-map my/git-gutter+-repeat-map
+   ("n" . git-gutter+-next-hunk)
+   ("p" . git-gutter+-previous-hunk)
+   ("s" . git-gutter+-stage-hunks)
+   ("r" . git-gutter+-revert-hunk)
+   :exit
+   ("c" . magit-commit-create)
+   ("C" . magit-commit)
+   ("b" . magit-blame)))
+```
+
+``` elisp
+(use-package git-gutter+
+  :bind
+  (:repeat-map my/git-gutter+-repeat-map
+   :exit
+   ("c" . magit-commit-create)
+   ("C" . magit-commit)
+   ("b" . magit-blame)
+   :continue
+   ("n" . git-gutter+-next-hunk)
+   ("p" . git-gutter+-previous-hunk)
+   ("s" . git-gutter+-stage-hunks)
+   ("r" . git-gutter+-revert-hunk)))
+```
+   
+
+
 
 ## Modes and interpreters
 
@@ -252,7 +392,7 @@ that `:magic-fallback` has a lower priority than `:mode`. For example:
   :load-path "site-lisp/pdf-tools/lisp"
   :magic ("%PDF" . pdf-view-mode)
   :config
-  (pdf-tools-install))
+  (pdf-tools-install :no-query))
 ```
 
 This registers an autoloaded command for `pdf-view-mode`, defers loading of
@@ -261,42 +401,59 @@ string `"%PDF"`.
 
 ## Hooks
 
-The `:hook` keyword allows adding functions onto hooks, here only the basename
-of the hook is required. Thus, all of the following are equivalent:
+The `:hook` keyword allows adding functions onto package hooks. The
+following are equivalent:
 
 ``` elisp
-(use-package ace-jump-mode
-  :hook prog-mode)
+(use-package company
+  :hook (prog-mode . company-mode))
 
-(use-package ace-jump-mode
-  :hook (prog-mode . ace-jump-mode))
-
-(use-package ace-jump-mode
-  :commands ace-jump-mode
+(use-package company
+  :commands company-mode
   :init
-  (add-hook 'prog-mode-hook #'ace-jump-mode))
+  (add-hook 'prog-mode-hook #'company-mode))
 ```
 
-And likewise, when multiple hooks should be applied, the following are also
-equivalent:
+And likewise, when multiple hooks should be applied, all of the
+following are also equivalent:
 
 ``` elisp
-(use-package ace-jump-mode
-  :hook (prog-mode text-mode))
+(use-package company
+  :hook ((prog-mode text-mode) . company-mode))
 
-(use-package ace-jump-mode
-  :hook ((prog-mode text-mode) . ace-jump-mode))
+(use-package company
+  :hook ((prog-mode . company-mode)
+         (text-mode . company-mode)))
 
-(use-package ace-jump-mode
-  :hook ((prog-mode . ace-jump-mode)
-         (text-mode . ace-jump-mode)))
+(use-package company
+  :hook (prog-mode . company-mode)
+  :hook (text-mode . company-mode))
 
-(use-package ace-jump-mode
-  :commands ace-jump-mode
+(use-package company
+  :hook
+  (prog-mode . company-mode)
+  (text-mode . company-mode))
+
+(use-package company
+  :commands company-mode
   :init
-  (add-hook 'prog-mode-hook #'ace-jump-mode)
-  (add-hook 'text-mode-hook #'ace-jump-mode))
+  (add-hook 'prog-mode-hook #'company-mode)
+  (add-hook 'text-mode-hook #'company-mode))
 ```
+
+When using `:hook`, omit the "-hook" suffix if you specify the hook
+explicitly, as this is appended by default. For example, the following
+code will not work as it attempts to add to the `prog-mode-hook-hook`
+which does not exist:
+
+``` elisp
+;; DOES NOT WORK
+(use-package ace-jump-mode
+  :hook (prog-mode-hook . ace-jump-mode))
+```
+
+If you do not like this behaviour, set `use-package-hook-name-suffix`
+to nil. By default the value of this variable is "-hook".
 
 The use of `:hook`, as with `:bind`, `:mode`, `:interpreter`, etc., causes the
 functions being hooked to implicitly be read as `:commands` (meaning they will
@@ -318,11 +475,15 @@ The `:custom` keyword allows customization of package custom variables.
 
 The documentation string is not mandatory.
 
-**NOTE**: These are only for people who wish to keep customizations with their
+**NOTE**: these are only for people who wish to keep customizations with their
 accompanying use-package declarations. Functionally, the only benefit over
 using `setq` in a `:config` block is that customizations might execute code
-when values are assigned. If you currently use `M-x customize-option` and save
-to a settings file, you do not want to use this option.
+when values are assigned.
+
+**NOTE**: The customized values are **not** saved in the Emacs `custom-file`.
+Thus you should either use the `:custom` option **or** you should use `M-x
+customize-option` which will save customized values in the Emacs `custom-file`.
+Do not use both.
 
 ### Customizing faces
 
@@ -332,19 +493,41 @@ The `:custom-face` keyword allows customization of package custom faces.
 (use-package eruby-mode
   :custom-face
   (eruby-standard-face ((t (:slant italic)))))
+
+(use-package example
+  :custom-face
+  (example-1-face ((t (:foreground "LightPink"))))
+  (example-2-face ((t (:foreground "LightGreen"))) face-defspec-spec))
+
+(use-package zenburn-theme
+  :preface
+  (setq my/zenburn-colors-alist
+        '((fg . "#DCDCCC") (bg . "#1C1C1C") (cyan . "#93E0E3")))
+  :custom-face
+  (region ((t (:background ,(alist-get my/zenburn-colors-alist 'cyan)))))
+  :config
+  (load-theme 'zenburn t))
 ```
 
 ## Notes about lazy loading
 
-In almost all cases you don't need to manually specify `:defer t`.  This is
-implied whenever `:bind` or `:mode` or `:interpreter` is used.  Typically, you
-only need to specify `:defer` if you know for a fact that some other package
-will do something to cause your package to load at the appropriate time, and
-thus you would like to defer loading even though use-package isn't creating
-any autoloads for you.
+The keywords `:commands`, et al, provide "triggers" that cause a package to be
+loaded when certain events occur. However, if `use-package` cannot determine
+that any trigger has been declared, it will load the package immediately (when
+Emacs is starting up) unless `:defer t` is given. The presence of triggers can
+be overridden using `:demand t` to force immediately loading anyway. For
+example, `:hook` represents a trigger that fires when the specified hook is
+run.
 
-You can override package deferral with the `:demand` keyword.  Thus, even if
-you use `:bind`, using `:demand` will force loading to occur immediately and
+In almost all cases you don't need to manually specify `:defer t`, because
+this is implied whenever `:bind` or `:mode` or `:interpreter` are used.
+Typically, you only need to specify `:defer` if you know for a fact that some
+other package will do something to cause your package to load at the
+appropriate time, and thus you would like to defer loading even though
+`use-package` has not created any autoloads for you.
+
+You can override package deferral with the `:demand` keyword. Thus, even if
+you use `:bind`, adding `:demand` will force loading to occur immediately and
 not establish an autoload for the bound key.
 
 ## Information about package loads
@@ -400,8 +583,14 @@ or stop loading something you're not using at the present time:
 When byte-compiling your `.emacs` file, disabled declarations are omitted
 from the output entirely, to accelerate startup times.
 
-Note that `:when` is provided as an alias for `:if`, and `:unless foo` means
-the same thing as `:if (not foo)`. For example, the following will also stop
+**NOTE**: `:when` is provided as an alias for `:if`, and `:unless foo` means
+the same thing as `:if (not foo)`.
+
+### Conditional loading before :preface
+
+If you need to conditionalize a use-package form so that the condition occurs
+before even the `:preface` is executed, simply use `when` around the
+use-package form itself.  For example, the following will also stop
 `:ensure` from happening on Mac systems:
 
 ``` elisp
@@ -411,12 +600,6 @@ the same thing as `:if (not foo)`. For example, the following will also stop
     :config
     (exec-path-from-shell-initialize)))
 ```
-
-### Conditional loading before :preface
-
-If you need to conditionalize a use-package form so that the condition occurs
-before even the `:preface` is executed, simply use `when` around the
-use-package form itself:
 
 ### Loading packages in sequence
 
@@ -458,9 +641,9 @@ When you nest selectors, such as `(:any (:all foo bar) (:all baz quux))`, it
 means that the package will be loaded when either both `foo` and `bar` have
 been loaded, or both `baz` and `quux` have been loaded.
 
-Note: Pay attention if you set `use-package-always-defer` to t, and also use
+**NOTE**: pay attention if you set `use-package-always-defer` to t, and also use
 the `:after` keyword, as you will need to specify how the declared package is
-to be loaded: e.g., by some `:bind`. If you're not using one of tho mechanisms
+to be loaded: e.g., by some `:bind`. If you're not using one of the mechanisms
 that registers autoloads, such as `:bind` or `:hook`, and your package manager
 does not provide autoloads, it's possible that without adding `:demand t` to
 those declarations, your package will never be loaded.
@@ -471,7 +654,7 @@ While the `:after` keyword delays loading until the dependencies are loaded,
 the somewhat simpler `:requires` keyword simply never loads the package if the
 dependencies are not available at the time the `use-package` declaration is
 encountered. By "available" in this context it means that `foo` is available
-of `(featurep 'foo)` evaulates to a non-nil value. For example:
+if `(featurep 'foo)` evaluates to a non-nil value. For example:
 
 ``` elisp
 (use-package abbrev
@@ -557,7 +740,7 @@ strings.  If the path is relative, it is expanded within
   :commands R)
 ```
 
-Note that when using a symbol or a function to provide a dynamically generated
+**NOTE**: when using a symbol or a function to provide a dynamically generated
 list of paths, you must inform the byte-compiler of this definition so the
 value is available at byte-compilation time.  This is done by using the
 special form `eval-and-compile` (as opposed to `eval-when-compile`).  Further,
@@ -669,8 +852,7 @@ You can use `use-package` to load packages from ELPA with `package.el`. This
 is particularly useful if you share your `.emacs` among several machines; the
 relevant packages are downloaded automatically once declared in your `.emacs`.
 The `:ensure` keyword causes the package(s) to be installed automatically if
-not already present on your system (set `(setq use-package-always-ensure t)`
-if you wish this behavior to be global for all packages):
+not already present on your system:
 
 ``` elisp
 (use-package magit
@@ -685,7 +867,15 @@ If you need to install a different package from the one named by
   :ensure auctex)
 ```
 
-Note that `:ensure` will install a package if it is not already installed, but
+Enable `use-package-always-ensure` if you wish this behavior to be global
+for all packages:
+
+``` elisp
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
+```
+
+**NOTE**: `:ensure` will install a package if it is not already installed, but
 it does not keep it up-to-date. If you want to keep your packages updated
 automatically, one option is to use
 [auto-package-update](https://github.com/rranelli/auto-package-update.el),
@@ -702,7 +892,7 @@ like
 Lastly, when running on Emacs 24.4 or later, use-package can pin a package to
 a specific archive, allowing you to mix and match packages from different
 archives.  The primary use-case for this is preferring packages from the
-`melpa-stable` and `gnu` archives, but using specific packages from `melpa`
+`gnu` and `melpa-stable` archives, but using specific packages from `melpa`
 when you need to track newer versions than what is available in the `stable`
 archives is also a valid use-case.
 
@@ -729,7 +919,7 @@ Example:
 ``` elisp
 (use-package company
   :ensure t
-  :pin melpa-stable)
+  :pin gnu)
 
 (use-package evil
   :ensure t)
@@ -804,7 +994,7 @@ Here’s an example of usage:
 This will expect a global binary package to exist called `rg`. If it
 does not, it will use your system package manager (using the package
 [`system-packages`](https://gitlab.com/jabranham/system-packages)) to
-attempt an install of a binary by the same name asyncronously. For
+attempt an install of a binary by the same name asynchronously. For
 example, for most `macOS` users this would call: `brew install rg`.
 
 If the package is named differently than the binary, you can use a
@@ -1027,7 +1217,7 @@ timer to fire, this is the sequence of events:
 It's possible that the user could use `featurep` in their idle to test for
 this case, but that's a subtlety I'd rather avoid.
 
-## :defer now accepts an optional integer argument
+## :defer now accepts an optional numeric argument
 
 `:defer [N]` causes the package to be loaded -- if it has not already been --
 after `N` seconds of idle time.
@@ -1049,7 +1239,7 @@ will 1) make the byte-compiler happy (it won't complain about functions whose
 definitions are unknown because you have them within a guard block), and 2)
 allow you to define code that can be used in an `:if` test.
 
-Note that whatever is specified within `:preface` is evaluated both at load
+**NOTE**: whatever is specified within `:preface` is evaluated both at load
 time and at byte-compilation time, in order to ensure that definitions are
 seen by both the Lisp evaluator and the byte-compiler, so you should avoid
 having any side-effects in your preface, and restrict it merely to symbol

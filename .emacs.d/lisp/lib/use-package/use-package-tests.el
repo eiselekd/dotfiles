@@ -1,28 +1,25 @@
 ;;; use-package-tests.el --- Tests for use-package.el  -*- lexical-binding: t; -*-
 
-;; This program is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU General Public License as
-;; published by the Free Software Foundation; either version 3, or (at
-;; your option) any later version.
+;; Copyright (C) 2014-2022 Free Software Foundation, Inc.
 
-;; This program is distributed in the hope that it will be useful, but
-;; WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-;; General Public License for more details.
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; GNU Emacs is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-;; Boston, MA 02111-1307, USA.
-
-;;; Commentary:
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
-;;
-
-
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'ert)
 (require 'use-package)
 
@@ -99,20 +96,6 @@
 
 (bind-key "C-c C-u" #'fix-expansion emacs-lisp-mode-map)
 
-(eval-when-compile
-  (defun plist-delete (plist property)
-    "Delete PROPERTY from PLIST"
-    (let (p)
-      (while plist
-        (if (not (eq property (car plist)))
-            (setq p (plist-put p (car plist) (nth 1 plist))))
-        (setq plist (cddr plist)))
-      p))
-
-  ;; `cl-flet' does not work for some of the mocking we do below, while `flet'
-  ;; always does.
-  (setplist 'flet (plist-delete (symbol-plist 'flet) 'byte-obsolete-info)))
-
 (ert-deftest use-package-test-recognize-function ()
   (should (use-package-recognize-function nil t))
   (should-not (use-package-recognize-function nil))
@@ -162,7 +145,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t)))
+                (unless (featurep 'foo)
+                  (load "foo" nil t))))
           (t))
         (require 'foo nil nil)))))
 
@@ -182,7 +166,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t)))
+                (unless (featurep 'foo)
+                  (load "foo" nil t))))
           (preface))
         (init)
         (require 'foo nil nil)
@@ -206,7 +191,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t)))
+                (unless (featurep 'foo)
+                  (load "foo" nil t))))
           (preface))
         (init)
         (eval-after-load 'foo
@@ -229,9 +215,9 @@
       (require 'foo nil nil))))
 
 (ert-deftest use-package-test-normalize/:ensure ()
-  (flet ((norm (&rest args)
-               (apply #'use-package-normalize/:ensure
-                      'foopkg :ensure args)))
+  (cl-flet ((norm (&rest args)
+                  (apply #'use-package-normalize/:ensure
+                         'foopkg :ensure args)))
     (should (equal (norm '(t)) '(t)))
     (should (equal (norm '(nil)) '(nil)))
     (should (equal (norm '(sym)) '(sym)))
@@ -330,11 +316,11 @@
 
 (ert-deftest use-package-test/:ensure-11 ()
   (let (tried-to-install)
-    (flet ((use-package-ensure-elpa
-            (name ensure state &optional no-refresh)
-            (when ensure
-              (setq tried-to-install name)))
-           (require (&rest ignore)))
+    (cl-letf (((symbol-function #'use-package-ensure-elpa)
+               (lambda (name ensure state &optional no-refresh)
+                 (when ensure
+                   (setq tried-to-install name))))
+              ((symbol-function #'require) #'ignore))
       (use-package foo :ensure t)
       (should (eq tried-to-install 'foo)))))
 
@@ -453,7 +439,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t))))
+                (unless (featurep 'foo)
+                  (load "foo" nil t)))))
         (require 'foo nil nil)))))
 
 (ert-deftest use-package-test/:requires-3 ()
@@ -470,7 +457,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (require 'foo nil nil)))))
 
 (ert-deftest use-package-test/:load-path-1 ()
@@ -499,7 +487,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (require 'foo nil nil)))))
 
 (ert-deftest use-package-test/:load-path-3 ()
@@ -586,7 +575,7 @@
 
 (ert-deftest use-package-test/:bind-1 ()
   (match-expansion
-   (use-package foo :bind ("C-k" . key1) ("C-u" . key2))
+   (use-package foo :bind ("C-k" . key1) ("C-u" ("Key 2" . key2)))
    `(progn
       (unless
           (fboundp 'key1)
@@ -596,11 +585,11 @@
         (autoload #'key2 "foo" nil t))
       (bind-keys :package foo
                  ("C-k" . key1)
-                 ("C-u" . key2)))))
+                 ("C-u" "Key 2" . key2)))))
 
 (ert-deftest use-package-test/:bind-2 ()
   (match-expansion
-   (use-package foo :bind (("C-k" . key1) ("C-u" . key2)))
+   (use-package foo :bind (("C-k" . key1) ("C-u" ("Key 2" . key2))))
    `(progn
       (unless (fboundp 'key1)
         (autoload #'key1 "foo" nil t))
@@ -608,7 +597,7 @@
         (autoload #'key2 "foo" nil t))
       (bind-keys :package foo
                  ("C-k" . key1)
-                 ("C-u" . key2)))))
+                 ("C-u" "Key 2" . key2)))))
 
 (ert-deftest use-package-test/:bind-3 ()
   (match-expansion
@@ -731,9 +720,9 @@
       (add-to-list 'interpreter-mode-alist '("interp" . fun)))))
 
 (ert-deftest use-package-test-normalize/:mode ()
-  (flet ((norm (&rest args)
-               (apply #'use-package-normalize/:mode
-                      'foopkg :mode args)))
+  (cl-flet ((norm (&rest args)
+                  (apply #'use-package-normalize/:mode
+                         'foopkg :mode args)))
     (should (equal (norm '(".foo"))
                    '((".foo" . foopkg))))
     (should (equal (norm '(".foo" ".bar"))
@@ -816,7 +805,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (unless (fboundp 'bar)
           (autoload #'bar "foo" nil t))
         (eval-when-compile
@@ -871,7 +861,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load gnus-harvest: %S" nil
-                                 (load "gnus-harvest" nil t))))
+                                 (unless (featurep 'gnus-harvest)
+                                   (load "gnus-harvest" nil t)))))
         (eval-when-compile
           (declare-function gnus-harvest-install "gnus-harvest"))
         (require 'gnus-harvest nil nil)
@@ -880,6 +871,12 @@
             (gnus-harvest-install 'message-x)
           (gnus-harvest-install))
         t))))
+
+(ert-deftest use-package-test/:autoload-1 ()
+  (match-expansion
+   (use-package foo :autoload bar)
+   `(unless (fboundp 'bar)
+      (autoload #'bar "foo"))))
 
 (ert-deftest use-package-test/:defines-1 ()
   (match-expansion
@@ -896,7 +893,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t))))
+                (unless (featurep 'foo)
+                  (load "foo" nil t)))))
         (require 'foo nil nil)))))
 
 (ert-deftest use-package-test/:functions-1 ()
@@ -914,7 +912,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t))))
+                (unless (featurep 'foo)
+                  (load "foo" nil t)))))
         (require 'foo nil nil)))))
 
 (ert-deftest use-package-test/:functions-3 ()
@@ -930,7 +929,8 @@
         (declare-function bar "foo")
         (eval-when-compile
           (with-demoted-errors "Cannot load foo: %S" nil
-                               (load "foo" nil t)))))))
+                               (unless (featurep 'foo)
+                                 (load "foo" nil t))))))))
 
 (ert-deftest use-package-test/:functions-5 ()
   (let ((byte-compile-current-file t))
@@ -942,7 +942,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t))))
+                (unless (featurep 'foo)
+                  (load "foo" nil t)))))
         (eval-after-load 'foo
           '(progn
              (config)
@@ -961,7 +962,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (require 'foo nil nil)))))
 
 (ert-deftest use-package-test/:defer-3 ()
@@ -976,14 +978,17 @@
      `(eval-and-compile
         (eval-when-compile
           (with-demoted-errors "Cannot load foo: %S" nil
-                               (load "foo" nil t)))))))
+                               (unless (featurep 'foo)
+                                 (load "foo" nil t))))))))
 
 (ert-deftest use-package-test-normalize/:hook ()
-  (flet ((norm (&rest args)
-               (apply #'use-package-normalize/:hook
-                      'foopkg :hook args)))
+  (cl-flet ((norm (&rest args)
+                  (apply #'use-package-normalize/:hook
+                         'foopkg :hook args)))
     (should-error (norm nil))
     (should (equal (norm '(bar))
+                   '((bar . foopkg))))
+    (should (equal (norm '((bar . foopkg)))
                    '((bar . foopkg))))
     (should (equal (norm '((bar . baz)))
                    '((bar . baz))))
@@ -1009,7 +1014,8 @@
           (eval-when-compile
             (with-demoted-errors
                 "Cannot load foo: %S" nil
-                (load "foo" nil t))))
+                (unless (featurep 'foo)
+                  (load "foo" nil t)))))
         (unless
             (fboundp 'key)
           (autoload #'key "foo" nil t))
@@ -1102,9 +1108,9 @@
            (add-hook 'emacs-lisp-mode-hook #'(lambda nil (function))))))))
 
 (ert-deftest use-package-test-normalize/:custom ()
-  (flet ((norm (&rest args)
-               (apply #'use-package-normalize/:custom
-                      'foopkg :custom args)))
+  (cl-flet ((norm (&rest args)
+                  (apply #'use-package-normalize/:custom
+                         'foopkg :custom args)))
     (should-error (norm nil))
     (should-error (norm '(bar)))
     ;; (should-error (norm '((foo bar baz quux))))
@@ -1114,18 +1120,60 @@
     ;;                '((foo bar baz))))
     ))
 
+
 (ert-deftest use-package-test/:custom-1 ()
   (match-expansion
    (use-package foo :custom (foo bar))
    `(progn
-      (customize-set-variable 'foo bar "Customized with use-package foo")
+      (let
+          ((custom--inhibit-theme-enable nil))
+        (unless (memq 'use-package custom-known-themes)
+          (deftheme use-package)
+          (enable-theme 'use-package)
+          (setq custom-enabled-themes (remq 'use-package custom-enabled-themes)))
+        (custom-theme-set-variables 'use-package
+                                    '(foo bar nil nil "Customized with use-package foo")))
+      (require 'foo nil nil))))
+
+(ert-deftest use-package-test/:custom-with-comment1 ()
+  (match-expansion
+   (use-package foo :custom (foo bar "commented"))
+   `(progn
+      (let
+          ((custom--inhibit-theme-enable nil))
+        (unless (memq 'use-package custom-known-themes)
+          (deftheme use-package)
+          (enable-theme 'use-package)
+          (setq custom-enabled-themes (remq 'use-package custom-enabled-themes)))
+        (custom-theme-set-variables 'use-package
+                                    '(foo bar nil nil "commented")))
       (require 'foo nil nil))))
 
 (ert-deftest use-package-test/:custom-face-1 ()
   (match-expansion
    (use-package foo :custom-face (foo ((t (:background "#e4edfc")))))
    `(progn
-      (custom-set-faces '(foo ((t (:background "#e4edfc")))))
+      (apply #'face-spec-set (backquote (foo ((t (:background "#e4edfc"))))))
+      (require 'foo nil nil))))
+
+(ert-deftest use-package-test/:custom-face-2 ()
+  (match-expansion
+   (use-package example
+     :custom-face
+     (example-1-face ((t (:foreground "LightPink"))))
+     (example-2-face ((t (:foreground "LightGreen")))))
+   `(progn
+      (apply #'face-spec-set
+             (backquote (example-1-face ((t (:foreground "LightPink"))))))
+      (apply #'face-spec-set
+             (backquote (example-2-face ((t (:foreground "LightGreen"))))))
+      (require 'example nil nil))))
+
+(ert-deftest use-package-test/:custom-face-3 ()
+  (match-expansion
+   (use-package foo :custom-face (foo ((t (:background "#e4edfc"))) face-defspec-spec))
+   `(progn
+      (apply #'face-spec-set (backquote (foo ((t (:background "#e4edfc"))) face-defspec-spec)))
       (require 'foo nil nil))))
 
 (ert-deftest use-package-test/:init-1 ()
@@ -1143,7 +1191,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (init)
         (require 'foo nil nil)))))
 
@@ -1190,7 +1239,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (eval-after-load 'bar
           '(require 'foo nil nil))))))
 
@@ -1333,7 +1383,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (require 'foo nil nil)))))
 
 (ert-deftest use-package-test/:demand-3 ()
@@ -1352,7 +1403,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (require 'foo nil nil)
         (config)
         t))))
@@ -1372,7 +1424,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (eval-after-load 'bar
           '(require 'foo nil nil))))))
 
@@ -1425,7 +1478,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (require 'foo nil nil)
         (config)
         t))))
@@ -1446,7 +1500,8 @@
         (eval-and-compile
           (eval-when-compile
             (with-demoted-errors "Cannot load foo: %S" nil
-                                 (load "foo" nil t))))
+                                 (unless (featurep 'foo)
+                                   (load "foo" nil t)))))
         (eval-after-load 'foo
           '(progn
              (config)
@@ -1743,7 +1798,7 @@
    `(bind-key "C-c C-r" #'org-ref-helm-insert-cite-link override-global-map nil)))
 
 (ert-deftest use-package-test/560 ()
-  (flet ((executable-find (name)))
+  (cl-letf (((symbol-function #'executable-find) #'ignore))
     (let (notmuch-command)
       (match-expansion
        (use-package notmuch
@@ -1854,7 +1909,8 @@
         (use-package-expand-minimally t)
         debug-on-error
         warnings)
-    (flet ((display-warning (_ msg _) (push msg warnings)))
+    (cl-letf (((symbol-function #'display-warning)
+               (lambda (_ msg _) (push msg warnings))))
       (progn
         (macroexpand-1
          '(use-package ediff :defer t (setq my-var t)))
@@ -1883,8 +1939,19 @@
       (define-prefix-command 'my/map)
       (bind-key "<f1>" 'my/map nil nil))))
 
+
+(ert-deftest bind-key/845 ()
+  (defvar test-map (make-keymap))
+  (bind-key "<f1>" 'ignore 'test-map)
+  (should (eq (lookup-key test-map (kbd "<f1>")) 'ignore))
+  (let ((binding (cl-find "<f1>" personal-keybindings :test 'string= :key 'caar)))
+    (message "test-map %s" test-map)
+    (message "binding %s" binding)
+    (should (eq (cdar binding) 'test-map))
+    (should (eq (nth 1 binding) 'ignore))
+    (should (eq (nth 2 binding) nil))))
+
 ;; Local Variables:
-;; indent-tabs-mode: nil
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
 ;; End:
