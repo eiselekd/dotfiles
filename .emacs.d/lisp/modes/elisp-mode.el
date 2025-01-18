@@ -30,7 +30,8 @@
 	      ;;(setq orgstruct-heading-prefix-regexp ";;")
 
 	      (when (require 'which-func)
-		(which-func-mode 1))
+		(if (fboundp 'which-func-mode)
+		    (which-func-mode 1)))
 
 	      )))
 

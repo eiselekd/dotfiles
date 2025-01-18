@@ -1,4 +1,3 @@
-
 ;;* Init
 
 ;;; Local Variables:
@@ -596,8 +595,8 @@
 
 
 ;;solarized-dark
-(load-theme 'solarized-wombat-dark t)
-
+;;(load-theme 'solarized-wombat-dark t)
+(load-theme 'solarized-dark-high-contrast t)
 
 ;; ;;(setq active-theme 'light)
 ;; (setq active-theme 'dark)
