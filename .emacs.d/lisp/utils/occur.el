@@ -2,7 +2,7 @@
 ;; http://home.thep.lu.se/~karlf/emacs.html#sec-1-2-6
 
 (eval-when-compile
-  (require 'cl))
+  (require 'cl-lib))
 
 (defun get-buffers-matching-mode (mode)
   "Returns a list of buffers where their major-mode is equal to MODE"
