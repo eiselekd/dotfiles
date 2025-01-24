@@ -78,7 +78,8 @@ workinghours sat - sun 8:00 - 12:00
 	      (global-set-key (kbd "<f8>")  'org-html-export-to-html)
 
 	      (when (require 'which-func)
-		(which-func-mode 1))
+		(if (fboundp 'which-func-mode)
+		    (which-func-mode 1)))
 
 	      (when (require 'ox-reveal nil t)
 		(progn

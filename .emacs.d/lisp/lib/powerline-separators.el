@@ -28,19 +28,24 @@
 
 (require 'cl-lib)
 (require 'color)
+(require 'ring)
 
 (defvar powerline-image-apple-rgb
   (and (eq (window-system) 'ns)
-       ns-use-srgb-colorspace
+       (bound-and-true-p ns-use-srgb-colorspace)
        (< 11
           (string-to-number
-           (and (string-match "darwin\\([0-9]+\\)" system-configuration)
-                (match-string-no-properties 1 system-configuration)))))
-  "Boolean variable to determine whether to use Apple RGB colorspace to render images.
+           (save-match-data
+             (and (string-match "darwin\\([0-9]+\\)" system-configuration)
+                  (match-string-no-properties 1 system-configuration)))))
+       (< emacs-major-version 28))
+  "If non-nil, use Apple RGB colorspace to render images.
 
 t on macOS 10.7+ and `ns-use-srgb-colorspace' is t, nil otherwise.
 
-This variable is automatically set, there's no need to modify it.")
+This variable is automatically set, there's no need to modify it.
+
+Obsolete since Emacs 28.")
 
 (defun pl/interpolate (color1 color2)
   "Interpolate between COLOR1 and COLOR2.
@@ -76,8 +81,7 @@ RED, GREEN and BLUE should be between 0.0 and 1.0, inclusive."
 (defun pl/pattern (lst)
   "Turn LST into an infinite pattern."
   (when lst
-    (let ((pattern (cl-copy-list lst)))
-      (setcdr (last pattern) pattern))))
+    (ring-convert-sequence-to-ring lst)))
 
 (defun pl/pattern-to-string (pattern)
   "Convert a PATTERN into a string that can be used in an XPM."
@@ -88,14 +92,14 @@ RED, GREEN and BLUE should be between 0.0 and 1.0, inclusive."
   (mapcar 'reverse pattern))
 
 (defun pl/row-pattern (fill total &optional fade)
-  "Make a list that has FILL 0s out of TOTAL 1s with FADE 2s to the right of the fill."
+  "Return list that has FILL 0s out of TOTAL 1s with FADE 2s to the right."
   (unless fade
     (setq fade 0))
   (let ((fill (min fill total))
         (fade (min fade (max (- total fill) 0))))
-    (append (make-list fill 0)
-            (make-list fade 2)
-            (make-list (- total fill fade) 1))))
+    (nconc (make-list fill 0)
+           (make-list fade 2)
+           (make-list (- total fill fade) 1))))
 
 (defun pl/pattern-bindings-body (patterns height-exp pattern-height-sym
                                           second-pattern-height-sym)
@@ -116,15 +120,14 @@ for let-var binding variables."
       (cons `((,pattern-height-sym (max (- ,height-exp ,reserve) 0))
               (,second-pattern-height-sym (/ ,pattern-height-sym 2))
               (,pattern-height-sym ,(if second-pattern `(ceiling ,pattern-height-sym 2) `,pattern-height-sym)))
-            (list (when header `(mapconcat 'identity ',header ""))
-                  `(mapconcat 'identity
-                              (cl-subseq ',pattern 0 ,pattern-height-sym) "")
-                  (when center `(mapconcat 'identity ',center ""))
+            (list (when header `(apply 'concat ',header))
+                  `(cl-loop for i to ,pattern-height-sym
+                            concat (ring-ref ',pattern i))
+                  (when center `(apply 'concat ',center))
                   (when second-pattern
-                    `(mapconcat 'identity
-                                (cl-subseq ',second-pattern
-                                           0 ,second-pattern-height-sym) ""))
-                  (when footer `(mapconcat 'identity ',footer "")))))))
+                    `(cl-loop for i to ,second-pattern-height-sym
+                              concat (ring-ref ',second-pattern i)))
+                  (when footer `(apply 'concat ',footer)))))))
 
 (defun pl/pattern-defun (name dir width &rest patterns)
   "Create a powerline function of NAME in DIR with WIDTH for PATTERNS.
@@ -146,12 +149,15 @@ CENTER
 SECOND-PATTERN ...
 FOOTER
 
-PATTERN and SECOND-PATTERN repeat infinitely to fill the space needed to generate a full height XPM.
+PATTERN and SECOND-PATTERN repeat infinitely to fill the space
+needed to generate a full height XPM.
 
-PATTERN, HEADER, FOOTER, SECOND-PATTERN, CENTER are of the form ((COLOR ...) (COLOR ...) ...).
+PATTERN, HEADER, FOOTER, SECOND-PATTERN, CENTER are of the
+form ((COLOR ...) (COLOR ...) ...).
 
-COLOR can be one of 0, 1, or 2, where 0 is the source color, 1 is the
-destination color, and 2 is the interpolated color between 0 and 1."
+COLOR can be one of 0, 1, or 2, where 0 is the source color, 1 is
+the destination color, and 2 is the interpolated color between 0
+and 1."
   (when (eq dir 'right)
     (setq patterns (mapcar 'pl/reverse-pattern patterns)))
   (let ((bindings-body (pl/pattern-bindings-body patterns
@@ -204,6 +210,7 @@ destination color, and 2 is the interpolated color between 0 and 1."
                            '("};"))
                   'xpm t
                   :ascent 'center
+                  :scale 1
                   :face (when (and face1 face2)
                           ,dst-face)
                   ,(and body-2x
@@ -528,6 +535,20 @@ destination color, and 2 is the interpolated color between 0 and 1."
                               concat (pl/pattern-to-string (,row-modifier (pl/row-pattern (/ i 2) width)))))
                    `((cl-loop for i from 0 to (1- (* height 2))
                               concat (pl/pattern-to-string (,row-modifier (pl/row-pattern (/ i 2) (* width 2)))))))))
+
+(defmacro pl/smooth-slant (dir)
+  "Generate a smoothed slant XPM function for DIR."
+  (let* ((row-modifier (if (eq dir 'left) 'identity 'reverse)))
+    (pl/wrap-defun "smooth-slant" dir 'width
+                   '((width (1- (ceiling height 2))))
+                   `((cl-loop for i from 0 to (1- height)
+                              concat (pl/pattern-to-string
+                                      (,row-modifier
+                                       (pl/row-pattern (/ i 2) width (cl-mod i 2))))))
+                   `((cl-loop for i from 0 to (1- (* height 2))
+                              concat (pl/pattern-to-string
+                                      (,row-modifier
+                                       (pl/row-pattern (/ i 2) (* width 2) (cl-mod i 2)))))))))
 
 (defmacro pl/wave (dir)
   "Generate a wave XPM function for DIR."
