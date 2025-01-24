@@ -174,19 +174,38 @@
 	(interactive)
 	(ansi-color-apply-on-region (point-min) (point-max)))
 
+      ;;(setq display-buffer 'display-buffer-below-selected)
+
+      
       ;;(if window-system
 	;;)
 
-      (require 'powerline) ;; status line
-      (powerline-default-theme)
-      (setq powerline-default-separator 'utf-8)
+      ;;(require 'powerline) ;; status line
+      ;;(powerline-default-theme)
+      ;;(setq powerline-default-separator 'utf-8)
 
+      ;;(require 'spaceline-config)
+      ;;(spaceline-spacemacs-theme)
+      
+      ;;(require 'awesome-tab)
+      ;;(awesome-tab-mode t)
+      
       ;;"Get the current default separator. Always returns utf-8 in non-gui mode."
 
       ;;(require 'cl)
       ;;(require 'flycheck nil t) ;; -mode
       (require 'iswitchb-mode nil t)
 
+      (require 'eyebrowse)
+      ;;(require 'eyebrowse-restore)
+      (eyebrowse-mode t)
+      ;;(eyebrowse-restore-mode t)
+      ;;(desktop-save-mode 1)
+
+
+
+
+      
       ;;(require 'cl-lib)
       ;;(require 'dash)
 
