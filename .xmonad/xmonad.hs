@@ -86,7 +86,7 @@ myLauncher = "dmenu_run -fn '-*-terminus-*-r-normal-*-*-120-*-*-*-*-iso8859-*' -
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
 --
-myWorkspaces = ["1:term","2:code","3:code","4:web"] -- ,"5:web","6:vm","7:media"] ++ map show [8..9]
+myWorkspaces = ["1:term","2:code","3:tmux","4:web"] -- ,"5:web","6:vm","7:media"] ++ map show [8..9]
 
 
 ------------------------------------------------------------------------
@@ -109,6 +109,7 @@ myManageHook = composeAll
 --    , className =? "google-chrome"  --> doShift "5:web"
 --    ,
       resource  =? "desktop_window" --> doIgnore
+--    , resource  =? "gnome-panel"    --> doIgnore	
     , className =? "Galculator"     --> doFloat
     , className =? "Steam"          --> doFloat
     , className =? "Gimp"           --> doFloat
@@ -510,9 +511,9 @@ main = do
           , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
           , ppSep = "   "
         } ) <+> ewmhDesktopsLogHook,
-        manageHook = manageDocks <+> myManageHook
-      , startupHook = startupHook defaults >> setWMName "LG3D"
-}
+        manageHook =  manageDocks <+> myManageHook
+      , startupHook = startupHook  defaults >> setWMName "LG3D"
+} 
 
 ------------------------------------------------------------------------
 -- Combine it all together

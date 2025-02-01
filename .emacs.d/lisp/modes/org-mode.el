@@ -77,6 +77,8 @@ workinghours sat - sun 8:00 - 12:00
 	      (global-set-key (kbd "<f7>")  'org-beamer-export-to-pdf)
 	      (global-set-key (kbd "<f8>")  'org-html-export-to-html)
 
+	      (define-key org-mode-map (kbd "C-c z") #'org-toggle-link-display)
+
 	      (when (require 'which-func)
 		(if (fboundp 'which-func-mode)
 		    (which-func-mode 1)))

@@ -64,6 +64,7 @@ Keybindings:
    * shift-F8 : export twbs html
    * shift-F9 : diplay inline images
    * ESC v : immersive bullets and styles
+   * C-c z: toggle display links
    * C-c C-c: evaluate source block
      (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
    * Agenda:

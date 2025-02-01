@@ -144,6 +144,8 @@
 	 (delete-char -1)
 	 (buffer-string))))
 
+
+
 ;;* Programming
 (if
     (and
@@ -771,8 +773,18 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (org-roam eglot utop merlin tuareg)))
- '(safe-local-variable-values (quote ((whitespace-line-column . 80))))
+ '(package-selected-packages (quote (## eglot merlin org-roam tuareg utop)))
+ '(safe-local-variable-values
+   (quote
+    ((vc-default-patch-addressee . "bug-gnu-emacs@gnu.org")
+     (vc-prepare-patches-separately)
+     (etags-regen-ignores "test/manual/etags/")
+     (etags-regen-regexp-alist
+      (("c" "objc")
+       "/[ 	]*DEFVAR_[A-Z_ 	(]+\"\\([^\"]+\\)\"/\\1/" "/[ 	]*DEFVAR_[A-Z_ 	(]+\"[^\"]+\",[ 	]\\([A-Za-z0-9_]+\\)/\\1/"))
+     (diff-add-log-use-relative-names . t)
+     (vc-git-annotate-switches . "-w")
+     (whitespace-line-column . 80))))
  '(warning-suppress-log-types (quote ((org)))))
 
 
@@ -852,17 +864,22 @@
       org-agenda-start-day "-3d")
 
 
- (require 'package)
- ;; (emacsql-sqlite "~/.emacs.d/org-roam.db")
- (require 'org-roam)
- (require 'emacsql-sqlite)
- (global-set-key (kbd "C-c n l")  'org-roam-buffer-toggle)
- (global-set-key (kbd "C-c n f") 'org-roam-node-find)
- (global-set-key (kbd "C-c n g") 'org-roam-graph)
- (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
- (global-set-key (kbd "C-c n c") 'org-roam-capture)
- (global-set-key (kbd "C-c n j") 'org-roam-dailies-capture-today)
+;; (use-package org-roam
+;;   :ensure t
+;;   :custom
+;;   (org-roam-directory (file-truename "/path/to/org-files/"))
+;;   :bind (("C-c n l" . org-roam-buffer-toggle)
+;;          ("C-c n f" . org-roam-node-find)
+;;          ("C-c n g" . org-roam-graph)
+;;          ("C-c n i" . org-roam-node-insert)
+;;          ("C-c n c" . org-roam-capture)
+;;          ;; Dailies
+;;          ("C-c n j" . org-roam-dailies-capture-today))
+;;   :config
+;;   ;; If you're using a vertical completion framework, you might want a more informative completion interface
+;;   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+;;   (org-roam-db-autosync-mode)
+;;   ;; If using org-roam-protocol
+;;   (require 'org-roam-protocol))
 
- (setq org-roam-directory (file-truename "~/git/org/"))
- (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
- ;;(org-roam-db-autosync-mode)
+

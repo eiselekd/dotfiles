@@ -220,7 +220,7 @@
   ;;(flycheck-select-checker 'utils/flycheck-generic-makefile-checker)
 
 	  (utils/flycheck-local-keybind )
-	  (setq flycheck-clang-language-standard "c++14")
+	  (setq flycheck-clang-language-standard "c++17")
 	  ))))
 
 (defun utils/flymake-mode-hook ()
@@ -351,7 +351,7 @@
 			      ;;(flycheck-select-checker 'c/c++-clang)
 			      )
 			    )
-			   (setq flycheck-clang-language-standard "c++14")
+			   (setq flycheck-clang-language-standard "c++17")
 			   (setq flycheck-gcc-language-standard "c++17")
 			   (setq flycheck-clang-force-c++-mode 't)
 
@@ -364,7 +364,7 @@
 			   (flycheck-mode)
 			   ;;(flycheck-select-checker 'c/c++-gcc)
 			   ;;(flycheck-select-checker 'c/c++-clang)
-			   (setq flycheck-clang-language-standard "c++14")
+			   (setq flycheck-clang-language-standard "c++17")
 			   (setq flycheck-gcc-language-standard "c++17")
 
 			   (flycheck/test-enable-gtest)
