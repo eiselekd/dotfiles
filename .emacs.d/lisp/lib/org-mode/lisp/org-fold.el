@@ -457,7 +457,9 @@ displayed."
   (unless (org-before-first-heading-p)
     (save-excursion
       (org-with-limited-levels (org-back-to-heading t))
-      (let* ((current-level (funcall outline-level))
+      (let* (
+	     (eoh (line-end-position)) 
+	     (current-level (funcall outline-level))
              (parent-level current-level)
              (max-level (org-get-valid-level
                          parent-level
@@ -479,14 +481,21 @@ displayed."
         ;; Display children.  First child may be deeper than expected
         ;; MAX-LEVEL.  Since we want to display it anyway, adjust
         ;; MAX-LEVEL accordingly.
-        (while (re-search-forward re end t)
-          (setq current-level (funcall outline-level))
+	(while (re-search-forward re end t)
+	  (setq current-level (funcall outline-level))
           (when (< current-level min-level-direct-child)
             (setq min-level-direct-child current-level
                   re (format regexp-fmt
                              parent-level
                              (max min-level-direct-child max-level))))
-          (org-fold-heading nil))))))
+	  (org-fold-heading nil)
+          )
+	(if (re-search-backward re eoh t)      
+	    (if (looking-at (concat outline-regexp "\s*#" ))
+		(progn
+		  (org-fold-region (point) end nil 'outline))
+	      ))
+	))))
 
 (defun org-fold-show-subtree ()
   "Show everything after this heading at deeper levels."

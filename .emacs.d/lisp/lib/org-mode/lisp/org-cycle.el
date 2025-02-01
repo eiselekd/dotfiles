@@ -479,6 +479,12 @@ Use `\\[org-edit-special]' to edit table.el tables"))
 
 (defun org-cycle-internal-local ()
   "Do the local cycling action."
+  (cond
+   ((not
+     (save-excursion
+       (progn
+	 (org-back-to-heading)
+	 (looking-at (concat outline-regexp "\s*#" )))))
   (let ((goal-column 0) eoh eol eos has-children children-skipped struct)
     ;; First, determine end of headline (EOH), end of subtree or item
     ;; (EOS), and if item or heading has children (HAS-CHILDREN).
@@ -592,7 +598,7 @@ Use `\\[org-edit-special]' to edit table.el tables"))
       (org-unlogged-message "FOLDED")
       (setq org-cycle-subtree-status 'folded)
       (unless (org-before-first-heading-p)
-	(run-hook-with-args 'org-cycle-hook 'folded))))))
+	(run-hook-with-args 'org-cycle-hook 'folded))))))))
 
 ;;;###autoload
 (defun org-cycle-global (&optional arg)
