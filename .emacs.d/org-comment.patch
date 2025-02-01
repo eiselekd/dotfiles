@@ -1,0 +1,79 @@
+From be04862b5d0139649cc798041a72c1f23669ae0d Mon Sep 17 00:00:00 2001
+From: Konrad Eisele <konrad.eisele@aptiv.com>
+Date: Sat, 1 Feb 2025 22:44:29 +0100
+Subject: [PATCH] all
+
+---
+ .emacs.d/lisp/lib/org-mode/lisp/org-cycle.el |    8 +-
+ .emacs.d/lisp/lib/org-mode/lisp/org-fold.el  |   17 +-
+ 5 files changed, 9638 insertions(+), 5 deletions(-)
+ create mode 100644 .emacs.d/lisp/lib/outorg.el
+ create mode 100644 .emacs.d/lisp/lib/outshine-org-cmds.el
+ create mode 100644 .emacs.d/lisp/lib/outshine.el
+
+diff --git a/.emacs.d/lisp/lib/org-mode/lisp/org-cycle.el b/.emacs.d/lisp/lib/org-mode/lisp/org-cycle.el
+index d543bb0..ebddd8c 100644
+--- a/.emacs.d/lisp/lib/org-mode/lisp/org-cycle.el
++++ b/.emacs.d/lisp/lib/org-mode/lisp/org-cycle.el
+@@ -479,6 +479,12 @@ Use `\\[org-edit-special]' to edit table.el tables"))
+ 
+ (defun org-cycle-internal-local ()
+   "Do the local cycling action."
++  (cond
++   ((not
++     (save-excursion
++       (progn
++	 (org-back-to-heading)
++	 (looking-at (concat outline-regexp "\s*#" )))))
+   (let ((goal-column 0) eoh eol eos has-children children-skipped struct)
+     ;; First, determine end of headline (EOH), end of subtree or item
+     ;; (EOS), and if item or heading has children (HAS-CHILDREN).
+@@ -592,7 +598,7 @@ Use `\\[org-edit-special]' to edit table.el tables"))
+       (org-unlogged-message "FOLDED")
+       (setq org-cycle-subtree-status 'folded)
+       (unless (org-before-first-heading-p)
+-	(run-hook-with-args 'org-cycle-hook 'folded))))))
++	(run-hook-with-args 'org-cycle-hook 'folded))))))))
+ 
+ ;;;###autoload
+ (defun org-cycle-global (&optional arg)
+diff --git a/.emacs.d/lisp/lib/org-mode/lisp/org-fold.el b/.emacs.d/lisp/lib/org-mode/lisp/org-fold.el
+index 4052a59..292e7ff 100644
+--- a/.emacs.d/lisp/lib/org-mode/lisp/org-fold.el
++++ b/.emacs.d/lisp/lib/org-mode/lisp/org-fold.el
+@@ -457,7 +457,9 @@ displayed."
+   (unless (org-before-first-heading-p)
+     (save-excursion
+       (org-with-limited-levels (org-back-to-heading t))
+-      (let* ((current-level (funcall outline-level))
++      (let* (
++	     (eoh (line-end-position)) 
++	     (current-level (funcall outline-level))
+              (parent-level current-level)
+              (max-level (org-get-valid-level
+                          parent-level
+@@ -479,14 +481,21 @@ displayed."
+         ;; Display children.  First child may be deeper than expected
+         ;; MAX-LEVEL.  Since we want to display it anyway, adjust
+         ;; MAX-LEVEL accordingly.
+-        (while (re-search-forward re end t)
+-          (setq current-level (funcall outline-level))
++	(while (re-search-forward re end t)
++	  (setq current-level (funcall outline-level))
+           (when (< current-level min-level-direct-child)
+             (setq min-level-direct-child current-level
+                   re (format regexp-fmt
+                              parent-level
+                              (max min-level-direct-child max-level))))
+-          (org-fold-heading nil))))))
++	  (org-fold-heading nil)
++          )
++	(if (re-search-backward re eoh t)      
++	    (if (looking-at (concat outline-regexp "\s*#" ))
++		(progn
++		  (org-fold-region (point) end nil 'outline))
++	      ))
++	))))
+ 
+ (defun org-fold-show-subtree ()
+   "Show everything after this heading at deeper levels."
