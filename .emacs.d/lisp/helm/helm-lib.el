@@ -1,6 +1,6 @@
 ;;; helm-lib.el --- Helm routines. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015 ~ 2020  Thierry Volpiatto 
+;; Copyright (C) 2015 ~ 2020  Thierry Volpiatto
 
 ;; Author: Thierry Volpiatto 
 ;; URL: http://github.com/emacs-helm/helm
@@ -161,7 +161,7 @@ the customize functions e.g. `customize-set-variable' and NOT
 
 (defcustom helm-current-directory-alist
   '((dired-mode . dired-current-directory)
-    (mu4e-main-mode . mu4e-maildir))
+    (mu4e-main-mode . mu4e-root-maildir))
   "Tell `helm-current-directory' what to use according to `major-mode'.
 Each element of alist is (MAJOR-MODE . SYMBOL) where SYMBOL is either a variable
 or a function."
@@ -357,9 +357,11 @@ object."
         "Return a list of all dependencies PKG has.
 This is done recursively."
         ;; Can we have circular dependencies?  Assume "nope".
-        (when-let* ((desc (cadr (assq pkg package-archive-contents)))
-                    (deps (mapcar #'car (package-desc-reqs desc))))
-          (delete-dups (apply #'nconc deps (mapcar #'package--dependencies deps))))))))
+        (let* ((desc (cadr (assq pkg package-archive-contents)))
+               (deps (and desc (mapcar #'car (package-desc-reqs desc)))))
+          (when deps
+            (delete-dups
+             (apply #'nconc deps (mapcar #'package--dependencies deps)))))))))
 
 ;;; Provide `help--symbol-class' not available in emacs-27
 ;;
@@ -464,23 +466,6 @@ Like `this-command' but return the real command, and not
 
 ;;; Iterators
 ;;
-(cl-defmacro helm-position (item seq &key test all)
-  "A simple and faster replacement of CL `position'.
-
-Returns ITEM first occurence position found in SEQ.
-When SEQ is a string, ITEM have to be specified as a char.
-Argument TEST when unspecified default to `eq'.
-When argument ALL is non-nil return a list of all ITEM positions
-found in SEQ."
-  (let ((key (if (stringp seq) 'across 'in)))
-    `(cl-loop with deftest = 'eq
-              for c ,key ,seq
-              for index from 0
-              when (funcall (or ,test deftest) c ,item)
-              if ,all collect index into ls
-              else return index
-              finally return ls)))
-
 (defun helm-iter-list (seq &optional cycle)
   "Return an iterator object from SEQ.
 The iterator die and return nil when it reach end of SEQ.
@@ -1068,6 +1053,31 @@ Examples:
            (beg-part (butlast seq len)))
       (append beg-part elm end-part))))
 
+;;;###autoload
+(defun helm-add-to-list (var elm index &optional replace)
+  "Add or move ELM to the value of VAR at INDEX unless already here.
+
+If ELM is member of var value and at index INDEX, return var value
+unchanged, if INDEX value is different move ELM at this `nth' INDEX value.
+If ELM is not present in list add it at `nth' INDEX.
+
+If REPLACE is non nil replace element at INDEX by ELM.
+
+Do not use this function in helm code, use `helm-append-at-nth'
+instead.  It is meant to be used in config files only."
+  (cl-assert (boundp var) nil "Unbound variable `%s'" var)
+  (let ((val (symbol-value var))
+        flag)
+    (cond ((and (member elm val) (equal elm (nth index val))))
+          ((member elm val)
+           (setq val (delete elm val) flag t))
+          ((and replace (not (< index 0)) (not (> index (length val))))
+             (setq val (delete (nth index val) val) flag t))
+          (t (setq flag t)))
+    (if flag
+        (set var (helm-append-at-nth val elm index))
+      val)))
+
 (cl-defgeneric helm-take (seq n)
   "Return the first N elements of SEQ if SEQ is longer than N.
 It is used for narrowing list of candidates to the
@@ -1166,6 +1176,21 @@ Examples:
                      sequence))
          (pos      (1+ (helm-position elm new-seq :test 'equal))))
     (append (nthcdr pos new-seq) (helm-take new-seq pos))))
+
+(cl-defun helm-position (elm seq &key (test 'eq) from-end)
+  "Return position of ELM in SEQ.
+Comparison is tested with keyword TEST which default to `eq'.
+If keyword FROM-END is non nil search from end."
+  (let ((count (if from-end (1- (length seq)) 0)))
+    (while (if from-end
+               (not (zerop count))
+             (<= count (1- (length seq))))
+      (when (funcall test (if (listp seq)
+                              (car (nthcdr count seq))
+                            (aref seq count))
+                     elm)
+        (cl-return-from helm-position count))
+      (setq count (funcall (if from-end #'1- #'1+) count)))))
 
 ;;; Strings processing.
 ;;
@@ -1411,8 +1436,8 @@ in LIST to be displayed in PROMPT."
 (defsubst helm-string-numberp (str)
   "Return non nil if string STR represent a number."
   (cl-assert (stringp str) t)
-  (or (cl-loop for c across str always (char-equal c ?0))
-      (not (zerop (string-to-number str)))))
+  (cl-loop with chars = '(?0 ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9)
+           for c across str always (memql c chars)))
 
 (defsubst helm-re-search-forward (regexp &optional bound noerror count)
   "Same as `re-search-forward' but return nil when point doesn't move.
@@ -1819,16 +1844,22 @@ e.g. (helm-basename \"~/ucs-utils-6.0-delta.py.gz\" \\='(2 . \"\\\\.py\\\\\\='\"
 
 (defun helm-basedir (fname &optional parent)
   "Return the base directory of FNAME ending by a slash.
-If PARENT is specified and FNAME is a directory return the parent
-directory of FNAME.
+If PARENT is non nil and FNAME is a directory return the parent
+directory of FNAME, if PARENT is a number return the parent directory up to
+PARENT level.
 If PARENT is not specified but FNAME doesn't end by a slash, the returned value
 is same as with PARENT."
   (helm-aif (and fname
                  (or (and (string= fname "~") "~")
                      (file-name-directory
-                      (if parent
-                          (directory-file-name fname)
-                        fname))))
+                      (helm-acase parent
+                        ((guard* (numberp it))
+                         (cl-loop repeat it
+                                  for bd = (helm-basedir (or bd fname) t)
+                                  finally return bd))
+                        ((guard* (eq it t))
+                         (directory-file-name fname))
+                        (t fname)))))
       (file-name-as-directory it)))
 
 (defun helm-current-directory ()
@@ -1982,20 +2013,16 @@ Directories expansion is not supported."
 
 (defun helm-locate-lib-get-summary (file)
   "Extract library description from FILE."
-  (let* ((shell-file-name "sh")
-         (shell-command-switch "-c")
-         (cmd "%s %s | head -n1 | awk 'match($0,\"%s\",a) {print a[2]}'\
- | awk -F ' -*-' '{print $1}'")
-         (regexp "^;;;(.*) ---? (.*)$")
-         (desc (shell-command-to-string
-                (format cmd
-                        (if (string-match-p "\\.gz\\'" file)
-                            "gzip -c -q -d" "cat")
-                        (shell-quote-argument file)
-                        regexp))))
-    (if (string= desc "")
-        "Not documented"
-      (replace-regexp-in-string "\n" "" desc))))
+  (with-temp-buffer
+    (let (desc)
+      (cl-letf (((symbol-function 'message) #'ignore))
+        (insert-file-contents file nil 0 128))
+      (goto-char (point-min))
+      (when (re-search-forward "^;;;?\\(.*\\) ---? \\(.*\\)" (pos-eol) t)
+        (setq desc (match-string-no-properties 2)))
+      (if (or (null desc) (string= "" desc))
+          "Not documented"
+        (car (split-string desc "-\\*-" nil "[ \t\n\r-]+"))))))
 
 (defun helm-local-directory-files (directory &rest args)
   "Run `directory-files' without tramp file name handlers.

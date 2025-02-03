@@ -416,6 +416,10 @@
 		(which-function-mode))
 	      (show-paren-mode)
 
+
+	      (defvar outline-minor-mode-prefix "\M-#")
+	      ;;(require outshine-mode)
+	      
 	      ;; (hs-org/minor-mode)
 	      (global-set-key (kbd "M-h")
 			      (lambda () (interactive)

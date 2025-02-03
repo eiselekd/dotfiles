@@ -1,6 +1,6 @@
 ;;; helm-core.el --- Development files for Helm  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2022 ~ 2023  Thierry Volpiatto
+;; Copyright (C) 2022 ~ 2025  Thierry Volpiatto
 
 ;; Author: Thierry Volpiatto <thievol@posteo.net>
 ;; URL: https://emacs-helm.github.io/helm/
@@ -4445,12 +4445,13 @@ If (candidate-number-limit . 123) is in SOURCE limit candidate to 123."
   "Get searched display part from CANDIDATE.
 CANDIDATE is either a string, a symbol, or a (DISPLAY . REAL)
 cons cell."
-  (cond ((car-safe candidate))
-        ((symbolp candidate)
-         (symbol-name candidate))
-        ((numberp candidate)
-         (number-to-string candidate))
-        (t candidate)))
+  (helm-acase candidate
+    ((dst* (disp . real)) disp)
+    ((guard* (symbolp candidate))
+     (symbol-name candidate))
+    ((guard* (numberp candidate))
+     (number-to-string candidate))
+    (t candidate)))
 
 (defun helm-process-pattern-transformer (pattern source)
   "Execute pattern-transformer attribute function(s) on PATTERN in SOURCE."
@@ -7108,13 +7109,16 @@ unless FORCE-LONGEST is non nil."
       (with-current-buffer buf
         (erase-buffer)
         (cond ((listp data)
-               (insert (mapconcat (lambda (i)
-                                    (let ((cand (cond ((symbolp i) (symbol-name i))
-                                                      ((numberp i) (number-to-string i))
-                                                      ((consp i) (propertize
-                                                                  (car i)
-                                                                  'helm-realvalue (cdr i)))
-                                                      (t i))))
+               (insert (mapconcat (lambda (elm)
+                                    (let ((cand
+                                           (helm-acase elm
+                                             ((guard* (symbolp it))
+                                              (symbol-name it))
+                                             ((guard* (numberp it))
+                                              (number-to-string it))
+                                             ((dst* (disp . real))
+                                              (propertize disp 'helm-realvalue real))
+                                             (t it))))
                                       (setq-local helm-candidate-buffer-longest-len
                                                   (max helm-candidate-buffer-longest-len
                                                        (length cand)))

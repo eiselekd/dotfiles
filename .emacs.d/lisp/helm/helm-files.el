@@ -1,6 +1,6 @@
 ;;; helm-files.el --- helm file browser and related. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2012 ~ 2023 Thierry Volpiatto 
+;; Copyright (C) 2012 ~ 2025 Thierry Volpiatto
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 (require 'filenotify)
 (require 'image-mode)
 (require 'image-dired)
+(require 'helm-x-icons)
 
 (declare-function find-library-name "find-func.el" (library))
 (declare-function w32-shell-execute "ext:w32fns.c" (operation document &optional parameters show-flag))
@@ -87,16 +88,11 @@
 (declare-function dired-async-processes "ext:dired-async.el")
 (declare-function dired-async-mode-line-message "ext:dired-async.el")
 (declare-function dired-async--modeline-mode "ext:dired-async.el")
-(declare-function all-the-icons-icon-for-file "ext:all-the-icons.el")
-(declare-function all-the-icons-octicon "ext:all-the-icons.el")
-(declare-function all-the-icons-match-to-alist "ext:all-the-icons.el")
-(declare-function all-the-icons-material "ext:all-the-icons.el")
 (declare-function helm-adaptive-sort "ext:helm-adaptive.el")
 (declare-function wfnames-setup-buffer "ext:wfnames.el")
 (declare-function svg-lib-progress-bar "ext:svg-lib")
 (declare-function svg-lib-tag "ext:svg-lib")
 
-(defvar all-the-icons-dir-icon-alist)
 (defvar term-char-mode-point-at-process-mark)
 (defvar term-char-mode-buffer-read-only)
 (defvar recentf-list)
@@ -863,7 +859,7 @@ want to use it, helm is still providing
    "Relsymlink file(s) `M-Y, C-u to follow'" 'helm-find-files-relsymlink
    "Hardlink file(s) `M-H, C-u to follow'" 'helm-find-files-hardlink
    "Compress file(s) to archive `M-c'" 'helm-find-files-compress-to
-   "Compress or uncompress file(s) `M-z'" 'helm-ff-compress-marked-files
+   "Compress or uncompress file(s) `M-Z'" 'helm-ff-compress-marked-files
    "Change mode on file(s) `M-M'" 'helm-ff-chmod
    "Find file other window `C-c o'" 'helm-find-files-other-window
    "Find file other frame `C-c C-o'" 'find-file-other-frame
@@ -4142,8 +4138,8 @@ returned prefixed with its icon or unchanged."
                  (if helm-ff-icon-mode
                      (helm-acase (match-string 1 disp)
                        ("mailto:"
-                        (all-the-icons-octicon "mail"))
-                       (t (all-the-icons-octicon "link-external")))
+                        (helm-x-icons-generic "mail"))
+                       (t (helm-x-icons-generic "link-external")))
                    (propertize
                     " " 'display
                     (propertize "[@]" 'face 'helm-ff-prefix))))
@@ -4153,8 +4149,8 @@ returned prefixed with its icon or unchanged."
            (setq prefix-new
                  (if helm-ff-icon-mode
                      (if (string-match "/\\'" disp)
-                         (all-the-icons-material "create_new_folder")
-                       (all-the-icons-material "note_add"))
+                         (helm-x-icons-generic "create_new_folder")
+                       (helm-x-icons-generic "note_add"))
                    (propertize
                     " " 'display
                     (propertize "[+]" 'face 'helm-ff-prefix))))
@@ -4278,7 +4274,7 @@ If SKIP-BORING-CHECK is non nil don't filter boring files."
           (helm-acond (;; Dot directories . and ..
                        dot
                        (cons (helm-ff-prefix-filename
-                              (propertize file 'face 'helm-ff-dotted-directory)
+                              (propertize disp 'face 'helm-ff-dotted-directory)
                               file)
                              file))
                       ;; Directories.
@@ -4354,13 +4350,13 @@ If SKIP-BORING-CHECK is non nil don't filter boring files."
                 ;; A dotted directory symlinked.
                 ((and dot (stringp type))
                  (cons (helm-ff-prefix-filename
-                        (propertize file 'face 'helm-ff-dotted-symlink-directory)
+                        (propertize disp 'face 'helm-ff-dotted-symlink-directory)
                         file)
                        file))
                 ;; A dotted directory.
                 (dot
                  (cons (helm-ff-prefix-filename
-                        (propertize file 'face 'helm-ff-dotted-directory)
+                        (propertize disp 'face 'helm-ff-dotted-directory)
                         file)
                        file))
                 ;; Backup files.
@@ -4381,9 +4377,11 @@ If SKIP-BORING-CHECK is non nil don't filter boring files."
                    (add-face-text-property 0 len-abbrev 'helm-ff-truename t abbrev)
                    ;; Colorize extension only on truename.
                    (add-face-text-property 0 len 'helm-ff-symlink nil disp)
-                   ;; As we use match-on-real we can use this safely,
-                   ;; abbrev will not be matched.
-                   (cons (concat (helm-ff-prefix-filename disp file) " -> " abbrev)
+                   (cons (helm-ff-prefix-filename
+                          ;; Use display prop instead of concating prevent
+                          ;; failure when preselecting after going up in tree (C-l).
+                          (propertize disp 'display (concat disp " -> " abbrev))
+                          file)
                          file)))
                 ;; A directory.
                 ((eq t type)
@@ -4427,17 +4425,17 @@ If SKIP-BORING-CHECK is non nil don't filter boring files."
                        file))))))))
 
 (defun helm-ff-get-icon (disp file)
-  "Get icon from all-the-icons for FILE.
+  "Get icon from `helm-x-icons-provider' for FILE.
 Arg DISP is the display part of the candidate.
 Arg FILE is the real part of candidate, a filename with no props."
   (when helm-ff-icon-mode
     (let ((icon (helm-acond (;; Non symlink directories.
                              (helm-ff--is-dir-from-disp disp)
-                             (helm-aif (all-the-icons-match-to-alist
+                             (helm-aif (helm-x-icons-match-to-alist
                                         (helm-basename file)
-                                        all-the-icons-dir-icon-alist)
+                                        'dir)
                                  (apply (car it) (cdr it))
-                               (all-the-icons-octicon "file-directory")))
+                               (helm-x-icons-generic "file-directory")))
                             (;; All files, symlinks may be symlink directories.
                              (helm-ff--is-file-from-disp disp)
                              ;; Detect symlink directories. We must call
@@ -4447,8 +4445,8 @@ Arg FILE is the real part of candidate, a filename with no props."
                              (if (and (memq it '(helm-ff-symlink
                                                  helm-ff-dotted-symlink-directory))
                                       (file-directory-p file))
-                                 (all-the-icons-octicon "file-symlink-directory")
-                               (all-the-icons-icon-for-file (helm-basename file)))))))
+                                 (helm-x-icons-generic "file-symlink-directory")
+                               (helm-x-icons-icon-for-file (helm-basename file)))))))
       (when icon (concat icon " ")))))
 
 (defun helm-ff--is-dir-from-disp (disp)
@@ -4473,13 +4471,13 @@ Arg FILE is the real part of candidate, a filename with no props."
 
 ;;;###autoload
 (define-minor-mode helm-ff-icon-mode
-    "Display icons from `all-the-icons' package in HFF when enabled."
+    "Display icons from `helm-x-icons-provider' package in HFF when enabled."
   :global t
   :group 'helm-files
   (when helm-ff-icon-mode
-    (unless (require 'all-the-icons nil t)
+    (unless (require helm-x-icons-provider nil t)
       (setq helm-ff-icon-mode nil)
-      (message "All The Icons package is not installed")))
+      (message "No suitable Icons package found")))
   (clrhash helm-ff--list-directory-cache))
 
 (defun helm-find-files-action-transformer (actions candidate)
@@ -6218,17 +6216,8 @@ is nil."
     (let ((helm--reading-passwd-or-string t)
           (file-attrs (file-attributes file))
           (trash (or trash (helm-ff--delete-by-moving-to-trash file)))
-          (delete-by-moving-to-trash trash)
-          (already-trashed
-           (and trash (helm-ff-file-already-trashed
-                       file helm-ff--trashed-files))))
-      (cond (already-trashed
-             ;; We use message here to avoid exiting loop when
-             ;; deleting more than one file.
-             (message "User error: `%s' is already trashed" file)
-             (sit-for 1.5)
-             (cl-return 'skip))
-            ((and (eq (nth 0 file-attrs) t) ; a not empty directory.
+          (delete-by-moving-to-trash trash))
+      (cond ((and (eq (nth 0 file-attrs) t) ; a not empty directory.
                   (directory-files file t directory-files-no-dot-files-regexp))
              (if (or helm-ff-allow-recursive-deletes trash)
                  (delete-directory file 'recursive trash)
@@ -6333,22 +6322,18 @@ directories are always deleted with no warnings."
   (let* ((files (helm-marked-candidates :with-wildcard t))
          (trash (helm-ff--delete-by-moving-to-trash (car files)))
          (prmt (if trash "Trash" "Delete"))
-         buffers callback already-trashed
+         buffers callback
          ;; Workaround emacs-26 bug with tramp see
          ;; https://github.com/jwiegley/emacs-async/issues/80.
          (async-quiet-switch "-q"))
-    (cl-loop with trash-alist = (and trash (helm-ff-trash-list (helm-trash-directory)))
-             for f in files
+    (cl-loop for f in files
              for buf = (helm-file-buffers f)
-             for trashed = (helm-ff-file-already-trashed f trash-alist)
              for dot-file-p = (helm-ff-dot-file-p f)
              when (and helm-ff-signal-error-on-dot-files
                              dot-file-p)
              do (cl-return (error "Error: Cannot operate on `.' or `..'"))
              when buf
-             do (setq buffers (nconc buf buffers))
-             when trashed
-             do (push trashed already-trashed))
+             do (setq buffers (nconc buf buffers)))
     (setq callback (lambda (result)
                      (unless (dired-async-processes 'helm-delete-async)
                        (helm-ff--delete-async-modeline-mode -1))
@@ -6392,11 +6377,7 @@ directories are always deleted with no warnings."
              (let ((result 0))
                (dolist (file ',files result)
                  (condition-case err
-                     (cond ((and ,trash
-                                 (cl-loop for f in ',already-trashed
-                                          thereis (file-equal-p f file)))
-                            (error (format "`%s' is already trashed" file)))
-                           ((eq (nth 0 (file-attributes file)) t)
+                     (cond ((eq (nth 0 (file-attributes file)) t)
                             (delete-directory file 'recursive ,trash)
                             (setq result (1+ result)))
                            (t (delete-file file ,trash)
@@ -6727,7 +6708,7 @@ be existing directories."
                                  (propertize c 'face 'helm-history-deleted))))
            when disp
            collect (cons (if helm-ff-icon-mode
-                             (concat (all-the-icons-icon-for-file
+                             (concat (helm-x-icons-icon-for-file
                                       (helm-basename elm))
                                      " " disp)
                            disp)

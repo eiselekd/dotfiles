@@ -200,6 +200,15 @@
 ;;(global-set-key (kbd "M-F")  'utils/projmake-start)
 (global-set-key (kbd "M-F")  'flymake-mode)
 
+(global-set-key (kbd "M-%")
+		(lambda ()(interactive)
+		  (progn
+		    (when (require 'helm nil t)
+		      (progn
+			(message "[*] hem loaded")
+			)))))
+
+
 ;; flycheck
 ;;(if (not (eq system-type 'darwin))
     ;; termninal send \033 f (Meta - f)
