@@ -150,7 +150,21 @@
 				     (progn
 				       (if (featurep 'xref)
 					   (xref-push-marker-stack))
-				       (call-interactively 'find-function-at-point)))
+				       (when
+					   (and
+					    (require 'xref nil t)
+					    (require 'utils/etags.el nil t)
+					    (require 'etags-select nil t)
+					    (require 'etags-table nil t)
+					    (require 'helm-tags nil t))
+					 (progn
+					   (message "[*] etags-table loaded")
+					   ;;(visit-tag-tabel)
+					   ;;(etags-select-find-tag-at-point )
+					   (utils/etags-tag-prepare)
+					   (visit-tags-table default-directory nil)
+					   (etags-select-find-tag-at-point )
+					   ))))
 				    ((string= mode 'haskell-mode)
 				     (progn
 				       (let* ((backend (xref-find-backend))
@@ -167,6 +181,20 @@
 
 
 					 (call-interactively 'xref-find-definitions ))))
+				    (t (progn
+					(prepareHelm)
+					(helm-gtags-dwim))))))))
+
+
+(global-set-key (kbd "M--")  (lambda ()(interactive)
+			       (progn
+				 (let* ((mode major-mode))
+				   (cond
+				    ((string= mode 'emacs-lisp-mode)
+				     (progn
+				       (if (featurep 'xref)
+					   (xref-push-marker-stack))
+				       (find-function-at-point)))
 				    (t (progn
 					(prepareHelm)
 					(helm-gtags-dwim))))))))
@@ -221,10 +249,12 @@
 (global-set-key (kbd "M-w")
 		(lambda ()(interactive)
 		  (progn
-		    (when (require 'helm-swoop nil t)
+		    (when (and
+			   (require 'helm nil t)
+			   (require 'helm-swoop nil t))
 		      (progn
 			(message "[*] helm-swoop for helm-regex loaded")
-			(helm-regex)
+			(helm-regexp)
 			)))))
 
 (global-set-key (kbd "M-W")

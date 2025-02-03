@@ -54,7 +54,7 @@
 ;; a way to give information about document structure around point
 ;; with `org-element-context'.  A cache mechanism is also provided for
 ;; these functions.
-
+;; (etags-table-recompute)
 
 ;;; Code:
 
