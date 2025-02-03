@@ -59,6 +59,11 @@
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
+;;(cua-mode 1)
+;;(global-set-key (kbd "C-S-C") #'copy-to-clipboard)
+;;(global-set-key (kbd "C-S-V") #'paste-from-clipboard)
+
+
 ;; start egit
 (global-set-key (kbd "M-e")   (lambda ()(interactive)
 			       (progn
@@ -240,7 +245,7 @@
 			(helm-ag)
 			)))))
 
-(global-set-key (kbd "M-w")
+(global-set-key (kbd "M-W")
 		(lambda ()(interactive)
 		  (progn
 		    (when (and
@@ -251,7 +256,7 @@
 			(helm-regexp)
 			)))))
 
-(global-set-key (kbd "M-W")
+(global-set-key (kbd "M-P")
 		(lambda ()(interactive)
 		  (progn
 		    (when (require 'helm-swoop nil t)
