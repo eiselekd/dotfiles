@@ -148,7 +148,8 @@
 				   (cond
 				    ((string= mode 'emacs-lisp-mode)
 				     (progn
-				       (xref-push-marker-stack)
+				       (if (featurep 'xref)
+					   (xref-push-marker-stack))
 				       (call-interactively 'find-function-at-point)))
 				    ((string= mode 'haskell-mode)
 				     (progn
