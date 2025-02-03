@@ -222,13 +222,13 @@
 ;;(global-set-key (kbd "M-F")  'utils/projmake-start)
 (global-set-key (kbd "M-F")  'flymake-mode)
 
-(global-set-key (kbd "M-%")
-		(lambda ()(interactive)
-		  (progn
-		    (when (require 'helm nil t)
-		      (progn
-			(message "[*] helm loaded")
-			)))))
+;; (global-set-key (kbd "M-%")
+;; 		(lambda ()(interactive)
+;; 		  (progn
+;; 		    (when (require 'helm nil t)
+;; 		      (progn
+;; 			(message "[*] helm loaded")
+;; 			)))))
 
 (global-set-key (kbd "M-A")
 		(lambda ()(interactive)

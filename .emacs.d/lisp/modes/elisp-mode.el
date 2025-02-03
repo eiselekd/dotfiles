@@ -18,16 +18,20 @@
 (add-hook 'emacs-lisp-mode-hook
 	  (lambda ()
 	    (progn
+	      (message (format "[*] execute emacs-lisp-mode-hook"))
 	      (show-paren-mode)
-
 	      (require 'popup)
-	      (message (format "[*] set emacs-lisp-mode-hook"))
-
 	      (local-set-key  (kbd "M-;") 'modes/elisp-mode-describe-thing-in-popup)
-
 	      ;;(when (require 'org)
 		;;(orgstruct++-mode))
 	      ;;(setq orgstruct-heading-prefix-regexp ";;")
+	      (message (format "[*] setup etags update"))
+	      (when
+		  (require 'utils/etags.el nil t)
+		(utils/etags-tag-prepare)
+		(etags-update-mode))
+
+	      
 
 	      (when (require 'which-func)
 		(if (fboundp 'which-func-mode)
