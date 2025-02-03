@@ -151,18 +151,11 @@
 				       (if (featurep 'xref)
 					   (xref-push-marker-stack))
 				       (when
-					   (and
-					    (require 'xref nil t)
-					    (require 'utils/etags.el nil t)
-					    (require 'etags-select nil t)
-					    (require 'etags-table nil t)
-					    (require 'helm-tags nil t))
+					   (require 'utils/etags.el nil t)
 					 (progn
-					   (message "[*] etags-table loaded")
+					   (utils/etags-tag-prepare)
 					   ;;(visit-tag-tabel)
 					   ;;(etags-select-find-tag-at-point )
-					   (utils/etags-tag-prepare)
-					   (visit-tags-table default-directory nil)
 					   (etags-select-find-tag-at-point )
 					   ))))
 				    ((string= mode 'haskell-mode)
