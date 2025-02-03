@@ -205,9 +205,35 @@
 		  (progn
 		    (when (require 'helm nil t)
 		      (progn
-			(message "[*] hem loaded")
+			(message "[*] helm loaded")
 			)))))
 
+(global-set-key (kbd "M-A")
+		(lambda ()(interactive)
+		  (progn
+		    (when (require 'helm-ag nil t)
+		      (progn
+			(message "[*] helm-ag loaded")
+			(helm-ag)
+			)))))
+
+(global-set-key (kbd "M-w")
+		(lambda ()(interactive)
+		  (progn
+		    (when (require 'helm-swoop nil t)
+		      (progn
+			(message "[*] helm-swoop for helm-regex loaded")
+			(helm-regex)
+			)))))
+
+(global-set-key (kbd "M-W")
+		(lambda ()(interactive)
+		  (progn
+		    (when (require 'helm-swoop nil t)
+		      (progn
+			(message "[*] helm-swoop loaded")
+			(helm-swoop)
+			)))))
 
 ;; flycheck
 ;;(if (not (eq system-type 'darwin))
