@@ -11,6 +11,8 @@
 	  (setq tags-file-name tagfile)
 	  (message "[+] file to generate: '%s'" tags-file-name)
 	  (shell-command (concat "touch " tags-file-name))
+	  (shell-command (format "cd %s; find . -type f -name '*el' | etags -" tagroot))
+	  
 	  ))))
 
 (defun utils/etags-tag-prepare (&optional extension)
