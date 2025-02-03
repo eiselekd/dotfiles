@@ -11,12 +11,7 @@
 	  (setq tags-file-name tagfile)
 	  (message "[+] file to generate: '%s'" tags-file-name)
 	  (shell-command (concat "touch " tags-file-name))
-	  (let* ((file              (buffer-file-name (current-buffer)))
-		 )
-	    (message "[+] run etags-update.pl")
-	    (shell-command (format "~/git/dotfiles/.emacs.d/lisp/lib/etags-update.pl %s %s" tags-file-name file))
-	    tagfile
-	    )))))
+	  ))))
 
 (defun utils/etags-tag-prepare (&optional extension)
   "Run etags on all peer files in current dir and reload them silently."
