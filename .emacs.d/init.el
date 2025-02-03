@@ -54,6 +54,12 @@
 (require 'moreconf-erc.el nil t)
 (add-to-list 'load-path *.emacs.d.lisp.dir*)
 (add-to-list 'load-path (expand-file-name "lib" *.emacs.d.lisp.dir*  ))
+(add-to-list 'load-path (expand-file-name "lib_pre" *.emacs.d.lisp.dir*  ))
+
+
+(autoload 'outline-mode (expand-file-name "lib_pre/outline.el" *.emacs.d.lisp.dir*  ))
+(outline-mode)
+
 (add-to-list 'load-path (expand-file-name "themes/solarized-emacs" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "wanderlust/elmo" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "wanderlust/wl" *.emacs.d.dir* ))
@@ -108,6 +114,9 @@
 (add-to-list 'load-path (expand-file-name "lib/racket-mode" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/hyperbole" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/rust" *.emacs.d.lisp.dir* ))
+
+(message "load path: %s"  load-path)
+
 
 
 ;;* Encoding
