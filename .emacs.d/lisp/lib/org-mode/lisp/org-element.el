@@ -1,6 +1,5 @@
 ;;; org-element.el --- Parser for Org Syntax         -*- lexical-binding: t; -*-
 
-
 ;; Copyright (C) 2012-2024 Free Software Foundation, Inc.
 
 ;; Author: Nicolas Goaziou <n.goaziou at gmail dot com>
@@ -490,8 +489,8 @@ still has an entry since one of its properties (`:title') does.")
   "Parse paired brackets at point.
 CHAR is the opening bracket to consider, as a character.  Return
 contents between brackets, as a string, or nil.  Also move point
-past the brackets."
-  (when (eq char (char-after))
+past the brackets." 
+  (when (eq char (char-after)) 
     (let ((syntax-table (pcase char
 			  (?\{ org-element--pair-curly-table)
 			  (?\[ org-element--pair-square-table)

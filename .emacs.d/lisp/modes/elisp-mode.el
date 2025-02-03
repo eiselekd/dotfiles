@@ -31,8 +31,6 @@
 		(utils/etags-tag-prepare)
 		(etags-update-mode))
 
-	      
-
 	      (when (require 'which-func)
 		(if (fboundp 'which-func-mode)
 		    (which-func-mode 1)))

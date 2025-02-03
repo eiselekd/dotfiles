@@ -154,6 +154,7 @@
 					   (require 'utils/etags.el nil t)
 					 (progn
 					   (utils/etags-tag-prepare)
+					   (utils/etags-search-tags-file)
 					   ;;(visit-tag-tabel)
 					   ;;(etags-select-find-tag-at-point )
 					   (etags-select-find-tag-at-point )
