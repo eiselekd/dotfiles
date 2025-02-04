@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 (require 'json)
-(require 'orgreport)
+(require 'utils/org-report)
 
 ;; set the appropriate file name, which can be included as org-agenda file
 (defvar gtest-report "~/org/gtest.org")
@@ -39,4 +39,5 @@
                   :stderr gtlog
                   :sentinel #'(lambda(process event)
                                 (gt-completed json-file-name)))))
-(provide 'gtest)
+
+(provide 'utils/gtest)
