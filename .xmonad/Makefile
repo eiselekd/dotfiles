@@ -8,7 +8,7 @@ prep:
 	rm -rf xmonad-git xmonad-contrib-git xmobar-git
 	git clone "https://github.com/xmonad/xmonad" xmonad-git
 	git clone "https://github.com/xmonad/xmonad-contrib" xmonad-contrib-git
-	git clone "https://github.com/mathstuf/xmobar" xmobar-git
+	git clone "https://codeberg.org/xmobar/xmobar.git" xmobar-git
 
 solve:
 	cp stack.yaml.txt stack.yaml
