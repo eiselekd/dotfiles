@@ -1,15 +1,15 @@
 # ~/.xmonad/stack.yaml
-resolver: lts-14.20
+resolver: lts-22.43
 packages:
 - xmobar-git
 - xmonad-git
 - xmonad-contrib-git
-extra-deps: 
-- netlink-1.1.1.0
-- parsec-numbers-0.1.0
+#extra-deps: 
+#- netlink-1.1.1.0
+#- parsec-numbers-0.1.0
 allow-newer: true
-flags:
-  xmobar:
-    all_extensions: true
+#flags:
+#  xmobar:
+#    all_extensions: true
 extra-package-dbs: []
 
