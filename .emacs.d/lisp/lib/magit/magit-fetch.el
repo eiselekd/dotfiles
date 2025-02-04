@@ -1,9 +1,9 @@
 ;;; magit-fetch.el --- Download objects and refs  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2023 The Magit Project Contributors
+;; Copyright (C) 2008-2025 The Magit Project Contributors
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -37,7 +37,8 @@
   ["Arguments"
    ("-p" "Prune deleted branches" ("-p" "--prune"))
    ("-t" "Fetch all tags" ("-t" "--tags"))
-   (7 "-u" "Fetch full history" "--unshallow")]
+   ("-u" "Fetch full history" "--unshallow" :level 7)
+   ("-F" "Force" ("-f" "--force"))]
   ["Fetch from"
    ("p" magit-fetch-from-pushremote)
    ("u" magit-fetch-from-upstream)
@@ -177,11 +178,6 @@ with a prefix argument."
                  (list nil (transient-args 'magit-fetch-modules))))
   (if transient
       (transient-setup 'magit-fetch-modules)
-    (when (magit-git-version< "2.8.0")
-      (when-let ((value (transient-arg-value "--jobs=" args)))
-        (message "Dropping --jobs; not supported by Git v%s"
-                 (magit-git-version))
-        (setq args (remove (format "--jobs=%s" value) args))))
     (magit-with-toplevel
       (magit-run-git-async "fetch" "--recurse-submodules" args))))
 

@@ -1,9 +1,9 @@
 ;;; magit-wip.el --- Commit snapshots to work-in-progress refs  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2023 The Magit Project Contributors
+;; Copyright (C) 2008-2025 The Magit Project Contributors
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -158,14 +158,13 @@ variant `magit-wip-after-save-mode'."
                        (let (files)
                          (if-let ((elt (assoc top magit--wip-activation-cache)))
                              (setq files (cddr elt))
-                           (progn
-                             (setq files (let ((default-directory top))
-                                           (magit-tracked-files)))
-                             (push `(,top ,top ,@files)
-                                   magit--wip-activation-cache)
-                             (unless (eq default-directory top)
-                               (push `(,default-directory ,top ,@files)
-                                     magit--wip-activation-cache))))
+                           (setq files (let ((default-directory top))
+                                         (magit-tracked-files)))
+                           (push `(,top ,top ,@files)
+                                 magit--wip-activation-cache)
+                           (unless (eq default-directory top)
+                             (push `(,default-directory ,top ,@files)
+                                   magit--wip-activation-cache)))
                          (member (file-relative-name buffer-file-name) files))
                      (push (list default-directory nil)
                            magit--wip-activation-cache)
@@ -186,13 +185,13 @@ variant `magit-wip-after-save-mode'."
 Also see `magit-wip-after-save-mode' which calls this function
 automatically whenever a buffer visiting a tracked file is saved."
   (interactive (list "wip-save %s after save"))
-  (unless magit--wip-inhibit-autosave
-    (when-let ((ref (magit-wip-get-ref)))
-      (magit-with-toplevel
-        (let ((file (file-relative-name buffer-file-name)))
-          (magit-wip-commit-worktree
-           ref (list file)
-           (format (or msg "autosave %s after save") file)))))))
+  (when-let (((not magit--wip-inhibit-autosave))
+             (ref (magit-wip-get-ref)))
+    (magit-with-toplevel
+      (let ((file (file-relative-name buffer-file-name)))
+        (magit-wip-commit-worktree
+         ref (list file)
+         (format (or msg "autosave %s after save") file))))))
 
 ;;;###autoload
 (define-minor-mode magit-wip-after-apply-mode
@@ -318,11 +317,9 @@ commit message."
                        ;; Note: `update-index' is used instead of `add'
                        ;; because `add' will fail if a file is already
                        ;; deleted in the temporary index.
-                       (magit-call-git
-                        "update-index" "--add" "--remove"
-                        (and (magit-git-version>= "2.25.0")
-                             "--ignore-skip-worktree-entries")
-                        "--" files)
+                       (magit-call-git "update-index" "--add" "--remove"
+                                       "--ignore-skip-worktree-entries"
+                                       "--" files)
                      (magit-with-toplevel
                        (magit-call-git "add" "-u" ".")))
                    (magit-git-string "write-tree"))))
@@ -359,9 +356,9 @@ commit message."
         (setq msg (concat
                    (cond ((= len 0) "autosave tracked files")
                          ((> len 1) (format "autosave %s files" len))
-                         (t (concat "autosave "
-                                    (file-relative-name (car files)
-                                                        (magit-toplevel)))))
+                         ((concat "autosave "
+                                  (file-relative-name (car files)
+                                                      (magit-toplevel)))))
                    msg))))
     (magit-update-ref wipref msg
                       (magit-git-string "commit-tree" "--no-gpg-sign"
@@ -461,7 +458,7 @@ many \"branches\" of each wip ref are shown."
       (while (and reflog (> count 1))
         ;; "start autosaving ..." is the current message, but it used
         ;; to be "restart autosaving ...", and those messages may
-        ;; still be around (e.g., if gc.reflogExpire is to "never").
+        ;; still be around (e.g., if gc.reflogExpire is set to "never").
         (setq reflog (cl-member "^[^ ]+ [^:]+: \\(?:re\\)?start autosaving"
                                 reflog :test #'string-match-p))
         (when (and (cadr reflog)

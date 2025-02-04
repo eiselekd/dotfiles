@@ -1,9 +1,9 @@
 ;;; magit-notes.el --- Notes support  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2023 The Magit Project Contributors
+;; Copyright (C) 2008-2025 The Magit Project Contributors
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -192,8 +192,8 @@ Also see `magit-notes-merge'."
 
 (defun magit-notes-read-args (prompt)
   (list (magit-read-branch-or-commit prompt (magit-stash-at-point))
-        (and-let* ((str (--first (string-match "^--ref=\\(.+\\)" it)
-                                 (transient-args 'magit-notes))))
+        (and-let* ((str (seq-find (##string-match "^--ref=\\(.+\\)" %)
+                                  (transient-args 'magit-notes))))
           (match-string 1 str))))
 
 ;;; _

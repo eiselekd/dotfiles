@@ -1,9 +1,9 @@
 ;;; magit-remote.el --- Transfer Git commits  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2023 The Magit Project Contributors
+;; Copyright (C) 2008-2025 The Magit Project Contributors
 
-;; Author: Jonas Bernoulli <jonas@bernoul.li>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Author: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -68,9 +68,7 @@ has to be used to view and change remote related variables."
   :man-page "git-remote"
   :value '("-f")
   ["Variables"
-   :if (lambda ()
-         (and magit-remote-direct-configure
-              (oref transient--prefix scope)))
+   :if (lambda () (and magit-remote-direct-configure (transient-scope)))
    ("u" magit-remote.<remote>.url)
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)
@@ -181,12 +179,13 @@ the now stale refspecs.  Other stale branches are not removed."
               (ours   (match-string 3 refspec)))
           (unless (if (string-match "\\*" theirs)
                       (let ((re (replace-match ".*" t t theirs)))
-                        (--some (string-match-p re it) remote-refs))
+                        (seq-some (##string-match-p re %) remote-refs))
                     (member theirs remote-refs))
             (push (cons refspec
                         (if (string-match "\\*" ours)
                             (let ((re (replace-match ".*" t t ours)))
-                              (--filter (string-match-p re it) tracking-refs))
+                              (seq-filter (##string-match-p re %)
+                                          tracking-refs))
                           (list (car (member ours tracking-refs)))))
                   stale)))))
     (if (not stale)
@@ -201,18 +200,18 @@ the now stale refspecs.  Other stale branches are not removed."
                  variable))
             (?r "[r]emove remote"
                 (magit-call-git "remote" "rm" remote))
-            (?a "or [a]abort"
+            (?a "[a]abort"
                 (user-error "Abort")))
         (if (if (length= stale 1)
                 (pcase-let ((`(,refspec . ,refs) (car stale)))
                   (magit-confirm 'prune-stale-refspecs
-                    (format "Prune stale refspec %s and branch %%s" refspec)
-                    (format "Prune stale refspec %s and %%d branches" refspec)
+                    (list "Prune stale refspec %s and branch %%s" refspec)
+                    (list "Prune stale refspec %s and %%d branches" refspec)
                     nil refs))
               (magit-confirm 'prune-stale-refspecs nil
                 (format "Prune %%d stale refspecs and %d branches"
-                        (length (cl-mapcan (lambda (s) (copy-sequence (cdr s)))
-                                           stale)))
+                        (length (mapcan (lambda (s) (copy-sequence (cdr s)))
+                                        stale)))
                 nil
                 (mapcar (pcase-lambda (`(,refspec . ,refs))
                           (concat refspec "\n"
@@ -314,9 +313,8 @@ refspec."
   :man-page "git-remote"
   [:description
    (lambda ()
-     (concat
-      (propertize "Configure " 'face 'transient-heading)
-      (propertize (oref transient--prefix scope) 'face 'magit-branch-remote)))
+     (concat (propertize "Configure " 'face 'transient-heading)
+             (propertize (transient-scope) 'face 'magit-branch-remote)))
    ("u" magit-remote.<remote>.url)
    ("U" magit-remote.<remote>.fetch)
    ("s" magit-remote.<remote>.pushurl)

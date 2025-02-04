@@ -1,9 +1,9 @@
 ;;; git-rebase.el --- Edit Git rebase files  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2008-2023 The Magit Project Contributors
+;; Copyright (C) 2008-2025 The Magit Project Contributors
 
 ;; Author: Phil Jackson <phil@shellarchive.co.uk>
-;; Maintainer: Jonas Bernoulli <jonas@bernoul.li>
+;; Maintainer: Jonas Bernoulli <emacs.magit@jonas.bernoulli.dev>
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -375,13 +375,11 @@ non-nil, return the beginning and end of the current rebase line,
 if any."
   (cond
    ((use-region-p)
-    (let ((beg (save-excursion (goto-char (region-beginning))
-                               (line-beginning-position)))
-          (end (save-excursion (goto-char (region-end))
-                               (line-end-position))))
-      (when (and (git-rebase-line-p beg)
-                 (git-rebase-line-p end))
-        (list beg (1+ end)))))
+    (let ((beg (magit--bol-position (region-beginning)))
+          (end (magit--eol-position (region-end))))
+      (and (git-rebase-line-p beg)
+           (git-rebase-line-p end)
+           (list beg (1+ end)))))
    ((and fallback (git-rebase-line-p))
     (list (line-beginning-position)
           (1+ (line-end-position))))))
@@ -705,6 +703,7 @@ Rebase files are generated when you run \"git rebase -i\" or run
 `magit-interactive-rebase'.  They describe how Git should perform
 the rebase.  See the documentation for git-rebase (e.g., by
 running \"man git-rebase\" at the command line) for details."
+  :interactive nil
   :group 'git-rebase
   (setq comment-start (or (magit-get "core.commentChar") "#"))
   (setq git-rebase-comment-re (concat "^" (regexp-quote comment-start)))
@@ -718,8 +717,10 @@ running \"man git-rebase\" at the command line) for details."
   (when git-rebase-confirm-cancel
     (add-hook 'with-editor-cancel-query-functions
               #'git-rebase-cancel-confirm nil t))
-  (setq-local redisplay-highlight-region-function #'git-rebase-highlight-region)
-  (setq-local redisplay-unhighlight-region-function #'git-rebase-unhighlight-region)
+  (setq-local redisplay-highlight-region-function
+              #'git-rebase-highlight-region)
+  (setq-local redisplay-unhighlight-region-function
+              #'git-rebase-unhighlight-region)
   (add-hook 'with-editor-pre-cancel-hook  #'git-rebase-autostash-save  nil t)
   (add-hook 'with-editor-post-cancel-hook #'git-rebase-autostash-apply nil t)
   (setq imenu-prev-index-position-function
@@ -775,7 +776,7 @@ running \"man git-rebase\" at the command line) for details."
     (git-rebase-match-comment-line 0 'font-lock-comment-face)
     ("\\[[^[]*\\]"
      0 'magit-keyword t)
-    ("\\(?:fixup!\\|squash!\\)"
+    ("\\(?:fixup!\\|squash!\\|amend!\\)"
      0 'magit-keyword-squash t)
     (,(format "^%s Rebase \\([^ ]*\\) onto \\([^ ]*\\)" comment-start)
      (1 'git-rebase-comment-hash t)
