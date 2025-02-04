@@ -155,7 +155,8 @@ already hidden."
 		     (list mode-line-format))
 	       (setq mode-line-format nil)
 	       ;; bug workaround
-	       (redraw-modeline)))))
+	       ;;(redraw-modeline)
+	       ))))
 (defun show-mode-line-in (buffer)
   "If the specified BUFFER's mode line is hidden, un-hides it.
 
