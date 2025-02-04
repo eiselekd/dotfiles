@@ -56,9 +56,11 @@
 (add-to-list 'load-path (expand-file-name "lib" *.emacs.d.lisp.dir*  ))
 (add-to-list 'load-path (expand-file-name "lib_pre" *.emacs.d.lisp.dir*  ))
 
-
-(autoload 'outline-mode (expand-file-name "lib_pre/outline.el" *.emacs.d.lisp.dir*  ))
-(outline-mode)
+(if (version< "29.1" emacs-version )
+    (progn
+      (message "emacs > 29.1 overload outline")
+      (autoload 'outline-mode (expand-file-name "lib_pre/outline.el" *.emacs.d.lisp.dir*  ))
+      (outline-mode)))
 
 (add-to-list 'load-path (expand-file-name "themes/solarized-emacs" *.emacs.d.dir* ))
 (add-to-list 'load-path (expand-file-name "wanderlust/elmo" *.emacs.d.dir* ))
