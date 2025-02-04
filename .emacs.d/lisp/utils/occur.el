@@ -16,8 +16,8 @@
 (defun multi-occur-in-this-mode ()
   "Show all lines matching REGEXP in buffers with this major mode."
   (interactive)
-  (require 'swiper)
-  (swiper-isearch))
+  (require 'swiper-helm)
+  (swiper-helm))
 
 ;;  (multi-occur
 ;;   (get-buffers-matching-mode major-mode)

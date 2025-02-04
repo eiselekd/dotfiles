@@ -72,6 +72,7 @@
 (add-to-list 'load-path (expand-file-name "helm" *.emacs.d.lisp.dir* )) ;; async for helm
 (add-to-list 'load-path (expand-file-name "evil" *.emacs.d.lisp.dir* )) ;; async for helm
 (add-to-list 'load-path (expand-file-name "lib/swiper" *.emacs.d.lisp.dir* )) ;; async for helm
+(add-to-list 'load-path (expand-file-name "lib/swiper-helm" *.emacs.d.lisp.dir* )) ;; async for helm
 (setq ad-redefinition-action 'accept) ;;ad-handle-definition: `tramp-read-passwd' got redefined
 (add-to-list 'load-path (expand-file-name "company-mode" *.emacs.d.lisp.dir* ))
 
