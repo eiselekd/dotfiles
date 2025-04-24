@@ -510,7 +510,12 @@
 (global-set-key (kbd "C-c <up>")    'windmove-up)
 (global-set-key (kbd "C-c <down>")  'windmove-down)
 
-
+(add-hook 'makefile-mode-hook
+	  (lambda ()
+	    (message "[+] Scroll with cursor in place set")
+	    (global-set-key (kbd "M-n") "\C-u1\C-v")
+	    (global-set-key (kbd "M-p") "\C-u1\M-v")
+	    ))
 
 ;; hide modeline when only one frame
 (autoload 'hide-mode-line "hide-mode-line" nil t)

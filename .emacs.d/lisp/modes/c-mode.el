@@ -330,6 +330,9 @@
 				    (utils/shell)
 				    )))
 
+
+  (require 'utils/gtest )
+  
   ;; (setq c-default-style
   ;; 	'((java-mode . "java")
   ;; 	  (awk-mode . "awk")

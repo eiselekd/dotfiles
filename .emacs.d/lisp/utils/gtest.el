@@ -1,4 +1,5 @@
 ;;; -*- lexical-binding: t -*-
+
 (require 'json)
 (require 'utils/org-report)
 
@@ -39,5 +40,4 @@
                   :stderr gtlog
                   :sentinel #'(lambda(process event)
                                 (gt-completed json-file-name)))))
-
 (provide 'utils/gtest)

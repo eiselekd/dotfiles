@@ -201,6 +201,8 @@ startdefaultinws = do
 
 -- XDG_CURRENT_DESKTOP issue:
 -- https://gitlab.gnome.org/GNOME/gnome-control-center/-/issues/2379
+-- /usr/lib/systemd/user/indicator-sound.service :
+-- ++ Environment="XDG_CURRENT_DESKTOP=GNOME-Flashback:GNOME"
 
 startgpanel :: X ()
 startgpanel = do
