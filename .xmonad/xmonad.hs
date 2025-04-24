@@ -199,6 +199,9 @@ startdefaultinws = do
 -- groupBy str delim = let (start, end) = break (== delim) str
 --                   in start : if null end then [] else groupBy (tail end) delim
 
+-- XDG_CURRENT_DESKTOP issue:
+-- https://gitlab.gnome.org/GNOME/gnome-control-center/-/issues/2379
+
 startgpanel :: X ()
 startgpanel = do
      gp <- liftIO $ runProcessWithInput  "pidof" ["gnome-panel"] ""
