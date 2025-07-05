@@ -314,10 +314,10 @@
 
   (utils/debug-keybind)
 
-  (c-set-style "gnu")
   (setq c-basic-offset 4
         c-indent-level 4
         c-default-style "bsd")
+  (c-set-style "gnu")
 
   (message (format "[*] set gdb key"))
   (require 'utils/shell.el)

@@ -198,6 +198,12 @@
       ;;(powerline-default-theme)
       ;;(setq powerline-default-separator 'utf-8)
 
+      (if window-system
+	  (progn
+	    (require 'spaceline-config)
+	    (spaceline-spacemacs-theme)))
+
+
       ;;(require 'spaceline-config)
       ;;(spaceline-spacemacs-theme)
       
