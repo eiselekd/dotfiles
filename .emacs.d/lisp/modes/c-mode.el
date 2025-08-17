@@ -340,6 +340,9 @@
   ;; 	  (c++-mode . "bsd")
   ;; 	  (other . "gnu")))
 
+  (require 'copilot )
+
+  
 
   )
 
