@@ -117,6 +117,7 @@
 (add-to-list 'load-path (expand-file-name "lib/racket-mode" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/hyperbole" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/rust" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/copilot/copilot.el" *.emacs.d.lisp.dir* ))
 
 (message "load path: %s"  load-path)
 
@@ -502,10 +503,14 @@
 (require 'modes/org-mode.el)
 (message "[*] %s retire org-mode" (timestamp_str))
 (require 'modes/l8-mode.el)
+(message "[*] %s retire svelte-mode" (timestamp_str))
+(require 'svelte-mode)
 (message "[*] %s retire l8-mode" (timestamp_str))
 (require 'modes/raku-mode.el)
 (message "[*] %s retire raku-mode" (timestamp_str))
 (require 'modes/tex-mode.el)
+(message "[*] %s retire javacript-mode" (timestamp_str))
+(require 'modes/javascript-mode.el)
 ;;(ido-mode 1)
 (message (format "[*] %s retired config modes" (timestamp_str)))
 
@@ -905,4 +910,4 @@
 ;;   ;; If using org-roam-protocol
 ;;   (require 'org-roam-protocol))
 
-
+(setq-default indent-tabs-mode nil)

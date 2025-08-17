@@ -827,7 +827,7 @@ forward spans from pos."
                           (cons (point-max) (point-max)))))
             (when can-overlap
               (goto-char (cdr head))
-              (when-let ((hbeg (car (funcall head-matcher 1))))
+              (when-let* ((hbeg (car (funcall head-matcher 1))))
                 (when (< hbeg (car tail))
                   (setq tail (cons hbeg hbeg)))))
             (list (car head) (cdr head) (car tail) (cdr tail))))))))

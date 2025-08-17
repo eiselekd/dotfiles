@@ -950,8 +950,8 @@ example, sets a variable use `transient-define-infix' instead.
                             (vectorp (car value))))
                    (cl-mapcan (lambda (s) (transient--parse-child prefix s)) value)
                  (transient--parse-child prefix value))))
-    (vector  (when-let ((c (transient--parse-group  prefix spec))) (list c)))
-    (list    (when-let ((c (transient--parse-suffix prefix spec))) (list c)))
+    (vector  (when-let* ((c (transient--parse-group  prefix spec))) (list c)))
+    (list    (when-let* ((c (transient--parse-suffix prefix spec))) (list c)))
     (string  (list spec))))
 
 (defun transient--parse-group (prefix spec)
@@ -1016,7 +1016,7 @@ example, sets a variable use `transient-define-infix' instead.
              (setq args (plist-put args :argument (cadr arg)))
              (setq arg  (cadr arg)))
             (string
-             (when-let ((shortarg (transient--derive-shortarg arg)))
+             (when-let* ((shortarg (transient--derive-shortarg arg)))
                (setq args (plist-put args :shortarg shortarg)))
              (setq args (plist-put args :argument arg))))
           (setq args (plist-put args :command
@@ -1038,7 +1038,7 @@ example, sets a variable use `transient-define-infix' instead.
             (:level (setq level pop))
             (t (setq args (plist-put args k pop)))))))
     (unless (plist-get args :key)
-      (when-let ((shortarg (plist-get args :shortarg)))
+      (when-let* ((shortarg (plist-get args :shortarg)))
         (setq args (plist-put args :key shortarg))))
     (list (or level transient--default-child-level)
           (or class 'transient-suffix)
@@ -1170,7 +1170,7 @@ LOC is a command, a key vector, a key description (a string
   as returned by `key-description'), or a coordination list
   (whose last element may also be a command or key).
 See info node `(transient)Modifying Existing Transients'."
-  (if-let ((mem (transient--layout-member loc prefix)))
+  (if-let* ((mem (transient--layout-member loc prefix)))
       (car mem)
     (error "%s not found in %s" loc prefix)))
 
@@ -1247,7 +1247,7 @@ See info node `(transient)Modifying Existing Transients'."
          (plist-get plist :command)))))
 
 (defun transient--command-key (cmd)
-  (when-let ((obj (get cmd 'transient--suffix)))
+  (when-let* ((obj (get cmd 'transient--suffix)))
     (cond ((slot-boundp obj 'key)
            (oref obj key))
           ((slot-exists-p obj 'shortarg)
@@ -1373,7 +1373,7 @@ probably use this instead:
                         (or command this-original-command)))
                   (or transient--suffixes
                       transient-current-suffixes))
-    (when-let ((obj (get (or command this-command) 'transient--suffix))
+    (when-let* ((obj (get (or command this-command) 'transient--suffix))
                (obj (clone obj)))
       (transient-init-scope obj)
       (transient-init-value obj)
@@ -1585,7 +1585,7 @@ of the corresponding object.")
           (oset obj key key))
         (let ((kbd (kbd key))
               (cmd (transient--suffix-command obj)))
-          (when-let ((conflict (and transient-detect-key-conflicts
+          (when-let* ((conflict (and transient-detect-key-conflicts
                                     (transient--lookup-key map kbd))))
             (unless (eq cmd conflict)
               (error "Cannot bind %S to %s and also %s"
@@ -1755,7 +1755,7 @@ value.  Otherwise return CHILDREN as is."
     (when (transient--use-level-p level)
       (let ((obj (apply class :level level args)))
         (when (transient--use-suffix-p obj)
-          (when-let ((suffixes
+          (when-let* ((suffixes
                       (cl-mapcan (lambda (c) (transient--init-child levels c))
                                  (transient-setup-children obj children))))
             (oset obj suffixes suffixes)
@@ -1772,7 +1772,7 @@ value.  Otherwise return CHILDREN as is."
         (transient--debug "   autoload %s" cmd)
         (autoload-do-load fn)))
     (when (transient--use-level-p level)
-      (let ((obj (if-let ((proto (and cmd
+      (let ((obj (if-let* ((proto (and cmd
                                       (symbolp cmd)
                                       (get cmd 'transient--suffix))))
                      (apply #'clone proto :level level args)
@@ -1794,7 +1794,7 @@ value.  Otherwise return CHILDREN as is."
   (if (transient-switches--eieio-childp obj)
       (cl-call-next-method obj)
     (unless (slot-boundp obj 'shortarg)
-      (when-let ((shortarg (transient--derive-shortarg (oref obj argument))))
+      (when-let* ((shortarg (transient--derive-shortarg (oref obj argument))))
         (oset obj shortarg shortarg)))
     (unless (slot-boundp obj 'key)
       (if (slot-boundp obj 'shortarg)
@@ -1855,7 +1855,7 @@ value.  Otherwise return CHILDREN as is."
 (defun transient--suffix-predicate (spec)
   (let ((plist (nth 2 spec)))
     (seq-some (lambda (prop)
-                (when-let ((pred (plist-get plist prop)))
+                (when-let* ((pred (plist-get plist prop)))
                   (list prop pred)))
               '( :if :if-not
                  :if-nil :if-non-nil
@@ -1906,7 +1906,7 @@ value.  Otherwise return CHILDREN as is."
     (setq this-command 'transient-set-level))
    (t
     (setq transient--exitp nil)
-    (when (eq (if-let ((fn (transient--get-predicate-for
+    (when (eq (if-let* ((fn (transient--get-predicate-for
                             this-original-command)))
                   (let ((action (funcall fn)))
                     (when (eq action transient--exit)
@@ -2423,9 +2423,9 @@ Otherwise call the primary method according to objects class."
   (if (slot-boundp obj 'value)
       (oref obj value)
     (oset obj value
-          (if-let ((saved (assq (oref obj command) transient-values)))
+          (if-let* ((saved (assq (oref obj command) transient-values)))
               (cdr saved)
-            (if-let ((default (and (slot-boundp obj 'default-value)
+            (if-let* ((default (and (slot-boundp obj 'default-value)
                                    (oref obj default-value))))
                 (if (functionp default)
                     (funcall default)
@@ -2446,7 +2446,7 @@ Otherwise call the primary method according to objects class."
         (transient--value-match (oref obj argument-regexp))))
 
 (defun transient--value-match (re)
-  (when-let ((match (cl-find-if (lambda (v)
+  (when-let* ((match (cl-find-if (lambda (v)
                                   (and (stringp v)
                                        (string-match re v)))
                                 (oref transient--prefix value))))
@@ -2553,7 +2553,7 @@ it\", in which case it is pointless to preserve history.)"
 The last value is \"don't use any of these switches\"."
   (let ((choices (mapcar (apply-partially #'format (oref obj argument-format))
                          (oref obj choices))))
-    (if-let ((value (oref obj value)))
+    (if-let* ((value (oref obj value)))
         (cadr (member value choices))
       (car choices))))
 
@@ -2636,18 +2636,18 @@ command-line option) or \": \".
 
 Finally fall through to using \"(BUG: no prompt): \" as the
 prompt."
-  (if-let ((prompt (oref obj prompt)))
+  (if-let* ((prompt (oref obj prompt)))
       (let ((prompt (if (functionp prompt)
                         (funcall prompt obj)
                       prompt)))
         (if (stringp prompt)
             prompt
           "(BUG: no prompt): "))
-    (or (when-let ((arg (and (slot-boundp obj 'argument) (oref obj argument))))
+    (or (when-let* ((arg (and (slot-boundp obj 'argument) (oref obj argument))))
           (if (and (stringp arg) (string-suffix-p "=" arg))
               arg
             (concat arg ": ")))
-        (when-let ((var (and (slot-boundp obj 'variable) (oref obj variable))))
+        (when-let* ((var (and (slot-boundp obj 'variable) (oref obj variable))))
           (and (stringp var)
                (concat var ": ")))
         "(BUG: no prompt): ")))
@@ -2668,13 +2668,13 @@ prompt."
   (let ((arg (if (slot-boundp obj 'argument)
                  (oref obj argument)
                (oref obj argument-regexp))))
-    (if-let ((sic (and value arg transient--unset-incompatible))
+    (if-let* ((sic (and value arg transient--unset-incompatible))
              (spec (oref transient--prefix incompatible))
              (incomp (remove arg (cl-find-if (lambda (elt) (member arg elt)) spec))))
         (progn
           (cl-call-next-method obj value)
           (dolist (arg incomp)
-            (when-let ((obj (cl-find-if (lambda (obj)
+            (when-let* ((obj (cl-find-if (lambda (obj)
                                           (and (slot-boundp obj 'argument)
                                                (equal (oref obj argument) arg)))
                                         transient--suffixes)))
@@ -2755,7 +2755,7 @@ does nothing." nil)
 ARGUMENT and VALUE are the values of the respective slots of OBJ.
 If VALUE is nil, then return nil.  VALUE may be the empty string,
 which is not the same as nil."
-  (when-let ((value (oref obj value)))
+  (when-let* ((value (oref obj value)))
     (concat (oref obj argument) value)))
 
 (cl-defmethod transient-infix-value ((_   transient-variable))
@@ -2772,7 +2772,7 @@ contribute to the value of the transient."
 ARGUMENT and VALUE are the values of the respective slots of OBJ.
 If VALUE is nil, then return nil.  VALUE may be the empty string,
 which is not the same as nil."
-  (when-let ((value (oref obj value)))
+  (when-let* ((value (oref obj value)))
     (cons (oref obj argument) value)))
 
 ;;;; Utilities
@@ -2785,7 +2785,7 @@ a string, using the empty string for the empty value, or nil if
 the option does not appear in ARGS."
   (if (string-match-p "=\\'" arg)
       (save-match-data
-        (when-let ((match (let ((re (format "\\`%s\\(?:=\\(.+\\)\\)?\\'"
+        (when-let* ((match (let ((re (format "\\`%s\\(?:=\\(.+\\)\\)?\\'"
                                             (substring arg 0 -1))))
                             (cl-find-if (lambda (a)
                                           (and (stringp a)
@@ -2889,7 +2889,7 @@ have a history of their own.")
       (when (and (eq transient-mode-line-format 'line)
                  window-system)
         (let ((face
-               (if-let ((f (and (transient--semantic-coloring-p)
+               (if-let* ((f (and (transient--semantic-coloring-p)
                                 (transient--prefix-color transient--prefix))))
                    `(,@(and (>= emacs-major-version 27) '(:extend t))
                      :background ,(face-foreground f))
@@ -2923,7 +2923,7 @@ have a history of their own.")
 
 (cl-defmethod transient--insert-group :before ((group transient-group))
   "Insert GROUP's description, if any."
-  (when-let ((desc (transient-format-description group)))
+  (when-let* ((desc (transient-format-description group)))
     (insert desc ?\n)))
 
 (cl-defmethod transient--insert-group ((group transient-row))
@@ -2947,7 +2947,7 @@ have a history of their own.")
            (lambda (column)
              (transient--maybe-pad-keys column group)
              (let ((rows (mapcar 'transient-format (oref column suffixes))))
-               (when-let ((desc (transient-format-description column)))
+               (when-let* ((desc (transient-format-description column)))
                  (push desc rows))
                rows))
            (oref group suffixes)))
@@ -2959,7 +2959,7 @@ have a history of their own.")
     (if transient-force-single-column
         (dotimes (c cs)
           (dotimes (r rs)
-            (when-let ((cell (nth r (nth c columns))))
+            (when-let* ((cell (nth r (nth c columns))))
               (unless (equal cell "")
                 (insert cell ?\n))))
           (unless (= c (1- cs))
@@ -2967,7 +2967,7 @@ have a history of their own.")
       (dotimes (r rs)
         (dotimes (c cs)
           (insert (make-string (- (nth c cc) (current-column)) ?\s))
-          (when-let ((cell (nth r (nth c columns))))
+          (when-let* ((cell (nth r (nth c columns))))
             (insert cell))
           (when (= c (1- cs))
             (insert ?\n)))))))
@@ -3112,7 +3112,7 @@ Optional support for popup buttons is also implemented here."
   "The `description' slot may be a function, in which case that is
 called inside the correct buffer (see `transient-insert-group')
 and its value is returned to the caller."
-  (when-let ((desc (oref obj description)))
+  (when-let* ((desc (oref obj description)))
     (if (functionp desc)
         (with-current-buffer transient--original-buffer
           (funcall desc))
@@ -3122,7 +3122,7 @@ and its value is returned to the caller."
   "Format the description by calling the next method.  If the result
 doesn't use the `face' property at all, then apply the face
 `transient-heading' to the complete string."
-  (when-let ((desc (cl-call-next-method obj)))
+  (when-let* ((desc (cl-call-next-method obj)))
     (if (text-property-not-all 0 (length desc) 'face nil desc)
         desc
       (propertize desc 'face 'transient-heading))))
@@ -3186,7 +3186,7 @@ If the OBJ's `key' is currently unreachable, then apply the face
 
 (cl-defmethod transient-format-value ((obj transient-files))
   (let ((argument (oref obj argument)))
-    (if-let ((value (oref obj value)))
+    (if-let* ((value (oref obj value)))
         (propertize (concat argument " "
                             (mapconcat (lambda (f) (format "%S" f))
                                        (oref obj value) " "))
@@ -3206,7 +3206,7 @@ If the OBJ's `key' is currently unreachable, then apply the face
     (and val (not (integerp val)) val)))
 
 (defun transient--maybe-pad-keys (group &optional parent)
-  (when-let ((pad (if (slot-boundp group 'pad-keys)
+  (when-let* ((pad (if (slot-boundp group 'pad-keys)
                       (oref group pad-keys)
                     (and parent
                          (slot-boundp parent 'pad-keys)
@@ -3229,7 +3229,7 @@ that, else its name.
 Intended to be temporarily used as the `:suffix-description' of
 a prefix command, while porting a regular keymap to a transient."
   (let ((command (transient--suffix-symbol (oref obj command))))
-    (if-let ((doc (documentation command)))
+    (if-let* ((doc (documentation command)))
         (propertize (car (split-string doc "\n")) 'face 'font-lock-doc-face)
       (propertize (symbol-name command) 'face 'font-lock-function-name-face))))
 
@@ -3241,19 +3241,19 @@ a prefix command, while porting a regular keymap to a transient."
 (cl-defmethod transient-show-help ((obj transient-prefix))
   "Show the info manual, manpage or command doc-string.
 Show the first one that is specified."
-  (if-let ((manual (oref obj info-manual)))
+  (if-let* ((manual (oref obj info-manual)))
       (info manual)
-    (if-let ((manpage (oref obj man-page)))
+    (if-let* ((manpage (oref obj man-page)))
         (transient--show-manpage manpage)
       (transient--describe-function (oref obj command)))))
 
 (cl-defmethod transient-show-help ((obj transient-suffix))
   "Show the command doc-string."
   (if (eq this-original-command 'transient-help)
-      (if-let ((manpage (oref transient--prefix man-page)))
+      (if-let* ((manpage (oref transient--prefix man-page)))
           (transient--show-manpage manpage)
         (transient--describe-function (oref transient--prefix command)))
-    (if-let ((prefix (get (transient--suffix-command obj) 'transient--prefix))
+    (if-let* ((prefix (get (transient--suffix-command obj) 'transient--prefix))
              (manpage (oref prefix man-page)))
         (transient--show-manpage manpage)
       (transient--describe-function this-original-command))))
@@ -3262,7 +3262,7 @@ Show the first one that is specified."
   "Show the manpage if defined or the command doc-string.
 If the manpage is specified, then try to jump to the correct
 location."
-  (if-let ((manpage (oref transient--prefix man-page)))
+  (if-let* ((manpage (oref transient--prefix man-page)))
       (transient--show-manpage manpage (ignore-errors (oref obj argument)))
     (transient--describe-function this-original-command)))
 
@@ -3515,7 +3515,7 @@ search instead."
          (nonsuf (if (memq nonsuf '(transient--do-noop transient--do-warn))
                      'disallow
                    (get nonsuf 'transient-color)))
-         (suffix (if-let ((pred (oref command transient-suffix)))
+         (suffix (if-let* ((pred (oref command transient-suffix)))
                      (get pred 'transient-color)
                    (if (eq nonsuf 'transient-red)
                        'transient-red
