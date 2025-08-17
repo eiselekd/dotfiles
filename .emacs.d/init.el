@@ -118,6 +118,12 @@
 (add-to-list 'load-path (expand-file-name "lib/hyperbole" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/rust" *.emacs.d.lisp.dir* ))
 (add-to-list 'load-path (expand-file-name "lib/copilot/copilot.el" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/copilot/copilot-chat.el" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/copilot/mcp.el" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/copilot/emacs-request" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/copilot/emacs-aio" *.emacs.d.lisp.dir* ))
+(add-to-list 'load-path (expand-file-name "lib/copilot/aidermacs" *.emacs.d.lisp.dir* ))
+
 
 (message "load path: %s"  load-path)
 

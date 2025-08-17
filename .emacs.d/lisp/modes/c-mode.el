@@ -361,6 +361,22 @@
                           ))))
 
 
+  (global-set-key (kbd "M-p")
+                  (lambda () (interactive)
+                    (progn
+                      (when
+                          (require 'aidermacs )
+                        (progn
+                          (message (format "[+] aidermacs-transient-menu"))
+                          (aidermacs-transient-menu)
+                          ;;(aidermacs-default-chat-mode 'architect)
+                          ;;(aidermacs-default-model "sonnet")
+                          )
+
+                          ))))
+
+
+  
   
   
 
