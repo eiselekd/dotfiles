@@ -340,8 +340,28 @@
   ;; 	  (c++-mode . "bsd")
   ;; 	  (other . "gnu")))
 
-  (require 'copilot )
+  (make-local-variable 'copilot_active)
+  
+  (global-set-key (kbd "M-P")
+                  (lambda () (interactive)
+                    (progn
+                      (when
+                          (require 'copilot )
+                        (progn
+                          (message (format "[+] enable copilot"))
+                          (copilot-mode)
+                          (message (format "[+] set copilot-accept-completion"))
+                          (global-set-key (kbd "<backtab>") 'copilot-accept-completion)
+                          (message (format "[+] copilot-login"))
+                          (copilot-login)
 
+
+                          )
+                          
+                          ))))
+
+
+  
   
 
   )
