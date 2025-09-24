@@ -64,7 +64,7 @@
 ;;(global-set-key (kbd "C-S-V") #'paste-from-clipboard)
 
 
-(global-set-key (kbd "M-P")
+(global-set-key (kbd "ESC M-P")
                 (lambda () (interactive)
                   (progn
                     (when
@@ -80,7 +80,7 @@
                         )
                       ))))
 
-(global-set-key (kbd "M-p")
+(global-set-key (kbd "ESC M-p")
                 (lambda () (interactive)
                   (progn
                     (when
