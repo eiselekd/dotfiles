@@ -208,7 +208,8 @@
       (if window-system
 	  (progn
 	    (require 'spaceline-config)
-	    (spaceline-spacemacs-theme)))
+	    (spaceline-spacemacs-theme))
+        )
 
 
       ;;(require 'spaceline-config)
@@ -917,3 +918,6 @@
 ;;   (require 'org-roam-protocol))
 
 (setq-default indent-tabs-mode nil)
+
+;;(cua-mode)
+;;(require 'disable-mouse)
