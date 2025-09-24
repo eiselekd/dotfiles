@@ -64,6 +64,37 @@
 ;;(global-set-key (kbd "C-S-V") #'paste-from-clipboard)
 
 
+(global-set-key (kbd "M-P")
+                (lambda () (interactive)
+                  (progn
+                    (when
+                        (require 'copilot )
+                      (progn
+                        (message (format "[+] enable copilot"))
+                        (copilot-mode)
+                        (message (format "[+] set copilot-accept-completion"))
+                        (global-set-key (kbd "<backtab>") 'copilot-accept-completion)
+                        (message (format "[+] copilot-login"))
+                        (copilot-login)
+
+                        )
+                      ))))
+
+(global-set-key (kbd "M-p")
+                (lambda () (interactive)
+                  (progn
+                    (when
+                        (require 'aidermacs )
+                      (progn
+                        (message (format "[+] aidermacs-transient-menu"))
+                        (aidermacs-transient-menu)
+                        ;;(aidermacs-default-chat-mode 'architect)
+                        ;;(aidermacs-default-model "sonnet")
+                        )
+
+                      ))))
+
+
 ;; start egit
 (global-set-key (kbd "M-e")   (lambda ()(interactive)
 			       (progn
