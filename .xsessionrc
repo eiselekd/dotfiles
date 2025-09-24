@@ -2,22 +2,13 @@
 ( sleep 1; xsetbg ~/git/dotfiles/ubuntu/forest-2952025_1920.jpg ) &
 ( sleep 1; nm-applet ) &
 
-# Configuration
-LAYOUT_SCRIPT="~/.screenlayout/c.sh"
-
-# Check if we have the exact monitor configuration
 if xrandr | grep -q "eDP-1 connected" && \
    xrandr | grep -q "DP-3-1 connected" && \
    xrandr | grep -q "DP-3-3 connected"; then
 
-    echo "Triple dock configuration detected - running layout script"
-    if [[ -x "$LAYOUT_SCRIPT" ]]; then
-        "$LAYOUT_SCRIPT"
-        echo "Layout applied"
-    else
-        echo "Error: Layout script not found or not executable: $LAYOUT_SCRIPT"
-        exit 1
+    if [ -f ~/.screenlayout/c.sh ]; then
+        bash ~/.screenlayout/c.sh
     fi
 else
-    echo "Configuration not matched - no action taken"
+    echo "no config detected"
 fi
