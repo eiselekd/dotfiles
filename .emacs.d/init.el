@@ -65,9 +65,6 @@
 (global-set-key (kbd "M-S-<down>") 'enlarge-window)
 (global-set-key (kbd "M-S-<right>") 'enlarge-window-horizontally)
 (global-set-key (kbd "M-S-<left>") 'shrink-window-horizontally)
-;; scroll with cursor in place
-(global-set-key "\M-n" "\C-u1\C-v")
-(global-set-key "\M-p" "\C-u1\M-v")
 
 (global-set-key (kbd "M-e") (lambda()(interactive) (shell default-directory)))
 
@@ -430,6 +427,10 @@
 (setq inhibit-startup-screen t)
 
 (cua-mode)
+;; scroll with cursor in place, cua mode overwrite
+(global-set-key "\M-n" (lambda ()(interactive) (call-interactively 'scroll-up-line )))
+(global-set-key "\M-p" (lambda ()(interactive) (call-interactively 'scroll-down-line )))
+
 
 (use-package kanji-mode
     :ensure t
