@@ -30,10 +30,11 @@ Emacs:
  * ESC j : goto-line
  * ESC P : enable powerline statusbar
  * C-L : Zoom/Unzoom current pane
+ * ESC W : whitespace-cleanup
 
- * M-J : japanese input
- * M-s M-h : input buffer hiragana
- * C-x RET l Japanese RET : switch IME. C-\ switch eng/hiragana, M-x set-input-method RET japanese-katakana RET
+ * M-J : japanese input, hiragana, katakana
+ * C-\ : toggle eng/jap
+ * C-x RET l Japanese RET : switch IME. , M-x set-input-method RET japanese-katakana RET
  * C-h L                  : IME help
 
 Alsa:

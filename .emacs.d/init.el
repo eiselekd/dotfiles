@@ -437,6 +437,29 @@
 
 (cua-mode)
 
+(use-package kanji-mode
+    :ensure t
+  )
+
+;; start org-agenda
+(global-set-key (kbd "M-j")  'goto-line)
+(global-set-key (kbd "M-J") (lambda ()(interactive)
+			      (progn
+				(cond
+				 ((string= current-input-method 'japanese) (progn (set-input-method 'japanese-hiragana)))
+				 ((string= current-input-method 'japanese-hiragana) (progn (set-input-method 'japanese-katakana)))
+				 ((string= current-input-method 'japanese-katakana) (progn (set-input-method 'japanese)))
+				 (t
+				  (progn 
+				    (set-language-environment 'Japanese)
+				    (set-input-method 'japanese)
+				    (require 'kanji-mode)
+				    (kanji-mode)
+				    ))))))
+
+;; remove trailing whitespaces
+(global-set-key (kbd "M-W")  'whitespace-cleanup)
+
 
 ;;* Startup screen
 (find-file default-directory)
