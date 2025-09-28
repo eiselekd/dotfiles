@@ -1,10 +1,6 @@
 
 (message "[+] init.el")
 
-
-
-
-
 (defconst *.emacs.d.dir*
   (file-name-directory (or load-file-name buffer-file-name))
   "path to .emacs.d")
@@ -14,8 +10,6 @@
 (add-to-list 'load-path *.emacs.d.lisp.dir* )
   
 (load "elpaca_init.el")
-
-
 
 (defvar $leader-key "C-c"
   "leader key used to quicky access commands.")
