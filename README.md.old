@@ -10,26 +10,132 @@ Emacs config. Install by replacing ~/.emacs.d with
 
 Keybindings:
 
-XMonad:
- * Xmonad: Win-Shift up/down/left/right : move window
+ * ESC H : this file
 
-Emacs:
- * ESC g : magit [2] 
- * ESC l : toggle mode-line
+ * ESC g/G : magit [2] (G: commit --all)
+ * ESC p   : proced
+ * ESC c   : flycheck
+   * ESC C   : flycheck with configure
+   * ESC M-c : verbose flycheck mode (ESC ESC c)
+   * ESC M-C : verbose flycheck select checker interactively
+   * (Shift)-F5/F6 : next/prev-error
+   * define gtest rule in parent Makefile and specify buffer-gtest-rule
+   /*
+    * Local Variables:
+    * buffer-gtest-rule:"gtest2"
+    * End:
+    */
+ * ESC W : whitespace-cleanup
+ * ESC m : menu-bar-mode
  * ESC e : shell
  * ESC E : ansi-term
+ * ESC 1 : workspace w1
+ * ESC 2 : workspace w2
  * ESC 5 : open file at cursor
+ * ESC 6 : find elisp func at cursor
+ * ESC & : describe veriable under cursor
+ * ESC 7 : cleanup whitespace
+ * ESC F10 : open menu-bar in console mode
+ * ESC ^ : Submenue
+ * F2    : dired default-directory
+ * F9    : compile, search for "compile.txt" as make command
+ * F10   : gdb, search for "gdb.txt" as gdb init-command script
+   * F1 : restore layout
+   * F5 : step into
+   * F6 : step over
+   * F7 : finish
+   * F8 : continue
+   * F12: set breakpoint
+ * Xmonad: Win-ALT-Shift up/down/left/right : resize window
  * Win up/down/left/right : jump window
  * M-S up/down/left/right : enlarge/shrink window
- * M-n/p : scrol with cursor fixed
+ * M-n|p (Alt) : scroll without moving cursor
+ * M-; : toggle modeline
+ * Xmonad: Win-Shift up/down/left/right : move window
+ * Org-mode:
+   * F1 (ESC a, Ctrl-c a) : org-agenda
+   * F2 : filter items with :plan: tag
+   * F4 : column view (r: recreate, q: quit column view) see [4]
+   * M-F3/S-F3 : clock-in/clock-out
+   * F5/S-F5 : org item narrow/widen
+   * F7 : export slides as pdf
+   * shift-F7 : export reveal slides
+   * F8 : export html
+   * shift-F8 : export twbs html
+   * shift-F9 : diplay inline images
+   * ESC v : immersive bullets and styles
+   * C-c z: toggle display links
+   * C-c C-c: evaluate source block
+     (platuml #assistive_technologies=org.GNOME.Accessibility.AtkWrapper in /etc/...)
+   * Agenda:
+     * enter time: C-c . : enter timestamp
+     * edit timestamps : cursor in timestamp or in calendar "C-c ."
+       * use: S-arrow, "<", ">"
+ * F7 : org-capture (ctrl-c c), i.e "F7 n"
  * c-mode/c++-mode:
    * ESC . : gtags find ([1]), "M-x ggtags-create-tags" to create tags (ESC ? : xrefs)
    * ESC , : pop markbuffer ([1])
- * C-c, C-v: cua-mode, copy/paste
+   * ESC : : helm dash query (sqlite3 needed, use helm-dash-update-docset)
+   * ESC h : toggle hs-org/minor-mode (toggle blocks and ifdef blocks, disabled default)
+   * ESC H : toggle orgstruct-mode (with '* #' org in comment)
+   * M-F9  : switch between org-mode and c-mode
+   * M-G   : magit hist
+   * M-i   : start irony mode
+   * M-M   : helm query man db
+   * M-( + M-) : toggle block hide/show
+   * M-F9  : mix org and c++ mode
+   * ESC N : cling interpreter and .cling.cpp load
+ * rust-mode:
+   * TAB : call completion
+ * elisp-mode:
+   * M-; : show function help under point
+ * ESC M-h : haskell interactive mode
+ * haskell-mode:
+   * F1 | C-c C-l : eval in repl
+   * ESC i: intero mode (runs stack init)
+   * F2 : typeinfo : c-c c-t
+   * F4 : hoogle
+   * ESC-;: generate etags file via hasktags, compile hasktags if it not exists
+   * Haskel and hie:
+     * ESC . : goto definition
+	 ' ESC ; : show references
+	 * ESC - : toggle lsp-ui-doc-mode, doc mode
+ * raku-move:
+   * F1 : raku repl
+     * C-c C-c : Send the current line to the REPL
+     * C-c C-r : Send the selected region to the REPL
+     * C-c C-h : Send the whole buffer to the REPL
+
+ * ESC q : grep in current dir ([1])
+ * ESC Q : recursive grep from current dir ([1])
+ * dired:
+  * TAB   : toggle subtree
+  * ESC f : recursive grep in current dir
+  * C-fh  : recursive grep on dir under cursor
+  * C-fg  : find-gre-dired
+  * C-fn  : find-gre-name
+ * Occur
+  * ESC s : Occure inside buffers (CTRL-o to open location occur window)
+ * M-C-h : enable which-mode (show keybindings on press)
  
+HELM: 
+ * C-x b : helm buffer select
+ * M-X   : helm version of M-x
+
+Misc:
+ * ESC d : toggle debug on elisp error
+ * ESC : : eval elisp
+ o* ESC z : repeat last command (default:M-x z)(continue z to continue repeat)
+ * ESC I : start irc
+   * /LIST : list channels
+   * C-c C-j : join
+   * C-c C-p : part
+   * C-c C-q : quit server
  * ESC j : goto-line
  * ESC P : enable powerline statusbar
  * C-L : Zoom/Unzoom current pane
+ * M(ALT)-n/p : scrol with cursor fixed
+ * M(ALT)-w : yank
 
  * M-J : japanese input
  * M-s M-h : input buffer hiragana
