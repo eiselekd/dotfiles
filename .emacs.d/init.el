@@ -399,12 +399,39 @@
   (add-to-list 'savehist-additional-variables 'read-expression-history)
   (savehist-mode))
 
-
 (if (fboundp 'scroll-bar-mode)
     (progn
       (scroll-bar-mode -1)
       (tool-bar-mode -1)))
 (menu-bar-mode -1)
+
+(load "hide-mode-line.el")
+(hide-mode-line)
+(force-mode-line-update)
+;; (use-package hide-mode-line
+;;   :ensure t )
+
+;; (add-hook 'after-init-hook
+;; 	  (lambda ()(interactive)
+;; 	    (progn
+;; 	      (message "[+] hide-mode-line-mode")
+;; 	      (require 'hide-mode-line)
+;; 	      (call-interactively 'hide-mode-line-mode))))
+     
+
+(global-set-key (kbd "ESC l")
+ (lambda ()(interactive)
+   (progn
+     (message "[+] hide-mode-line-mode")
+     (hide-mode-line)
+     (force-mode-line-update)
+     )))
+
+     ;; (if (bound-and-true-p hide-mode-line-mode)
+     ;;     (set-fringe-style (cdr (assoc (downcase "no-fringes") fringe-styles)))
+     ;;     (set-fringe-style (cdr (assoc (downcase "default") fringe-styles))))
+     ;; (xterm-mouse-mode (if (bound-and-true-p hide-mode-line) 0 1))
+     ;; (force-mode-line-update))))
 
 (setq inhibit-startup-screen t)
 ;;* Startup screen
