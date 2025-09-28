@@ -434,7 +434,8 @@
      ;; (force-mode-line-update))))
 
 (setq inhibit-startup-screen t)
+
+(cua-mode)
+
 ;;* Startup screen
 (find-file default-directory)
-
-
