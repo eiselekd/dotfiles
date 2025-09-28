@@ -437,5 +437,6 @@
 
 (cua-mode)
 
+
 ;;* Startup screen
 (find-file default-directory)
