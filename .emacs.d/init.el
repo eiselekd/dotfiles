@@ -452,6 +452,26 @@
 				    (kanji-mode)
 				    ))))))
 
+
+(use-package aider :ensure t
+  :bind
+  (
+   ("M-P" . aider-transient-menu)
+   )
+)
+ 
+
+(use-package copilot :ensure t
+  :bind
+  ("M-p" . copilot-mode)
+  (:map copilot-completion-map
+        ("<tab>" . 'copilot-accept-completion)
+        ("TAB" . 'copilot-accept-completion)
+        ("M-TAB" . 'copilot-accept-completion-by-word)
+        ("M-<tab>" . 'copilot-accept-completion-by-word))
+
+)
+
 ;; remove trailing whitespaces
 (global-set-key (kbd "M-W")  'whitespace-cleanup)
 
