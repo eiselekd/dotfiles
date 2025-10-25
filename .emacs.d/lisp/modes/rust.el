@@ -52,10 +52,14 @@
   :ensure t
   :hook ((rust-mode . eglot-ensure)
 	 (rust-mode . company-mode))
-  :mode (("\\.rs\\'" . rust-ts-mode))
+  :mode "\\.rs\\'"
   :config
   (add-to-list 'exec-path "/home/eiselekd/.cargo/bin")
-  (setenv "PATH" (concat (getenv "PATH") ":/home/eiselekd/.cargo/bin")))
+  (setenv "PATH" (concat (getenv "PATH") ":/home/eiselekd/.cargo/bin"))
+  
+  ;; Use tree-sitter mode if available, otherwise fall back to rust-mode
+  (when (treesit-language-available-p 'rust)
+    (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))))
 
 
 

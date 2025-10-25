@@ -382,6 +382,18 @@
 
 (global-set-key (kbd "M-5") 'xah-open-file-at-cursor)
 
+;; Tree-sitter setup function
+(defun ensure-tree-sitter-rust ()
+  "Ensure Rust tree-sitter grammar is available."
+  (unless (treesit-language-available-p 'rust)
+    (message "Rust tree-sitter grammar not found. Please install it manually.")
+    (message "You can install it by running: M-x treesit-install-language-grammar RET rust RET")
+    nil))
+
+;; Call this during startup
+(with-eval-after-load 'treesit
+  (ensure-tree-sitter-rust))
+
 (load "modes/rust.el")
 
 (use-package savehist
