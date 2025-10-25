@@ -382,6 +382,7 @@
 
 (global-set-key (kbd "M-5") 'xah-open-file-at-cursor)
 
+(load "modes/rust.el")
 
 (use-package savehist
   :ensure nil
@@ -390,11 +391,15 @@
   (add-to-list 'savehist-additional-variables 'read-expression-history)
   (savehist-mode))
 
+
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(setq indent-line-function 'insert-tab)
+
 (if (fboundp 'scroll-bar-mode)
     (progn
       (scroll-bar-mode -1)
       (tool-bar-mode -1)))
-(menu-bar-mode -1)
 
 (load "hide-mode-line.el")
 (hide-mode-line)
