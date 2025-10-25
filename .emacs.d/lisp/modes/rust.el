@@ -42,17 +42,74 @@
   ;; Customize flycheck faces to only show underlines, no background colors
   ;; Works for both GUI and terminal mode
   (with-eval-after-load 'flycheck
+    ;; Diagnostic function to check face attributes
+    (defun my/diagnose-flycheck-faces ()
+      "Show diagnostic information about flycheck faces"
+      (interactive)
+      (with-output-to-temp-buffer "*Flycheck Face Diagnostics*"
+        (princ (format "Display type: %s\n" (if (display-graphic-p) "GUI" "TUI")))
+        (princ (format "TERM: %s\n" (getenv "TERM")))
+        (princ (format "Terminal: %s\n\n" (getenv "TERM_PROGRAM")))
+        
+        (dolist (face '(flycheck-error flycheck-warning flycheck-info default))
+          (princ (format "Face: %s\n" face))
+          (princ (format "  All attributes: %s\n" (face-all-attributes face)))
+          (princ (format "  Background: %s\n" (face-background face nil t)))
+          (princ (format "  Foreground: %s\n" (face-foreground face nil t)))
+          (princ (format "  Underline: %s\n" (face-attribute face :underline)))
+          (princ (format "  Inverse-video: %s\n\n" (face-attribute face :inverse-video))))))
+    
+    ;; Manual command to force face reset
+    (defun my/fix-flycheck-faces-now ()
+      "Manually trigger flycheck face reset"
+      (interactive)
+      (my/reset-flycheck-faces)
+      (message "Flycheck faces reset! Check with M-x my/diagnose-flycheck-faces"))
+    
     ;; Force face attributes to remove any background colors
     (defun my/reset-flycheck-faces ()
       "Reset flycheck faces to remove background colors"
-      (set-face-attribute 'flycheck-error nil :background 'unspecified :foreground 'unspecified :underline t :weight 'bold)
-      (set-face-attribute 'flycheck-warning nil :background 'unspecified :foreground 'unspecified :underline t :slant 'italic)
-      (set-face-attribute 'flycheck-info nil :background 'unspecified :foreground 'unspecified :underline t))
+      (let ((term-type (getenv "TERM")))
+        (message "Resetting flycheck faces - Display: %s, TERM: %s" 
+                 (if (display-graphic-p) "GUI" "TUI") 
+                 term-type)
+        ;; Both GUI and TUI mode - use underlines with no background colors
+        (message "Using underlines with no background colors")
+        (set-face-attribute 'flycheck-error nil 
+                          :family 'unspecified :foundry 'unspecified :width 'unspecified 
+                          :height 'unspecified :weight 'bold :slant 'unspecified 
+                          :underline t :overline 'unspecified :strike-through 'unspecified 
+                          :box 'unspecified :inverse-video 'unspecified 
+                          :foreground 'unspecified :background 'unspecified 
+                          :stipple 'unspecified :inherit 'unspecified)
+        
+        (set-face-attribute 'flycheck-warning nil 
+                          :family 'unspecified :foundry 'unspecified :width 'unspecified 
+                          :height 'unspecified :weight 'unspecified :slant 'italic 
+                          :underline t :overline 'unspecified :strike-through 'unspecified 
+                          :box 'unspecified :inverse-video 'unspecified 
+                          :foreground 'unspecified :background 'unspecified 
+                          :stipple 'unspecified :inherit 'unspecified)
+        
+        (set-face-attribute 'flycheck-info nil 
+                          :family 'unspecified :foundry 'unspecified :width 'unspecified 
+                          :height 'unspecified :weight 'unspecified :slant 'unspecified 
+                          :underline t :overline 'unspecified :strike-through 'unspecified 
+                          :box 'unspecified :inverse-video 'unspecified 
+                          :foreground 'unspecified :background 'unspecified 
+                          :stipple 'unspecified :inherit 'unspecified)))
     
     ;; Apply immediately and after theme changes
     (my/reset-flycheck-faces)
     (add-hook 'after-init-hook #'my/reset-flycheck-faces)
-    (add-hook 'flycheck-mode-hook #'my/reset-flycheck-faces)))
+    (add-hook 'flycheck-mode-hook #'my/reset-flycheck-faces)
+    
+    ;; Force immediate re-application for current buffers
+    (when (boundp 'flycheck-mode)
+      (dolist (buffer (buffer-list))
+        (with-current-buffer buffer
+          (when flycheck-mode
+            (my/reset-flycheck-faces)))))))
 
 ;; Flycheck integration with eglot
 (use-package flycheck-eglot
