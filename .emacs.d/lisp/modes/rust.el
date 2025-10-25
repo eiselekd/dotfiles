@@ -215,9 +215,21 @@
 	 (rust-ts-mode . company-mode)
 	 (rust-ts-mode . flycheck-mode))
   :mode "\\.rs\\'"
+  :bind (:map rust-mode-map
+              ("M-." . xref-find-definitions)
+              ("M-," . xref-go-back)
+              ("M-?" . xref-find-references)
+              ("C-c d" . eldoc-doc-buffer))
   :config
   (add-to-list 'exec-path "/home/eiselekd/.cargo/bin")
   (setenv "PATH" (concat (getenv "PATH") ":/home/eiselekd/.cargo/bin"))
+  
+  ;; Add keybindings for rust-ts-mode after it's loaded
+  (with-eval-after-load 'rust-ts-mode
+    (define-key rust-ts-mode-map (kbd "M-.") 'xref-find-definitions)
+    (define-key rust-ts-mode-map (kbd "M-,") 'xref-go-back)
+    (define-key rust-ts-mode-map (kbd "M-?") 'xref-find-references)
+    (define-key rust-ts-mode-map (kbd "C-c d") 'eldoc-doc-buffer))
   
   ;; Disable fringes in rust buffers (GUI mode only)
   (defun my/disable-fringes-in-rust ()
