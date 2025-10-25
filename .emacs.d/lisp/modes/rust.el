@@ -36,6 +36,9 @@
   ;; Disable problematic rust-cargo checker in favor of eglot
   (setq-default flycheck-disabled-checkers '(rust-cargo))
   
+  ;; Disable fringe/margin indicators since we're using inline errors
+  (setq flycheck-indication-mode nil)
+  
   ;; Customize flycheck faces to only show underlines, no background colors
   ;; Works for both GUI and terminal mode
   (with-eval-after-load 'flycheck
@@ -57,6 +60,42 @@
   :after (flycheck eglot)
   :config
   (global-flycheck-eglot-mode 1))
+
+;; Show flycheck errors inline at end of line
+(with-eval-after-load 'flycheck
+  (defvar-local my/flycheck-inline-overlays nil
+    "List of overlays for inline error display")
+  
+  (defun my/clear-inline-errors ()
+    "Clear all inline error overlays in current buffer"
+    (when my/flycheck-inline-overlays
+      (mapc #'delete-overlay my/flycheck-inline-overlays)
+      (setq my/flycheck-inline-overlays nil)))
+  
+  (defun my/show-errors-inline ()
+    "Show flycheck errors at end of lines"
+    (my/clear-inline-errors)
+    (when (and flycheck-mode (flycheck-has-current-errors-p))
+      (let ((errors (flycheck-overlay-errors-in (point-min) (point-max))))
+        (dolist (err errors)
+          (when-let* ((pos (flycheck-error-pos err))
+                      (message-text (flycheck-error-message err))
+                      (level (flycheck-error-level err))
+                      (prefix (cond ((eq level 'error) " ⚠ ")
+                                   ((eq level 'warning) " ⚠ ")
+                                   (t " ℹ ")))
+                      (text (concat prefix message-text)))
+            (save-excursion
+              (goto-char pos)
+              (let ((overlay (make-overlay (line-end-position) (line-end-position))))
+                (overlay-put overlay 'after-string 
+                           (propertize text 'face '(:inherit shadow)))
+                (push overlay my/flycheck-inline-overlays))))))))
+  
+  ;; Hook to update inline errors
+  (add-hook 'flycheck-after-syntax-check-hook #'my/show-errors-inline)
+  (add-hook 'before-change-functions 
+            (lambda (&rest _) (my/clear-inline-errors)) nil t))
 
 
 (use-package go-mode
@@ -123,17 +162,27 @@
   (add-to-list 'exec-path "/home/eiselekd/.cargo/bin")
   (setenv "PATH" (concat (getenv "PATH") ":/home/eiselekd/.cargo/bin"))
   
+  ;; Disable fringes in rust buffers (GUI mode only)
+  (defun my/disable-fringes-in-rust ()
+    "Disable fringes in rust buffers"
+    (when (display-graphic-p)
+      (set-window-fringes (selected-window) 0 0)))
+  
   ;; Ensure company-capf is available for completion
   (add-hook 'rust-mode-hook 
             (lambda () 
               (setq-local company-backends (add-to-list 'company-backends 'company-capf))
               ;; Configure flycheck for rust-mode
-              (setq-local flycheck-disabled-checkers '(rust-cargo))))
+              (setq-local flycheck-disabled-checkers '(rust-cargo))
+              ;; Disable fringes
+              (my/disable-fringes-in-rust)))
   (add-hook 'rust-ts-mode-hook 
             (lambda () 
               (setq-local company-backends (add-to-list 'company-backends 'company-capf))
               ;; Configure flycheck for rust-ts-mode  
-              (setq-local flycheck-disabled-checkers '(rust-cargo))))
+              (setq-local flycheck-disabled-checkers '(rust-cargo))
+              ;; Disable fringes
+              (my/disable-fringes-in-rust)))
   
   ;; Use tree-sitter mode if available, otherwise fall back to rust-mode
   (when (treesit-language-available-p 'rust)
