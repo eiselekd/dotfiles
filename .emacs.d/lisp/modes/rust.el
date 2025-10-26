@@ -230,6 +230,20 @@
     (define-key rust-ts-mode-map (kbd "M-,") 'xref-go-back)
     (define-key rust-ts-mode-map (kbd "M-?") 'xref-find-references)
     (define-key rust-ts-mode-map (kbd "C-c d") 'eldoc-doc-buffer))
+
+  ;; Function to open detailed documentation in a dedicated buffer
+  (defun my/rust-show-doc-buffer ()
+    "Show detailed Rust documentation for the symbol at point in a dedicated buffer."
+    (interactive)
+    (if (bound-and-true-p eglot--managed-mode)
+        (eglot-help-at-point)
+      (if (bound-and-true-p lsp-mode)
+          (lsp-describe-thing-at-point)
+        (message "Neither eglot nor lsp-mode is active"))))
+
+  ;; Add keybinding for showing detailed documentation
+  (define-key rust-mode-map (kbd "C-c C-d") 'my/rust-show-doc-buffer)
+  (define-key rust-ts-mode-map (kbd "C-c C-d") 'my/rust-show-doc-buffer)
   
   ;; Disable fringes in rust buffers (GUI mode only)
   (defun my/disable-fringes-in-rust ()
