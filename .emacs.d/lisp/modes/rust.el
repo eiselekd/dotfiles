@@ -1,3 +1,37 @@
+;; Debug: List overlays at point and their properties
+(defun my/list-overlays-at-point ()
+  "Show all overlays at point and their properties in the echo area."
+  (interactive)
+  (let ((ovs (overlays-at (point))))
+    (if ovs
+        (message "%s" (mapcar (lambda (ov)
+                                 (let ((props (overlay-properties ov)))
+                                   (cons ov props)))
+                               ovs))
+      (message "No overlays at point."))))
+
+
+;; Insert eglot inlay hint (before-string) at point if present
+(defun my/insert-eglot-inlay-hint-at-point ()
+  "If there is an eglot inlay hint overlay at point, insert its text into the buffer."
+  (interactive)
+  (let ((inlay-text
+         (cl-loop for ov in (overlays-at (point))
+                  when (and (overlay-get ov 'eglot--inlay-hint)
+                            (overlay-get ov 'before-string)
+                            (stringp (overlay-get ov 'before-string)))
+                  return (overlay-get ov 'before-string))))
+    (if inlay-text
+        (insert (string-trim inlay-text))
+      (message "No eglot inlay hint at point."))))
+
+(defun my/rust-bind-inlay-hint-insert ()
+  (local-set-key (kbd "<backtab>") #'my/insert-eglot-inlay-hint-at-point)
+  (local-set-key (kbd "C-c C-o") #'my/list-overlays-at-point))
+
+;; Insert inlay hint overlay at point into buffer
+(add-hook 'rust-mode-hook #'my/rust-bind-inlay-hint-insert)
+(add-hook 'rust-ts-mode-hook #'my/rust-bind-inlay-hint-insert)
 
 (use-package which-key
   :ensure t
