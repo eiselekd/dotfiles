@@ -241,6 +241,19 @@
           (lsp-describe-thing-at-point)
         (message "Neither eglot nor lsp-mode is active"))))
 
+  ;; Function to browse Rust documentation using eww
+  (defun my/rust-browse-doc-eww ()
+    "Browse Rust documentation for the symbol at point using eww."
+    (interactive)
+    (let ((symbol (thing-at-point 'symbol t)))
+      (if symbol
+          (eww (format "https://doc.rust-lang.org/std/?search=%s" symbol))
+        (message "No symbol at point"))))
+
+  ;; Add keybinding for browsing documentation with eww
+  (define-key rust-mode-map (kbd "C-c C-e") 'my/rust-browse-doc-eww)
+  (define-key rust-ts-mode-map (kbd "C-c C-e") 'my/rust-browse-doc-eww)
+
   ;; Add keybinding for showing detailed documentation
   (define-key rust-mode-map (kbd "C-c C-d") 'my/rust-show-doc-buffer)
   (define-key rust-ts-mode-map (kbd "C-c C-d") 'my/rust-show-doc-buffer)
