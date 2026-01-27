@@ -448,6 +448,11 @@
 (global-set-key "\M-n" (lambda ()(interactive) (call-interactively 'scroll-up-line )))
 (global-set-key "\M-p" (lambda ()(interactive) (call-interactively 'scroll-down-line )))
 
+;; Alt + arrow keys: scroll window one line without moving point
+;; Alt is Meta in many setups; bind M-<up> / M-<down> to scroll view
+(global-set-key (kbd "M-<up>") (lambda () (interactive) (call-interactively 'scroll-down-line)))
+(global-set-key (kbd "M-<down>") (lambda () (interactive) (call-interactively 'scroll-up-line)))
+
 
 (use-package kanji-mode
     :ensure t
@@ -488,6 +493,10 @@
         ("M-<tab>" . 'copilot-accept-completion-by-word))
 
 )
+
+
+(use-package org-present :ensure t)
+
 
 ;; remove trailing whitespaces
 (global-set-key (kbd "M-W")  'whitespace-cleanup)

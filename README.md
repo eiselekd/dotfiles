@@ -13,7 +13,11 @@ Keybindings:
 XMonad:
  * Xmonad: Win-Shift up/down/left/right : move window
 
+
+
+
 Emacs:
+ * Alt + arrow keys: scroll window one line without moving point
  * ESC g : magit [2] 
  * ESC l : toggle mode-line
  * ESC e : shell
