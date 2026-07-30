@@ -1,4 +1,107 @@
 
+;; Set all rust-analyzer inlay hint options to enabled/disabled
+
+;; Toggle flycheck inline overlays and eglot inlay hints
+(defvar-local my/rust-inline-hints-enabled t
+  "Whether flycheck and eglot inlay hints are enabled in this buffer.")
+
+
+
+(defvar my/eglot-inlay-invisible-symbol 'my-eglot-inlay-hint
+  "Symbol used for hiding eglot inlay hint overlays.")
+
+
+(defvar-local my/rust--eglot-inlay-hint-overlays nil
+  "List of overlays and their original before/after-string for restoring inlay hints.")
+
+
+
+
+(defun my/rust-toggle-inline-hints ()
+  "Toggle flycheck inline error overlays, flycheck-mode, and eglot inlay hints in this buffer."
+  (interactive)
+  (setq my/rust-inline-hints-enabled (not my/rust-inline-hints-enabled))
+  ;; Toggle flycheck-mode and inline overlays
+  (if my/rust-inline-hints-enabled
+      (progn
+        (flycheck-mode 1)
+        (add-hook 'flycheck-after-syntax-check-hook #'my/show-errors-inline nil t)
+        (my/show-errors-inline))
+    (remove-hook 'flycheck-after-syntax-check-hook #'my/show-errors-inline t)
+    (my/clear-inline-errors)
+    (flycheck-mode -1))
+  ;; Toggle eglot inlay hints (overlays with 'eglot--inlay-hint)
+  (save-excursion
+    (goto-char (point-min))
+    (while (< (point) (point-max))
+      (dolist (ov (overlays-at (point)))
+        (when (overlay-get ov 'eglot--inlay-hint)
+          (if my/rust-inline-hints-enabled
+              ;; Restore before-string and after-string if saved
+              (when (and my/rust--eglot-inlay-hint-overlays
+                         (alist-get ov my/rust--eglot-inlay-hint-overlays))
+                (let ((props (alist-get ov my/rust--eglot-inlay-hint-overlays)))
+                  (when (plist-member props :before-string)
+                    (overlay-put ov 'before-string (plist-get props :before-string)))
+                  (when (plist-member props :after-string)
+                    (overlay-put ov 'after-string (plist-get props :after-string))))
+                (overlay-put ov 'invisible nil))
+            ;; Save and remove before-string and after-string
+            (let ((props (list :before-string (overlay-get ov 'before-string)
+                              :after-string (overlay-get ov 'after-string))))
+              (setq my/rust--eglot-inlay-hint-overlays
+                    (assq-delete-all ov my/rust--eglot-inlay-hint-overlays))
+              (push (cons ov props) my/rust--eglot-inlay-hint-overlays)
+              (overlay-put ov 'before-string nil)
+              (overlay-put ov 'after-string nil)
+              (overlay-put ov 'invisible nil)))))
+      (forward-char 1)))
+  ;; Clean up overlays list if enabling
+  (unless (not my/rust-inline-hints-enabled)
+    (setq my/rust--eglot-inlay-hint-overlays nil))
+  (message "Rust inline hints %s" (if my/rust-inline-hints-enabled "enabled" "disabled")))
+
+;; Bind toggle to M-? in rust-mode and rust-ts-mode
+(defun my/rust-bind-toggle-inline-hints ()
+  (local-set-key (kbd "M-?") #'my/rust-toggle-inline-hints))
+
+(add-hook 'rust-mode-hook #'my/rust-bind-toggle-inline-hints)
+(add-hook 'rust-ts-mode-hook #'my/rust-bind-toggle-inline-hints)
+;; Debug: List overlays at point and their properties
+(defun my/list-overlays-at-point ()
+  "Show all overlays at point and their properties in the echo area."
+  (interactive)
+  (let ((ovs (overlays-at (point))))
+    (if ovs
+        (message "%s" (mapcar (lambda (ov)
+                                 (let ((props (overlay-properties ov)))
+                                   (cons ov props)))
+                               ovs))
+      (message "No overlays at point."))))
+
+
+;; Insert eglot inlay hint (before-string) at point if present
+(defun my/insert-eglot-inlay-hint-at-point ()
+  "If there is an eglot inlay hint overlay at point, insert its text into the buffer."
+  (interactive)
+  (let ((inlay-text
+         (cl-loop for ov in (overlays-at (point))
+                  when (and (overlay-get ov 'eglot--inlay-hint)
+                            (overlay-get ov 'before-string)
+                            (stringp (overlay-get ov 'before-string)))
+                  return (overlay-get ov 'before-string))))
+    (if inlay-text
+        (insert (string-trim inlay-text))
+      (message "No eglot inlay hint at point."))))
+
+(defun my/rust-bind-inlay-hint-insert ()
+  (local-set-key (kbd "<backtab>") #'my/insert-eglot-inlay-hint-at-point)
+  (local-set-key (kbd "C-c C-o") #'my/list-overlays-at-point))
+
+;; Insert inlay hint overlay at point into buffer
+(add-hook 'rust-mode-hook #'my/rust-bind-inlay-hint-insert)
+(add-hook 'rust-ts-mode-hook #'my/rust-bind-inlay-hint-insert)
+
 (use-package which-key
   :ensure t
   :config (which-key-mode)

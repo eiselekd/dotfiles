@@ -396,6 +396,18 @@
 
 (load "modes/rust.el")
 
+;; Kotlin mode
+(use-package kotlin-mode
+  :ensure t
+  :mode ("\\.kt\\'" "\\.kts\\'")
+  :interpreter ("kotlinc" . kotlin-mode)
+  :config
+  (add-hook 'kotlin-mode-hook
+            (lambda ()
+              ;; basic kotlin-mode settings
+              (setq indent-tabs-mode nil)
+              (setq kotlin-tab-width 4))))
+
 (use-package savehist
   :ensure nil
   :defer 1
@@ -414,8 +426,8 @@
       (tool-bar-mode -1)))
 
 (load "hide-mode-line.el")
-(hide-mode-line)
-(force-mode-line-update)
+;;(hide-mode-line)
+;;(force-mode-line-update)
 ;; (use-package hide-mode-line
 ;;   :ensure t )
 
@@ -443,6 +455,7 @@
 
 (setq inhibit-startup-screen t)
 
+(setq cua-enable-cua-keys nil)
 (cua-mode)
 ;; scroll with cursor in place, cua mode overwrite
 (global-set-key "\M-n" (lambda ()(interactive) (call-interactively 'scroll-up-line )))
@@ -489,9 +502,71 @@
 
 )
 
+(use-package eat
+  :ensure t)
+
+(use-package claude-code
+  :ensure (:host github :repo "stevemolitor/claude-code.el")
+  :bind-keymap ("C-c c" . claude-code-command-map)
+  :config
+  (setq claude-code-terminal-backend 'eat)
+  (when (file-exists-p "/home/eiselekd/.local/bin/claude")
+    (setq claude-code-program "/home/eiselekd/.local/bin/claude"))
+
+  ;; Define the DeepSeek start command
+  (defun claude-code-deepseek (&optional arg)
+    "Start Claude with the DeepSeek backend."
+    (interactive "P")
+    (let ((claude-code-program "/home/eiselekd/.local/bin/claude-deepseek"))
+      (claude-code arg)))
+
+  ;; Bind to 'D' in the command map (runs directly via C-c c D)
+  (define-key claude-code-command-map (kbd "D") #'claude-code-deepseek)
+
+  ;; Bind to 't' in the command map (runs transient menu via C-c c t)
+  (define-key claude-code-command-map (kbd "t") #'claude-code-transient)
+
+  ;; Append the option to the transient menu under 'D'
+  (transient-append-suffix 'claude-code-transient 'claude-code
+    '("D" "Start Claude (DeepSeek)" claude-code-deepseek)))
+
+
+(use-package org-present :ensure t)
+
+
 ;; remove trailing whitespaces
 (global-set-key (kbd "M-W")  'whitespace-cleanup)
 
 
 ;;* Startup screen
 (find-file default-directory)
+
+
+(global-set-key (kbd "C-+") 'text-scale-increase)
+
+(global-set-key (kbd "C--") 'text-scale-decrease)
+
+(use-package hydra
+  :ensure (:wait t))
+
+(use-package treemacs
+  :ensure t
+  :preface
+  (defun my-treemacs-toggle-at-current-dir ()
+    "Toggle treemacs, opening it at the current buffer's directory."
+    (interactive)
+    (if (and (fboundp 'treemacs-get-local-window)
+             (treemacs-get-local-window))
+        (treemacs)
+      (let ((default-directory (or (and (buffer-file-name) (file-name-directory (buffer-file-name)))
+                                   default-directory)))
+        (treemacs-add-and-display-current-project-exclusively))))
+  :bind
+  ("M-f" . my-treemacs-toggle-at-current-dir)
+  :config
+  (setq treemacs-position 'left)
+  (define-key treemacs-mode-map (kbd "<next>") #'scroll-up-command)
+  (define-key treemacs-mode-map (kbd "<prior>") #'scroll-down-command))
+
+
+
