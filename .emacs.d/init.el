@@ -427,7 +427,7 @@
 
 (load "hide-mode-line.el")
 ;;(hide-mode-line)
-(force-mode-line-update)
+;;(force-mode-line-update)
 ;; (use-package hide-mode-line
 ;;   :ensure t )
 
@@ -545,4 +545,28 @@
 (global-set-key (kbd "C-+") 'text-scale-increase)
 
 (global-set-key (kbd "C--") 'text-scale-decrease)
+
+(use-package hydra
+  :ensure (:wait t))
+
+(use-package treemacs
+  :ensure t
+  :preface
+  (defun my-treemacs-toggle-at-current-dir ()
+    "Toggle treemacs, opening it at the current buffer's directory."
+    (interactive)
+    (if (and (fboundp 'treemacs-get-local-window)
+             (treemacs-get-local-window))
+        (treemacs)
+      (let ((default-directory (or (and (buffer-file-name) (file-name-directory (buffer-file-name)))
+                                   default-directory)))
+        (treemacs-add-and-display-current-project-exclusively))))
+  :bind
+  ("M-f" . my-treemacs-toggle-at-current-dir)
+  :config
+  (setq treemacs-position 'left)
+  (define-key treemacs-mode-map (kbd "<next>") #'scroll-up-command)
+  (define-key treemacs-mode-map (kbd "<prior>") #'scroll-down-command))
+
+
 
