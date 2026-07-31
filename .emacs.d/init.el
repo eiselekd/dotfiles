@@ -562,11 +562,23 @@
                                    default-directory)))
         (treemacs-add-and-display-current-project-exclusively))))
   :bind
-  ("M-f" . my-treemacs-toggle-at-current-dir)
+  ("M-f" . ai-analyze-layout-toggle)
   :config
+  (setq treemacs-width-is-initially-locked nil)
   (setq treemacs-position 'left)
   (define-key treemacs-mode-map (kbd "<next>") #'scroll-up-command)
   (define-key treemacs-mode-map (kbd "<prior>") #'scroll-down-command))
+
+(use-package gptel
+  :ensure t
+  :config
+  (setq gptel-log-level 'debug)
+  (setq-default gptel-model 'claude-3-5-sonnet-20240620
+                gptel-backend (gptel-make-anthropic "Claude"
+                                :stream t
+                                :key (getenv "ANTHROPIC_API_KEY"))))
+
+(require 'ai-analyze-mode)
 
 
 
