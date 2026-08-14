@@ -27,6 +27,10 @@
     (define-key map (kbd "M-RET") 'ai-analyze-switch-chat)
     (define-key map (kbd "M-S-RET") 'ai-analyze-new-chat)
     (define-key map (kbd "ESC <kp-enter>") 'ai-analyze-new-chat)
+    (define-key map (kbd "m") 'claude-code-transient)
+    (define-key map (kbd "?") 'claude-code-transient)
+    (define-key map (kbd "C-c m") 'claude-code-transient)
+    (define-key map (kbd "C-c c") 'claude-code-transient)
     map)
   "Keymap for `ai-analyze-mode'.")
 
@@ -36,13 +40,15 @@
   :lighter " AI-Analyze"
   :keymap ai-analyze-mode-map
   (if ai-analyze-mode
-      (progn
-        (read-only-mode 1)
-        (message "AI Analyze Mode enabled."))
-    (progn
-      (read-only-mode -1)
-      ;; Optional: clean up overlays
-      )))
+      (message "AI Analyze Mode enabled.")
+    nil))
+
+(with-eval-after-load 'claude-code
+  (ignore-errors
+    (transient-append-suffix 'claude-code-transient 'claude-code-send-region
+      '("N" "AI Analyze: New Chat" ai-analyze-new-chat))
+    (transient-append-suffix 'claude-code-transient 'ai-analyze-new-chat
+      '("W" "AI Analyze: Switch Chat" ai-analyze-switch-chat))))
 
 ;; Window Layout Management
 
@@ -125,11 +131,7 @@
     
     (let ((skill "Analyze this code block and explain it in context."))
       (ai-analyze--spawn-chat region-id file-path code-text skill)
-      (ai-analyze--focus-chat region-id)
-      (with-current-buffer (gethash region-id ai-analyze-chat-buffers)
-        (condition-case err
-            (gptel-send)
-          (error (message "GPTel Error: %s" (error-message-string err))))))))
+      (ai-analyze--focus-chat region-id))))
 
 (defun ai-analyze-switch-chat ()
   "Switch to the chat associated with the overlay under cursor."
@@ -144,22 +146,22 @@
         (ai-analyze--focus-chat found-id)
       (message "No AI region at point."))))
 
-;; Chat Backend (gptel integration)
+;; Chat Backend (claude-code integration)
 
 (defun ai-analyze--spawn-chat (region-id file-path code-text skill)
-  "Spawn a gptel chat buffer for the given region."
-  (let* ((buf-name (format "*AI-Chat-%s*" (substring region-id 0 6)))
-         (buf (get-buffer-create buf-name)))
-    (puthash region-id buf ai-analyze-chat-buffers)
-    (with-current-buffer buf
-      (markdown-mode)
-      (gptel-mode 1)
-      ;; Insert initial context
-      (insert (format "> **Skill:** %s\n> **File:** `%s`\n\n```\n%s\n```\n\n---\n\n"
-                      skill
-                      (if file-path (file-name-nondirectory file-path) "unknown")
-                      code-text))
-      (goto-char (point-max)))))
+  "Spawn a claude-code chat session and send analysis prompt for the given region."
+  (require 'claude-code)
+  (let ((prompt (format "Skill: %s\nFile: `%s`\n\n```\n%s\n```"
+                        skill
+                        (if file-path (file-name-nondirectory file-path) "unknown")
+                        code-text)))
+    (let ((buf (or (claude-code--get-or-prompt-for-buffer)
+                   (progn (claude-code-no-api-key)
+                          (sit-for 0.5)
+                          (claude-code--get-or-prompt-for-buffer)))))
+      (when buf
+        (puthash region-id buf ai-analyze-chat-buffers)
+        (claude-code--do-send-command prompt)))))
 
 (defun ai-analyze--focus-chat (region-id)
   "Focus the right window on the chat buffer for REGION-ID."

@@ -510,8 +510,8 @@
   :bind-keymap ("C-c c" . claude-code-command-map)
   :config
   (setq claude-code-terminal-backend 'eat)
-  (when (file-exists-p "/home/eiselekd/.local/bin/claude")
-    (setq claude-code-program "/home/eiselekd/.local/bin/claude"))
+  (when (file-exists-p "/home/eiselekd/.local/bin/claude-no-api-key")
+    (setq claude-code-program "/home/eiselekd/.local/bin/claude-no-api-key"))
 
   ;; Define the DeepSeek start command
   (defun claude-code-deepseek (&optional arg)
@@ -520,15 +520,27 @@
     (let ((claude-code-program "/home/eiselekd/.local/bin/claude-deepseek"))
       (claude-code arg)))
 
+  ;; Define start command for Anthropic without API key (OAuth/Web subscription login)
+  (defun claude-code-no-api-key (&optional arg)
+    "Start Claude without ANTHROPIC_API_KEY (using OAuth login)."
+    (interactive "P")
+    (let ((claude-code-program "/home/eiselekd/.local/bin/claude-no-api-key"))
+      (claude-code arg)))
+
   ;; Bind to 'D' in the command map (runs directly via C-c c D)
   (define-key claude-code-command-map (kbd "D") #'claude-code-deepseek)
+
+  ;; Bind to 'A' in the command map (runs directly via C-c c A)
+  (define-key claude-code-command-map (kbd "A") #'claude-code-no-api-key)
 
   ;; Bind to 't' in the command map (runs transient menu via C-c c t)
   (define-key claude-code-command-map (kbd "t") #'claude-code-transient)
 
-  ;; Append the option to the transient menu under 'D'
+  ;; Append options to the transient menu
   (transient-append-suffix 'claude-code-transient 'claude-code
-    '("D" "Start Claude (DeepSeek)" claude-code-deepseek)))
+    '("D" "Start Claude (DeepSeek)" claude-code-deepseek))
+  (transient-append-suffix 'claude-code-transient 'claude-code-deepseek
+    '("A" "Start Claude (Anthropic No API Key)" claude-code-no-api-key)))
 
 
 (use-package org-present :ensure t)
@@ -569,16 +581,36 @@
   (define-key treemacs-mode-map (kbd "<next>") #'scroll-up-command)
   (define-key treemacs-mode-map (kbd "<prior>") #'scroll-down-command))
 
-(use-package gptel
-  :ensure t
-  :config
-  (setq gptel-log-level 'debug)
-  (setq-default gptel-model 'claude-3-5-sonnet-20240620
-                gptel-backend (gptel-make-anthropic "Claude"
-                                :stream t
-                                :key (getenv "ANTHROPIC_API_KEY"))))
 
 (require 'ai-analyze-mode)
+
+
+;;* private configuration
+;;
+;; The private half of the configuration lives in its own repository and is
+;; optional: a checkout without it must still start.  It is loaded only when
+;; it exists *and* is activated, and an error in it is reported instead of
+;; aborting the rest of the startup.
+
+(defvar *private.dir* (expand-file-name "~/git/dotfiles_private/")
+  "Path to the private (non-public) part of the configuration.")
+
+(defvar *private.enable* (not (getenv "EMACS_NO_PRIVATE"))
+  "When nil the private configuration in `*private.dir*' is not loaded.
+Set EMACS_NO_PRIVATE in the environment to start without it.")
+
+(let ((f (expand-file-name "init.el" *private.dir*)))
+  (cond
+   ((not *private.enable*)
+    (message "[-] private config disabled"))
+   ((not (file-exists-p f))
+    (message "[-] no private config at %s" f))
+   (t
+    (message "[+] private config %s" f)
+    (condition-case err
+        (load f nil t)
+      (error (message "[!] private config failed: %s"
+                      (error-message-string err)))))))
 
 
 
