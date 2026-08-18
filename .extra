@@ -11,7 +11,7 @@ alias ovk='openssl rsa -text -noout -in '
 # Avoid duplicates
 export HISTCONTROL=ignoredups:erasedups
 # When the shell exits, append to the history file instead of overwriting it
-if which shopt 2&>1 > /dev/null; then
+if which shopt > /dev/null 2>&1; then
    shopt -s histappend
 fi
 
